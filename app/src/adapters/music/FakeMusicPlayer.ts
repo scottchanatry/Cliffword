@@ -2,16 +2,26 @@
  * MusicPlayer for tests: a scripted library and a position driven by the injected clock
  * (use a FakeClock and advance it). When the position reaches the end of the song, the next
  * read (positionMs, state, nowPlaying, or tick()) moves the status to 'ended' and reports it.
+ *
+ * pauseAt() is exact here: the read that finds the position past the target pauses at the
+ * target itself. With `timers` (a live preview on the system clock) the fake also wakes itself
+ * at the next target or song end, so nothing has to read it.
+ *
+ * Library order: 'title' sorts by title; both recency orders keep the scripted order (the fake
+ * songs carry no dates).
  */
 import type { Clock } from '../clock/types';
 import { systemClock } from '../clock/systemClock';
 import { Listeners, type Unsubscribe } from '../listeners';
+import { decidePause, PauseSlot, pauseTarget, type Timers } from './linePause';
 import {
   MusicPlayerError,
   type LibraryQuery,
   type MusicAuthorization,
   type MusicPlayer,
   type MusicSubscription,
+  type PauseAtOptions,
+  type PauseAtResult,
   type PlaybackState,
   type Song,
 } from './types';
@@ -30,6 +40,8 @@ export interface FakeMusicPlayerOptions {
   /** What authorize() turns 'notDetermined' into. Default 'authorized'. */
   authorizeResult?: Extract<MusicAuthorization, 'authorized' | 'denied' | 'restricted'>;
   subscription?: MusicSubscription;
+  /** Timers for a live fake (web preview): it wakes itself at the next pauseAt target or song end. */
+  timers?: Timers;
 }
 
 const fold = (s: string) => s.normalize('NFD').replace(/\p{M}/gu, '').toLowerCase();
@@ -46,6 +58,9 @@ export class FakeMusicPlayer implements MusicPlayer {
   private readonly subscription: MusicSubscription;
   private current: PlaybackState;
   private readonly listeners = new Listeners<PlaybackState>();
+  private readonly slot = new PauseSlot();
+  private readonly timers: Timers | null;
+  private wake: unknown = null;
 
   constructor(opts: FakeMusicPlayerOptions = {}) {
     this.clock = opts.clock ?? systemClock;
@@ -53,6 +68,7 @@ export class FakeMusicPlayer implements MusicPlayer {
     this.authorization = opts.authorization ?? 'notDetermined';
     this.authorizeResult = opts.authorizeResult ?? 'authorized';
     this.subscription = opts.subscription ?? { canPlayCatalog: true, hasCloudLibrary: true, canSubscribe: false };
+    this.timers = opts.timers ?? null;
     this.current = { status: 'idle', song: null, positionMs: 0, at: this.clock.now() };
   }
 
@@ -73,7 +89,10 @@ export class FakeMusicPlayer implements MusicPlayer {
     this.requireAuthorized();
     const q = query.query ? fold(query.query.trim()) : '';
     const limit = query.limit ?? 25;
-    return this.songs.filter((s) => !q || fold(s.title).includes(q) || fold(s.artist).includes(q)).slice(0, limit);
+    const offset = Math.max(0, query.offset ?? 0);
+    const found = this.songs.filter((s) => !q || fold(s.title).includes(q) || fold(s.artist).includes(q));
+    if (query.order === 'title') found.sort((a, b) => fold(a.title).localeCompare(fold(b.title)));
+    return found.slice(offset, offset + limit);
   }
 
   async play(songId: string): Promise<void> {
@@ -81,6 +100,7 @@ export class FakeMusicPlayer implements MusicPlayer {
     const song = this.songs.find((s) => s.id === songId);
     if (!song) throw new MusicPlayerError('not-found', `No song with id ${songId}`);
     this.played.push(songId);
+    this.slot.cancel('song-changed');
     this.set({ status: 'playing', song, positionMs: 0 });
   }
 
@@ -102,6 +122,7 @@ export class FakeMusicPlayer implements MusicPlayer {
     if (!song) return;
     const positionMs = Math.max(0, Math.min(song.durationMs, ms));
     const status = this.current.status === 'ended' ? 'paused' : this.current.status;
+    this.slot.cancel('seeked');
     this.set({ ...this.current, status, positionMs });
   }
 
@@ -124,6 +145,26 @@ export class FakeMusicPlayer implements MusicPlayer {
     return this.listeners.add(listener);
   }
 
+  async pauseAt(ms: number, opts?: PauseAtOptions): Promise<PauseAtResult> {
+    this.refresh();
+    const targetMs = pauseTarget(ms, opts);
+    const decision = decidePause({ ...this.current, positionMs: this.positionNow() }, targetMs);
+    if (decision.kind === 'arm') {
+      const { promise } = this.slot.arm(targetMs);
+      this.scheduleWake();
+      return promise;
+    }
+    this.slot.cancel('replaced');
+    if (decision.kind === 'cancel') return { outcome: 'cancelled', targetMs, reason: decision.reason };
+    if (decision.kind === 'pause-now') await this.pause();
+    return { outcome: 'paused', targetMs, positionMs: this.positionNow() };
+  }
+
+  clearPauseAt(): void {
+    this.slot.cancel('cleared');
+    this.scheduleWake();
+  }
+
   /** Checks for the end of the song after the clock moved; same as any read. */
   tick(): void {
     this.refresh();
@@ -137,14 +178,38 @@ export class FakeMusicPlayer implements MusicPlayer {
 
   private refresh(): void {
     const { status, song } = this.current;
-    if (status === 'playing' && song && this.positionNow() >= song.durationMs) {
+    if (status !== 'playing' || !song) return;
+    const position = this.positionNow();
+    const armed = this.slot.current();
+    if (armed && armed.targetMs < song.durationMs && position >= armed.targetMs) {
+      this.set({ status: 'paused', song, positionMs: armed.targetMs });
+      this.slot.fire(armed.token, armed.targetMs);
+    } else if (position >= song.durationMs) {
       this.set({ status: 'ended', song, positionMs: song.durationMs });
+      this.slot.cancel('ended');
     }
   }
 
   private set(state: Omit<PlaybackState, 'at'>): void {
     this.current = { ...state, at: this.clock.now() };
+    this.scheduleWake();
     this.listeners.emit(this.current);
+  }
+
+  /** Live mode only: one timer for the next moment a read would change the state. */
+  private scheduleWake(): void {
+    const timers = this.timers;
+    if (!timers) return;
+    if (this.wake !== null) timers.clearTimeout(this.wake);
+    this.wake = null;
+    const { status, song } = this.current;
+    if (status !== 'playing' || !song) return;
+    const armed = this.slot.current();
+    const next = armed && armed.targetMs < song.durationMs ? armed.targetMs : song.durationMs;
+    this.wake = timers.setTimeout(() => {
+      this.wake = null;
+      this.tick();
+    }, Math.max(0, next - this.positionNow()));
   }
 
   private requireAuthorized(): void {

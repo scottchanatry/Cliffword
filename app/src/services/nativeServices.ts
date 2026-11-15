@@ -2,14 +2,14 @@
  * Services for iOS and Android.
  *
  * Real now: storage (expo-sqlite, the file cliffword.db, opened on first use), text to speech
- * (expo-speech), haptics (expo-haptics), the system clock.
+ * (expo-speech), speech recognition (ExpoSpeechIn over expo-speech-recognition, on-device by
+ * default; typed answers only if the binary lacks the module), haptics (expo-haptics), the
+ * system clock, the model file: ExpoModelManager (createModelManager; expo-file-system download
+ * of DEFAULT_MODEL into the document directory, size and SHA-256 checks, recorded in model_files),
+ * and the model: LlamaModelAdapter over llama.rn (createDeviceModel), 'unloaded'
+ * until keepModelLoaded() loads it from modelManager.filePath once the file is 'ready'; model
+ * calls reject with ModelNotReadyError until then, and modelAvailability() tells the UI why.
  * Stand-ins until the native packages land in a later stage (each swap is one line here):
- * - model: MockModelAdapter -> the llama.rn adapter, loaded from modelManager.filePath once the
- *   download is 'ready' (the mock stays in use while it downloads).
- * - modelManager: FakeModelManager (reports 'ready') -> an expo-file-system download with
- *   size and SHA-256 checks against DEFAULT_MODEL.
- * - speechIn: TypedSpeechIn (typed answers only) -> the expo-speech-recognition adapter
- *   (on-device, partials, levels, word timings).
  * - music: UnsupportedMusicPlayer -> the MusicKit adapter on iOS; Android stays unsupported.
  * - share: MemoryShareInbox -> an expo-share-intent inbox.
  * Native-only imports for those adapters must stay out of the web bundle. Services.ts imports
@@ -18,31 +18,44 @@
  */
 import { systemClock } from '../adapters/clock/systemClock';
 import { ExpoHapticsAdapter } from '../adapters/haptics/ExpoHapticsAdapter';
-import { FakeModelManager } from '../adapters/model/FakeModelManager';
-import { MockModelAdapter } from '../adapters/model/MockModelAdapter';
+import { createDeviceModel } from '../adapters/model/createDeviceModel';
+import { createModelManager } from '../adapters/model/createModelManager';
+import { keepModelLoaded } from '../adapters/model/keepModelLoaded';
+import type { ModelAdapter } from '../adapters/model/types';
 import { UnsupportedMusicPlayer } from '../adapters/music/UnsupportedMusicPlayer';
 import { MemoryShareInbox } from '../adapters/share/MemoryShareInbox';
-import { TypedSpeechIn } from '../adapters/speechIn/TypedSpeechIn';
+import { createNativeSpeechIn } from '../adapters/speechIn/createNativeSpeechIn';
 import { ExpoSpeechOut } from '../adapters/speechOut/ExpoSpeechOut';
 import { openStorage, STORAGE_BACKEND } from '../storage/open';
-import { defaultPacks, sharedMockModel } from './defaults';
+import { defaultPacks } from './defaults';
 import { createStorageService, storageClockFor } from './storageService';
 import type { ServiceOverrides, Services } from './types';
 
 export function createNativeServices(platform: 'ios' | 'android', overrides: ServiceOverrides = {}): Services {
   const clock = overrides.clock ?? systemClock;
+  const storage =
+    overrides.storage ?? createStorageService(STORAGE_BACKEND, () => openStorage({ clock: storageClockFor(clock) }));
+  // The model file (web: createModelManager.web.ts, a FakeModelManager that is ready at once).
+  const modelManager =
+    overrides.modelManager ??
+    createModelManager({ platform, clock, modelFiles: () => storage.open().then((opened) => opened.modelFiles) });
+  let model: ModelAdapter | undefined = overrides.model;
+  if (!model) {
+    // llama.rn (Qwen3-1.7B); loaded as soon as the model file is verified, unloaded if it goes.
+    model = createDeviceModel({ platform });
+    keepModelLoaded(model, modelManager);
+  }
   return {
     platform,
     clock,
     packs: overrides.packs ?? defaultPacks(),
-    model: overrides.model ?? new MockModelAdapter({ model: sharedMockModel() }),
-    modelManager: overrides.modelManager ?? new FakeModelManager({ initial: 'ready' }),
+    model,
+    modelManager,
     speechOut: overrides.speechOut ?? new ExpoSpeechOut(undefined, clock),
-    speechIn: overrides.speechIn ?? new TypedSpeechIn(),
+    speechIn: overrides.speechIn ?? createNativeSpeechIn(platform, clock),
     music: overrides.music ?? new UnsupportedMusicPlayer(),
     share: overrides.share ?? new MemoryShareInbox(clock),
     haptics: overrides.haptics ?? new ExpoHapticsAdapter(),
-    storage:
-      overrides.storage ?? createStorageService(STORAGE_BACKEND, () => openStorage({ clock: storageClockFor(clock) })),
+    storage,
   };
 }

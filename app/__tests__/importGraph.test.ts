@@ -2,7 +2,11 @@
  * What each platform's bundle can reach, from the routes in app/app, following relative imports
  * the way Metro resolves platform files (x.ios.ts / x.native.ts / x.web.ts before x.ts):
  * - test-only code (src/testing, src/storage/testing, createTestServices) is in no bundle;
- * - sql.js is only in the web bundle (in-memory preview storage), expo-sqlite only in native ones.
+ * - sql.js is only in the web bundle (in-memory preview storage), expo-sqlite only in native ones;
+ * - expo-speech-recognition is only in native bundles, required by createNativeSpeechIn.ts alone;
+ * - llama.rn is only in native bundles, imported by createDeviceModel.ts alone;
+ * - the model download (ExpoModelManager, fileHash, the cliffword-native module in app/modules) is
+ *   only in native bundles, reached through createModelManager.ts (web: createModelManager.web.ts).
  * The export step of the verify chain bundles for real; this test catches a wrong import early.
  */
 import fs from 'fs';
@@ -97,6 +101,38 @@ describe.each(['ios', 'android'] as const)('%s bundle', (platform) => {
     expect(packagesMatching(packages, /^expo-sqlite$/)).toHaveLength(1);
     expect(packagesMatching(packages, /^sql\.js/)).toEqual([]);
   });
+
+  it('reaches expo-speech-recognition only through createNativeSpeechIn', () => {
+    expect(packagesMatching(packages, /^expo-speech-recognition/)).toEqual(['expo-speech-recognition']);
+    expect(packages.get('expo-speech-recognition')).toEqual(['src/adapters/speechIn/createNativeSpeechIn.ts']);
+    expect(rel(files)).toEqual(expect.arrayContaining(['src/adapters/speechIn/ExpoSpeechIn.ts']));
+    expect(rel(files)).not.toContain('src/adapters/speechIn/createNativeSpeechIn.web.ts');
+  });
+
+  it('reaches llama.rn only through createDeviceModel', () => {
+    expect(packagesMatching(packages, /^llama\.rn/)).toEqual(['llama.rn']);
+    expect(packages.get('llama.rn')).toEqual(['src/adapters/model/createDeviceModel.ts']);
+    expect(rel(files)).toEqual(expect.arrayContaining(['src/adapters/model/LlamaModelAdapter.ts']));
+    expect(rel(files)).not.toContain('src/adapters/model/createDeviceModel.web.ts');
+  });
+
+  it('reaches the model download and the cliffword-native module through createModelManager', () => {
+    expect(rel(files)).toEqual(
+      expect.arrayContaining([
+        'src/adapters/model/createModelManager.ts',
+        'src/adapters/model/ExpoModelManager.ts',
+        'src/adapters/model/fileHash.ts',
+        'modules/cliffword-native/index.ts',
+      ]),
+    );
+    expect(rel(files)).not.toContain('src/adapters/model/createModelManager.web.ts');
+    expect(rel(files)).not.toContain('modules/cliffword-native/index.web.ts');
+    expect(packages.get('expo-file-system')).toEqual(
+      expect.arrayContaining(['src/adapters/model/ExpoModelManager.ts', 'src/adapters/model/fileHash.ts']),
+    );
+    expect(packages.get('expo-keep-awake')).toEqual(expect.arrayContaining(['src/adapters/model/ExpoModelManager.ts']));
+    expect(packages.get('expo')).toEqual(expect.arrayContaining(['modules/cliffword-native/index.ts']));
+  });
 });
 
 describe('web bundle', () => {
@@ -105,6 +141,32 @@ describe('web bundle', () => {
   it('holds no test-only code', () => {
     expect(rel(files)).toContain('src/storage/open.web.ts');
     expect(rel(files).filter(isTestOnly)).toEqual([]);
+  });
+
+  it('keeps expo-speech-recognition out (createNativeSpeechIn.web.ts instead)', () => {
+    expect(packagesMatching(packages, /^expo-speech-recognition/)).toEqual([]);
+    expect(rel(files)).toContain('src/adapters/speechIn/createNativeSpeechIn.web.ts');
+    expect(rel(files)).not.toContain('src/adapters/speechIn/createNativeSpeechIn.ts');
+    expect(rel(files)).not.toContain('src/adapters/speechIn/ExpoSpeechIn.ts');
+  });
+
+  it('keeps llama.rn out (createDeviceModel.web.ts instead)', () => {
+    expect(packagesMatching(packages, /^llama\.rn/)).toEqual([]);
+    expect(rel(files)).toContain('src/adapters/model/createDeviceModel.web.ts');
+    expect(rel(files)).not.toContain('src/adapters/model/createDeviceModel.ts');
+    expect(rel(files)).not.toContain('src/adapters/model/LlamaModelAdapter.ts');
+  });
+
+  it('keeps the model download out (createModelManager.web.ts, a ready FakeModelManager, instead)', () => {
+    const list = rel(files);
+    expect(list).toContain('src/adapters/model/createModelManager.web.ts');
+    for (const file of ['createModelManager.ts', 'ExpoModelManager.ts', 'fileHash.ts']) {
+      expect(list).not.toContain(`src/adapters/model/${file}`);
+    }
+    expect(list.filter((f) => f.startsWith('modules/cliffword-native/'))).toEqual([]);
+    for (const pkg of ['expo-file-system', 'expo-keep-awake']) {
+      expect((packages.get(pkg) ?? []).filter((user) => user.startsWith('src/adapters/model/'))).toEqual([]);
+    }
   });
 
   it('uses sql.js (in-memory preview storage) and not expo-sqlite', () => {

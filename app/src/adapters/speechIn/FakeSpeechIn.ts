@@ -8,14 +8,20 @@
  * - emitPartial / emitLevel / emitFinal / emitError for exact control.
  *
  * Permission starts 'granted' unless set; requestPermission() turns 'undetermined' into
- * `requestResult`. durationMs is measured on the injected clock (use a FakeClock and advance it).
+ * `requestResult`. availability() follows the permission unless `availability` overrides it,
+ * and downloadLanguage() answers `downloadResult` (recorded in downloadCalls). durationMs is
+ * measured on the injected clock (use a FakeClock and advance it).
  */
 import type { Clock } from '../clock/types';
 import { systemClock } from '../clock/systemClock';
 import { wordSpans } from '../speechOut/wordSpans';
 import { SpeechInBase } from './SpeechInBase';
 import type {
+  AvailabilityQuery,
+  FinalTranscript,
+  LanguageDownload,
   ListenOptions,
+  SpeechAvailability,
   SpeechInCapabilities,
   SpeechInErrorCode,
   SpeechPermission,
@@ -38,7 +44,14 @@ export interface FakeSpeechInOptions {
   /** What requestPermission() turns 'undetermined' into. Default 'granted'. */
   requestResult?: Extract<SpeechPermission, 'granted' | 'denied'>;
   capabilities?: Partial<SpeechInCapabilities>;
+  /** Fixed parts of availability() (e.g. { status: 'on-device-unavailable', canDownload: true }). */
+  availability?: Partial<SpeechAvailability>;
+  /** What downloadLanguage() answers. Default 'unsupported'. */
+  downloadResult?: LanguageDownload;
 }
+
+/** Extra fields emitFinal() passes through to the transcript. */
+export type FakeFinalExtra = Partial<Omit<FinalTranscript, 'text' | 'source'>>;
 
 const toUtterance = (u: string | ScriptedUtterance): ScriptedUtterance => (typeof u === 'string' ? { text: u } : u);
 
@@ -49,7 +62,12 @@ export class FakeSpeechIn extends SpeechInBase {
   readonly startCalls: ListenOptions[] = [];
   stopCalls = 0;
   abortCalls = 0;
+  /** Languages passed to downloadLanguage(), in order. */
+  readonly downloadCalls: string[] = [];
   permission: SpeechPermission;
+  /** Fixed parts of availability(); set it to change what the next call reports. */
+  availabilityOverride: Partial<SpeechAvailability>;
+  downloadResult: LanguageDownload;
 
   private readonly clock: Clock;
   private readonly requestResult: 'granted' | 'denied';
@@ -61,6 +79,8 @@ export class FakeSpeechIn extends SpeechInBase {
     this.clock = opts.clock ?? systemClock;
     this.permission = opts.permission ?? 'granted';
     this.requestResult = opts.requestResult ?? 'granted';
+    this.availabilityOverride = { ...opts.availability };
+    this.downloadResult = opts.downloadResult ?? 'unsupported';
     this.capabilities = {
       speech: true,
       onDevice: true,
@@ -83,6 +103,16 @@ export class FakeSpeechIn extends SpeechInBase {
   async requestPermission(): Promise<SpeechPermission> {
     if (this.permission === 'undetermined') this.permission = this.requestResult;
     return this.permission;
+  }
+
+  override async availability(query: AvailabilityQuery): Promise<SpeechAvailability> {
+    const base = await super.availability(query);
+    return { ...base, ...this.availabilityOverride };
+  }
+
+  override async downloadLanguage(lang: string): Promise<LanguageDownload> {
+    this.downloadCalls.push(lang);
+    return this.downloadResult;
   }
 
   async start(opts: ListenOptions): Promise<void> {
@@ -121,7 +151,7 @@ export class FakeSpeechIn extends SpeechInBase {
   say(utterance: string | ScriptedUtterance): void {
     const u = toUtterance(utterance);
     const session = this.requireSession('say');
-    for (const db of u.levels ?? []) this.levels.emit(db);
+    for (const db of u.levels ?? []) this.emitLevel(db);
     const msPerWord = u.msPerWord ?? 350;
     const gapMs = u.gapMs ?? 120;
     const words: TranscriptWord[] = wordSpans(u.text).map((span, i) => {
@@ -140,15 +170,20 @@ export class FakeSpeechIn extends SpeechInBase {
     this.partials.emit(text);
   }
 
-  emitLevel(db: number): void {
+  /** Emits a level (dBFS): onLevel, and onMeter with the smoothed 0..1. */
+  override emitLevel(db: number): void {
     this.requireSession('emitLevel');
-    this.levels.emit(db);
+    super.emitLevel(db);
   }
 
-  /** Emits the final transcript and ends the session. durationMs defaults to the clock's elapsed time. */
-  emitFinal(text: string, extra: { words?: TranscriptWord[]; durationMs?: number; confidence?: number } = {}): void {
+  /**
+   * Emits the final transcript and ends the session. durationMs defaults to the clock's elapsed
+   * time; other fields (spokenMs, wordTiming, alternatives, ...) pass through when given.
+   */
+  emitFinal(text: string, extra: FakeFinalExtra = {}): void {
     const session = this.requireSession('emitFinal');
     this.finals.emit({
+      ...extra,
       text,
       words: extra.words,
       durationMs: extra.durationMs ?? this.clock.now() - session.startedAt,

@@ -3,7 +3,14 @@
  * pasted-lyrics paths instead.
  */
 import type { Unsubscribe } from '../listeners';
-import { MusicPlayerError, type MusicAuthorization, type MusicPlayer, type PlaybackState, type Song } from './types';
+import {
+  MusicPlayerError,
+  type MusicAuthorization,
+  type MusicPlayer,
+  type PauseAtResult,
+  type PlaybackState,
+  type Song,
+} from './types';
 
 const unsupported = () => Promise.reject(new MusicPlayerError('unsupported'));
 
@@ -58,4 +65,10 @@ export class UnsupportedMusicPlayer implements MusicPlayer {
   onStateChange(): Unsubscribe {
     return () => undefined;
   }
+
+  pauseAt(): Promise<PauseAtResult> {
+    return unsupported();
+  }
+
+  clearPauseAt(): void {}
 }

@@ -66,7 +66,9 @@
     "export:ios": "expo export --platform ios --output-dir dist-ios",
     "export:android": "expo export --platform android --output-dir dist-android",
     "doctor": "npx --yes expo-doctor",
-    "icons": "node scripts/make-icons.js"
+    "icons": "node scripts/make-icons.js",
+    "postinstall": "patch-package",
+    "patch:llama.rn": "patch-package llama.rn --exclude '^package\\.json$|^ios/rnllama\\.xcframework/|^android/src/main/jniLibs/'"
   },
   "private": true
 }

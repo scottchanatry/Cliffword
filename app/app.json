@@ -17,6 +17,9 @@
         "NSSpeechRecognitionUsageDescription": "Cliffword turns what you say into text so it can check your answers and show which words were unexpected.",
         "NSAppleMusicUsageDescription": "Cliffword plays songs from your Apple Music library and pauses them at a line so you can say or sing it back.",
         "ITSAppUsesNonExemptEncryption": false
+      },
+      "entitlements": {
+        "com.apple.developer.kernel.increased-memory-limit": true
       }
     },
     "android": {
@@ -164,10 +167,29 @@
           }
         }
       ],
-      "llama.rn",
-      "expo-speech-recognition",
+      [
+        "llama.rn",
+        {
+          "enableEntitlements": true,
+          "entitlementsProfile": "production",
+          "forceCxx20": true,
+          "enableOpenCLAndHexagon": false
+        }
+      ],
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Cliffword uses the microphone while you hold to speak, so it can hear your answers to the story and the lines you sing back.",
+          "speechRecognitionPermission": "Cliffword turns what you say into text so it can check your answers and show which words were unexpected.",
+          "androidSpeechServicePackages": [
+            "com.google.android.googlequicksearchbox",
+            "com.google.android.as"
+          ]
+        }
+      ],
       "expo-share-intent",
-      "expo-localization"
+      "expo-localization",
+      "./modules/cliffword-native/app.plugin.js"
     ],
     "extra": {
       "router": {},

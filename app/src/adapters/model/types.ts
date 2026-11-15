@@ -6,9 +6,11 @@
  * model file, unload it, report status and what is loaded. Implementations:
  * - MockModelAdapter (now): the engine's deterministic n-gram mock. Used on web, in tests, and
  *   on a device while the real model downloads.
- * - A llama.rn adapter (later stage): Qwen3-1.7B Q4_K_M from ModelManager's file. Scoring a
- *   supplied text needs forced decoding or a small native method (docs/BRIEF.md, "Not done
- *   yet"); tokens outside the runtime's top N carry `upperBound: true`.
+ * - LlamaModelAdapter: Qwen3-1.7B Q4_K_M from ModelManager's file, through llama.rn. Text scoring
+ *   uses the native method that app/patches/llama.rn+0.13.0-rc.11.patch adds (exact
+ *   log-probabilities, the same numbers as proof/model_server.py); without it, forced decoding
+ *   through the completion API, where tokens outside the top N carry `upperBound: true`.
+ *   ModelInfo.scoring says which path runs. See ./README.md.
  *
  * ModelManager owns the model file: download, checksum, delete. It never loads the model.
  */
@@ -21,12 +23,23 @@ export type ModelStatus = 'unloaded' | 'loading' | 'ready' | 'error';
 /** What runs the model. */
 export type ModelBackend = 'mock' | 'llama.rn' | 'http';
 
+/**
+ * How scoreContinuation gets its numbers:
+ * - 'exact': every token's log-probability (the mock, the HTTP model);
+ * - 'native': exact, from the llama.rn patch's native scoring method;
+ * - 'forced-decoding': llama.rn's top-N lists; tokens outside the top N are upper bounds
+ *   (`upperBound: true`).
+ */
+export type ModelScoringPath = 'exact' | 'native' | 'forced-decoding';
+
 export interface ModelInfo {
   /** Same as LanguageModel.id, e.g. 'qwen3-1.7b-q4_k_m' or 'mock-ngram-es'. */
   id: string;
   /** Context window in tokens that the loaded model was set up with. */
   contextSize: number;
   backend: ModelBackend;
+  /** How scores are computed. Absent means 'exact'. */
+  scoring?: ModelScoringPath;
 }
 
 export interface ModelLoadOptions {
@@ -106,6 +119,13 @@ export interface ModelFileState {
   progress: DownloadProgress;
   /** Set when status is 'error'. */
   error: ModelFileErrorCode | null;
+  /**
+   * With error 'insufficient-storage': the free space measured and the space the download needs
+   * (the bytes still to fetch plus a safety margin), for the error text.
+   */
+  space?: { freeBytes: number; neededBytes: number };
+  /** While 'verifying': the share of the file hashed so far, 0 to 1, when the hasher reports it. */
+  verifyFraction?: number;
 }
 
 export interface ModelManager {

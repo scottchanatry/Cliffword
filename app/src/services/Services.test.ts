@@ -134,9 +134,11 @@ describe('createServices', () => {
     for (const platform of ['ios', 'android'] as const) {
       const s = createServices(platform);
       expect(s.platform).toBe(platform);
-      expect(s.model).toBeInstanceOf(MockModelAdapter);
+      // LlamaModelAdapter over llama.rn (its jest mock: __mocks__/llama.rn.ts).
+      expect(s.model.info.backend).toBe('llama.rn');
       expect(s.speechOut).toBeInstanceOf(ExpoSpeechOut);
-      expect(s.speechIn).toBeInstanceOf(TypedSpeechIn);
+      // ExpoSpeechIn over expo-speech-recognition (its jest mock: __mocks__/expo-speech-recognition.ts).
+      expect(s.speechIn.kind).toBe('native');
       expect(s.music.available).toBe(false);
       expect(s.storage.backend).toBe('expo-sqlite');
     }

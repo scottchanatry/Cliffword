@@ -18,3 +18,10 @@ export const QWEN3_1_7B_Q4_K_M: ModelDescriptor = {
 
 /** The model ModelManager downloads unless told otherwise. */
 export const DEFAULT_MODEL: ModelDescriptor = QWEN3_1_7B_Q4_K_M;
+
+/**
+ * Free space a model download keeps beyond the bytes it still has to fetch (docs/OUTLINE.md,
+ * flow F: size + 600 MB), so the phone is not left full. ExpoModelManager refuses to start below
+ * it ('insufficient-storage'); the messages quote it.
+ */
+export const FREE_SPACE_MARGIN_BYTES = 600_000_000;

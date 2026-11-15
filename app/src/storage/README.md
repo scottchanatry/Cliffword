@@ -99,7 +99,7 @@ fallback (null, or the setting's default), never as a crash.
 | `songs` | `upsert({ source, externalId?, title, artist?, artworkUrl? })` (one row per source + external id; manual songs have none), `get`, `findByExternal`, `list`, `remove` (with lyrics). |
 | `lyrics` | `put(songId, rawText, parsed)`, `get(songId)`, `remove(songId)`. Never synced or exported. |
 | `spokenTime` | `addUtterance(ms, at)` (to the local day of `at`), `today(now)`, `day(key)`, `total()`, `range(from, to)`, `streak(now, minMs?)` (consecutive days ending today, or yesterday while today is still empty). |
-| `modelFiles` | `upsert`, `get`, `list`, `setStatus(id, status, { bytes?, sha256?, at? })`, `remove`. Statuses: missing, downloading, verifying, ready, failed. |
+| `modelFiles` | `upsert`, `get`, `list`, `setStatus(id, status, { bytes?, sha256?, at? })`, `remove`. Statuses: missing, downloading, verifying, ready, failed. `ExpoModelManager` writes the row of each model it downloads. A `ready` row with the descriptor's size and SHA-256, whose `updated_at` is not before the file's mtime, lets startup skip hashing the file again. |
 | `shareInbox` | `add({ url?, text? })` (an identical unhandled item is stored once), `get`, `pending()`, `markHandled(id)`, `purgeHandled(before)`. |
 
 Every method that records a time takes an explicit one or uses the injected `StorageClock`

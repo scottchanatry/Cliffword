@@ -1,0 +1,47 @@
+diff --git a/node_modules/expo-speech-recognition/ios/ExpoSpeechRecognitionModule.swift b/node_modules/expo-speech-recognition/ios/ExpoSpeechRecognitionModule.swift
+index 9dc9082..277cc11 100644
+--- a/node_modules/expo-speech-recognition/ios/ExpoSpeechRecognitionModule.swift
++++ b/node_modules/expo-speech-recognition/ios/ExpoSpeechRecognitionModule.swift
+@@ -204,6 +204,23 @@ public class ExpoSpeechRecognitionModule: Module {
+             )
+           }
+ 
++          // Cliffword patch: with requiresOnDeviceRecognition, never fall back to server
++          // recognition. ExpoSpeechRecognizer.prepareRequest only sets the request flag when the
++          // recognizer supports on-device recognition, so without this check a locale without
++          // on-device support would silently be sent to Apple's servers.
++          if options.requiresOnDeviceRecognition {
++            let onDeviceRecognizer = resolveLocale(localeIdentifier: options.lang).flatMap {
++              SFSpeechRecognizer(locale: $0)
++            }
++            guard onDeviceRecognizer?.supportsOnDeviceRecognition == true else {
++              sendErrorAndStop(
++                error: "language-not-supported",
++                message: "On-device recognition is not available for \(options.lang) on this device."
++              )
++              return
++            }
++          }
++
+           if !options.requiresOnDeviceRecognition {
+             guard await SFSpeechRecognizer.hasAuthorizationToRecognize() else {
+               sendErrorAndStop(
+@@ -349,8 +366,16 @@ public class ExpoSpeechRecognitionModule: Module {
+       try AVAudioSession.sharedInstance().setActive(value, options: setActiveOptions)
+     }
+ 
+-    Function("supportsOnDeviceRecognition") { () -> Bool in
+-      let recognizer = SFSpeechRecognizer()
++    // Cliffword patch: an optional locale, so the app can check the language it recognizes
++    // (without one: the device's current locale, as before).
++    Function("supportsOnDeviceRecognition") { (localeIdentifier: String?) -> Bool in
++      let recognizer: SFSpeechRecognizer?
++      if let localeIdentifier = localeIdentifier {
++        recognizer = SFSpeechRecognizer(
++          locale: Locale(identifier: localeIdentifier.replacingOccurrences(of: "_", with: "-")))
++      } else {
++        recognizer = SFSpeechRecognizer()
++      }
+       return recognizer?.supportsOnDeviceRecognition ?? false
+     }
+ 

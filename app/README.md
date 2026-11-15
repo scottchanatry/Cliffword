@@ -20,6 +20,7 @@ npm run export:web     # expo export --platform web --output-dir dist-web (also 
 npm run web            # dev server for the web preview
 npm start              # dev server for a development build (expo-dev-client)
 npm run icons          # rebuild the placeholder icon, adaptive icon, splash and favicon
+npm run patch:llama.rn # regenerate patches/llama.rn+*.patch after editing node_modules/llama.rn
 ```
 
 The full verification chain used at the end of each stage:
@@ -70,10 +71,14 @@ falls back to `index.html` for unknown paths. `python -m http.server` has no fal
 | `src/ui/` | The basic components: `Screen`, the `Text` variants, `Button`, `Card`, `Pill`. |
 | `src/features/<area>/` | Screen parts for each area: story, music and profile. |
 | `src/components/` | Shared components: the profile button, tab icons and the cliff gap. |
-| `src/testing/` | Test helpers, never imported by app code. `renderWithProviders(ui, { services? })` renders inside `AppProviders`. `renderWithAppState(ui, { services?, settings? })` also runs the real bootstrap and renders inside `AppStateProvider`. `recordEvents(speechIn)` records a SpeechIn's events. |
+| `src/testing/` | Test helpers, never imported by app code. `renderWithProviders(ui, { services? })` renders inside `AppProviders`. `renderWithAppState(ui, { services?, settings? })` also runs the real bootstrap and renders inside `AppStateProvider`. `recordEvents(speechIn)` records a SpeechIn's events. `FakeSpeechRecognitionModule` plays expo-speech-recognition's native module (also behind the jest mock). |
 | `__tests__/` | App-level tests. `routes/` runs every route through the real router and root layout. `engine.test.ts` checks that the engine runs in Jest. `importGraph.test.ts` checks what each platform's bundle can reach. Module tests sit next to their modules as `*.test.ts(x)`. |
 | `public/index.html` | The web page template. It paints the page in the ground color, so neither overscroll nor the first paint flashes white. |
 | `scripts/make-icons.js` | Builds the placeholder icon and splash PNGs with Node built-ins only. |
+| `patches/` | patch-package patches, applied by `"postinstall": "patch-package"`. llama.rn's adds native text scoring (see "On-device model"). |
+| `native-tests/scoring/` | The Linux build and checks of the llama.rn scoring patch against `proof/model_server.py` (results in its README). |
+| `__mocks__/` | Jest manual mocks for native packages (llama.rn, expo-speech-recognition), used by every test. |
+| `modules/cliffword-native/` | Local Expo module, autolinked from `./modules`: streaming file SHA-256 with progress (Swift CryptoKit, Kotlin MessageDigest), the iOS backup flag and free space, and a config plugin that keeps `files/models/` out of Android backups (see "Model file"). |
 
 ## Startup
 
@@ -198,10 +203,10 @@ and, in tests, deterministic (`test-1`, `test-2`, ...).
 | Service | Interface | iOS / Android now | Web preview | Tests (`createTestServices`) | Later stage |
 |---|---|---|---|---|---|
 | `storage` | `StorageService` (`open`, `close`, `backend`) | **real**: expo-sqlite, file `cliffword.db`, WAL, migrated | sql.js in memory (`open.web.ts`), lost on reload | sql.js in memory, fresh for each container, ids `test-n` | persistent web DB (needs `.wasm` in Metro + COOP/COEP) |
-| `model` | `ModelAdapter` (engine `LanguageModel` + `load`, `unload`, `status`, `info`, `onStatusChange`) | `MockModelAdapter` (n-gram mock) | `MockModelAdapter` | `MockModelAdapter` | llama.rn adapter (Qwen3-1.7B) |
-| `modelManager` | `ModelManager` (`status()`, `progress()`, `snapshot()`, `startDownload()`, `cancel()`, `delete()`, `filePath`, `onChange`) | `FakeModelManager` (reports ready) | `FakeModelManager` (ready) | `FakeModelManager` (instant or manual) | expo-file-system download + size and SHA-256 check |
+| `model` | `ModelAdapter` (engine `LanguageModel` + `load`, `unload`, `status`, `info`, `onStatusChange`) | **real**: `LlamaModelAdapter` (llama.rn, Qwen3-1.7B), `'unloaded'` until `keepModelLoaded` loads the verified file | `MockModelAdapter` | `MockModelAdapter`; `LlamaModelAdapter` tests use the llama.rn fake | none |
+| `modelManager` | `ModelManager` (`status()`, `progress()`, `snapshot()`, `startDownload()`, `cancel()`, `delete()`, `filePath`, `onChange`) | **real**: `ExpoModelManager` (expo-file-system download into the document directory, size and SHA-256 check, `model_files` row) | `FakeModelManager` (ready) | `FakeModelManager` (instant or manual); `ExpoModelManager` tests use `src/testing/fakeExpoFileSystem.ts` | none |
 | `speechOut` | `SpeechOut` (`speak` with word boundaries, `stop`, `voices`, `isSpeaking`) | **real**: `ExpoSpeechOut` | `ExpoSpeechOut` (speechSynthesis) | `FakeSpeechOut` | none |
-| `speechIn` | `SpeechIn` (sessions, `submitTyped`, events, permission) | `TypedSpeechIn` (typed answers only) | `BrowserSpeechIn` when the browser has SpeechRecognition, else `TypedSpeechIn` | `FakeSpeechIn` | expo-speech-recognition adapter |
+| `speechIn` | `SpeechIn` (sessions, `submitTyped`, events, levels and meter, permission, `availability`, `downloadLanguage`) | **real**: `ExpoSpeechIn` (expo-speech-recognition, on-device; `TypedSpeechIn` if the binary lacks the module) | `BrowserSpeechIn` when the browser has SpeechRecognition, else `TypedSpeechIn` | `FakeSpeechIn`; `ExpoSpeechIn` tests drive `FakeSpeechRecognitionModule` | none |
 | `music` | `MusicPlayer` (Apple Music) | `UnsupportedMusicPlayer` | `UnsupportedMusicPlayer` | `FakeMusicPlayer` | MusicKit adapter (iOS) |
 | `share` | `ShareInbox` + pure `parseSpotifyShare` | `MemoryShareInbox` | `MemoryShareInbox` | `MemoryShareInbox` | expo-share-intent inbox |
 | `haptics` | `Haptics` (`play('tap' \| 'selection' \| 'success' \| 'warning' \| 'error')`) | **real**: `ExpoHapticsAdapter` | `ExpoHapticsAdapter` | `FakeHaptics` | none |
@@ -222,12 +227,66 @@ Contract rules (each `types.ts` documents the full contract):
 - **Model.** Model calls reject with `ModelNotReadyError` unless `status` is `'ready'`. The
   default model file is `DEFAULT_MODEL` (`src/adapters/model/descriptor.ts`): Qwen3-1.7B
   Q4_K_M, 1107409472 bytes, SHA-256 `b139949c…1897`, from a Hugging Face URL pinned to a commit.
+  `info.scoring` says how scores are made. `'native'` means exact, from the llama.rn patch.
+  `'forced-decoding'` means tokens outside llama.rn's top N are `upperBound`. Show the model's
+  state with `modelAvailability(modelManager.snapshot(), model.status)`, for example `'missing'`
+  before the download.
+- **Model file.** `ExpoModelManager` (`src/adapters/model/ExpoModelManager.ts`, built by
+  `createModelManager`) keeps the model in `<documents>/models/` (never the cache, which the OS
+  purges); `filePath` is a plain path there. The header of that file has the full behavior:
+  - **Start.** `startDownload()` first checks free space: the bytes still to fetch plus 600 MB
+    (`FREE_SPACE_MARGIN_BYTES`). Short gives `'error'`, `'insufficient-storage'`, and
+    `state.space` for the text. It then runs a `DownloadTask` on the iOS background session
+    into `models/<file>.part`, with progress, and keeps the screen awake (expo-keep-awake) while
+    downloading and verifying. Mobile data is never blocked; show `MODEL_DOWNLOAD_NOTES`.
+  - **Cancel and resume.** `cancel()` pauses and saves `savable()` in
+    `models/<file>.download.json`. Android resumes from the partial file's length, also after a
+    failure or a kill. iOS resumes only from a pause; otherwise it starts over. A download that
+    was running when the app stopped resumes (or restarts) at the next launch.
+  - **Verify.** Size, then SHA-256 (`fileHash.ts`: the native module, else
+    `File#digest('SHA-256')`, else the TypeScript `Sha256` over file slices). A file that fails
+    is deleted and the state says why (`'size-mismatch'`, `'checksum-mismatch'`). A file that
+    passes is renamed into place and written to `model_files` as `'ready'` with its size and
+    hash.
+  - **Startup.** A file whose row is `'ready'` with the descriptor's size and hash, and whose
+    mtime is not after the row's `updated_at`, is ready without hashing. Otherwise the state is
+    `'verifying'` until it is hashed again.
+  - **Delete.** `delete()` removes the file, the partial download and the record, and
+    `startDownload()` fetches it again.
+  - **Text.** `modelFileMessage(state, descriptor, t)` (`modelFileMessages.ts`) gives the
+    status line.
 - **SpeechOut.** One utterance at a time: `speak()` stops the current one, whose promise
   resolves `{ completed: false }`. Pass the language pack's word spans as `words`.
 - **SpeechIn.** A session emits partials, then at most one final, then exactly one end; a
   failure emits error, then end. `start()` never throws for runtime conditions.
   `submitTyped(text)` ("Type instead") works everywhere and emits a final with
-  `source: 'typed'`. Show error text by `code` through i18n.
+  `source: 'typed'`. Show error text by `code` and status by `availability()` through i18n
+  (`speechInErrorKey`, `speechInStatusKey` in `src/adapters/speechIn/messages.ts`). Details of
+  the native adapter:
+  - **Options.** Hold to speak passes `continuous: true`; `stop()` on release, and a `stop()`
+    before the recognizer listens cancels (onEnd only). Pass story, lyric and command words as
+    `hints` (iOS contextual strings, Android 13+ biasing). Pick `lang` and `langFallbacks`
+    with `recognitionLocales(target, regions, deviceLocales)` (`locales.ts`: PR, DO and CU
+    prefer es-US).
+  - **On-device.** `onDevice: true` (the default promise) never falls back to a server: without
+    on-device support the session fails with `on-device-unavailable`. Pass `onDevice: false`
+    only when the learner allowed network recognition (no such setting exists yet). Android 13+
+    can fetch a missing language pack (`availability().canDownload`, `downloadLanguage()`);
+    Android 12 and older cannot force on-device recognition, so they need the network opt-in.
+    iOS checks per-locale on-device support through `patches/expo-speech-recognition+58.0.1.patch`,
+    which also makes the module refuse a server fallback when on-device is required.
+  - **Timings and minutes spoken.** `FinalTranscript.words` are the engine's `TimedWord`s (ms
+    from `start()`); `wordTiming` says whether they are measured (iOS), starts only (Android 14+
+    on-device) or estimated from the voiced parts of the input level. Credit minutes spoken
+    with `spokenMsOf(transcript)` (voiced time).
+  - **Levels.** `onLevel` gives dBFS; `onMeter` gives a smoothed 0..1 for the hold animation, at
+    most every 50 ms, ending at 0.
+  - **iOS audio session.** Each session sets `playAndRecord`, mode `default`, options
+    `defaultToSpeaker` and `allowBluetoothA2DP`, and leaves the session active afterwards, so
+    text to speech right after a hold plays from the speaker at full volume (the module's own
+    default, mode `measurement`, would make it quiet). Pause Apple Music before listening; the
+    music feature switches the category back when it resumes playback. The reasons are in the
+    header of `ExpoSpeechIn.ts`.
 - **Music.** Call `authorize()` first. `'unsupported'` means there is no Apple Music here (web,
   Android); every other call then rejects with `MusicPlayerError('unsupported')`.
 - **Share.** `parseSpotifyShare({ url, text })` reads track links and URIs, `Song - Artist`
@@ -238,7 +297,45 @@ Contract rules (each `types.ts` documents the full contract):
   `createDeviceModel.ts` plus `createDeviceModel.web.ts`, which returns the mock). Metro picks
   the twin for web; Jest (iOS) gets the native file, where jest-expo's mocks apply. Do not add
   native adapters to the `src/adapters/index.ts` barrel. `__tests__/importGraph.test.ts` uses
-  the same resolution rules; extend it when you add a native package.
+  the same resolution rules; extend it when you add a native package. expo-speech-recognition
+  is required only by `src/adapters/speechIn/createNativeSpeechIn.ts` (twin: `.web.ts`); Jest
+  uses the manual mock `__mocks__/expo-speech-recognition.ts`, because the package ships none.
+  llama.rn is imported only by `src/adapters/model/createDeviceModel.ts`; Jest uses
+  `__mocks__/llama.rn.ts`, the fake in `src/testing/fakeLlamaRn.ts`. The model download
+  (`ExpoModelManager`, `fileHash`, expo-file-system's `DownloadTask`, expo-keep-awake and
+  `modules/cliffword-native`) is reached only through `src/adapters/model/createModelManager.ts`;
+  its twin `createModelManager.web.ts` gives the web a `FakeModelManager` that is ready at once.
+  The module's JS (`modules/cliffword-native/index.ts`) is null when the binary lacks it, and in
+  Jest, so callers fall back.
+
+### On-device model (llama.rn)
+
+`LlamaModelAdapter` runs Qwen3-1.7B Q4_K_M through llama.rn 0.13.0-rc.11. The full design is in
+`src/adapters/model/README.md`.
+
+- **The patch.** `patches/llama.rn+0.13.0-rc.11.patch` (patch-package) adds what llama.rn lacks:
+  log-probabilities of a supplied text.
+  - `LlamaContext.scoreText(contextText, text)` gives per-token ids, UTF-8 byte ranges and
+    logprobs.
+  - `LlamaContext.nextTokens(contextText, k)` gives the k most likely next tokens.
+  - `isTextScoringAvailable()` says whether the binary has them.
+
+  Native JSI functions do the work, in `cpp/jsi/RNLlamaJSI.cpp` and the new
+  `cpp/jsi/CliffwordScore.cpp`. Both platforms compile them from source, and they call only
+  symbols the prebuilt libraries export. They follow llama.rn's own pattern: the thread pool, a
+  promise resolved on the JS thread, the per-context claim (so they never run beside a
+  completion), and llama.rn's prompt-cache bookkeeping. The semantics are `proof/model_server.py`'s.
+- **After a llama.rn upgrade.** Port the hunks marked "Cliffword", run `npm run patch:llama.rn`
+  (`patch-package llama.rn`, without `package.json` and the downloaded native artifacts), then
+  rerun `native-tests/scoring/`.
+- **Linux comparison.** The patch's core, built against llama.rn's vendored llama.cpp, was run
+  against `model_server.py` on 35 sentences from `pairs.jsonl`, `slang.jsonl` and edge cases.
+  Totals, single tokens and the top-10 next-token lists agreed to 0.00000 nats.
+- **Flash attention.** llama.rn's default (auto, which turns it on) moved sentence totals by up to
+  1.08 nats, so the adapter turns it off.
+- **Fallback.** Without the native calls, the adapter scores by forced decoding through llama.rn's
+  completion API (`n_probs` 50, raw softmax). A token outside the list gets an upper bound
+  (`upperBound: true`), and `info.scoring` is `'forced-decoding'`.
 
 ## Interface text (i18n)
 
@@ -310,16 +407,52 @@ Newsreader (content), Inter (interface) and Anton (Music headings) come from
   - New Architecture is the SDK default.
 - **Plugins.** `expo-router`, `expo-status-bar`, `expo-splash-screen`, `expo-font` (with the
   font files). `expo-dev-client` and `expo-system-ui` are applied automatically by prebuild.
-  `expo-sqlite` and `expo-asset` need no plugin entry without options.
+  `expo-sqlite` and `expo-asset` need no plugin entry without options. `expo-speech-recognition`
+  takes the same microphone and speech recognition strings as `infoPlist` (the plugin writes its
+  own over them; `src/adapters/speechIn/speechConfig.test.ts` keeps them equal) and
+  `androidSpeechServicePackages` `com.google.android.googlequicksearchbox` and
+  `com.google.android.as` (package visibility for the Google recognizers). `llama.rn` takes these
+  options:
+  - `forceCxx20` (C++20 for the app target and every pod);
+  - `enableOpenCLAndHexagon: false`, so Android loads llama.rn's CPU library variants and no
+    OpenCL or Hexagon `uses-native-library` entries are added (the adapter runs Android on the
+    CPU);
+  - `enableEntitlements` with `entitlementsProfile: "production"`, which adds
+    `com.apple.developer.kernel.extended-virtual-addressing` and `increased-memory-limit` to
+    production builds.
+
+  `ios.entitlements` sets `com.apple.developer.kernel.increased-memory-limit` for every build,
+  because the model needs about 1.2 GB. `./modules/cliffword-native/app.plugin.js` (no options)
+  adds Android backup rules that exclude `files/models/`, the downloaded model, from cloud backup
+  and device transfer. Without them Auto Backup would include the 1.1 GB file, go over the
+  25 MB quota and back up nothing, not even the learner's database.
+  `src/adapters/model/cliffwordNativePlugin.test.ts` runs the plugin's mods.
 - **Checked in prebuild output** (SDK 58, `npx expo prebuild --no-install --clean` on a copy):
   - **Info.plist:** the three usage strings, `ITSAppUsesNonExemptEncryption` false, the 8
     fonts in `UIAppFonts`, URL schemes `cliffword`, `app.cliffword` and `exp+cliffword` (dev
     client), `UIUserInterfaceStyle` Light, `RCTRootViewBackgroundColor` = `#F3F4F1`, iPhone
     only.
+  - **Entitlements and build settings:**
+    - `Cliffword.entitlements` has `increased-memory-limit`, and with
+      `EAS_BUILD_PROFILE=production` also `extended-virtual-addressing`;
+    - the app target uses `gnu++20`, and the Podfile `post_install` forces C++20 on every pod
+      (`LLAMA_RN_CXX20`);
+    - there is no OpenCL `uses-native-library` in the AndroidManifest.
   - **AndroidManifest:** `INTERNET`, `RECORD_AUDIO` and `VIBRATE`; every blocked permission
-    marked `tools:node="remove"`; schemes `cliffword` and `exp+cliffword`; portrait.
+    marked `tools:node="remove"`; schemes `cliffword` and `exp+cliffword`; portrait; `<queries>`
+    for `android.speech.RecognitionService` in the two Google recognition packages.
   - **Android resources:** the system UI style `light`, the window background `#F3F4F1`, and
     the 8 fonts registered.
+  - **Backup rules:** `android:fullBackupContent="@xml/cliffword_backup_rules"` and
+    `android:dataExtractionRules="@xml/cliffword_data_extraction_rules"` on the application,
+    and both XML files in `res/xml` excluding `domain="file" path="models/"`.
+  - **Local module autolinking** (`npx expo-modules-autolinking resolve --platform apple|android
+    --json` in the copy):
+    - iOS: pod `CliffwordNative` from `modules/cliffword-native/ios`, Swift module
+      `CliffwordNative`, class `CliffwordNativeModule`; the generated `ExpoModulesProvider.swift`
+      imports `CliffwordNative` and registers `CliffwordNativeModule.self`.
+    - Android: project `cliffword-native` with `app.cliffword.nativemodule.CliffwordNativeModule`.
+    - CocoaPods is not installed here, so there is no `Podfile.lock`.
 - **`eas.json`.**
   - `appVersionSource: "remote"`: build numbers live on EAS, and Android versionCode is already
     2 there.

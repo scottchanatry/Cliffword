@@ -1,6 +1,7 @@
 import { FakeClock } from '../clock/FakeClock';
 import { FakeSpeechIn } from './FakeSpeechIn';
-import { levelToUnit } from './levels';
+import { LevelMeter, levelToUnit, moduleLevelToDb } from './levels';
+import { TypedSpeechIn } from './TypedSpeechIn';
 import { recordEvents } from '../../testing/recordSpeechInEvents';
 import type { ListenOptions } from './types';
 
@@ -115,6 +116,74 @@ describe('FakeSpeechIn', () => {
     rec.stop();
     speechIn.submitTyped('nada');
     expect(rec.events).toHaveLength(2);
+  });
+});
+
+describe('FakeSpeechIn meter, availability and downloads', () => {
+  it('turns levels into a smoothed 0..1 meter that returns to 0 when the session ends', async () => {
+    const speechIn = new FakeSpeechIn();
+    const meters: number[] = [];
+    speechIn.onMeter((m) => meters.push(m));
+    await speechIn.start(LISTEN);
+    speechIn.say({ text: 'hola', levels: [0, -60] });
+    expect(meters).toEqual([0.6, 0.42, 0]);
+
+    await speechIn.start(LISTEN);
+    speechIn.abort();
+    expect(meters).toEqual([0.6, 0.42, 0]);
+  });
+
+  it('reports availability from the permission unless overridden, and records downloads', async () => {
+    const speechIn = new FakeSpeechIn({ permission: 'undetermined' });
+    expect(await speechIn.availability(LISTEN)).toEqual({
+      status: 'needs-permission',
+      permission: 'undetermined',
+      locale: 'es-ES',
+      onDevice: true,
+      canDownload: false,
+    });
+    speechIn.availabilityOverride = { status: 'on-device-unavailable', canDownload: true };
+    speechIn.downloadResult = 'started';
+    expect(await speechIn.availability(LISTEN)).toMatchObject({ status: 'on-device-unavailable', canDownload: true });
+    expect(await speechIn.downloadLanguage('es-US')).toBe('started');
+    expect(speechIn.downloadCalls).toEqual(['es-US']);
+  });
+
+  it('passes extra final fields through emitFinal', async () => {
+    const speechIn = new FakeSpeechIn();
+    const rec = recordEvents(speechIn);
+    await speechIn.start(LISTEN);
+    speechIn.emitFinal('otra vez', { spokenMs: 640, wordTiming: 'estimated', alternatives: ['otra ves'], locale: 'es-US', onDevice: true });
+    expect(rec.events[0]).toMatchObject({
+      transcript: { text: 'otra vez', spokenMs: 640, wordTiming: 'estimated', alternatives: ['otra ves'], locale: 'es-US', onDevice: true },
+    });
+  });
+
+  it('typed-only input is unavailable and cannot download', async () => {
+    const typed = new TypedSpeechIn();
+    expect(await typed.availability(LISTEN)).toEqual({
+      status: 'unavailable',
+      permission: 'unsupported',
+      locale: null,
+      onDevice: false,
+      canDownload: false,
+    });
+    expect(await typed.downloadLanguage('es-ES')).toBe('unsupported');
+  });
+});
+
+describe('LevelMeter and module levels', () => {
+  it('rises fast, falls slower, and maps the module scale to dBFS', () => {
+    const meter = new LevelMeter();
+    expect(meter.push(0)).toBe(0.6);
+    expect(meter.push(0)).toBe(0.84);
+    expect(meter.push(-90)).toBe(0.588);
+    meter.reset();
+    expect(meter.current).toBe(0);
+    expect(moduleLevelToDb(-2)).toBe(-60);
+    expect(moduleLevelToDb(0)).toBe(-50);
+    expect(moduleLevelToDb(10)).toBe(0);
+    expect(moduleLevelToDb(Number.NaN)).toBe(-60);
   });
 });
 

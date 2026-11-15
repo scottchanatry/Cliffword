@@ -1,0 +1,1161 @@
+diff --git a/node_modules/llama.rn/android/src/main/CMakeLists.txt b/node_modules/llama.rn/android/src/main/CMakeLists.txt
+index f3178fd..17d77a0 100644
+--- a/node_modules/llama.rn/android/src/main/CMakeLists.txt
++++ b/node_modules/llama.rn/android/src/main/CMakeLists.txt
+@@ -36,6 +36,8 @@ set(JNI_SOURCE_FILES
+     ${RNLLAMA_CPP_DIR}/jsi/JSIParams.cpp
+     ${RNLLAMA_CPP_DIR}/jsi/JSITaskManager.cpp
+     ${RNLLAMA_CPP_DIR}/jsi/ThreadPool.cpp
++    # Cliffword (patch-package): text scoring core used by RNLlamaJSI.cpp
++    ${RNLLAMA_CPP_DIR}/jsi/CliffwordScore.cpp
+ )
+ 
+ function(build_rnllama_jni jni_name rnllama_name arch cpu_flags)
+diff --git a/node_modules/llama.rn/cpp/jsi/CliffwordScore.cpp b/node_modules/llama.rn/cpp/jsi/CliffwordScore.cpp
+new file mode 100644
+index 0000000..22390a7
+--- /dev/null
++++ b/node_modules/llama.rn/cpp/jsi/CliffwordScore.cpp
+@@ -0,0 +1,352 @@
++// Cliffword (patch-package): see CliffwordScore.h.
++#include "CliffwordScore.h"
++
++#include <algorithm>
++#include <cmath>
++#include <limits>
++#include <numeric>
++#include <stdexcept>
++#include <string>
++#include <vector>
++
++namespace cliffword {
++
++namespace {
++
++thread_local EvalStats g_stats;
++
++void clear_memory(llama_context * ctx, EvalState & state) {
++    llama_memory_t mem = llama_get_memory(ctx);
++    if (mem != nullptr) {
++        llama_memory_clear(mem, false);
++    }
++    state.tokens.clear();
++    state.clean = 0;
++}
++
++// log(sum(exp(row))) in double, the way numpy computes it in model_server.py.
++double log_sum_exp(const float * row, int32_t n) {
++    double m = -std::numeric_limits<double>::infinity();
++    for (int32_t i = 0; i < n; ++i) {
++        if ((double) row[i] > m) m = (double) row[i];
++    }
++    if (!std::isfinite(m)) {
++        return m;
++    }
++    double s = 0.0;
++    for (int32_t i = 0; i < n; ++i) {
++        s += std::exp((double) row[i] - m);
++    }
++    return m + std::log(s);
++}
++
++const llama_vocab * vocab_of(llama_context * ctx) {
++    const llama_model * model = llama_get_model(ctx);
++    if (model == nullptr) {
++        throw std::runtime_error("cliffword: context has no model");
++    }
++    return llama_model_get_vocab(model);
++}
++
++// Evaluates `tokens` in seq 0 and calls on_row(pos, logits) for every position in
++// [first_row, end_row), in order. Row `pos` holds the logits that predict tokens[pos + 1].
++//
++// The memory keeps the longest clean prefix shared with the previous evaluation (so scoring
++// several texts after one context evaluates the context once), but never past first_row,
++// whose logits must be computed now, and never so far that fewer than kMinBatch tokens are
++// left to evaluate. The sequence is decoded in chunks of min(n_batch, n_ubatch) tokens; a
++// trailing one-token chunk is avoided by moving a token into it from the chunk before. Only
++// positions evaluated in chunks of at least kMinBatch tokens count as clean afterwards, so a
++// reused prefix never changes a score: the result is the same whatever ran before.
++template <typename OnRow>
++void evaluate(llama_context * ctx, EvalState & state, const std::vector<llama_token> & tokens,
++              size_t first_row, size_t end_row, OnRow && on_row) {
++    const size_t n = tokens.size();
++    if (n == 0 || first_row >= end_row || end_row > n) {
++        throw std::logic_error("cliffword: bad evaluation range");
++    }
++    const size_t n_ctx = llama_n_ctx_seq(ctx);
++    if (n > n_ctx) {
++        throw std::runtime_error("cliffword: " + std::to_string(n) +
++                                 " tokens do not fit the context window of " + std::to_string(n_ctx));
++    }
++
++    size_t common = 0;
++    const size_t lim = std::min(std::min(state.clean, state.tokens.size()), n);
++    while (common < lim && state.tokens[common] == tokens[common]) {
++        ++common;
++    }
++    size_t start = std::min(common, first_row);
++    start = std::min(start, n >= kMinBatch ? n - kMinBatch : (size_t) 0);
++
++    llama_memory_t mem = llama_get_memory(ctx);
++    if (mem == nullptr) {
++        throw std::runtime_error("cliffword: context has no memory");
++    }
++    // Drop everything of seq 0 from `start` on. A recurrent model cannot drop part of a
++    // sequence: start over.
++    if (!llama_memory_seq_rm(mem, 0, (llama_pos) start, -1)) {
++        clear_memory(ctx, state);
++        start = 0;
++    }
++    // Until the decode below succeeds, the memory holds tokens[0, start) only.
++    state.tokens.assign(tokens.begin(), tokens.begin() + (std::ptrdiff_t) start);
++    state.clean = std::min(state.clean, start);
++
++    size_t chunk = std::min<size_t>(llama_n_batch(ctx), llama_n_ubatch(ctx));
++    if (chunk == 0) chunk = 1;
++    std::vector<size_t> bounds;  // chunk end positions
++    for (size_t b = start; b < n;) {
++        b = std::min(n, b + chunk);
++        bounds.push_back(b);
++    }
++    if (bounds.size() >= 2) {
++        const size_t last = bounds.back() - bounds[bounds.size() - 2];
++        const size_t prev_begin = bounds.size() >= 3 ? bounds[bounds.size() - 3] : start;
++        const size_t prev = bounds[bounds.size() - 2] - prev_begin;
++        if (last < kMinBatch && prev > kMinBatch) {
++            bounds[bounds.size() - 2] -= 1;
++        }
++    }
++
++    size_t clean = start;
++    size_t begin = start;
++    for (size_t end : bounds) {
++        const int32_t len = (int32_t) (end - begin);
++        llama_batch batch = llama_batch_init(len, 0, 1);
++        for (int32_t i = 0; i < len; ++i) {
++            const size_t pos = begin + (size_t) i;
++            batch.token[i] = tokens[pos];
++            batch.pos[i] = (llama_pos) pos;
++            batch.n_seq_id[i] = 1;
++            batch.seq_id[i][0] = 0;
++            batch.logits[i] = (pos >= first_row && pos < end_row) ? 1 : 0;
++        }
++        batch.n_tokens = len;
++        const int32_t rc = llama_decode(ctx, batch);
++        if (rc != 0) {
++            llama_batch_free(batch);
++            clear_memory(ctx, state);
++            throw std::runtime_error("cliffword: llama_decode failed with code " + std::to_string(rc) +
++                                     " at positions " + std::to_string(begin) + ".." + std::to_string(end));
++        }
++        try {
++            for (int32_t i = 0; i < len; ++i) {
++                if (!batch.logits[i]) continue;
++                const float * row = llama_get_logits_ith(ctx, i);
++                if (row == nullptr) {
++                    throw std::runtime_error("cliffword: the context computes no logits (embedding mode?)");
++                }
++                on_row(begin + (size_t) i, row);
++            }
++        } catch (...) {
++            llama_batch_free(batch);
++            clear_memory(ctx, state);
++            throw;
++        }
++        llama_batch_free(batch);
++        state.tokens.insert(state.tokens.end(), tokens.begin() + (std::ptrdiff_t) begin,
++                            tokens.begin() + (std::ptrdiff_t) end);
++        if ((size_t) len >= kMinBatch && clean == begin) {
++            clean = end;
++        }
++        begin = end;
++    }
++    state.clean = clean;
++    g_stats.reused_tokens = start;
++    g_stats.evaluated_tokens = n - start;
++}
++
++} // namespace
++
++std::vector<llama_token> tokenize(const llama_vocab * vocab, const std::string & text) {
++    if (text.empty()) {
++        return {};
++    }
++    std::vector<llama_token> out(text.size() + 2);
++    int32_t n = llama_tokenize(vocab, text.data(), (int32_t) text.size(), out.data(),
++                               (int32_t) out.size(), /*add_special=*/false, /*parse_special=*/false);
++    if (n == std::numeric_limits<int32_t>::min()) {
++        throw std::runtime_error("cliffword: text too long to tokenize");
++    }
++    if (n < 0) {
++        out.resize((size_t) -n);
++        n = llama_tokenize(vocab, text.data(), (int32_t) text.size(), out.data(),
++                           (int32_t) out.size(), false, false);
++        if (n < 0) {
++            throw std::runtime_error("cliffword: tokenization failed");
++        }
++    }
++    out.resize((size_t) n);
++    return out;
++}
++
++std::vector<llama_token> start_tokens(const llama_vocab * vocab) {
++    llama_token buf[8];
++    const int32_t n = llama_tokenize(vocab, "", 0, buf, 8, /*add_special=*/true, /*parse_special=*/false);
++    if (n > 0) {
++        return std::vector<llama_token>(buf, buf + n);
++    }
++    const llama_token eos = llama_vocab_eos(vocab);
++    if (eos == LLAMA_TOKEN_NULL) {
++        throw std::runtime_error("cliffword: the model has neither a BOS nor an EOS token");
++    }
++    return {eos};
++}
++
++std::string token_piece(const llama_vocab * vocab, llama_token token) {
++    std::string piece(16, '\0');
++    int32_t n = llama_token_to_piece(vocab, token, &piece[0], (int32_t) piece.size(), 0, /*special=*/false);
++    if (n < 0) {
++        piece.resize((size_t) -n);
++        n = llama_token_to_piece(vocab, token, &piece[0], (int32_t) piece.size(), 0, false);
++        if (n < 0) {
++            throw std::runtime_error("cliffword: token_to_piece failed");
++        }
++    }
++    piece.resize((size_t) n);
++    return piece;
++}
++
++bool is_complete_utf8(const std::string & bytes) {
++    const auto * p = reinterpret_cast<const unsigned char *>(bytes.data());
++    const size_t n = bytes.size();
++    size_t i = 0;
++    while (i < n) {
++        const unsigned c = p[i];
++        if (c < 0x80) {
++            ++i;
++            continue;
++        }
++        size_t len = 0;
++        unsigned lo = 0x80, hi = 0xBF;  // allowed range of the second byte
++        if (c >= 0xC2 && c <= 0xDF) {
++            len = 2;
++        } else if (c == 0xE0) {
++            len = 3; lo = 0xA0;            // no overlongs
++        } else if ((c >= 0xE1 && c <= 0xEC) || c == 0xEE || c == 0xEF) {
++            len = 3;
++        } else if (c == 0xED) {
++            len = 3; hi = 0x9F;            // no surrogates
++        } else if (c == 0xF0) {
++            len = 4; lo = 0x90;            // no overlongs
++        } else if (c >= 0xF1 && c <= 0xF3) {
++            len = 4;
++        } else if (c == 0xF4) {
++            len = 4; hi = 0x8F;            // nothing above U+10FFFF
++        } else {
++            return false;                  // continuation byte, C0, C1 or F5..FF
++        }
++        if (i + len > n) {
++            return false;
++        }
++        if (p[i + 1] < lo || p[i + 1] > hi) {
++            return false;
++        }
++        for (size_t j = 2; j < len; ++j) {
++            if (p[i + j] < 0x80 || p[i + j] > 0xBF) {
++                return false;
++            }
++        }
++        i += len;
++    }
++    return true;
++}
++
++std::vector<ScoredToken> score_text(llama_context * ctx, EvalState & state,
++                                    const std::string & context, const std::string & text) {
++    g_stats = EvalStats{};
++    if (text.empty()) {
++        return {};
++    }
++    const llama_vocab * vocab = vocab_of(ctx);
++    std::vector<llama_token> all = start_tokens(vocab);
++    const std::vector<llama_token> ctx_tokens = tokenize(vocab, context);
++    all.insert(all.end(), ctx_tokens.begin(), ctx_tokens.end());
++    const size_t n_prefix = all.size();
++    const std::vector<llama_token> text_tokens = tokenize(vocab, text);
++    if (text_tokens.empty()) {
++        throw std::runtime_error("cliffword: the text has no tokens");
++    }
++    all.insert(all.end(), text_tokens.begin(), text_tokens.end());
++    g_stats.prefix_tokens = n_prefix;
++
++    // Byte ranges of the pieces; they must spell the text exactly.
++    std::vector<ScoredToken> out(text_tokens.size());
++    size_t off = 0;
++    for (size_t j = 0; j < text_tokens.size(); ++j) {
++        const std::string piece = token_piece(vocab, text_tokens[j]);
++        if (text.compare(off, piece.size(), piece) != 0) {
++            throw std::runtime_error("cliffword: token pieces do not spell the text");
++        }
++        out[j] = ScoredToken{text_tokens[j], off, off + piece.size(), 0.0};
++        off += piece.size();
++    }
++    if (off != text.size()) {
++        throw std::runtime_error("cliffword: token pieces do not cover the text");
++    }
++
++    const int32_t n_vocab = llama_vocab_n_tokens(vocab);
++    evaluate(ctx, state, all, n_prefix - 1, all.size() - 1, [&](size_t pos, const float * row) {
++        const size_t j = pos - (n_prefix - 1);
++        out[j].logprob = (double) row[out[j].id] - log_sum_exp(row, n_vocab);
++    });
++    return out;
++}
++
++std::vector<NextToken> next_tokens(llama_context * ctx, EvalState & state,
++                                   const std::string & context, int k) {
++    g_stats = EvalStats{};
++    if (k <= 0) {
++        return {};
++    }
++    const llama_vocab * vocab = vocab_of(ctx);
++    std::vector<llama_token> all = start_tokens(vocab);
++    const std::vector<llama_token> ctx_tokens = tokenize(vocab, context);
++    all.insert(all.end(), ctx_tokens.begin(), ctx_tokens.end());
++    g_stats.prefix_tokens = all.size();
++
++    const int32_t n_vocab = llama_vocab_n_tokens(vocab);
++    std::vector<double> lsm((size_t) n_vocab);
++    evaluate(ctx, state, all, all.size() - 1, all.size(), [&](size_t, const float * row) {
++        const double lse = log_sum_exp(row, n_vocab);
++        for (int32_t i = 0; i < n_vocab; ++i) {
++            lsm[(size_t) i] = (double) row[i] - lse;
++        }
++    });
++
++    // Most likely first; ties by token id. Widen the sorted head until k usable tokens are
++    // found (skipped pieces do not count) or the whole vocabulary has been looked at.
++    std::vector<llama_token> idx((size_t) n_vocab);
++    std::iota(idx.begin(), idx.end(), 0);
++    const auto more_likely = [&lsm](llama_token a, llama_token b) {
++        const double x = lsm[(size_t) a], y = lsm[(size_t) b];
++        if (x != y) return x > y;
++        return a < b;
++    };
++    size_t width = std::min<size_t>((size_t) n_vocab, 2 * (size_t) k + 16);
++    std::vector<NextToken> out;
++    while (true) {
++        std::partial_sort(idx.begin(), idx.begin() + (std::ptrdiff_t) width, idx.end(), more_likely);
++        out.clear();
++        for (size_t i = 0; i < width && out.size() < (size_t) k; ++i) {
++            const llama_token t = idx[i];
++            std::string piece = token_piece(vocab, t);
++            if (piece.empty() || !is_complete_utf8(piece)) {
++                continue;  // control token or part of a character
++            }
++            out.push_back(NextToken{t, std::move(piece), lsm[(size_t) t]});
++        }
++        if (out.size() == (size_t) k || width == (size_t) n_vocab) {
++            break;
++        }
++        width = std::min<size_t>((size_t) n_vocab, width * 4);
++    }
++    return out;
++}
++
++EvalStats last_eval_stats() {
++    return g_stats;
++}
++
++} // namespace cliffword
+diff --git a/node_modules/llama.rn/cpp/jsi/CliffwordScore.h b/node_modules/llama.rn/cpp/jsi/CliffwordScore.h
+new file mode 100644
+index 0000000..73c273c
+--- /dev/null
++++ b/node_modules/llama.rn/cpp/jsi/CliffwordScore.h
+@@ -0,0 +1,99 @@
++// Cliffword (patch-package, app/patches/llama.rn+0.13.0-rc.11.patch): log-probabilities of a
++// supplied text, which llama.rn has no call for.
++//
++// Plain llama.cpp C API only, no JSI and no rn-llama types, so the same file builds in the
++// app (cpp/jsi is compiled from source on iOS and Android) and on a desktop against
++// vendor/llama.cpp (app/native-tests/scoring). Every llama_* symbol used here is exported by
++// the prebuilt rnllama libraries (checked with nm, see app/native-tests/scoring/README.md).
++//
++// Semantics follow proof/model_server.py and proof/score.py exactly:
++// - start token: what tokenizing "" with add_special adds (BOS when the model adds one),
++//   else the end-of-text token llama_vocab_eos (<|im_end|>, 151645, for the Qwen3 GGUFs);
++// - the context and the text are tokenized separately, without special tokens or BOS;
++// - one sequence start + context + text is evaluated in seq 0, with logits for every
++//   position that predicts a text token; log-softmax over the raw logits in double.
++#pragma once
++
++#if defined(RNLLAMA_USE_FRAMEWORK_HEADERS)
++#include <rnllama/llama.h>
++#else
++#include "llama.h"
++#endif
++
++#include <cstddef>
++#include <string>
++#include <vector>
++
++namespace cliffword {
++
++// One token of the scored text.
++struct ScoredToken {
++    llama_token id;
++    // Byte range of the token's piece in the UTF-8 of the text. A piece may end inside a
++    // multi-byte character; callers merge such tokens with the next (model_server.py).
++    size_t byte_start;
++    size_t byte_end;
++    // Natural log of P(token | start + context + previous text tokens). May be -inf.
++    double logprob;
++};
++
++// One candidate next token.
++struct NextToken {
++    llama_token id;
++    // The token's piece: non-empty and complete, well-formed UTF-8.
++    std::string piece;
++    double logprob;
++};
++
++// What seq 0 of the context's memory holds, as far as these functions know. The caller keeps
++// one per llama_context and must reset it (and clear the memory) whenever anything else may
++// have changed the memory. On return it describes the memory again; after a failure it is
++// empty and the memory is cleared.
++struct EvalState {
++    // Tokens at positions 0..n-1 of seq 0.
++    std::vector<llama_token> tokens;
++    // Positions [0, clean) were evaluated in batches of at least kMinBatch tokens, so they can
++    // be reused without changing a score (see evaluate() in CliffwordScore.cpp).
++    size_t clean = 0;
++};
++
++// Smallest batch evaluated. In the llama.cpp builds the proof used, a one-token batch takes
++// another CPU kernel path and moved logprobs by up to 0.28 nats; batches of two or more
++// reproduce a single full batch (proof/model_server.py, ModelServer.logits).
++constexpr size_t kMinBatch = 2;
++
++// Start tokens: BOS (and whatever else add_special adds) or, if none, {llama_vocab_eos}.
++std::vector<llama_token> start_tokens(const llama_vocab * vocab);
++
++// Tokens of `text` without special tokens and without BOS (parse_special = false).
++std::vector<llama_token> tokenize(const llama_vocab * vocab, const std::string & text);
++
++// Raw bytes of a token's piece (special tokens render as nothing, like llama-cpp-python's
++// detokenize). May be a partial UTF-8 sequence.
++std::string token_piece(const llama_vocab * vocab, llama_token token);
++
++// True when `bytes` is well-formed, complete UTF-8 (the rule of Python's bytes.decode("utf-8"):
++// no overlongs, surrogates, values above U+10FFFF or cut sequences). "" is complete.
++bool is_complete_utf8(const std::string & bytes);
++
++// Per-token log-probabilities of `text` after start + `context`. An empty text gives no
++// tokens. Throws std::runtime_error when the sequence does not fit the context window, when
++// llama_decode fails or when the context computes no logits (an embedding context).
++std::vector<ScoredToken> score_text(llama_context * ctx, EvalState & state,
++                                    const std::string & context, const std::string & text);
++
++// The k most likely next tokens after start + `context`, most likely first (raw softmax, no
++// sampling). Tokens whose piece is empty (control tokens) or only part of a UTF-8 character
++// are skipped and do not count towards k, as in model_server.py's /next.
++std::vector<NextToken> next_tokens(llama_context * ctx, EvalState & state,
++                                   const std::string & context, int k);
++
++// Counters from the last score_text / next_tokens call on this thread (for tests and logs).
++struct EvalStats {
++    size_t prefix_tokens = 0;   // start + context tokens
++    size_t reused_tokens = 0;   // positions taken from the memory instead of evaluated
++    size_t evaluated_tokens = 0;
++};
++EvalStats last_eval_stats();
++
++} // namespace cliffword
+diff --git a/node_modules/llama.rn/cpp/jsi/RNLlamaJSI.cpp b/node_modules/llama.rn/cpp/jsi/RNLlamaJSI.cpp
+index 4699569..738e586 100644
+--- a/node_modules/llama.rn/cpp/jsi/RNLlamaJSI.cpp
++++ b/node_modules/llama.rn/cpp/jsi/RNLlamaJSI.cpp
+@@ -10,6 +10,7 @@
+ #include "JSITaskManager.h"
+ #include "JSINativeHeaders.h"
+ #include "JSIJson.h"
++#include "CliffwordScore.h"
+ 
+ #include <algorithm>
+ #include <atomic>
+@@ -18,6 +19,7 @@
+ #include <mutex>
+ #include <stdexcept>
+ #include <string>
++#include <unordered_map>
+ #include <utility>
+ #include <vector>
+ 
+@@ -550,6 +552,183 @@ namespace rnllama_jsi {
+         return reinterpret_cast<rnllama::llama_rn_context*>(ctxPtr);
+     }
+ 
++    // ---- Cliffword (patch-package: app/patches/llama.rn+0.13.0-rc.11.patch) ----------------
++    // llamaCliffwordScoreText(contextId, contextText, text) and
++    // llamaCliffwordNextTokens(contextId, contextText, k): the log-probability of every token
++    // of a supplied text, and the k most likely next tokens, computed by
++    // cpp/jsi/CliffwordScore.cpp on the completion's sequence (seq 0).
++    //
++    // Each call runs on the thread pool through createPromiseTask and holds a ContextClaim for
++    // its whole run, like embedding() and decide(), so it never overlaps a completion or any
++    // other op on the context: an overlapping op fails with "Context is busy".
++    //
++    // The memory of seq 0 is shared with the completion, which records what that memory holds
++    // in completion->embd[0, n_past) and reuses the longest shared prefix for its next prompt
++    // (loadPrompt). A call therefore
++    //   - reuses its own previous evaluation (the shared context of several scored texts) only
++    //     while embd / n_past still hold exactly the tokens it left there, i.e. nothing else
++    //     ran since; otherwise it first calls clearCache(false), which clears the memory and
++    //     resets embd, n_past and the prompt state checkpoints;
++    //   - afterwards records its tokens in embd / n_past, so the next completion treats them
++    //     as its prompt cache (keeping the shared prefix, dropping the rest) and never reuses
++    //     a stale one; after a failure it clears the cache.
++    struct CliffwordSlot {
++        rnllama::llama_rn_context* owner = nullptr;
++        cliffword::EvalState state;
++    };
++    static std::mutex g_cliffwordMutex;
++    static std::unordered_map<int, std::shared_ptr<CliffwordSlot>> g_cliffwordSlots;
++
++    static std::shared_ptr<CliffwordSlot> cliffwordSlot(int contextId, rnllama::llama_rn_context* ctx) {
++        std::lock_guard<std::mutex> lock(g_cliffwordMutex);
++        for (auto it = g_cliffwordSlots.begin(); it != g_cliffwordSlots.end();) {
++            // Forget contexts that have been released.
++            if (it->first != contextId && !g_llamaContexts.get(it->first)) {
++                it = g_cliffwordSlots.erase(it);
++            } else {
++                ++it;
++            }
++        }
++        auto& slot = g_cliffwordSlots[contextId];
++        if (!slot || slot->owner != ctx) {
++            slot = std::make_shared<CliffwordSlot>();
++            slot->owner = ctx;
++        }
++        return slot;
++    }
++
++    // Runs fn(state) under the context's claim, keeping the completion's cache bookkeeping right.
++    template <typename Fn>
++    static void cliffwordRun(int contextId, rnllama::llama_rn_context* ctx, Fn&& fn) {
++        if (ctx->ctx == nullptr || ctx->model == nullptr) {
++            throw std::runtime_error("Context not initialized");
++        }
++        if (ctx->completion == nullptr) {
++            throw std::runtime_error("Completion not initialized");
++        }
++        if (!ctx->canGenerateText()) {
++            throw std::runtime_error("This model only answers decisions, see decide()");
++        }
++        if (ctx->parallel_mode_enabled) {
++            // The slots own the sequences then; scoring needs the single-sequence mode.
++            throw std::runtime_error("Text scoring is not available in parallel mode");
++        }
++        ContextClaim claim(ctx);
++        auto slot = cliffwordSlot(contextId, ctx);
++        auto* completion = ctx->completion;
++        cliffword::EvalState& state = slot->state;
++        const bool intact = !state.tokens.empty() &&
++            completion->n_past >= 0 &&
++            (size_t) completion->n_past == state.tokens.size() &&
++            completion->embd == state.tokens;
++        if (!intact) {
++            ctx->clearCache(false);
++            state = cliffword::EvalState{};
++        }
++        try {
++            fn(state);
++        } catch (...) {
++            state = cliffword::EvalState{};
++            ctx->clearCache(false);
++            throw;
++        }
++        completion->embd = state.tokens;
++        completion->n_past = (llama_pos) state.tokens.size();
++    }
++
++    static jsi::Object cliffwordStats(jsi::Runtime& rt, const cliffword::EvalStats& stats) {
++        jsi::Object result(rt);
++        result.setProperty(rt, "prefix_tokens", jsi::Value((double) stats.prefix_tokens));
++        result.setProperty(rt, "reused_tokens", jsi::Value((double) stats.reused_tokens));
++        result.setProperty(rt, "evaluated_tokens", jsi::Value((double) stats.evaluated_tokens));
++        return result;
++    }
++
++    static void installCliffwordBindings(jsi::Runtime& runtime, std::shared_ptr<react::CallInvoker> callInvoker) {
++        // -> { tokens: [{ id, byte_start, byte_end, logprob }], prefix_tokens, reused_tokens,
++        //      evaluated_tokens }; byte offsets index the UTF-8 of `text`.
++        auto scoreText = jsi::Function::createFromHostFunction(runtime,
++            jsi::PropNameID::forAscii(runtime, "llamaCliffwordScoreText"),
++            3,
++            [callInvoker](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
++                if (count < 3 || !arguments[0].isNumber() || !arguments[1].isString() || !arguments[2].isString()) {
++                    throw jsi::JSError(runtime, "llamaCliffwordScoreText(contextId, contextText, text): expected a number and two strings");
++                }
++                int contextId = (int)arguments[0].asNumber();
++                std::string contextText = arguments[1].asString(runtime).utf8(runtime);
++                std::string text = arguments[2].asString(runtime).utf8(runtime);
++
++                return createPromiseTask(runtime, callInvoker, [contextId, contextText, text]() -> PromiseResultGenerator {
++                    auto ctx = getContextOrThrow(contextId);
++                    std::vector<cliffword::ScoredToken> tokens;
++                    cliffword::EvalStats stats;
++                    cliffwordRun(contextId, ctx, [&](cliffword::EvalState& state) {
++                        tokens = cliffword::score_text(ctx->ctx, state, contextText, text);
++                        stats = cliffword::last_eval_stats();
++                    });
++                    return [tokens, stats](jsi::Runtime& rt) -> jsi::Value {
++                        jsi::Array arr(rt, tokens.size());
++                        for (size_t i = 0; i < tokens.size(); ++i) {
++                            jsi::Object item(rt);
++                            item.setProperty(rt, "id", jsi::Value((double) tokens[i].id));
++                            item.setProperty(rt, "byte_start", jsi::Value((double) tokens[i].byte_start));
++                            item.setProperty(rt, "byte_end", jsi::Value((double) tokens[i].byte_end));
++                            item.setProperty(rt, "logprob", jsi::Value(tokens[i].logprob));
++                            arr.setValueAtIndex(rt, i, std::move(item));
++                        }
++                        jsi::Object result = cliffwordStats(rt, stats);
++                        result.setProperty(rt, "tokens", std::move(arr));
++                        return result;
++                    };
++                }, contextId);
++            }
++        );
++        runtime.global().setProperty(runtime, "llamaCliffwordScoreText", scoreText);
++
++        // -> { tokens: [{ id, text, logprob }], prefix_tokens, reused_tokens, evaluated_tokens },
++        //    most likely first; pieces that are empty or part of a character are skipped.
++        auto nextTokens = jsi::Function::createFromHostFunction(runtime,
++            jsi::PropNameID::forAscii(runtime, "llamaCliffwordNextTokens"),
++            3,
++            [callInvoker](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
++                if (count < 3 || !arguments[0].isNumber() || !arguments[1].isString() || !arguments[2].isNumber()) {
++                    throw jsi::JSError(runtime, "llamaCliffwordNextTokens(contextId, contextText, k): expected a number, a string and a number");
++                }
++                int contextId = (int)arguments[0].asNumber();
++                std::string contextText = arguments[1].asString(runtime).utf8(runtime);
++                double kArg = arguments[2].asNumber();
++                int k = kArg > 0 ? (int) std::min(kArg, 1000000.0) : 0;
++
++                return createPromiseTask(runtime, callInvoker, [contextId, contextText, k]() -> PromiseResultGenerator {
++                    auto ctx = getContextOrThrow(contextId);
++                    std::vector<cliffword::NextToken> tokens;
++                    cliffword::EvalStats stats;
++                    if (k > 0) {
++                        cliffwordRun(contextId, ctx, [&](cliffword::EvalState& state) {
++                            tokens = cliffword::next_tokens(ctx->ctx, state, contextText, k);
++                            stats = cliffword::last_eval_stats();
++                        });
++                    }
++                    return [tokens, stats](jsi::Runtime& rt) -> jsi::Value {
++                        jsi::Array arr(rt, tokens.size());
++                        for (size_t i = 0; i < tokens.size(); ++i) {
++                            jsi::Object item(rt);
++                            item.setProperty(rt, "id", jsi::Value((double) tokens[i].id));
++                            item.setProperty(rt, "text", jsi::String::createFromUtf8(rt, tokens[i].piece));
++                            item.setProperty(rt, "logprob", jsi::Value(tokens[i].logprob));
++                            arr.setValueAtIndex(rt, i, std::move(item));
++                        }
++                        jsi::Object result = cliffwordStats(rt, stats);
++                        result.setProperty(rt, "tokens", std::move(arr));
++                        return result;
++                    };
++                }, contextId);
++            }
++        );
++        runtime.global().setProperty(runtime, "llamaCliffwordNextTokens", nextTokens);
++    }
++    // ---- end Cliffword ------------------------------------------------------------------
++
+     void installJSIBindings(
+         jsi::Runtime& runtime,
+         std::shared_ptr<react::CallInvoker> callInvoker
+@@ -2345,6 +2524,8 @@ namespace rnllama_jsi {
+             }
+         );
+         runtime.global().setProperty(runtime, "llamaReleaseVocoder", releaseVocoder);
++
++        installCliffwordBindings(runtime, callInvoker);  // Cliffword (patch-package)
+     }
+ 
+     void cleanupJSIBindings() {
+diff --git a/node_modules/llama.rn/lib/commonjs/index.js b/node_modules/llama.rn/lib/commonjs/index.js
+index f664f54..6c54e75 100644
+--- a/node_modules/llama.rn/lib/commonjs/index.js
++++ b/node_modules/llama.rn/lib/commonjs/index.js
+@@ -8,6 +8,7 @@ exports.addNativeLogListener = addNativeLogListener;
+ exports.getBackendDevicesInfo = getBackendDevicesInfo;
+ exports.initLlama = initLlama;
+ exports.installJsi = void 0;
++exports.isTextScoringAvailable = void 0;
+ exports.loadLlamaModelInfo = loadLlamaModelInfo;
+ exports.releaseAllLlama = releaseAllLlama;
+ exports.setContextLimit = setContextLimit;
+@@ -23,6 +24,9 @@ const emitNativeLog = (level, text) => {
+   logListeners.forEach(listener => listener(level, text));
+ };
+ const jsiBindingKeys = ['llamaInitContext', 'llamaReleaseContext', 'llamaReleaseAllContexts', 'llamaModelInfo', 'llamaGetBackendDevicesInfo', 'llamaLoadSession', 'llamaSaveSession', 'llamaTokenize', 'llamaDetokenize', 'llamaGetFormattedChat', 'llamaEmbedding', 'llamaRerank', 'llamaDecide', 'llamaBench', 'llamaToggleNativeLog', 'llamaSetContextLimit', 'llamaCompletion', 'llamaStopCompletion', 'llamaApplyLoraAdapters', 'llamaRemoveLoraAdapters', 'llamaGetLoadedLoraAdapters', 'llamaInitMultimodal', 'llamaIsMultimodalEnabled', 'llamaGetMultimodalSupport', 'llamaReleaseMultimodal', 'llamaInitVocoder', 'llamaIsVocoderEnabled', 'llamaGetFormattedAudioCompletion', 'llamaGetTTSCapabilities', 'llamaDecodeAudioTokens', 'llamaCreateSpeaker', 'llamaReleaseSpeaker', 'llamaLoadSpeaker', 'llamaSaveSpeaker', 'llamaListSpeakers', 'llamaDecodeAudioLatents', 'llamaGetAudioSampleRate', 'llamaReleaseVocoder', 'llamaClearCache', 'llamaEnableParallelMode', 'llamaQueueCompletion', 'llamaCancelRequest', 'llamaQueueEmbedding', 'llamaQueueRerank', 'llamaQueueDecide', 'llamaGetParallelStatus', 'llamaSubscribeParallelStatus', 'llamaUnsubscribeParallelStatus'];
++// Cliffword (patch-package): optional bindings for text scoring, see src/index.ts.
++const optionalJsiBindingKeys = ['llamaCliffwordScoreText', 'llamaCliffwordNextTokens'];
++let optionalJsiBindings = {};
+ let jsiBindings = null;
+ const bindJsiFromGlobal = () => {
+   const bindings = {};
+@@ -41,7 +45,23 @@ const bindJsiFromGlobal = () => {
+     throw new Error(`[RNLlama] Missing JSI bindings: ${missing.join(', ')}`);
+   }
+   jsiBindings = bindings;
++  const optional = {};
++  optionalJsiBindingKeys.forEach(key => {
++    const value = global[key];
++    if (typeof value === 'function') {
++      optional[key] = value;
++      delete global[key];
++    }
++  });
++  optionalJsiBindings = optional;
+ };
++
++/**
++ * Cliffword (patch-package): whether the native text-scoring calls are installed.
++ */
++const isTextScoringAvailable = () => typeof optionalJsiBindings.llamaCliffwordScoreText === 'function' && typeof optionalJsiBindings.llamaCliffwordNextTokens === 'function';
++exports.isTextScoringAvailable = isTextScoringAvailable;
++const TEXT_SCORING_UNAVAILABLE = '[RNLlama] Text scoring is not available: the native library was built without the Cliffword patch';
+ const getJsi = () => {
+   if (!jsiBindings) {
+     throw new Error('JSI bindings not installed');
+@@ -571,6 +591,22 @@ class LlamaContext {
+     } = getJsi();
+     return llamaDetokenize(this.id, tokens);
+   }
++
++  // Cliffword (patch-package): see src/index.ts.
++  scoreText(contextText, text) {
++    const fn = optionalJsiBindings.llamaCliffwordScoreText;
++    if (!fn) {
++      return Promise.reject(new Error(TEXT_SCORING_UNAVAILABLE));
++    }
++    return fn(this.id, contextText, text);
++  }
++  nextTokens(contextText, k) {
++    const fn = optionalJsiBindings.llamaCliffwordNextTokens;
++    if (!fn) {
++      return Promise.reject(new Error(TEXT_SCORING_UNAVAILABLE));
++    }
++    return fn(this.id, contextText, k);
++  }
+   async embedding(text, params) {
+     const {
+       llamaEmbedding
+diff --git a/node_modules/llama.rn/lib/module/index.js b/node_modules/llama.rn/lib/module/index.js
+index b54188f..a72e9ec 100644
+--- a/node_modules/llama.rn/lib/module/index.js
++++ b/node_modules/llama.rn/lib/module/index.js
+@@ -10,6 +10,9 @@ const emitNativeLog = (level, text) => {
+   logListeners.forEach(listener => listener(level, text));
+ };
+ const jsiBindingKeys = ['llamaInitContext', 'llamaReleaseContext', 'llamaReleaseAllContexts', 'llamaModelInfo', 'llamaGetBackendDevicesInfo', 'llamaLoadSession', 'llamaSaveSession', 'llamaTokenize', 'llamaDetokenize', 'llamaGetFormattedChat', 'llamaEmbedding', 'llamaRerank', 'llamaDecide', 'llamaBench', 'llamaToggleNativeLog', 'llamaSetContextLimit', 'llamaCompletion', 'llamaStopCompletion', 'llamaApplyLoraAdapters', 'llamaRemoveLoraAdapters', 'llamaGetLoadedLoraAdapters', 'llamaInitMultimodal', 'llamaIsMultimodalEnabled', 'llamaGetMultimodalSupport', 'llamaReleaseMultimodal', 'llamaInitVocoder', 'llamaIsVocoderEnabled', 'llamaGetFormattedAudioCompletion', 'llamaGetTTSCapabilities', 'llamaDecodeAudioTokens', 'llamaCreateSpeaker', 'llamaReleaseSpeaker', 'llamaLoadSpeaker', 'llamaSaveSpeaker', 'llamaListSpeakers', 'llamaDecodeAudioLatents', 'llamaGetAudioSampleRate', 'llamaReleaseVocoder', 'llamaClearCache', 'llamaEnableParallelMode', 'llamaQueueCompletion', 'llamaCancelRequest', 'llamaQueueEmbedding', 'llamaQueueRerank', 'llamaQueueDecide', 'llamaGetParallelStatus', 'llamaSubscribeParallelStatus', 'llamaUnsubscribeParallelStatus'];
++// Cliffword (patch-package): optional bindings for text scoring, see src/index.ts.
++const optionalJsiBindingKeys = ['llamaCliffwordScoreText', 'llamaCliffwordNextTokens'];
++let optionalJsiBindings = {};
+ let jsiBindings = null;
+ const bindJsiFromGlobal = () => {
+   const bindings = {};
+@@ -28,7 +31,22 @@ const bindJsiFromGlobal = () => {
+     throw new Error(`[RNLlama] Missing JSI bindings: ${missing.join(', ')}`);
+   }
+   jsiBindings = bindings;
++  const optional = {};
++  optionalJsiBindingKeys.forEach(key => {
++    const value = global[key];
++    if (typeof value === 'function') {
++      optional[key] = value;
++      delete global[key];
++    }
++  });
++  optionalJsiBindings = optional;
+ };
++
++/**
++ * Cliffword (patch-package): whether the native text-scoring calls are installed.
++ */
++export const isTextScoringAvailable = () => typeof optionalJsiBindings.llamaCliffwordScoreText === 'function' && typeof optionalJsiBindings.llamaCliffwordNextTokens === 'function';
++const TEXT_SCORING_UNAVAILABLE = '[RNLlama] Text scoring is not available: the native library was built without the Cliffword patch';
+ const getJsi = () => {
+   if (!jsiBindings) {
+     throw new Error('JSI bindings not installed');
+@@ -556,6 +574,22 @@ export class LlamaContext {
+     } = getJsi();
+     return llamaDetokenize(this.id, tokens);
+   }
++
++  // Cliffword (patch-package): see src/index.ts.
++  scoreText(contextText, text) {
++    const fn = optionalJsiBindings.llamaCliffwordScoreText;
++    if (!fn) {
++      return Promise.reject(new Error(TEXT_SCORING_UNAVAILABLE));
++    }
++    return fn(this.id, contextText, text);
++  }
++  nextTokens(contextText, k) {
++    const fn = optionalJsiBindings.llamaCliffwordNextTokens;
++    if (!fn) {
++      return Promise.reject(new Error(TEXT_SCORING_UNAVAILABLE));
++    }
++    return fn(this.id, contextText, k);
++  }
+   async embedding(text, params) {
+     const {
+       llamaEmbedding
+diff --git a/node_modules/llama.rn/lib/typescript/index.d.ts b/node_modules/llama.rn/lib/typescript/index.d.ts
+index 54b37cf..6e2e205 100644
+--- a/node_modules/llama.rn/lib/typescript/index.d.ts
++++ b/node_modules/llama.rn/lib/typescript/index.d.ts
+@@ -1,5 +1,5 @@
+ import './jsi';
+-import type { NativeContextParams, NativeLlamaContext, NativeCompletionParams, NativeParallelCompletionParams, NativeCompletionTokenProb, NativeCompletionResult, NativeTokenizeResult, NativeEmbeddingResult, NativeSessionLoadResult, NativeEmbeddingParams, NativeRerankParams, NativeRerankResult, DecisionModelType, DecisionReadout, DecisionValue, DecisionContent, DecisionChoiceQuestion, DecisionScoreQuestion, DecisionNoulQuestion, DecisionQuestion, DecisionQuestions, DecisionRequest, DecisionChoiceAnswer, DecisionScoreAnswer, DecisionNoulAnswer, DecisionAnswer, DecisionAnswerOf, DecisionResult, NativeDecisionResult, NativeCompletionTokenProbItem, NativeCompletionResultTimings, JinjaFormattedChatResult, FormattedChatResult, NativeImageProcessingResult, NativeBackendDeviceInfo, NativeSpeculativeConfig, NativeSpeculativeParams, NativeSpeculativeType, ParallelStatus, ParallelRequestStatus } from './types';
++import type { NativeContextParams, NativeLlamaContext, NativeCompletionParams, NativeParallelCompletionParams, NativeCompletionTokenProb, NativeCompletionResult, NativeTokenizeResult, NativeScoredToken, NativeEvalStats, NativeScoreTextResult, NativeNextToken, NativeNextTokensResult, NativeEmbeddingResult, NativeSessionLoadResult, NativeEmbeddingParams, NativeRerankParams, NativeRerankResult, DecisionModelType, DecisionReadout, DecisionValue, DecisionContent, DecisionChoiceQuestion, DecisionScoreQuestion, DecisionNoulQuestion, DecisionQuestion, DecisionQuestions, DecisionRequest, DecisionChoiceAnswer, DecisionScoreAnswer, DecisionNoulAnswer, DecisionAnswer, DecisionAnswerOf, DecisionResult, NativeDecisionResult, NativeCompletionTokenProbItem, NativeCompletionResultTimings, JinjaFormattedChatResult, FormattedChatResult, NativeImageProcessingResult, NativeBackendDeviceInfo, NativeSpeculativeConfig, NativeSpeculativeParams, NativeSpeculativeType, ParallelStatus, ParallelRequestStatus } from './types';
+ export type RNLlamaMessagePart = {
+     type: string;
+     text?: string;
+@@ -17,10 +17,16 @@ export type RNLlamaOAICompatibleMessage = {
+     content?: string | RNLlamaMessagePart[];
+     reasoning_content?: string;
+ };
+-export type { NativeContextParams, NativeLlamaContext, NativeCompletionParams, NativeParallelCompletionParams, NativeCompletionTokenProb, NativeCompletionResult, NativeTokenizeResult, NativeEmbeddingResult, NativeSessionLoadResult, NativeEmbeddingParams, NativeRerankParams, NativeRerankResult, DecisionModelType, DecisionReadout, DecisionValue, DecisionContent, DecisionChoiceQuestion, DecisionScoreQuestion, DecisionNoulQuestion, DecisionQuestion, DecisionQuestions, DecisionRequest, DecisionChoiceAnswer, DecisionScoreAnswer, DecisionNoulAnswer, DecisionAnswer, DecisionAnswerOf, DecisionResult, NativeDecisionResult, NativeCompletionTokenProbItem, NativeCompletionResultTimings, FormattedChatResult, JinjaFormattedChatResult, NativeImageProcessingResult, NativeBackendDeviceInfo, NativeSpeculativeConfig, NativeSpeculativeParams, NativeSpeculativeType, ParallelStatus, ParallelRequestStatus, };
++export type { NativeContextParams, NativeLlamaContext, NativeCompletionParams, NativeParallelCompletionParams, NativeCompletionTokenProb, NativeCompletionResult, NativeTokenizeResult, NativeScoredToken, NativeEvalStats, NativeScoreTextResult, NativeNextToken, NativeNextTokensResult, NativeEmbeddingResult, NativeSessionLoadResult, NativeEmbeddingParams, NativeRerankParams, NativeRerankResult, DecisionModelType, DecisionReadout, DecisionValue, DecisionContent, DecisionChoiceQuestion, DecisionScoreQuestion, DecisionNoulQuestion, DecisionQuestion, DecisionQuestions, DecisionRequest, DecisionChoiceAnswer, DecisionScoreAnswer, DecisionNoulAnswer, DecisionAnswer, DecisionAnswerOf, DecisionResult, NativeDecisionResult, NativeCompletionTokenProbItem, NativeCompletionResultTimings, FormattedChatResult, JinjaFormattedChatResult, NativeImageProcessingResult, NativeBackendDeviceInfo, NativeSpeculativeConfig, NativeSpeculativeParams, NativeSpeculativeType, ParallelStatus, ParallelRequestStatus, };
+ export declare const RNLLAMA_MTMD_DEFAULT_MEDIA_MARKER = "<__media__>";
+ export type { TTSCapabilities, TTSSpeakerInfo, TTSCompletionParams, } from './tts';
+ export declare const installJsi: () => Promise<void>;
++/**
++ * Cliffword (patch-package): whether the native text-scoring calls
++ * (`LlamaContext.scoreText`, `LlamaContext.nextTokens`) are installed. False until the JSI
++ * bindings are installed (initLlama does that) and in a binary built without the patch.
++ */
++export declare const isTextScoringAvailable: () => boolean;
+ export type ToolCall = {
+     type: 'function';
+     id?: string;
+@@ -229,6 +235,20 @@ export declare class LlamaContext {
+         media_paths?: string[];
+     }): Promise<NativeTokenizeResult>;
+     detokenize(tokens: number[]): Promise<string>;
++    /**
++     * Cliffword (patch-package): the log-probability of every token of `text` as a
++     * continuation of `contextText` (start token + context tokens + text tokens, each
++     * tokenized on its own without special tokens; natural logs of a softmax over the raw
++     * logits). Byte offsets index the UTF-8 of `text`. Rejects when isTextScoringAvailable()
++     * is false, and with "Context is busy" during a completion.
++     */
++    scoreText(contextText: string, text: string): Promise<NativeScoreTextResult>;
++    /**
++     * Cliffword (patch-package): the `k` most likely next tokens after the start token +
++     * `contextText`, most likely first (raw softmax). Empty pieces and pieces that are only
++     * part of a UTF-8 character are skipped. Rejects when isTextScoringAvailable() is false.
++     */
++    nextTokens(contextText: string, k: number): Promise<NativeNextTokensResult>;
+     embedding(text: string, params?: EmbeddingParams): Promise<NativeEmbeddingResult>;
+     rerank(query: string, documents: string[], params?: RerankParams): Promise<RerankResult[]>;
+     /**
+diff --git a/node_modules/llama.rn/lib/typescript/jsi.d.ts b/node_modules/llama.rn/lib/typescript/jsi.d.ts
+index 31f7e39..63cbaa2 100644
+--- a/node_modules/llama.rn/lib/typescript/jsi.d.ts
++++ b/node_modules/llama.rn/lib/typescript/jsi.d.ts
+@@ -1,4 +1,4 @@
+-import type { NativeContextParams, NativeCompletionParams, NativeParallelCompletionParams, NativeCompletionResult, NativeTokenizeResult, NativeEmbeddingParams, NativeSessionLoadResult, NativeRerankParams, NativeRerankResult, DecisionRequest, NativeDecisionResult, NativeQueuedDecisionResult, NativeBackendDeviceInfo, NativeBenchResult, JinjaFormattedChatResult, ParallelStatus } from './types';
++import type { NativeContextParams, NativeCompletionParams, NativeParallelCompletionParams, NativeCompletionResult, NativeTokenizeResult, NativeEmbeddingParams, NativeSessionLoadResult, NativeRerankParams, NativeRerankResult, DecisionRequest, NativeDecisionResult, NativeQueuedDecisionResult, NativeBackendDeviceInfo, NativeBenchResult, JinjaFormattedChatResult, ParallelStatus, NativeScoreTextResult, NativeNextTokensResult } from './types';
+ import type { TTSCapabilities, TTSSpeakerInfo } from './tts';
+ declare global {
+     var llamaInitContext: (contextId: number, params: NativeContextParams, onProgress?: (progress: number) => void) => Promise<any>;
+@@ -89,6 +89,8 @@ declare global {
+     var llamaGetAudioSampleRate: (contextId: number) => Promise<number>;
+     var llamaReleaseVocoder: (contextId: number) => Promise<void>;
+     var llamaClearCache: (contextId: number, clearData: boolean) => Promise<void>;
++    var llamaCliffwordScoreText: ((contextId: number, contextText: string, text: string) => Promise<NativeScoreTextResult>) | undefined;
++    var llamaCliffwordNextTokens: ((contextId: number, contextText: string, k: number) => Promise<NativeNextTokensResult>) | undefined;
+     var llamaEnableParallelMode: (contextId: number, params: {
+         enabled: boolean;
+         n_parallel?: number;
+diff --git a/node_modules/llama.rn/lib/typescript/types.d.ts b/node_modules/llama.rn/lib/typescript/types.d.ts
+index 5d80990..e959607 100644
+--- a/node_modules/llama.rn/lib/typescript/types.d.ts
++++ b/node_modules/llama.rn/lib/typescript/types.d.ts
+@@ -831,4 +831,48 @@ export type ParallelStatus = {
+     queued_requests: number;
+     requests: ParallelRequestStatus[];
+ };
++/**
++ * Cliffword (patch-package): one token of a text scored by `LlamaContext.scoreText`.
++ */
++export type NativeScoredToken = {
++    /** Token id. */
++    id: number;
++    /**
++     * Byte range of the token's piece in the UTF-8 encoding of the scored text. A piece can
++     * end inside a multi-byte character (byte-level BPE); merge it with the next token.
++     */
++    byte_start: number;
++    byte_end: number;
++    /**
++     * Natural log of P(token | start token + context + previous tokens of the text), from a
++     * softmax over the raw logits. May be -Infinity.
++     */
++    logprob: number;
++};
++/** Cliffword (patch-package): what one evaluation cost. */
++export type NativeEvalStats = {
++    /** Start token + context tokens. */
++    prefix_tokens: number;
++    /** Positions taken from the KV cache of the previous scoring call instead of evaluated. */
++    reused_tokens: number;
++    /** Positions evaluated by this call. */
++    evaluated_tokens: number;
++};
++/** Cliffword (patch-package): result of `LlamaContext.scoreText`. */
++export type NativeScoreTextResult = NativeEvalStats & {
++    tokens: Array<NativeScoredToken>;
++};
++/** Cliffword (patch-package): one candidate of `LlamaContext.nextTokens`. */
++export type NativeNextToken = {
++    id: number;
++    /** The token's piece: non-empty, whole UTF-8 characters. */
++    text: string;
++    /** Natural log of its probability (softmax over the raw logits). */
++    logprob: number;
++};
++/** Cliffword (patch-package): result of `LlamaContext.nextTokens`. */
++export type NativeNextTokensResult = NativeEvalStats & {
++    /** Most likely first. */
++    tokens: Array<NativeNextToken>;
++};
+ //# sourceMappingURL=types.d.ts.map
+\ No newline at end of file
+diff --git a/node_modules/llama.rn/src/index.ts b/node_modules/llama.rn/src/index.ts
+index dcc2b44..53da0a6 100644
+--- a/node_modules/llama.rn/src/index.ts
++++ b/node_modules/llama.rn/src/index.ts
+@@ -9,6 +9,11 @@ import type {
+   NativeCompletionTokenProb,
+   NativeCompletionResult,
+   NativeTokenizeResult,
++  NativeScoredToken,
++  NativeEvalStats,
++  NativeScoreTextResult,
++  NativeNextToken,
++  NativeNextTokensResult,
+   NativeEmbeddingResult,
+   NativeSessionLoadResult,
+   NativeEmbeddingParams,
+@@ -73,6 +78,11 @@ export type {
+   NativeCompletionTokenProb,
+   NativeCompletionResult,
+   NativeTokenizeResult,
++  NativeScoredToken,
++  NativeEvalStats,
++  NativeScoreTextResult,
++  NativeNextToken,
++  NativeNextTokensResult,
+   NativeEmbeddingResult,
+   NativeSessionLoadResult,
+   NativeEmbeddingParams,
+@@ -175,6 +185,21 @@ const jsiBindingKeys = [
+ type JsiBindingKey = (typeof jsiBindingKeys)[number]
+ type JsiBindings = { [K in JsiBindingKey]: NonNullable<(typeof globalThis)[K]> }
+ 
++// Cliffword (patch-package): optional bindings for text scoring, installed by the patched
++// native code (cpp/jsi/RNLlamaJSI.cpp). A binary built without the patch lacks them and
++// everything else keeps working; isTextScoringAvailable() tells the two apart.
++const optionalJsiBindingKeys = [
++  'llamaCliffwordScoreText',
++  'llamaCliffwordNextTokens',
++] as const
++
++type OptionalJsiBindingKey = (typeof optionalJsiBindingKeys)[number]
++type OptionalJsiBindings = {
++  [K in OptionalJsiBindingKey]?: NonNullable<(typeof globalThis)[K]>
++}
++
++let optionalJsiBindings: OptionalJsiBindings = {}
++
+ let jsiBindings: JsiBindings | null = null
+ 
+ const bindJsiFromGlobal = () => {
+@@ -197,8 +222,27 @@ const bindJsiFromGlobal = () => {
+   }
+ 
+   jsiBindings = bindings as JsiBindings
++
++  const optional: OptionalJsiBindings = {}
++  optionalJsiBindingKeys.forEach((key) => {
++    const value = global[key]
++    if (typeof value === 'function') {
++      ;(optional as Record<string, unknown>)[key] = value
++      delete global[key]
++    }
++  })
++  optionalJsiBindings = optional
+ }
+ 
++/**
++ * Cliffword (patch-package): whether the native text-scoring calls
++ * (`LlamaContext.scoreText`, `LlamaContext.nextTokens`) are installed. False until the JSI
++ * bindings are installed (initLlama does that) and in a binary built without the patch.
++ */
++export const isTextScoringAvailable = (): boolean =>
++  typeof optionalJsiBindings.llamaCliffwordScoreText === 'function' &&
++  typeof optionalJsiBindings.llamaCliffwordNextTokens === 'function'
++
+ const getJsi = (): JsiBindings => {
+   if (!jsiBindings) {
+     throw new Error('JSI bindings not installed')
+@@ -409,6 +453,9 @@ export class LlamaSpeaker {
+   }
+ }
+ 
++const TEXT_SCORING_UNAVAILABLE =
++  '[RNLlama] Text scoring is not available: the native library was built without the Cliffword patch'
++
+ export class LlamaContext {
+   id: number
+ 
+@@ -1008,6 +1055,37 @@ export class LlamaContext {
+     return llamaDetokenize(this.id, tokens)
+   }
+ 
++  /**
++   * Cliffword (patch-package): the log-probability of every token of `text` as a
++   * continuation of `contextText`. The sequence evaluated is the start token (BOS, or the
++   * end-of-text token for models without BOS) + the tokens of `contextText` + the tokens of
++   * `text`, each tokenized on its own without special tokens; logprobs are natural logs of a
++   * softmax over the raw logits. Byte offsets index the UTF-8 of `text`. Runs exclusively on
++   * the context (rejects with "Context is busy" during a completion) and reuses the KV cache
++   * of the previous call for a shared context. Rejects when isTextScoringAvailable() is false.
++   */
++  scoreText(contextText: string, text: string): Promise<NativeScoreTextResult> {
++    const fn = optionalJsiBindings.llamaCliffwordScoreText
++    if (!fn) {
++      return Promise.reject(new Error(TEXT_SCORING_UNAVAILABLE))
++    }
++    return fn(this.id, contextText, text)
++  }
++
++  /**
++   * Cliffword (patch-package): the `k` most likely next tokens after the start token +
++   * `contextText`, most likely first (softmax over the raw logits, no sampling). Pieces that
++   * are empty (control tokens) or only part of a UTF-8 character are skipped and do not count
++   * towards `k`. Rejects when isTextScoringAvailable() is false.
++   */
++  nextTokens(contextText: string, k: number): Promise<NativeNextTokensResult> {
++    const fn = optionalJsiBindings.llamaCliffwordNextTokens
++    if (!fn) {
++      return Promise.reject(new Error(TEXT_SCORING_UNAVAILABLE))
++    }
++    return fn(this.id, contextText, k)
++  }
++
+   async embedding(
+     text: string,
+     params?: EmbeddingParams,
+diff --git a/node_modules/llama.rn/src/jsi.ts b/node_modules/llama.rn/src/jsi.ts
+index a475551..c541b25 100644
+--- a/node_modules/llama.rn/src/jsi.ts
++++ b/node_modules/llama.rn/src/jsi.ts
+@@ -16,6 +16,8 @@ import type {
+   NativeBenchResult,
+   JinjaFormattedChatResult,
+   ParallelStatus,
++  NativeScoreTextResult,
++  NativeNextTokensResult,
+ } from './types'
+ import type { TTSCapabilities, TTSSpeakerInfo } from './tts'
+ 
+@@ -182,6 +184,23 @@ declare global {
+   var llamaReleaseVocoder: (contextId: number) => Promise<void>
+   var llamaClearCache: (contextId: number, clearData: boolean) => Promise<void>
+ 
++  // Cliffword (patch-package): text scoring. Undefined when the native library was built
++  // without the patch; see LlamaContext.scoreText / nextTokens and isTextScoringAvailable.
++  var llamaCliffwordScoreText:
++    | ((
++        contextId: number,
++        contextText: string,
++        text: string,
++      ) => Promise<NativeScoreTextResult>)
++    | undefined
++  var llamaCliffwordNextTokens:
++    | ((
++        contextId: number,
++        contextText: string,
++        k: number,
++      ) => Promise<NativeNextTokensResult>)
++    | undefined
++
+   // Parallel decoding
+   var llamaEnableParallelMode: (
+     contextId: number,
+diff --git a/node_modules/llama.rn/src/types.ts b/node_modules/llama.rn/src/types.ts
+index 1a1fa92..e27c59a 100644
+--- a/node_modules/llama.rn/src/types.ts
++++ b/node_modules/llama.rn/src/types.ts
+@@ -948,3 +948,52 @@ export type ParallelStatus = {
+   queued_requests: number
+   requests: ParallelRequestStatus[]
+ }
++
++/**
++ * Cliffword (patch-package): one token of a text scored by `LlamaContext.scoreText`.
++ */
++export type NativeScoredToken = {
++  /** Token id. */
++  id: number
++  /**
++   * Byte range of the token's piece in the UTF-8 encoding of the scored text. A piece can
++   * end inside a multi-byte character (byte-level BPE); merge it with the next token.
++   */
++  byte_start: number
++  byte_end: number
++  /**
++   * Natural log of P(token | start token + context + previous tokens of the text), from a
++   * softmax over the raw logits. May be -Infinity.
++   */
++  logprob: number
++}
++
++/** Cliffword (patch-package): what one evaluation cost. */
++export type NativeEvalStats = {
++  /** Start token + context tokens. */
++  prefix_tokens: number
++  /** Positions taken from the KV cache of the previous scoring call instead of evaluated. */
++  reused_tokens: number
++  /** Positions evaluated by this call. */
++  evaluated_tokens: number
++}
++
++/** Cliffword (patch-package): result of `LlamaContext.scoreText`. */
++export type NativeScoreTextResult = NativeEvalStats & {
++  tokens: Array<NativeScoredToken>
++}
++
++/** Cliffword (patch-package): one candidate of `LlamaContext.nextTokens`. */
++export type NativeNextToken = {
++  id: number
++  /** The token's piece: non-empty, whole UTF-8 characters. */
++  text: string
++  /** Natural log of its probability (softmax over the raw logits). */
++  logprob: number
++}
++
++/** Cliffword (patch-package): result of `LlamaContext.nextTokens`. */
++export type NativeNextTokensResult = NativeEvalStats & {
++  /** Most likely first. */
++  tokens: Array<NativeNextToken>
++}

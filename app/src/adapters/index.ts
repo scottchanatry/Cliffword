@@ -4,10 +4,10 @@
  *
  * | Capability | Interface | Now (native) | Web | Tests | Later stage |
  * |---|---|---|---|---|---|
- * | Language model | ModelAdapter | MockModelAdapter | MockModelAdapter | MockModelAdapter | llama.rn adapter |
- * | Model file | ModelManager | FakeModelManager (ready) | FakeModelManager (ready) | FakeModelManager | expo-file-system download + SHA-256 |
+ * | Language model | ModelAdapter | LlamaModelAdapter (llama.rn, via createDeviceModel) | MockModelAdapter | MockModelAdapter | — |
+ * | Model file | ModelManager | ExpoModelManager (expo-file-system download + SHA-256, via createModelManager) | FakeModelManager (ready) | FakeModelManager | — |
  * | Text to speech | SpeechOut | ExpoSpeechOut | ExpoSpeechOut (speechSynthesis) | FakeSpeechOut | — |
- * | Recognition | SpeechIn | TypedSpeechIn | BrowserSpeechIn or TypedSpeechIn | FakeSpeechIn | expo-speech-recognition adapter |
+ * | Recognition | SpeechIn | ExpoSpeechIn (expo-speech-recognition, on-device) | BrowserSpeechIn or TypedSpeechIn | FakeSpeechIn | — |
  * | Apple Music | MusicPlayer | UnsupportedMusicPlayer | UnsupportedMusicPlayer | FakeMusicPlayer | MusicKit adapter (iOS) |
  * | Share-in | ShareInbox | MemoryShareInbox | MemoryShareInbox | MemoryShareInbox | expo-share-intent inbox |
  * | Haptics | Haptics | ExpoHapticsAdapter | ExpoHapticsAdapter | FakeHaptics | — |

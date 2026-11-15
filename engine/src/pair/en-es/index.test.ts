@@ -6,6 +6,7 @@ import { COGNATES, createEnEsPairPack, DEFAULT_EN_ES_OPTIONS, EXPLANATION_KEYS, 
 /** Explain keys used by the Spanish correction rules (stub of the rules module's list). */
 const RULE_EXPLAIN_KEYS = [
   'es.ser_estar', 'es.por_para', 'es.gender', 'es.number', 'es.aspect', 'es.mood', 'es.personal_a', 'es.article',
+  'es.pronoun_placement', 'es.negative_command', 'es.pronoun_order', 'es.se_lo',
 ];
 
 const STUB_REGISTERS: RegisterPack[] = [

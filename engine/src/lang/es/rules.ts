@@ -10,18 +10,23 @@
  * accents are significant: "esta" (this) is not "está" (is) and is never swapped with
  * "es". Surface forms below are written lowercase with their accents.
  *
+ * Object pronoun placement is covered by move rules (lo compré, quiero verte, no lo hagas)
+ * and their order and the le -> se change by a move rule and a swap; see the clitic
+ * section below.
+ *
  * Out of scope:
- * - Clitic placement (lo veo / veo lo, quiero verlo / lo quiero ver) needs word-order
- *   moves and clitic attachment, which none of the rule kinds express. It is not covered.
  * - Contractions: inserting "el" after "a" or "de" yields "a el" / "de el", never "al" /
  *   "del", and deleting the personal "a" from "al" is not attempted. The personal "a" is
  *   not inserted before "el" (it would have to be "al").
  * - Voseo ("sos" for ser) is left out because its estar partner "estás" is already the
  *   tú form; one form may appear only once per rule.
- * - Imperatives ("sé", "está") are left out: "sé" is also "I know" and "está" is
- *   already the indicative third person.
+ * - Imperatives ("sé", "está") are left out of ser/estar: "sé" is also "I know" and
+ *   "está" is already the indicative third person.
+ * - Clitic placement does not handle clitic climbing past two verbs ("Quiero poder lo
+ *   hacer"), a pronoun after a participle ("Ha visto lo"), le/les attached in front of an
+ *   attached lo ("dálelo"), or slang verbs with attached pronouns.
  */
-import type { CorrectionRule, DeleteRule, InflectRule, InsertRule, SwapRule } from '../types';
+import type { CorrectionRule, DeleteRule, InflectRule, InsertRule, MoveRule, Pos, SwapRule } from '../types';
 
 /** Every explainKey the Spanish rules may use. PairPacks for Spanish must define each. */
 export const SPANISH_EXPLAIN_KEYS = [
@@ -33,6 +38,10 @@ export const SPANISH_EXPLAIN_KEYS = [
   'es.mood',
   'es.personal_a',
   'es.article',
+  'es.pronoun_placement',
+  'es.negative_command',
+  'es.pronoun_order',
+  'es.se_lo',
 ] as const;
 
 export type SpanishExplainKey = (typeof SPANISH_EXPLAIN_KEYS)[number];
@@ -292,14 +301,173 @@ export const ARTICLE_DELETE_RULE: DeleteRule = {
   words: [...SPANISH_ARTICLES],
 };
 
+// ---------------------------------------------------------------------------
+// Object pronouns (clitics)
+// ---------------------------------------------------------------------------
+
+/**
+ * The unstressed object pronouns. They stand before a finite verb as separate words and
+ * attach to an infinitive, a gerund or an affirmative command. The same set as the
+ * analyzer's enclitics (analyze.ts CLITICS), in paradigm order.
+ */
+export const SPANISH_CLITICS: readonly string[] = ['me', 'te', 'se', 'nos', 'os', 'lo', 'la', 'los', 'las', 'le', 'les'];
+
+/**
+ * Order of two or more clitics together: se first, then the second person (te, os), then
+ * the first person (me, nos), then the third person, indirect before direct (le, les
+ * before lo, la, los, las; "le lo" itself must be "se lo", the swap below). Te lo digo,
+ * se me olvidó, dámelo.
+ */
+export const CLITIC_ORDER: readonly (readonly string[])[] = [
+  ['se'],
+  ['te', 'os'],
+  ['me', 'nos'],
+  ['le', 'les'],
+  ['lo', 'la', 'los', 'las'],
+];
+
+/** Words that make a following command negative, so it takes the subjunctive: no lo hagas. */
+export const NEGATION_WORDS: readonly string[] = ['no', 'nunca', 'jamás', 'tampoco', 'ni'];
+
+/** Clitics that are also articles: la casa, los niños, lo bueno, lo que dices. */
+export const CLITIC_HOMOGRAPHS: readonly string[] = ['lo', 'la', 'los', 'las'];
+
+/**
+ * After an article: a noun or adjective (la casa, lo bueno), a determiner or numeral (la
+ * otra, las dos), a pronoun (lo mío, los cuales) or a name. A clitic homograph before one
+ * of these is read as the article and never moved.
+ */
+export const ARTICLE_FOLLOWER_POS: readonly Pos[] = ['NOUN', 'ADJ', 'DET', 'NUM', 'PRON', 'PROPN'];
+
+/**
+ * Other words that follow the neuter article lo or an article used as a pronoun: lo que,
+ * la de Juan, lo más bonito, lo bien que canta, lo mucho que te quiero, lo antes posible.
+ */
+export const ARTICLE_FOLLOWER_WORDS: readonly string[] = [
+  'que', 'de', 'del', 'cual', 'cuales', 'más', 'menos', 'bien', 'mal', 'mucho', 'poco', 'tanto', 'antes',
+];
+
+/** Shared by the clitic move rules: what moves, onto which verbs, and the article guard. */
+const CLITIC_MOVE_BASE = {
+  kind: 'move' as const,
+  words: [...SPANISH_CLITICS],
+  anchorPos: ['VERB', 'AUX'] as Pos[],
+  homographs: [...CLITIC_HOMOGRAPHS],
+  notBeforePos: [...ARTICLE_FOLLOWER_POS],
+  notBeforeWords: [...ARTICLE_FOLLOWER_WORDS],
+};
+
+/**
+ * Before a finite verb (indicative or subjunctive): "Compré lo ayer" -> "Lo compré
+ * ayer", "Llamó me" -> "Me llamó", "Invité la a cenar" -> "La invité a cenar", and a
+ * pronoun attached to a finite verb comes off: "Compróla" -> "La compró". A pronoun
+ * between a finite verb and an infinitive also gets "Te quiero ver" (both orders are
+ * right; the attach rule proposes "Quiero verte").
+ */
+export const PRONOUN_BEFORE_FINITE_RULE: MoveRule = {
+  ...CLITIC_MOVE_BASE,
+  id: 'es.pronoun_placement.finite',
+  explainKey: 'es.pronoun_placement',
+  anchorForms: ['fin'],
+  positions: ['before'],
+};
+
+/**
+ * Attached to an infinitive or a gerund: "Quiero te ver" -> "Quiero verte", "Estoy lo
+ * leyendo" -> "Estoy leyéndolo", "¿Puedes me ayudar?" -> "¿Puedes ayudarme?".
+ */
+export const PRONOUN_ATTACH_NONFINITE_RULE: MoveRule = {
+  ...CLITIC_MOVE_BASE,
+  id: 'es.pronoun_placement.nonfinite',
+  explainKey: 'es.pronoun_placement',
+  anchorForms: ['inf', 'ger'],
+  positions: ['attach'],
+};
+
+/**
+ * Attached to an affirmative command: "Lo haz ahora" -> "Hazlo ahora". Not after a
+ * negation, where the command is a subjunctive with the pronoun before it.
+ */
+export const PRONOUN_ATTACH_COMMAND_RULE: MoveRule = {
+  ...CLITIC_MOVE_BASE,
+  id: 'es.pronoun_placement.command',
+  explainKey: 'es.pronoun_placement',
+  anchorForms: ['imp'],
+  positions: ['attach'],
+  notAfterWords: [...NEGATION_WORDS],
+};
+
+/**
+ * A negative command is the present subjunctive with the pronoun before it: "No hazlo"
+ * -> "No lo hagas", "No dime" -> "No me digas".
+ */
+export const NEGATIVE_COMMAND_RULE: MoveRule = {
+  ...CLITIC_MOVE_BASE,
+  id: 'es.pronoun_placement.negative_command',
+  explainKey: 'es.negative_command',
+  anchorForms: ['imp'],
+  positions: ['before'],
+  afterWords: [...NEGATION_WORDS],
+  inflectAnchor: { mood: 'sub', tense: 'pres' },
+};
+
+/**
+ * After a negation a subjunctive command form loses its attached pronoun too: "No
+ * hágalo" -> "No lo haga". Without this rule the analyzer's acceptance of hágalo (an
+ * usted command) would keep the attached form; the finite rule does not look at the
+ * negation.
+ */
+export const NEGATIVE_FINITE_RULE: MoveRule = {
+  ...CLITIC_MOVE_BASE,
+  id: 'es.pronoun_placement.negative',
+  explainKey: 'es.pronoun_placement',
+  anchorForms: ['fin'],
+  positions: ['before'],
+  afterWords: [...NEGATION_WORDS],
+};
+
+/** Two pronouns together in the wrong order: "Lo te digo" -> "Te lo digo", "Me se olvidó" -> "Se me olvidó". */
+export const PRONOUN_ORDER_RULE: MoveRule = {
+  ...CLITIC_MOVE_BASE,
+  id: 'es.pronoun_order',
+  explainKey: 'es.pronoun_order',
+  positions: [],
+  order: CLITIC_ORDER.map((g) => [...g]),
+};
+
+/**
+ * le and les become se before lo, la, los, las: "Le lo di" -> "Se lo di". One way only:
+ * "se lo" is never "le lo".
+ */
+export const SE_LO_RULE: SwapRule = {
+  id: 'es.se_lo',
+  kind: 'swap',
+  explainKey: 'es.se_lo',
+  groups: [['le', 'se'], ['les', 'se']],
+  fromWords: ['le', 'les'],
+  beforeWords: ['lo', 'la', 'los', 'las'],
+};
+
+/** The clitic move rules, in the order they are tried. */
+export const PRONOUN_MOVE_RULES: readonly MoveRule[] = [
+  PRONOUN_BEFORE_FINITE_RULE,
+  PRONOUN_ATTACH_NONFINITE_RULE,
+  PRONOUN_ATTACH_COMMAND_RULE,
+  NEGATIVE_COMMAND_RULE,
+  NEGATIVE_FINITE_RULE,
+  PRONOUN_ORDER_RULE,
+];
+
 /**
  * All Spanish correction rules. Order matters only inside a rule kind: the variant
- * generator tries swaps first, then inflections, then inserts and deletes, and within
- * each kind follows this order.
+ * generator tries swaps and moves first, then inflections, then inserts and deletes, and
+ * within each kind follows this order.
  */
 export const SPANISH_RULES: CorrectionRule[] = [
   SER_ESTAR_RULE,
   POR_PARA_RULE,
+  SE_LO_RULE,
+  ...PRONOUN_MOVE_RULES,
   GENDER_RULE,
   NUMBER_RULE,
   ASPECT_RULE,

@@ -27,7 +27,8 @@
  * | DEFAULT_NEXT_WORD_OPTIONS       | beamWidth, topTokens   | 12, 20         | narrower than the proof (30, 60) to fit the call budget       |
  * | DEFAULT_CLIFF_OPTIONS           | plausibleFloor         | 0.02           | checked against the proof's next-word lists                   |
  * | DEFAULT_CLIFF_PICK_OPTIONS      | probFloor              | 0.02           | checked against the proof's next-word lists                   |
- * | DEFAULT_CREDIT_OPTIONS          | floors, ratio, margins | unchanged      | consistent with the lists; calibrate from learner answers     |
+ * | DEFAULT_CREDIT_OPTIONS          | partialFloor           | 1e-4           | measured on the real model: credits 40/40 natural, 0/23 wrong |
+ * | DEFAULT_CREDIT_OPTIONS          | fullRatio, fullFloor   | 0.25, 0.05     | consistent with the lists; calibrate from learner answers     |
  * | DEFAULT_VARIANT_OPTIONS         | maxVariants            | 16             | 1.9 s for 1 + 6 on 4 CPU cores; measure on device             |
  * | DEFAULT_NEXT_SENTENCE_TUNING    | tokensPerWord          | 2              | measured 1.6 for Qwen3, plus headroom                         |
  * | EVENT_EVIDENCE (learner/model)  | cliff_answer.partial   | weights        | judgement; calibrate from learner logs                        |
@@ -39,6 +40,28 @@
  * scoringContext(pack, before, { register: 'street', regions, words: slangIn(...) }),
  * and take cliff answers on slang or lyric lines from the pack or the lyrics, not from
  * next-word lists (top-10 mass 0.12 there). Corrections already protect slang words.
+ *
+ * Bounded scores (rules, not tunables). A runtime that reports only top-N token lists
+ * (llama.rn by forced decoding; model/topN.ts simulates it) gives a token outside its
+ * list only an upper-bound logprob (TokenScore.upperBound). The engine never lets such a
+ * bound raise a verdict or credit:
+ * - judgeSentence: a margin with a bounded token in either compared region is never
+ *   asserted (hint at most) and the Judgement says bounded: true (corrections/judge.ts);
+ * - scoreWords: a word with a bounded token keeps its heat (a lower bound) and is marked
+ *   WordScore.bounded (scoring/wordScores.ts); cliffPositions marks CliffPosition.bounded;
+ * - scoreCliffAnswer: a bounded answer probability never earns 'likely' or 'plausible'
+ *   credit, only 'form' or 'none', and the result says bounded: true (scoring/cliff.ts).
+ * With exact scores (the HTTP adapter, a native scoring method) nothing changes.
+ *
+ * Validation on the real model (proof/ENGINE_REAL_MODEL.md, Qwen3-1.7B Q4_K_M through
+ * proof/model_server.py, 2026-11-15): judgeSentence on the 93 proof pairs, street
+ * sentences, heat localization, cliffs, generation and top-N forced decoding were run
+ * through the engine's own functions. Judge 3 / 1 and heat [7, 9.5, 12] were kept (the
+ * one false assert came from a rule-made variant, not from a margin; no other heat
+ * threshold traded better). The credit partialFloor went from 0.005 to 1e-4: 0.005 gave
+ * 12 of 40 natural cliff answers no credit (reír, nadar, cocina...), while wrong answers
+ * stayed at or below 1e-5. See the doc for the per-rule tables and the device-adapter
+ * decision.
  *
  * Everything else (learner memory, difficulty curves, placement, selection weights, rung
  * thresholds, target choice) is a documented judgement call to be calibrated from

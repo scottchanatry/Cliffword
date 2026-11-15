@@ -146,6 +146,7 @@ describe('EXPLANATIONS', () => {
     expect(Object.keys(EXPLANATIONS).sort()).toEqual([...EXPLANATION_KEYS].sort());
     expect(EXPLANATION_KEYS).toEqual([
       'es.ser_estar', 'es.por_para', 'es.gender', 'es.number', 'es.aspect', 'es.mood', 'es.personal_a', 'es.article',
+      'es.pronoun_placement', 'es.negative_command', 'es.pronoun_order', 'es.se_lo',
     ]);
   });
 
@@ -159,6 +160,10 @@ describe('EXPLANATIONS', () => {
       'es.mood': 'vengas',
       'es.personal_a': 'a mi madre',
       'es.article': 'el café',
+      'es.pronoun_placement': 'lo compré',
+      'es.negative_command': 'no lo hagas',
+      'es.pronoun_order': 'te lo digo',
+      'es.se_lo': 'se lo di',
     };
     for (const k of EXPLANATION_KEYS) {
       const text = EXPLANATIONS[k];

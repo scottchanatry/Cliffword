@@ -5,6 +5,19 @@
  * The model only scores. A variant that is clearly more probable than what the learner
  * said is asserted as a fix; one that is somewhat more probable is shown as a light
  * hint; otherwise the sentence is left alone.
+ *
+ * Bounded scores. A runtime that reports only top-N token lists (llama.rn by forced
+ * decoding; model/topN.ts simulates it) gives a token outside the list only an upper
+ * bound (TokenScore.upperBound). A margin summed over such a token is not a measurement:
+ * the surprising word of an incorrect variant looks more likely than it is, which is
+ * exactly how false asserts arise. Real model through top-10 lists
+ * (proof/ENGINE_REAL_MODEL.md, 93 proof pairs): without this rule judgeSentence asserted
+ * 4 of the 93 correct sentences (exact scores: 1, from a rule-made variant) and 4 of its
+ * 39 asserts on incorrect ones had the wrong fix; with it, no false assert. So an assert
+ * needs exact tokens in both compared regions; otherwise the verdict is at most a hint
+ * and the Judgement says bounded: true. Hints on bounds stay unreliable (18 false hints
+ * in 93 correct sentences at top-10, 2 with exact scores), so an app on such a runtime
+ * should show a bounded hint lightly or not at all. See decideVerdict.
  */
 import type { LanguagePack, Segment } from '../lang/types';
 import type { LanguageModel, TokenScore } from '../model/types';
@@ -72,6 +85,12 @@ export const DEFAULT_JUDGE_OPTIONS: Readonly<JudgeOptions> = {
 };
 
 export interface ScoredVariant extends Variant {
+  /**
+   * True when a token of either compared region (the variant's rest or the original's
+   * rest after the shared prefix) has only an upper-bound logprob, so `margin` is not a
+   * measured difference. Such a variant is never asserted. Absent when both are exact.
+   */
+  bounded?: boolean;
   /** log P(variant sentence | context): original logprob + rawMargin. */
   logprob: number;
   /** Variant logprob minus original logprob, in nats, before length adjustment. */
@@ -98,6 +117,13 @@ export interface Judgement {
   wordIndex: number | null;
   /** Variants generated but not scored because of maxVariants. */
   droppedVariants: number;
+  /**
+   * True when the best variant's margin rests on an upper-bound token logprob (see
+   * ScoredVariant.bounded): the verdict is then at most 'hint', whatever the margin. An
+   * 'ok' may also hide an error, because a bound in the learner's own sentence makes it
+   * look more likely than it is. Absent when the deciding margin is exact.
+   */
+  bounded?: boolean;
 }
 
 /**
@@ -128,14 +154,26 @@ function finite(x: number): number {
  * is downgraded to a hint when the runner-up has a different explainKey and its margin
  * is within tieMargin of the best (two explanations compete; neither is certain).
  * Variants sharing an explainKey (e.g. inserting "el" or "un") do not compete.
+ *
+ * A bounded best variant (its margin depends on an upper-bound token in either compared
+ * region) is never asserted: its verdict is hint when the margin reaches hintMargin, else
+ * ok. A bound on the variant side inflates the margin, which is how false asserts arise.
+ * A bound on the original side alone would make the reported margin a lower bound, so in
+ * theory an assert would still be safe; the engine does not rely on that, because the
+ * bound is only valid when the adapter reads the raw softmax (llama.rn
+ * post_sampling_probs: false). Probabilities taken after top-k, top-p or temperature are
+ * renormalized over the kept tokens and bound nothing. So any bounded margin counts as
+ * unmeasured. A bounded runner-up still counts in the tie rule at its reported margin,
+ * which can only make the tie rule stricter.
  */
 export function decideVerdict(
-  sorted: readonly Pick<ScoredVariant, 'margin' | 'explainKey'>[],
+  sorted: readonly Pick<ScoredVariant, 'margin' | 'explainKey' | 'bounded'>[],
   opts: Pick<JudgeOptions, 'assertMargin' | 'hintMargin' | 'tieMargin'>,
 ): Verdict {
   const best = sorted[0];
   if (!best) return 'ok';
   let verdict: Verdict = best.margin >= opts.assertMargin ? 'assert' : best.margin >= opts.hintMargin ? 'hint' : 'ok';
+  if (verdict === 'assert' && best.bounded) verdict = 'hint';
   if (verdict === 'assert') {
     const rival = sorted.find((v) => v.explainKey !== best.explainKey);
     if (rival && best.margin - rival.margin <= opts.tieMargin) verdict = 'hint';
@@ -152,6 +190,8 @@ function contextJoin(context: string, text: string, separator: string): string {
 interface RestScore {
   logprob: number;
   tokens: number;
+  /** A token of the rest has only an upper-bound logprob. */
+  bounded: boolean;
 }
 
 /** Sum of token log-probabilities, each clamped to `floor`. */
@@ -161,16 +201,21 @@ function clampedSum(tokens: readonly TokenScore[], floor: number): number {
   return s;
 }
 
+/** True when any token's logprob is only an upper bound. */
+function anyBounded(tokens: readonly TokenScore[]): boolean {
+  return tokens.some((t) => t.upperBound === true);
+}
+
 /**
  * Sum the tokens (clamped to `floor`) of a full-sentence scoring that start at or after
  * `offset`, if a token boundary falls exactly at `offset`; otherwise undefined.
  */
 function restFromFull(tokens: readonly TokenScore[], offset: number, floor: number): RestScore | undefined {
-  if (offset === 0) return { logprob: clampedSum(tokens, floor), tokens: tokens.length };
+  if (offset === 0) return { logprob: clampedSum(tokens, floor), tokens: tokens.length, bounded: anyBounded(tokens) };
   const i = tokens.findIndex((t) => t.start === offset);
   if (i < 0) return undefined;
   const rest = tokens.slice(i);
-  return { logprob: clampedSum(rest, floor), tokens: rest.length };
+  return { logprob: clampedSum(rest, floor), tokens: rest.length, bounded: anyBounded(rest) };
 }
 
 /**
@@ -201,6 +246,11 @@ function restFromFull(tokens: readonly TokenScore[], offset: number, floor: numb
  * Margin = variant logprob - original logprob (nats), plus opts.lengthAdjustPerToken
  * times the token-count difference for inserts and deletes. Variants are sorted by
  * margin; the verdict follows decideVerdict.
+ *
+ * Bounded tokens: a variant is bounded when a token of its rest or of the original's
+ * rest at the same cut has TokenScore.upperBound. Variants keep their reported margins
+ * and order (best is still the highest reported margin), but a bounded best is at most a
+ * hint, and the Judgement carries bounded: true. With exact scores nothing changes.
  */
 export async function judgeSentence(
   model: LanguageModel,
@@ -229,7 +279,7 @@ export async function judgeSentence(
       orig = restFromFull(fullTokens, cut === 0 ? 0 : sep.length + cut, o.logprobFloor);
       if (!orig) {
         const toks = await model.scoreContinuation(prefixContext, restLead + text.slice(cut));
-        orig = { logprob: clampedSum(toks, o.logprobFloor), tokens: toks.length };
+        orig = { logprob: clampedSum(toks, o.logprobFloor), tokens: toks.length, bounded: anyBounded(toks) };
       }
       originalRest.set(cut, orig);
     }
@@ -239,13 +289,16 @@ export async function judgeSentence(
     const rawMargin = finite(variantRest - orig.logprob);
     const tokenDelta = vt.length - orig.tokens;
     const lengthAdjust = v.kind === 'insert' || v.kind === 'delete' ? o.lengthAdjustPerToken * tokenDelta : 0;
-    scored.push({
+    const sv: ScoredVariant = {
       ...v,
       logprob: originalLogprob + rawMargin,
       rawMargin,
       tokenDelta,
       margin: finite(rawMargin + lengthAdjust),
-    });
+    };
+    // Set only when true, so exact judgements keep their shape.
+    if (orig.bounded || anyBounded(vt)) sv.bounded = true;
+    scored.push(sv);
   }
 
   // Array.prototype.sort is stable, so equal margins keep generation priority.
@@ -253,7 +306,7 @@ export async function judgeSentence(
   const best = scored[0] ?? null;
   const verdict = decideVerdict(scored, o);
   const flagged = verdict !== 'ok' && best !== null;
-  return {
+  const judgement: Judgement = {
     verdict,
     originalLogprob,
     best,
@@ -263,4 +316,6 @@ export async function judgeSentence(
     wordIndex: flagged ? best.wordIndex : null,
     droppedVariants: set.dropped,
   };
+  if (best?.bounded) judgement.bounded = true;
+  return judgement;
 }

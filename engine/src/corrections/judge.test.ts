@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import type { InsertRule, SwapRule } from '../lang/types';
 import { GENDER_RULE, PERSONAL_A_INSERT_RULE, SER_ESTAR_RULE, SPANISH_RULES } from '../lang/es/rules';
 import { createMockModel } from '../model/mock';
+import { TopNBoundedModel } from '../model/topN';
 import type { GenerateOptions, LanguageModel, TokenCandidate, TokenScore } from '../model/types';
 import { totalLogprob } from '../model/types';
 import { DEFAULT_JUDGE_OPTIONS, decideVerdict, judgeSentence, sharedPrefixEnd } from './judge';
@@ -436,5 +437,136 @@ describe('sharedPrefixEnd', () => {
     expect(sharedPrefixEnd(segs, 4)).toBe(4);
     expect(sharedPrefixEnd(segs, 9)).toBe(8);
     expect(sharedPrefixEnd([], 3)).toBe(0);
+  });
+});
+
+/**
+ * Marks the tokens of some words (trimmed, lowercased) as upper bounds, the way a top-N
+ * runtime reports a token outside its list. The logprob itself is left unchanged, so a
+ * test can tell the verdict cap apart from a change of margin.
+ */
+class BoundMarkingModel implements LanguageModel {
+  readonly id: string;
+  constructor(
+    private readonly inner: LanguageModel,
+    private readonly words: readonly string[],
+  ) {
+    this.id = `bound:${inner.id}`;
+  }
+  async scoreContinuation(context: string, text: string): Promise<TokenScore[]> {
+    const toks = await this.inner.scoreContinuation(context, text);
+    return toks.map((t) => (this.words.includes(t.text.trim().toLowerCase()) ? { ...t, upperBound: true } : t));
+  }
+  nextTokens(context: string, k: number): Promise<TokenCandidate[]> {
+    return this.inner.nextTokens(context, k);
+  }
+  generate(prompt: string, opts: GenerateOptions): Promise<string[]> {
+    return this.inner.generate(prompt, opts);
+  }
+}
+
+describe('judgeSentence: bounded scores (top-N runtime)', () => {
+  const table = new WordTableModel({ hoy: -3, soy: -10, estoy: -2, contento: -2, contenta: -6, cansado: -2, cansada: -6, '.': -1 });
+  const serEstar = createTestPack({ rules: [SER_ESTAR_RULE] });
+
+  it('never asserts when the variant side of the margin is bounded, and says so', async () => {
+    const exact = await judgeSentence(table, serEstar, '', 'Soy cansado.');
+    expect(exact.verdict).toBe('assert');
+    expect('bounded' in exact).toBe(false);
+    expect(exact.variants.every((v) => !('bounded' in v))).toBe(true);
+    const j = await judgeSentence(new BoundMarkingModel(table, ['estoy']), serEstar, '', 'Soy cansado.');
+    // Same margin, same suggestion and explanation; only the verdict is capped.
+    expect(j.margin).toBe(exact.margin);
+    expect(j.verdict).toBe('hint');
+    expect(j.bounded).toBe(true);
+    expect(j.best?.bounded).toBe(true);
+    expect(j.best?.text).toBe('Estoy cansado.');
+    expect(j.explainKey).toBe('es.ser_estar');
+    expect(j.wordIndex).toBe(0);
+  });
+
+  it('never asserts when the original side of the margin is bounded', async () => {
+    const j = await judgeSentence(new BoundMarkingModel(table, ['soy']), serEstar, '', 'Soy cansado.');
+    expect(j.margin as number).toBeGreaterThanOrEqual(DEFAULT_JUDGE_OPTIONS.assertMargin);
+    expect(j.verdict).toBe('hint');
+    expect(j.bounded).toBe(true);
+  });
+
+  it('counts a bound after the edit (both rests) but not one in the shared prefix', async () => {
+    const after = await judgeSentence(new BoundMarkingModel(table, ['cansado']), serEstar, '', 'Soy cansado.');
+    expect(after.verdict).toBe('hint');
+    expect(after.bounded).toBe(true);
+    // "Hoy" comes before the cut, so neither compared rest contains it.
+    const exact = await judgeSentence(table, serEstar, '', 'Hoy soy contento.');
+    const prefix = await judgeSentence(new BoundMarkingModel(table, ['hoy']), serEstar, '', 'Hoy soy contento.');
+    expect(exact.verdict).toBe('assert');
+    expect(prefix).toEqual(exact);
+    expect('bounded' in prefix).toBe(false);
+  });
+
+  it('keeps hints and oks as they are, and reports the bound on an ok', async () => {
+    const hintOpts = { assertMargin: 100, hintMargin: 1 };
+    const hint = await judgeSentence(new BoundMarkingModel(table, ['estoy']), serEstar, '', 'Soy cansado.', hintOpts);
+    expect(hint.verdict).toBe('hint');
+    const ok = await judgeSentence(new BoundMarkingModel(table, ['soy']), serEstar, '', 'Estoy cansado.');
+    expect(ok.verdict).toBe('ok');
+    expect(ok.bounded).toBe(true);
+    expect(ok.explainKey).toBeNull();
+  });
+
+  it('lets an exact best variant assert past a bounded variant far behind it', async () => {
+    const both = createTestPack({ rules: [SER_ESTAR_RULE, GENDER_RULE] });
+    const j = await judgeSentence(new BoundMarkingModel(table, ['cansada']), both, '', 'Soy cansado.');
+    expect(j.best?.text).toBe('Estoy cansado.');
+    expect(j.best?.bounded).toBeUndefined();
+    expect(j.variants.find((v) => v.text === 'Soy cansada.')?.bounded).toBe(true);
+    expect(j.verdict).toBe('assert');
+    expect('bounded' in j).toBe(false);
+  });
+
+  it('over the mock through TopNBoundedModel: no assert rests on a bound, and a huge N changes nothing', async () => {
+    const sentences = ['Soy cansado.', 'Estoy cansado.', 'Hoy soy contento.', 'Gracias para la comida.', 'La casa blanco es bonita.', 'Quiero que vienes.'];
+    let capped = 0;
+    for (const n of [1, 3, 10]) {
+      const device = new TopNBoundedModel(mock, { n });
+      for (const text of sentences) {
+        const exact = await judgeSentence(mock, pack, '', text);
+        const j = await judgeSentence(device, pack, '', text);
+        expect(j.variants.map((v) => v.text).sort(), text).toEqual(exact.variants.map((v) => v.text).sort());
+        if (j.best?.bounded) {
+          expect(j.verdict, `${n} ${text}`).not.toBe('assert');
+          expect(j.bounded).toBe(true);
+          if (exact.verdict === 'assert') capped++;
+        } else {
+          expect(j.bounded).toBeUndefined();
+        }
+        if (j.verdict === 'assert') {
+          // Asserted margins are measured: identical to the exact ones.
+          expect(j.margin as number).toBeCloseTo(exact.variants.find((v) => v.text === j.best?.text)!.margin, 9);
+        }
+      }
+    }
+    // The mock's error words are surprising, so top-N bounds cap most asserts.
+    expect(capped).toBeGreaterThan(0);
+    const huge = new TopNBoundedModel(mock, { n: 100_000 });
+    for (const text of sentences) expect(await judgeSentence(huge, pack, '', text)).toEqual(await judgeSentence(mock, pack, '', text));
+  });
+});
+
+describe('decideVerdict: bounded margins', () => {
+  const o = { assertMargin: 3, hintMargin: 1, tieMargin: 1 };
+  const v = (margin: number, explainKey = 'a', bounded?: boolean) => (bounded ? { margin, explainKey, bounded } : { margin, explainKey });
+
+  it('caps a bounded best variant at hint', () => {
+    expect(decideVerdict([v(50, 'a', true)], o)).toBe('hint');
+    expect(decideVerdict([v(3, 'a', true)], o)).toBe('hint');
+    expect(decideVerdict([v(1, 'a', true)], o)).toBe('hint');
+    expect(decideVerdict([v(0.99, 'a', true)], o)).toBe('ok');
+  });
+
+  it('counts a bounded runner-up in the tie rule, and ignores one far behind', () => {
+    expect(decideVerdict([v(5, 'a'), v(4.5, 'b', true)], o)).toBe('hint');
+    expect(decideVerdict([v(5, 'a'), v(1, 'b', true)], o)).toBe('assert');
+    expect(decideVerdict([v(5, 'a'), v(4.5, 'a', true)], o)).toBe('assert');
   });
 });

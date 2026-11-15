@@ -163,7 +163,11 @@
             ]
           }
         }
-      ]
+      ],
+      "llama.rn",
+      "expo-speech-recognition",
+      "expo-share-intent",
+      "expo-localization"
     ],
     "extra": {
       "router": {},

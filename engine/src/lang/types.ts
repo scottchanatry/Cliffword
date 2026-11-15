@@ -65,7 +65,8 @@ export type CorrectionRule =
   | SwapRule
   | InflectRule
   | InsertRule
-  | DeleteRule;
+  | DeleteRule
+  | MoveRule;
 
 interface RuleBase {
   id: string;
@@ -83,6 +84,23 @@ interface RuleBase {
 export interface SwapRule extends RuleBase {
   kind: 'swap';
   groups: string[][];
+  /**
+   * Optional context condition: the word is swapped only when the next word (only
+   * spaces in between) has one of these normalized forms. Spanish: le and les become se
+   * before lo, la, los, las ("Le lo di" -> "Se lo di").
+   */
+  beforeWords?: string[];
+  /**
+   * Optional context condition: the word is swapped only when the previous word (only
+   * spaces in between) has one of these normalized forms.
+   */
+  afterWords?: string[];
+  /**
+   * Optional: only words with these normalized forms are replaced; the other members of
+   * their groups are targets only (a one-way swap). Spanish "se lo" is never "le lo", so
+   * le/les -> se must not also propose se -> le.
+   */
+  fromWords?: string[];
 }
 
 /**
@@ -150,6 +168,89 @@ export interface DeleteRule extends RuleBase {
   words: string[];
 }
 
+/**
+ * Where moved words stand relative to their anchor: as separate words before it, as
+ * separate words after it, or attached to it (LanguagePack.attachClitic).
+ */
+export type MovePosition = 'before' | 'after' | 'attach';
+
+/**
+ * Move words (object pronouns, clitics) to where they belong next to an anchor word (a
+ * verb). Spanish: before a finite verb (lo compré), attached to an infinitive, gerund or
+ * affirmative command (quiero verte, estoy leyéndolo, hazlo).
+ *
+ * The rule states where the words belong; the generator proposes moving words that are
+ * out of place. Words of `words` that stand next to each other (only spaces between)
+ * form a cluster and move together, in their order. A cluster next to an anchor is out
+ * of place when no move rule whose context holds allows its position for any reading
+ * of the anchor (any analysis, not only the chosen one: "lo ve" is fine because ve is
+ * also a finite form of ver); a cluster between two anchors is out of place only when
+ * neither allows it ("Al llegar me llamó" is fine). Clitics attached to an anchor
+ * (found with LanguagePack.splitClitics) are in place when the pack analyzes the whole
+ * word as a form of a verb (its analyzer knows which hosts take clitics) and no rule
+ * with an afterWords context forbids attaching there, or when a rule allows 'attach'.
+ * An out-of-place cluster gets one variant per position in `positions` of each rule that
+ * matches the anchor: its chosen analysis, or another reading of the same lemma and part
+ * of speech ("Mira la" gets "La mira" from the finite rule and "Mírala" from the command
+ * rule). Each variant's edit span covers the moved cluster and the anchor.
+ *
+ * The chosen analysis is the one chosen for the anchor in context (lang/choose.ts); for
+ * a word with attached clitics the pack does not analyze, the first analysis of its host.
+ */
+export interface MoveRule extends RuleBase {
+  kind: 'move';
+  /** The words that move, normalized. Spanish: me te se nos os lo la los las le les. */
+  words: string[];
+  /** Parts of speech of the anchor word the words belong to (VERB, AUX). */
+  anchorPos: Pos[];
+  /**
+   * Forms the anchor may have: 'inf', 'ger', 'part' (its form feature), 'imp' (an
+   * imperative, mood imp) or 'fin' (any other finite form: indicative or subjunctive).
+   * Any form when omitted.
+   */
+  anchorForms?: string[];
+  /**
+   * Where the words belong for such an anchor. An empty list never moves anything; a
+   * rule with `order` and no positions only reorders clusters.
+   */
+  positions: MovePosition[];
+  /**
+   * Optional context condition: the rule applies only when the word before the anchor
+   * (skipping a cluster of `words` directly before it; only spaces in between) has one
+   * of these normalized forms. Spanish negative commands: after no, nunca, jamás.
+   */
+  afterWords?: string[];
+  /** Optional: the rule does not apply when the word before the anchor (as above) has one of these forms. */
+  notAfterWords?: string[];
+  /**
+   * Optional: when this rule moves a cluster, the anchor is re-inflected with its chosen
+   * analysis's features overridden by these (pack.inflect). Spanish: a negative command
+   * is the present subjunctive, so "No hazlo" becomes "No lo hagas" with
+   * { mood: 'sub', tense: 'pres' }. No variant when the pack cannot produce the form.
+   */
+  inflectAnchor?: Features;
+  /**
+   * Optional cluster order: groups of words, every word of an earlier group before every
+   * word of a later group. A cluster next to an anchor (separate or attached) whose words
+   * are out of this order gets one variant with the same words in order (Spanish
+   * "Lo te digo" -> "Te lo digo"). Words in the same group are never reordered.
+   */
+  order?: string[][];
+  /**
+   * Optional: words of `words` that are also other words (Spanish lo, la, los, las are
+   * also articles: "Veo la casa", "Es lo que quiero"). Such a word counts as a movable
+   * word only when the next word is known to the pack, its chosen part of speech is not
+   * in notBeforePos and its form is not in notBeforeWords; a number right after it, or
+   * an unknown word (most likely a noun or adjective outside the lexicon), also keeps it
+   * as the other word. Punctuation or the end of the text after it leaves it movable.
+   */
+  homographs?: string[];
+  /** See homographs. Spanish: NOUN, ADJ, DET, NUM, PRON, PROPN. */
+  notBeforePos?: Pos[];
+  /** See homographs (normalized). Spanish: que, de, más... ("lo que", "la de", "lo más"). */
+  notBeforeWords?: string[];
+}
+
 export type Formality = 'street' | 'casual' | 'vulgar';
 
 export interface SlangEntry {
@@ -205,6 +306,31 @@ export interface RegisterPack {
  */
 export type Register = 'neutral' | 'street';
 
+/**
+ * Things a learner can say instead of an answer: hear it again, hear it slower, "I don't
+ * know", go on, finish, ask what something means. The speaking module matches a
+ * recognized utterance against LanguagePack.commands.
+ */
+export type SpokenCommand = 'again' | 'slower' | 'dont_know' | 'next' | 'done' | 'meaning';
+
+/** The phrases that say one spoken command in the language being learned. */
+export interface SpokenCommandEntry {
+  command: SpokenCommand;
+  /**
+   * Whole phrases, lowercase, written as the pack spells them (accents included), words
+   * separated by single spaces, without punctuation: "otra vez", "no lo sé".
+   */
+  phrases: string[];
+}
+
+/** Result of LanguagePack.splitClitics: a host word and the clitics attached to it, in order. */
+export interface CliticSplit {
+  /** The host as a word of its own (normalized, written accents restored or removed): "leyendo", "haz". */
+  host: string;
+  /** Attached clitics, normalized, in their order on the word: ["me", "lo"] for "dámelo". */
+  clitics: string[];
+}
+
 export interface LanguagePack {
   /** BCP 47 code of the language being learned, e.g. "es". */
   readonly code: string;
@@ -252,4 +378,25 @@ export interface LanguagePack {
    * is compared with another must use the same prefix. See scoring/context.ts.
    */
   readonly scoringPrefix?: string;
+  /**
+   * Optional: attach a clitic to the end of a host word, respelling the host as the
+   * language requires (normalized, lowercase in and out). Spanish keeps the host's
+   * stress with a written accent: leyendo + lo -> leyéndolo, haz + lo -> hazlo, and
+   * applied twice da + me -> dame, dame + lo -> dámelo. Move rules propose 'attach'
+   * positions only when the pack has it.
+   */
+  attachClitic?(host: string, clitic: string): string;
+  /**
+   * Optional: split clitics attached to a word (normalized) off their host: dámelo ->
+   * { host: "da", clitics: ["me", "lo"] }, compróla -> { host: "compró", clitics:
+   * ["la"] }. undefined when the word is a form of its own (vale is not va + le) or no
+   * split leaves a verb form. Move rules see attached clitics only when the pack has it.
+   */
+  splitClitics?(word: string): CliticSplit | undefined;
+  /**
+   * Optional: spoken commands in this language (again, slower, "I don't know"...), for
+   * the speaking module. Each command appears at most once; a phrase belongs to one
+   * command only.
+   */
+  readonly commands?: readonly SpokenCommandEntry[];
 }

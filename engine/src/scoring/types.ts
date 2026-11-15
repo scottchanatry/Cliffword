@@ -13,6 +13,16 @@ export interface WordScore {
   /** -logprob. */
   surprisal: number;
   heat: Heat;
+  /**
+   * True when a token of this word has only an upper-bound logprob (TokenScore.upperBound:
+   * a runtime that reports top-N lists only, such as llama.rn by forced decoding). Then
+   * logprob is an upper bound, surprisal a lower bound, and heat a lower bound too: the
+   * word is at least this surprising. Heat is kept, not cleared, because a lower bound
+   * that already reaches a threshold is a sound reason to shade; the flag tells the app
+   * that an unshaded or lightly shaded word may be hotter. Absent when every token is
+   * exact.
+   */
+  bounded?: boolean;
 }
 
 export interface NextWord {
@@ -38,6 +48,12 @@ export interface CliffPosition {
   alternatives: NextWord[];
   /** Number of alternatives with probability above the plausibility floor. */
   plausibleCount: number;
+  /**
+   * True when a token of the actual word has only an upper-bound logprob (see
+   * WordScore.bounded): actualLogprob is then an upper bound, so the word may be less
+   * likely than it looks. Absent when exact.
+   */
+  bounded?: boolean;
 }
 
 export type Credit = 'full' | 'partial' | 'none';
@@ -70,4 +86,13 @@ export interface CliffResult {
   credit: Credit;
   reason: CreditReason;
   alternatives: NextWord[];
+  /**
+   * True when `logprob` is only an upper bound: the answer was scored with
+   * scoreContinuation (it was not among the alternatives) and a token of it came back
+   * with TokenScore.upperBound. scoreCliffAnswer never gives 'likely' or 'plausible'
+   * credit on such a probability (see scoring/cliff.ts); the app may treat the answer as
+   * unscored rather than wrong, e.g. by offering "no sé" or a pick from the options.
+   * Absent when the probability is exact.
+   */
+  bounded?: boolean;
 }

@@ -1,5 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { createMockModel } from '../model/mock';
+import { TopNBoundedModel } from '../model/topN';
+import type { GenerateOptions, LanguageModel, TokenCandidate, TokenScore } from '../model/types';
+import type { Credit } from './types';
 import {
   DEFAULT_CLIFF_OPTIONS,
   DEFAULT_CREDIT_OPTIONS,
@@ -386,7 +389,8 @@ describe('caseForPosition', () => {
 describe('scoreCliffAnswer with a scripted model', () => {
   it('uses the accent-restored form for the form check (leia -> leía)', async () => {
     const m = new TableModel({ X: [[' leer', 0.9], [' leía', 0.002], ['.', 0.098]] }, [['.', 1]]);
-    const r = await scoreCliffAnswer(m, pack, 'X', 'leia', 'leer');
+    // leía (0.002) under a floor of 0.005, so only the form check can give credit.
+    const r = await scoreCliffAnswer(m, pack, 'X', 'leia', 'leer', { partialFloor: 0.005 });
     expect(r.rank).toBe(2);
     expect(r.credit).toBe('partial');
     expect(r.reason).toBe('form');
@@ -394,11 +398,15 @@ describe('scoreCliffAnswer with a scripted model', () => {
 
   it('uses only the floors when there are no alternatives', async () => {
     const m = new TableModel({}, []);
-    const r = await scoreCliffAnswer(m, pack, 'X', 'buenas', 'adiós', { includeBoundary: false });
+    const r = await scoreCliffAnswer(m, pack, 'X', 'buenísimas', 'adiós', { includeBoundary: false });
     expect(r.alternatives).toEqual([]);
-    // Six letters at -1 each (scripted fallback) plus the leading space: e^-7 < partialFloor.
-    expect(r.logprob).toBeCloseTo(-7, 12);
+    // Ten letters at -1 each (scripted fallback) plus the leading space: e^-11 = 1.7e-5 < partialFloor (1e-4).
+    expect(r.logprob).toBeCloseTo(-11, 12);
     expect(r.credit).toBe('none');
+    // Six letters plus the space: e^-7 = 9.1e-4, above partialFloor.
+    const mid = await scoreCliffAnswer(m, pack, 'X', 'buenas', 'adiós', { includeBoundary: false });
+    expect(mid.logprob).toBeCloseTo(-7, 12);
+    expect(mid.reason).toBe('plausible');
     const short = await scoreCliffAnswer(m, pack, 'X', 'sí', 'adiós', { includeBoundary: false });
     // e^-3 = 0.0498, just under fullFloor 0.05 but above partialFloor.
     expect(short.reason).toBe('plausible');
@@ -421,5 +429,112 @@ describe('scoreCliffAnswer with a scripted model', () => {
     await scoreCliffAnswer(spy, pack, 'Ella dijo: ', 'Hola', 'adiós');
     // "Hola" is unknown to the stub pack, so its capital is kept mid-sentence.
     expect(seen).toEqual(['Ella dijo| hola', 'Ella dijo: ¿|qué', 'Ella dijo:| Hola']);
+  });
+});
+
+/** Marks every scored token as an upper bound, leaving logprobs unchanged. */
+class AllBoundedModel implements LanguageModel {
+  readonly id = 'all-bounded';
+  constructor(private readonly inner: LanguageModel) {}
+  async scoreContinuation(context: string, text: string): Promise<TokenScore[]> {
+    return (await this.inner.scoreContinuation(context, text)).map((t) => ({ ...t, upperBound: true }));
+  }
+  nextTokens(context: string, k: number): Promise<TokenCandidate[]> {
+    return this.inner.nextTokens(context, k);
+  }
+  generate(prompt: string, opts: GenerateOptions): Promise<string[]> {
+    return this.inner.generate(prompt, opts);
+  }
+}
+
+describe('bounded probabilities (top-N runtime)', () => {
+  const ctx = 'Marta empezó a';
+  const RANK: Record<Credit, number> = { none: 0, partial: 1, full: 2 };
+
+  it('never gives likely or plausible credit on a bounded answer probability', async () => {
+    // Scripted: the answer "sí" scores e^-3 = 0.0498 (plausible when exact).
+    const table = new TableModel({}, []);
+    const exact = await scoreCliffAnswer(table, pack, 'X', 'sí', 'adiós', { includeBoundary: false });
+    expect(exact.reason).toBe('plausible');
+    expect('bounded' in exact).toBe(false);
+    const bounded = await scoreCliffAnswer(new AllBoundedModel(table), pack, 'X', 'sí', 'adiós', { includeBoundary: false });
+    expect(bounded.logprob).toBe(exact.logprob);
+    expect(bounded.credit).toBe('none');
+    expect(bounded.reason).toBe('unlikely');
+    expect(bounded.bounded).toBe(true);
+  });
+
+  it('still gives form credit and actual credit, which do not rest on the probability', async () => {
+    const m = new AllBoundedModel(lm);
+    const form = await scoreCliffAnswer(m, pack, ctx, 'lee', 'leer');
+    expect(form.reason).toBe('form');
+    expect(form.bounded).toBe(true);
+    const actual = await scoreCliffAnswer(m, pack, ctx, 'leer la nota', 'leer la nota');
+    expect(actual.reason).toBe('actual');
+    expect(actual.bounded).toBe(true);
+  });
+
+  it('keeps exact credit for answers among the alternatives (nextTokens lists are exact)', async () => {
+    const m = new AllBoundedModel(lm);
+    for (const a of ['leerla', 'llorar', 'reír']) {
+      const r = await scoreCliffAnswer(m, pack, ctx, a, 'leer');
+      expect(r.reason, a).toBe('likely');
+      expect(r.bounded, a).toBeUndefined();
+    }
+  });
+
+  it('multi-word: a bounded answer earns no likely credit; a bound only on the actual words cannot raise credit', async () => {
+    const exact = await scoreCliffAnswer(lm, pack, ctx, 'leerla en voz alta', 'leer la nota');
+    expect(exact.reason).toBe('likely');
+    const bounded = await scoreCliffAnswer(new AllBoundedModel(lm), pack, ctx, 'leerla en voz alta', 'leer la nota');
+    expect(bounded.credit).toBe('none');
+    expect(bounded.bounded).toBe(true);
+    // Only the actual continuation bounded, its bound 1 nat per token above the exact
+    // value: the reference rises, so the answer can only keep or lose credit.
+    const actualOnly: LanguageModel = {
+      id: 'actual-bounded',
+      scoreContinuation: async (c, t) => {
+        const toks = await lm.scoreContinuation(c, t);
+        return t === ' leer la nota' ? toks.map((x) => ({ ...x, logprob: Math.min(0, x.logprob + 1), upperBound: true })) : toks;
+      },
+      nextTokens: (c, k) => lm.nextTokens(c, k),
+      generate: (p, o) => lm.generate(p, o),
+    };
+    const ref = await scoreCliffAnswer(actualOnly, pack, ctx, 'leerla en voz alta', 'leer la nota');
+    expect(ref.bounded).toBeUndefined();
+    expect(RANK[ref.credit]).toBeLessThanOrEqual(RANK[exact.credit]);
+    const same = await scoreCliffAnswer(new AllBoundedModel(lm), pack, ctx, 'leer la nota', 'leer la nota');
+    expect(same.reason).toBe('actual');
+  });
+
+  it('through TopNBoundedModel over the mock: credit is never above the exact credit', async () => {
+    const singles = ['leer', 'leerla', 'llorar', 'reír', 'casa', 'lee', 'leyó', 'xyzzy'];
+    const multis = ['leerla en voz alta', 'lee la nota', 'leer la', 'llorar', 'xyzzy blorp'];
+    let boundedSeen = 0;
+    for (const n of [1, 3, 10]) {
+      const m = new TopNBoundedModel(lm, { n });
+      for (const [answers, actual] of [[singles, 'leer'], [multis, 'leer la nota']] as const) {
+        for (const a of answers) {
+          const e = await scoreCliffAnswer(lm, pack, ctx, a, actual);
+          const b = await scoreCliffAnswer(m, pack, ctx, a, actual);
+          expect(RANK[b.credit], `${n} ${a}`).toBeLessThanOrEqual(RANK[e.credit]);
+          if (b.bounded) boundedSeen++;
+          else expect(b.credit, `${n} ${a}`).toBe(e.credit);
+        }
+      }
+    }
+    expect(boundedSeen).toBeGreaterThan(0);
+  });
+
+  it('cliffPositions flags positions whose actual word has a bounded token', async () => {
+    const exact = await cliffPositions(lm, pack, '', SENTENCE);
+    expect(exact.every((p) => !('bounded' in p))).toBe(true);
+    const top1 = await cliffPositions(new TopNBoundedModel(lm, { n: 1 }), pack, '', SENTENCE);
+    const flagged = top1.filter((p) => p.bounded);
+    expect(flagged.length).toBeGreaterThan(0);
+    for (const p of flagged) {
+      // An upper bound: never below the exact whole-word logprob.
+      expect(p.actualLogprob).toBeGreaterThanOrEqual(exact[p.wordIndex]!.actualLogprob - 1e-9);
+    }
   });
 });

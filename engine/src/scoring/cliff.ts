@@ -14,7 +14,7 @@ import {
   type ModelCallListener,
   type NextWordOptions,
 } from './nextWord';
-import { alignTokensToWords } from './wordScores';
+import { alignTokensToWords, boundedWords } from './wordScores';
 import {
   DEFAULT_ACCENT_MARKS,
   atSentenceStart,
@@ -104,14 +104,24 @@ export interface CreditOptions {
 }
 
 export const DEFAULT_CREDIT_OPTIONS: Readonly<CreditOptions> = {
-  // Credit floors. Consistent with the proof test's next-word lists (Qwen3-1.7B: the top
-  // word of a standard opening has 0.08 to 0.65, natural runners-up 0.02 to 0.2), but
-  // the proof did not score learner answers, so calibrate these from learner logs.
-  // Cliffs on slang or lyric lines need answers from the pack or the lyrics: the
-  // model's lists there are useless (top-10 mass 0.12).
+  // Credit floors. fullRatio and fullFloor are consistent with the proof test's next-word
+  // lists (Qwen3-1.7B: the top word of a standard opening has 0.08 to 0.65, natural
+  // runners-up 0.02 to 0.2); calibrate them from learner logs. Cliffs on slang or lyric
+  // lines need answers from the pack or the lyrics: the model's lists there are useless
+  // (top-10 mass 0.12).
   fullRatio: 0.25,
   fullFloor: 0.05,
-  partialFloor: 0.005,
+  // Measured on the real model (proof/ENGINE_REAL_MODEL.md, Qwen3-1.7B, 6 story cliffs,
+  // 40 natural and 23 wrong answers scored with scoreCliffAnswer): natural answers range
+  // down to 2.2e-4 ("hacia la cocina"; reír 5.6e-4, nadar 7.2e-4 after "vamos a"), while
+  // wrong answers stay at or below 1.0e-5 ("hacia la verde", itself grammatical as "the
+  // green one"), and word-class errors at or below 2.3e-6. The former floor 0.005 gave 12
+  // of the 40 natural answers no credit; every floor from 2e-4 down to 2e-5 credits all
+  // 40 and none of the 23 wrong ones. 1e-4 keeps a factor of 2 below the least likely
+  // natural answer and 10 above the most likely wrong one. session/cliff.ts uses this
+  // value as its distractor floor, which the lower value makes safer: at 0.005 a
+  // natural word such as "bailar" (3.2e-3) could have been offered as a wrong option.
+  partialFloor: 1e-4,
   multiFullMargin: 1.0,
   multiPartialMargin: 2.5,
   k: 10,
@@ -156,7 +166,8 @@ function nextWordOptions(
  * - plausibleCount = alternatives with probability above opts.plausibleFloor.
  * A good cliff has a likely actual word and few plausible alternatives (or many natural
  * ones, for free answers). Pass `sentence` with its leading space when the context ends
- * in a word. Positions come back sorted by word index.
+ * in a word. Positions come back sorted by word index. A position whose actual word has
+ * a token with only an upper-bound logprob (TokenScore.upperBound) gets bounded: true.
  */
 export async function cliffPositions(
   model: LanguageModel,
@@ -177,6 +188,7 @@ export async function cliffPositions(
   o.onModelCall?.({ method: 'scoreContinuation', context });
   const tokens = await model.scoreContinuation(context, sentence);
   const wordLps = alignTokensToWords(tokens, segments, o.logprobFloor);
+  const bounds = tokens.some((t) => t.upperBound) ? boundedWords(tokens, segments) : undefined;
   const nw = nextWordOptions(pack, o.k, o.nextWord, o.onModelCall);
 
   const out: CliffPosition[] = [];
@@ -190,7 +202,9 @@ export async function cliffPositions(
       actualLogprob += clampLogprob(Math.log(mass), o.logprobFloor);
     }
     const plausibleCount = alternatives.filter((a) => a.prob > o.plausibleFloor).length;
-    out.push({ wordIndex, segment, actualLogprob, alternatives, plausibleCount });
+    const pos: CliffPosition = { wordIndex, segment, actualLogprob, alternatives, plausibleCount };
+    if (bounds?.[wordIndex]) pos.bounded = true;
+    out.push(pos);
   }
   return out;
 }
@@ -289,6 +303,19 @@ function sharesLemma(pack: LanguagePack, a: string, b: string): boolean {
  * usually its most predictable ones. An empty `actual` is replaced by the top
  * alternative's logprob as the reference.
  *
+ * Bounded probabilities. A runtime that reports only top-N token lists (llama.rn by
+ * forced decoding; model/topN.ts) gives a token outside its list only an upper bound
+ * (TokenScore.upperBound). Credit never rises because of such a bound: when the scored
+ * answer has a bounded token, P(answer) is at most the reported value, which can show an
+ * answer is unlikely but never that it is likely, so the 'likely' and 'plausible' rules
+ * are skipped and the answer gets 'form' (shares a lemma with the actual word) or 'none',
+ * exactly what it would get with an exact probability below every floor. The result
+ * carries bounded: true so the app can treat it as unscored rather than wrong. This only
+ * touches answers outside the alternatives: those come from nextTokens lists, which a
+ * top-N runtime reports exactly, so every natural answer the model ranks keeps its
+ * credit. In the multi-word comparison only a bound on the answer side counts: a bound
+ * on the actual continuation raises the reference and can only lower the credit.
+ *
  * rank is the 1-based position of a single-word answer among the alternatives, else null.
  * An answer with no words (empty, punctuation only) gets none with logprob = logprobFloor.
  * `scored` reports the text that was scored or matched (trimmed, case-adjusted, accent
@@ -311,16 +338,23 @@ export async function scoreCliffAnswer(
 
   const alternatives: NextWord[] = (await nextWordsDetailed(model, ctx, nw)).words;
   let scored = '';
-  const result = (logprob: number, rank: number | null, credit: Credit, reason: CreditReason): CliffResult => ({
-    answer,
-    scored,
-    logprob,
-    prob: Math.exp(logprob),
-    rank,
-    credit,
-    reason,
-    alternatives,
-  });
+  /** The answer's probability came from a scoring with an upper-bound token. */
+  let bounded = false;
+  const result = (logprob: number, rank: number | null, credit: Credit, reason: CreditReason): CliffResult => {
+    const r: CliffResult = {
+      answer,
+      scored,
+      logprob,
+      prob: Math.exp(logprob),
+      rank,
+      credit,
+      reason,
+      alternatives,
+    };
+    // Set only when true, so exact results keep their shape.
+    if (bounded) r.bounded = true;
+    return r;
+  };
 
   const ans = trimAnswer(pack, answer);
   const act = trimAnswer(pack, actual);
@@ -336,7 +370,8 @@ export async function scoreCliffAnswer(
   const isActual =
     actNorms.length > 0 && ansNorms.length === actNorms.length && ansNorms.every((n, i) => sameWord(n, actNorms[i] as string));
 
-  const scoreText = async (text: string): Promise<number> => {
+  /** log P(text) at the cliff, with boundary mass; bounded when a token is only an upper bound. */
+  const scoreText = async (text: string): Promise<{ logprob: number; bounded: boolean }> => {
     const full = lead + caseForPosition(pack, ctx, text);
     o.onModelCall?.({ method: 'scoreContinuation', context: ctx });
     const toks = await model.scoreContinuation(ctx, full);
@@ -346,7 +381,7 @@ export async function scoreCliffAnswer(
       const mass = await wordBoundaryMass(model, ctx + full, nw);
       lp += clampLogprob(Math.log(mass), o.logprobFloor);
     }
-    return lp;
+    return { logprob: lp, bounded: toks.some((t) => t.upperBound === true) };
   };
 
   // Rank (and an exact probability) for a single-word answer from the alternatives. A
@@ -368,12 +403,17 @@ export async function scoreCliffAnswer(
     const alt = rankIdx >= 0 ? alternatives[rankIdx] : undefined;
     const text = isActual ? act : (restored ?? ans);
     scored = alt ? alt.word : shown(text);
-    const logprob = alt ? alt.logprob : await scoreText(text);
+    let logprob: number;
+    if (alt) logprob = alt.logprob;
+    else ({ logprob, bounded } = await scoreText(text));
     if (isActual) return result(logprob, rank, 'full', 'actual');
     const prob = Math.exp(logprob);
     const top = alternatives[0]?.prob ?? 0;
-    if ((top > 0 && prob >= o.fullRatio * top) || prob >= o.fullFloor) return result(logprob, rank, 'full', 'likely');
-    if (prob >= o.partialFloor) return result(logprob, rank, 'partial', 'plausible');
+    // A bounded probability is only an upper bound: it never earns likely or plausible.
+    if (!bounded) {
+      if ((top > 0 && prob >= o.fullRatio * top) || prob >= o.fullFloor) return result(logprob, rank, 'full', 'likely');
+      if (prob >= o.partialFloor) return result(logprob, rank, 'partial', 'plausible');
+    }
     const actNorm = actNorms[0];
     // After accent restoration the restored form is the one the learner meant.
     const ansNorm = alt ? alt.norm : (restored ?? (ansNorms[0] as string));
@@ -385,7 +425,9 @@ export async function scoreCliffAnswer(
 
   // Multi-word comparison by mean logprob per word.
   scored = shown(isActual ? act : ans);
-  const ansLp = await scoreText(isActual ? act : ans);
+  const ansScore = await scoreText(isActual ? act : ans);
+  const ansLp = ansScore.logprob;
+  bounded = ansScore.bounded;
   if (isActual) return result(ansLp, rank, 'full', 'actual');
   const ansMean = ansLp / ansWords.length;
   // An answer shorter than the cliff is compared with the same number of actual words
@@ -399,11 +441,15 @@ export async function scoreCliffAnswer(
   else if (shorter && ansNorms.every((n, i) => sameWord(n, actNorms[i] as string))) actMean = ansMean;
   else {
     const ref = shorter ? act.slice(0, (actWords[refWords - 1] as Segment).end) : act;
-    actMean = (await scoreText(ref)) / refWords;
+    // A bound here raises the reference, which can only lower the answer's credit.
+    actMean = (await scoreText(ref)).logprob / refWords;
   }
   const diff = ansMean - actMean;
-  if (diff >= -o.multiFullMargin) return result(ansLp, rank, shorter ? 'partial' : 'full', shorter ? 'plausible' : 'likely');
-  if (diff >= -o.multiPartialMargin) return result(ansLp, rank, 'partial', 'plausible');
+  // A bounded answer score is an upper bound, so diff is too: it never earns credit.
+  if (!bounded) {
+    if (diff >= -o.multiFullMargin) return result(ansLp, rank, shorter ? 'partial' : 'full', shorter ? 'plausible' : 'likely');
+    if (diff >= -o.multiPartialMargin) return result(ansLp, rank, 'partial', 'plausible');
+  }
   const formMatch =
     ansNorms.length <= actNorms.length &&
     ansNorms.every((n, i) => {

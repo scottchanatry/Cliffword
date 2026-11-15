@@ -14,6 +14,10 @@ export const EXPLANATION_KEYS = [
   'es.mood',
   'es.personal_a',
   'es.article',
+  'es.pronoun_placement',
+  'es.negative_command',
+  'es.pronoun_order',
+  'es.se_lo',
 ] as const;
 
 export type ExplanationKey = (typeof EXPLANATION_KEYS)[number];
@@ -35,4 +39,12 @@ export const EXPLANATIONS: Readonly<Record<ExplanationKey, string>> = {
     'Put a before a direct object that is a specific person or a pet. Veo a mi madre, but veo la casa.',
   'es.article':
     'Spanish uses el or la where English often has no article, as with likes and things in general (me gusta el café), but leaves out un or una before a job after ser (soy profesor).',
+  'es.pronoun_placement':
+    'Object pronouns like me, te, lo and se go right before a conjugated verb, but join the end of an infinitive, a gerund or a positive command. Lo compré, but quiero comprarlo.',
+  'es.negative_command':
+    'A command with no uses the subjunctive form, and its pronoun goes before the verb instead of on the end. No lo hagas.',
+  'es.pronoun_order':
+    'With two object pronouns, se comes first and lo, la, los or las come last, with me, te or nos in between. Te lo digo.',
+  'es.se_lo':
+    'Le and les change to se right before lo, la, los or las. Se lo di a mi hermana.',
 };

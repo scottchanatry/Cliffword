@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { CorrectionRule, InflectRule, InsertRule, SwapRule } from '../lang/types';
+import type { Analysis, CliticSplit, CorrectionRule, InflectRule, InsertRule, LanguagePack, MoveRule, SwapRule } from '../lang/types';
 import {
   ARTICLE_DELETE_RULE,
   ARTICLE_INSERT_RULES,
@@ -14,6 +14,8 @@ import {
 } from '../lang/es/rules';
 import { TEST_REGISTERS, createTestPack, testSegment } from './testPack';
 import {
+  KIND_PRIORITY,
+  anchorFormOf,
   capitalizeFirst,
   generateVariantSet,
   generateVariants,
@@ -469,5 +471,202 @@ describe('generateVariants: priority, dedup and cap', () => {
     const vs = generateVariants(full, t, { maxVariants: 1000 });
     expect(new Set(texts(vs)).size).toBe(vs.length);
     expectWellFormed(t, vs);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Move rules (language-neutral, with a stub pack)
+// ---------------------------------------------------------------------------
+
+const CL = ['lo', 'la', 'me', 'te'];
+const PRON = (lemma: string): Analysis[] => [{ lemma, pos: 'PRON', features: {} }];
+const IMP = { form: 'fin', mood: 'imp', person: '2', number: 's' };
+
+/** Extra analyses: clitics, a negation, an imperative, and a clitic form the "analyzer" accepts. */
+const MOVE_EXTRA: Record<string, Analysis[]> = {
+  lo: PRON('lo'),
+  me: PRON('me'),
+  te: PRON('te'),
+  le: PRON('le'),
+  se: PRON('se'),
+  no: [{ lemma: 'no', pos: 'ADV', features: {} }],
+  baila: [{ lemma: 'bailar', pos: 'VERB', features: IMP }],
+  bailalo: [{ lemma: 'bailar', pos: 'VERB', features: IMP }],
+};
+
+/**
+ * Stub pack with move support: clitics attach by plain concatenation and split off
+ * when what is left is a verb the pack knows (up to two clitics). The "analyzer"
+ * accepts bailalo (an imperative host) but not comprolo (a finite host).
+ */
+function movePack(rules: readonly CorrectionRule[], opts: { attach?: boolean; split?: boolean } = {}): LanguagePack {
+  const base = createTestPack({ rules, extra: MOVE_EXTRA });
+  const cliticForms = new Set(['bailalo']);
+  // A host is a verb form of its own: known, and not itself a verb + clitic form.
+  const isHost = (w: string) => !cliticForms.has(w) && base.analyze(w).some((a) => a.pos === 'VERB');
+  const split = (word: string): CliticSplit | undefined => {
+    if (base.analyze(word).length && !cliticForms.has(word)) return undefined;
+    for (const c of CL) {
+      if (!word.endsWith(c) || word.length <= c.length) continue;
+      const rest = word.slice(0, -c.length);
+      if (isHost(rest)) return { host: rest, clitics: [c] };
+      for (const d of CL) {
+        if (rest.endsWith(d) && isHost(rest.slice(0, -d.length))) return { host: rest.slice(0, -d.length), clitics: [d, c] };
+      }
+    }
+    return undefined;
+  };
+  return {
+    ...base,
+    inflect: (lemma, f) =>
+      lemma === 'bailar' && f.mood === 'sub' && f.tense === 'pres' && f.person === '2' ? 'bailes' : base.inflect(lemma, f),
+    ...(opts.attach === false ? {} : { attachClitic: (host: string, clitic: string) => host + clitic }),
+    ...(opts.split === false ? {} : { splitClitics: split }),
+  };
+}
+
+const FIN: MoveRule = {
+  id: 't.fin', kind: 'move', explainKey: 't.place', words: CL, anchorPos: ['VERB'], anchorForms: ['fin'], positions: ['before'],
+  homographs: ['la'], notBeforePos: ['NOUN', 'ADJ', 'DET'], notBeforeWords: ['que'],
+};
+const ATTACH: MoveRule = {
+  id: 't.attach', kind: 'move', explainKey: 't.place', words: CL, anchorPos: ['VERB'], anchorForms: ['inf', 'imp'],
+  positions: ['attach'], notAfterWords: ['no'],
+};
+const NEG: MoveRule = {
+  id: 't.neg', kind: 'move', explainKey: 't.neg', words: CL, anchorPos: ['VERB'], anchorForms: ['imp'], positions: ['before'],
+  afterWords: ['no'], inflectAnchor: { mood: 'sub', tense: 'pres' },
+};
+const ORDER: MoveRule = {
+  id: 't.order', kind: 'move', explainKey: 't.order', words: CL, anchorPos: ['VERB'], positions: [], order: [['te'], ['me'], ['lo', 'la']],
+};
+const MOVES = [FIN, ATTACH, NEG];
+
+function moveTexts(pack: LanguagePack, t: string): string[] {
+  const vs = generateVariants(pack, t, { maxVariants: 100 });
+  expectWellFormed(t, vs);
+  return texts(vs);
+}
+
+describe('generateVariants: move rules', () => {
+  const pack = movePack(MOVES);
+
+  it('classifies anchor forms: imperative, non-finite form, other finite, none', () => {
+    expect(anchorFormOf({ lemma: 'x', pos: 'VERB', features: IMP })).toBe('imp');
+    expect(anchorFormOf({ lemma: 'x', pos: 'VERB', features: { form: 'inf' } })).toBe('inf');
+    expect(anchorFormOf({ lemma: 'x', pos: 'VERB', features: { form: 'ger' } })).toBe('ger');
+    expect(anchorFormOf({ lemma: 'x', pos: 'VERB', features: { mood: 'sub', tense: 'pres' } })).toBe('fin');
+    expect(anchorFormOf({ lemma: 'x', pos: 'VERB', features: { form: 'fin', mood: 'ind' } })).toBe('fin');
+    expect(anchorFormOf({ lemma: 'x', pos: 'NOUN', features: {} })).toBeUndefined();
+  });
+
+  it('moves a clitic after a finite verb in front of it, with a span over both words', () => {
+    const t = 'Compro lo hoy.';
+    const vs = generateVariants(pack, t);
+    expect(vs).toHaveLength(1);
+    expect(vs[0]).toMatchObject({
+      text: 'Lo compro hoy.', ruleId: 't.fin', explainKey: 't.place', kind: 'move',
+      start: 0, end: 9, original: 'Compro lo', replacement: 'Lo compro', wordIndex: 1,
+    });
+    expectWellFormed(t, vs);
+  });
+
+  it('moves a cluster as one unit, keeping its order and spacing', () => {
+    expect(moveTexts(pack, 'Compro te lo hoy.')).toEqual(['Te lo compro hoy.']);
+    expect(moveTexts(pack, 'Ya compro  me lo.')).toEqual(['Ya me lo  compro.']);
+  });
+
+  it('keeps case: the new first word takes the capital, all caps stay all caps', () => {
+    expect(moveTexts(pack, 'COMPRO LO HOY.')).toEqual(['LO COMPRO HOY.']);
+    expect(moveTexts(pack, 'Hoy compro lo.')).toEqual(['Hoy lo compro.']);
+  });
+
+  it('reads a homograph as the other word before a noun, a listed word, a number or an unknown word', () => {
+    expect(moveTexts(pack, 'Compro la casa.')).toEqual([]);
+    expect(moveTexts(pack, 'Compro la que quiero.')).toEqual([]);
+    expect(moveTexts(pack, 'Compro la 2.')).toEqual([]);
+    expect(moveTexts(pack, 'Compro la zzz.')).toEqual([]);
+    expect(moveTexts(pack, 'Compro la.')).toEqual(['La compro.']);
+    expect(moveTexts(pack, 'Compro la hoy.')).toEqual(['La compro hoy.']);
+  });
+
+  it('proposes each adjacent anchor its own position: before the finite verb, attached to the infinitive', () => {
+    expect(moveTexts(pack, 'Quiero lo bailar.')).toEqual(['Lo quiero bailar.', 'Quiero bailarlo.']);
+    expect(moveTexts(pack, 'Lo baila.')).toEqual(['Bailalo.']);
+  });
+
+  it('leaves a cluster alone when either neighbour allows it ("Para bailar me llamo")', () => {
+    expect(moveTexts(pack, 'Para bailar me llamo.')).toEqual([]);
+    expect(moveTexts(pack, 'Lo compro.')).toEqual([]);
+  });
+
+  it('proposes no attach position without pack.attachClitic', () => {
+    expect(moveTexts(movePack(MOVES, { attach: false }), 'Quiero lo bailar.')).toEqual(['Lo quiero bailar.']);
+  });
+
+  it('detaches clitics the pack does not accept on a finite verb', () => {
+    const t = 'Comprolo hoy.';
+    const vs = generateVariants(pack, t);
+    expect(vs.map((v) => [v.text, v.start, v.end, v.wordIndex])).toEqual([['Lo compro hoy.', 0, 8, 0]]);
+    expect(moveTexts(movePack(MOVES, { split: false }), t)).toEqual([]);
+  });
+
+  it('keeps attached clitics the pack accepts, unless a context rule forbids them; then re-inflects the anchor', () => {
+    expect(moveTexts(pack, 'Bailalo.')).toEqual([]);
+    expect(moveTexts(pack, 'No bailalo.')).toEqual(['No lo bailes.']);
+    expect(generateVariants(pack, 'No bailalo.')[0]).toMatchObject({ ruleId: 't.neg', explainKey: 't.neg', original: 'bailalo' });
+    expect(moveTexts(pack, 'No baila lo.')).toEqual(['No lo bailes.']);
+    expect(moveTexts(pack, 'No lo baila.')).toEqual([]);
+  });
+
+  it('drops a re-inflecting variant when the pack cannot produce the form', () => {
+    const neg: MoveRule = { ...NEG, inflectAnchor: { mood: 'sub', tense: 'impf' } };
+    expect(moveTexts(movePack([FIN, ATTACH, neg]), 'No bailalo.')).toEqual([]);
+  });
+
+  it('supports the after position (any language where clitics follow the verb)', () => {
+    const after: MoveRule = { ...FIN, id: 't.after', positions: ['after'] };
+    expect(moveTexts(movePack([after]), 'Lo compro hoy.')).toEqual(['Compro lo hoy.']);
+    expect(moveTexts(movePack([after]), 'Compro lo hoy.')).toEqual([]);
+  });
+
+  it('reorders separate and attached clusters with an order-only rule', () => {
+    const op = movePack([ORDER]);
+    const vs = generateVariants(op, 'Lo te compro.');
+    expect(vs.map((v) => [v.text, v.ruleId, v.original, v.wordIndex])).toEqual([['Te lo compro.', 't.order', 'Lo te', 0]]);
+    expect(moveTexts(op, 'Te lo compro.')).toEqual([]);
+    expect(moveTexts(op, 'Bailalote.')).toEqual(['Bailatelo.']);
+    // Not next to a verb: nothing to order against.
+    expect(moveTexts(op, 'Hoy lo te.')).toEqual([]);
+  });
+
+  it('never moves a slang word or uses one as an anchor', () => {
+    expect(moveTexts(pack, 'Quiero lo janguear.')).toEqual(['Lo quiero janguear.']);
+  });
+
+  it('ranks moves with swaps, so a tight cap keeps them ahead of inflections', () => {
+    expect(KIND_PRIORITY.move).toBe(KIND_PRIORITY.swap);
+    const p = movePack([GENDER_RULE, FIN]);
+    const t = 'Compro lo hoy en la casa blanco.';
+    expect(texts(generateVariants(p, t, { maxVariants: 1 }))).toEqual(['Lo compro hoy en la casa blanco.']);
+    expect(generateVariantSet(p, t, { maxVariants: 100 }).generated).toBeGreaterThan(1);
+  });
+});
+
+describe('generateVariants: swap context conditions', () => {
+  it('swaps only before the listed words, one way with fromWords', () => {
+    const rule: SwapRule = { id: 't.se', kind: 'swap', explainKey: 't.se', groups: [['le', 'se']], fromWords: ['le'], beforeWords: ['lo'] };
+    const pack = createTestPack({ rules: [rule], extra: MOVE_EXTRA });
+    expect(texts(generateVariants(pack, 'Le lo compro.'))).toEqual(['Se lo compro.']);
+    expect(texts(generateVariants(pack, 'Le compro.'))).toEqual([]);
+    expect(texts(generateVariants(pack, 'Se lo compro.'))).toEqual([]);
+    expect(texts(generateVariants(pack, 'Le, lo compro.'))).toEqual([]);
+  });
+
+  it('swaps only after the listed words', () => {
+    const rule: SwapRule = { ...POR_PARA_RULE, id: 't.after', afterWords: ['compro'] };
+    const pack = createTestPack({ rules: [rule] });
+    expect(texts(generateVariants(pack, 'Compro por ti.'))).toEqual(['Compro para ti.']);
+    expect(texts(generateVariants(pack, 'Voy por ti.'))).toEqual([]);
   });
 });

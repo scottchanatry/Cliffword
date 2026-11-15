@@ -218,7 +218,10 @@ describe('scoring with the real pack', () => {
     expect(accentless.scored).toBe('reír');
     const form = await scoreCliffAnswer(model, pack, ctx, 'leyó', 'leer');
     expect([form.credit, form.reason]).toEqual(['partial', 'form']);
-    const wrong = await scoreCliffAnswer(model, pack, ctx, 'mesa', 'leer');
+    // The n-gram mock smooths unseen words to about 1e-3, far above a real model (mesa:
+    // 1.7e-9 on Qwen3-1.7B), so this check pins the mock-scale floor 0.005 that
+    // DEFAULT_CREDIT_OPTIONS.partialFloor had before the real-model measurement (1e-4).
+    const wrong = await scoreCliffAnswer(model, pack, ctx, 'mesa', 'leer', { partialFloor: 0.005 });
     expect(wrong.credit).toBe('none');
   });
 });

@@ -5,9 +5,11 @@
  * list into the LanguagePack contract. Correction rules and slang register packs are
  * data supplied by the caller (their own modules); by default there are none.
  */
-import type { CorrectionRule, LanguagePack, RegisterPack } from '../types';
+import type { CorrectionRule, LanguagePack, RegisterPack, SpokenCommandEntry } from '../types';
 import { createAnalyzer } from './analyze';
 import { chooseSpanishAnalysis } from './choose';
+import { attachClitic, splitClitics } from './clitics';
+import { SPANISH_COMMANDS } from './commands';
 import { inflect } from './inflect';
 import { LEMMAS_BY_FREQUENCY, frequencyRank } from './lexicon';
 import { normalize, stripAccents } from './normalize';
@@ -18,6 +20,8 @@ export interface SpanishPackOptions {
   registers?: readonly RegisterPack[];
   /** Overrides SPANISH_SCORING_PREFIX. */
   scoringPrefix?: string;
+  /** Overrides SPANISH_COMMANDS (spoken commands for the speaking module). */
+  commands?: readonly SpokenCommandEntry[];
 }
 
 /** Fixed context for scoring a Spanish sentence; the prefix measured in the proof test. */
@@ -50,7 +54,10 @@ export function registerClips(registers: readonly RegisterPack[]): { leading: st
  * neutral equivalent, or the entry's own pos); everything else is the shared standard
  * lexicon. chooseAnalysis is chooseSpanishAnalysis (homographs in context: la comida,
  * he estado, ella vino). foldAccents is stripAccents (accents and diaeresis go, ñ stays); frequencyList
- * is LEMMAS_BY_FREQUENCY. Defaults to no correction rules and no registers.
+ * is LEMMAS_BY_FREQUENCY. attachClitic and splitClitics (clitics.ts) attach enclitic
+ * pronouns keeping the host's stress (leyendo + lo -> leyéndolo) and split them off again
+ * (dámelo -> da + me, lo), for the move rules. commands defaults to SPANISH_COMMANDS.
+ * Defaults to no correction rules and no registers.
  */
 export function createSpanishPack(opts: SpanishPackOptions = {}): LanguagePack {
   const rules = opts.rules ?? [];
@@ -71,6 +78,9 @@ export function createSpanishPack(opts: SpanishPackOptions = {}): LanguagePack {
     rules,
     registers,
     scoringPrefix: opts.scoringPrefix ?? SPANISH_SCORING_PREFIX,
+    attachClitic,
+    splitClitics: (word: string) => splitClitics(word),
+    commands: opts.commands ?? SPANISH_COMMANDS,
   };
 }
 
@@ -80,5 +90,7 @@ export { conjugate, conjugateForm, featuresSlot, slotFeatures } from './conjugat
 export { inflect, paradigm, pluralize, feminine } from './inflect';
 export { analyze, createAnalyzer, DEFAULT_ANALYZE_OPTIONS } from './analyze';
 export { chooseSpanishAnalysis, VERB_CUE_ADVERBS } from './choose';
+export { attachClitic, splitClitics } from './clitics';
+export { SPANISH_COMMANDS } from './commands';
 export { frequencyRank, LEXICON, LEMMAS_BY_FREQUENCY, lexiconRows } from './lexicon';
 export type { LexRow, LexGender } from './lexicon';

@@ -120,6 +120,44 @@ export function frequencyBaseline(
 }
 
 /**
+ * For each token, how many of its non-space characters fall in each word segment (by
+ * word index), following the character mapping described in alignTokensToWords.
+ * Shared by the logprob alignment and the bounded-word marking, so both attribute a
+ * token to exactly the same words.
+ */
+function tokenWordShares(
+  tokens: readonly TokenScore[],
+  segments: readonly Segment[],
+): { words: number; shares: { tok: TokenScore; counts: Map<number, number>; total: number }[] } {
+  const words = segments.filter((s) => s.kind === 'word');
+  if (words.length === 0) return { words: 0, shares: [] };
+  let textEnd = 0;
+  for (const s of segments) textEnd = Math.max(textEnd, s.end);
+  for (const t of tokens) textEnd = Math.max(textEnd, t.end);
+  const owner = new Int32Array(textEnd).fill(-1);
+  words.forEach((w, wi) => {
+    for (let i = Math.max(0, w.start); i < Math.min(w.end, owner.length); i++) owner[i] = wi;
+  });
+  const shares: { tok: TokenScore; counts: Map<number, number>; total: number }[] = [];
+  for (const tok of tokens) {
+    const counts = new Map<number, number>();
+    let total = 0;
+    const start = Math.max(0, tok.start);
+    const end = Math.min(owner.length, tok.end);
+    for (let i = start; i < end; i++) {
+      const wi = owner[i] ?? -1;
+      if (wi < 0) continue;
+      const ch = tok.text[i - tok.start];
+      if (ch !== undefined && isSpace(ch)) continue;
+      counts.set(wi, (counts.get(wi) ?? 0) + 1);
+      total++;
+    }
+    if (total > 0) shares.push({ tok, counts, total });
+  }
+  return { words: words.length, shares };
+}
+
+/**
  * Distribute token log-probabilities over the word segments of the scored text.
  *
  * Method: every character of the text is mapped to the word segment containing it (or to
@@ -145,39 +183,40 @@ export function alignTokensToWords(
   segments: readonly Segment[],
   logprobFloor: number = DEFAULT_HEAT_OPTIONS.logprobFloor,
 ): number[] {
-  const words = segments.filter((s) => s.kind === 'word');
-  const sums = words.map(() => 0);
-  if (words.length === 0) return sums;
-  let textEnd = 0;
-  for (const s of segments) textEnd = Math.max(textEnd, s.end);
-  for (const t of tokens) textEnd = Math.max(textEnd, t.end);
-  const owner = new Int32Array(textEnd).fill(-1);
-  words.forEach((w, wi) => {
-    for (let i = Math.max(0, w.start); i < Math.min(w.end, owner.length); i++) owner[i] = wi;
-  });
-  for (const tok of tokens) {
+  const { words, shares } = tokenWordShares(tokens, segments);
+  const sums: number[] = Array.from({ length: words }, () => 0);
+  for (const { tok, counts, total } of shares) {
     const lp = clampLogprob(tok.logprob, logprobFloor);
-    const counts = new Map<number, number>();
-    let total = 0;
-    const start = Math.max(0, tok.start);
-    const end = Math.min(owner.length, tok.end);
-    for (let i = start; i < end; i++) {
-      const wi = owner[i] ?? -1;
-      if (wi < 0) continue;
-      const ch = tok.text[i - tok.start];
-      if (ch !== undefined && isSpace(ch)) continue;
-      counts.set(wi, (counts.get(wi) ?? 0) + 1);
-      total++;
-    }
-    if (total === 0) continue;
     for (const [wi, c] of counts) sums[wi] = (sums[wi] ?? 0) + (lp * c) / total;
   }
   return sums;
 }
 
 /**
+ * Which word segments have a logprob that is only an upper bound: true for every word
+ * that a token with TokenScore.upperBound contributes to (by the same character mapping
+ * as alignTokensToWords, so a bounded token split over two words marks both). Indexed by
+ * word index. All false when the model reports exact logprobs.
+ */
+export function boundedWords(tokens: readonly TokenScore[], segments: readonly Segment[]): boolean[] {
+  const { words, shares } = tokenWordShares(tokens, segments);
+  const out: boolean[] = Array.from({ length: words }, () => false);
+  for (const { tok, counts } of shares) {
+    if (!tok.upperBound) continue;
+    for (const wi of counts.keys()) out[wi] = true;
+  }
+  return out;
+}
+
+/**
  * Pure part of scoreWords: build WordScores from already computed tokens and segments.
  * surprisal = -logprob; heat = heatFor(surprisal - baseline(norm, segment)).
+ *
+ * Bounded tokens (TokenScore.upperBound, from a top-N runtime): a word with one gets
+ * bounded: true. Its logprob is an upper bound and its surprisal a lower bound, so its
+ * heat is a lower bound as well. The heat is kept as computed: a lower bound that reaches
+ * a threshold is a sound reason to shade (the word is at least that surprising), and
+ * raising heat on a guess would shade correct rare words, which the brief wants soft.
  */
 export function wordScoresFromTokens(
   tokens: readonly TokenScore[],
@@ -186,6 +225,7 @@ export function wordScoresFromTokens(
 ): WordScore[] {
   const o = { ...DEFAULT_HEAT_OPTIONS, ...opts };
   const sums = alignTokensToWords(tokens, segments, o.logprobFloor);
+  const bounds = tokens.some((t) => t.upperBound) ? boundedWords(tokens, segments) : undefined;
   const out: WordScore[] = [];
   let before = '';
   for (const segment of segments) {
@@ -204,7 +244,10 @@ export function wordScoresFromTokens(
     const sentenceStart = wordIndex === 0 ? o.startsSentence !== false : atSentenceStart(before);
     if (sentenceStart && Number.isFinite(o.sentenceStartAllowance)) adjusted -= o.sentenceStartAllowance;
     const heat: Heat = o.exempt?.(segment) ? 0 : heatFor(adjusted, o.thresholds);
-    out.push({ segment, wordIndex, logprob, surprisal, heat });
+    const score: WordScore = { segment, wordIndex, logprob, surprisal, heat };
+    // Set only when true, so exact scores keep their shape.
+    if (bounds?.[wordIndex]) score.bounded = true;
+    out.push(score);
     before += segment.text;
   }
   return out;

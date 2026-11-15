@@ -20,6 +20,12 @@ export interface TokenScore {
   end: number;
   /** log P(token | context + previous tokens of the text). */
   logprob: number;
+  /**
+   * logprob is only an upper bound: the runtime reported the token as outside its
+   * top-N; the true value is <= logprob. Absent (or false) means logprob is exact.
+   * Set by TopNBoundedModel and by a device adapter that scores by forced decoding.
+   */
+  upperBound?: boolean;
 }
 
 export interface TokenCandidate {

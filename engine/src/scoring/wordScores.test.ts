@@ -1,10 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import type { Segment } from '../lang/types';
 import { createMockModel } from '../model/mock';
+import { TopNBoundedModel } from '../model/topN';
 import { totalLogprob, type TokenScore } from '../model/types';
 import {
   DEFAULT_HEAT_OPTIONS,
   alignTokensToWords,
+  boundedWords,
   frequencyBaseline,
   heatFor,
   meanTokenLogprob,
@@ -295,5 +297,57 @@ describe('meanTokenLogprob', () => {
   it('is 0 for no tokens and clamps -Infinity', () => {
     expect(meanTokenLogprob([])).toBe(0);
     expect(meanTokenLogprob(toks([['a', -Infinity], ['b', 0]]), -10)).toBe(-5);
+  });
+});
+
+describe('bounded tokens (top-N runtime)', () => {
+  /** Like toks(), with the indices of the tokens that are only upper bounds. */
+  const btoks = (parts: Array<[string, number]>, bounded: number[]): TokenScore[] =>
+    toks(parts).map((t, i) => (bounded.includes(i) ? { ...t, upperBound: true } : t));
+
+  it('marks every word a bounded token contributes to, and no other', () => {
+    const text = ' muy cansado ya.';
+    const tokens = btoks([[' muy', -1], [' cans', -9], ['ado', -0.5], [' ya', -2], ['.', -3]], [2, 4]);
+    expect(boundedWords(tokens, stubSegment(text))).toEqual([false, true, false]);
+    // A bounded token split over two words marks both; a punctuation-only one marks none.
+    const spanning = btoks([['ab', -1], ['c d', -4], ['!', -2]], [1, 2]);
+    expect(boundedWords(spanning, stubSegment('abc d!'))).toEqual([true, true]);
+    expect(boundedWords(btoks([['a', -1], [' ?', -7]], [1]), stubSegment('a ?'))).toEqual([false]);
+    expect(boundedWords([], [])).toEqual([]);
+  });
+
+  it('keeps heat and surprisal as computed, and flags the word (its surprisal is a lower bound)', () => {
+    const text = 'Marta lee notas.';
+    const parts: Array<[string, number]> = [['Marta', -2], [' lee', -10], [' notas', -1], ['.', -0.5]];
+    const exact = wordScoresFromTokens(toks(parts), stubSegment(text));
+    const bounded = wordScoresFromTokens(btoks(parts, [1]), stubSegment(text));
+    expect(bounded.map((w) => [w.surprisal, w.heat])).toEqual(exact.map((w) => [w.surprisal, w.heat]));
+    expect(bounded.map((w) => w.bounded)).toEqual([undefined, true, undefined]);
+    expect(bounded[1]!.heat).toBeGreaterThan(0);
+    // Exact scores keep their shape: no bounded key at all.
+    expect(exact.every((w) => !('bounded' in w))).toBe(true);
+  });
+
+  it('through TopNBoundedModel over the mock: surprisal and heat can only be lower, and only on flagged words', async () => {
+    const text = 'Marta empezó a leer la nota en voz alta.';
+    const exact = await scoreWords(lm, pack, '', text);
+    let flagged = 0;
+    for (const n of [1, 3, 10]) {
+      const ws = await scoreWords(new TopNBoundedModel(lm, { n }), pack, '', text);
+      expect(ws.map((w) => w.segment.text)).toEqual(exact.map((w) => w.segment.text));
+      ws.forEach((w, i) => {
+        const e = exact[i]!;
+        if (w.bounded) {
+          flagged++;
+          expect(w.surprisal).toBeLessThanOrEqual(e.surprisal + 1e-9);
+          expect(w.heat).toBeLessThanOrEqual(e.heat);
+        } else {
+          expect(w.surprisal).toBeCloseTo(e.surprisal, 12);
+          expect(w.heat).toBe(e.heat);
+        }
+      });
+    }
+    expect(flagged).toBeGreaterThan(0);
+    expect(await scoreWords(new TopNBoundedModel(lm, { n: 100_000 }), pack, '', text)).toEqual(exact);
   });
 });

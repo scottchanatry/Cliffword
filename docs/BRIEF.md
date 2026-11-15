@@ -49,6 +49,36 @@ Decisions made so far. Read this before doing any work in this repo.
 - The engine core is plain TypeScript behind a model interface, testable without a
   phone.
 
+## Levels: one system for beginners through advanced
+
+- No level modes. The per-word learner model drives everything, and these scale
+  continuously: sentence length, new-word rate, speech speed, share of words shown
+  as text, how the learner answers a cliff, and cliff length.
+- The known-word share of each sentence stays in the same band (about 95 to 98%) at
+  every level.
+- Text fades per word: a word is shown as text until the learner knows it by ear,
+  then it becomes a tile. Beginners see mostly text, advanced learners mostly tiles.
+  The learner can still force all text shown or hidden.
+- Cliff answers have three rungs, chosen per word: pick from two or three spoken
+  options; answer with a first-sound hint; answer freely. "No sé" always works: hear
+  the answer, then repeat it aloud.
+- Zero-knowledge start: the pair pack marks cognates as probably known, and the
+  first stories use cognates plus a small set of taught function words. The learner
+  may answer in their native language; the app gives the target phrase to repeat.
+- Placement is the first story: it gets harder until the learner stalls. There is no
+  test screen. "I'm brand new" skips it.
+- Advanced: the cliff and surprise scoring run on any text the learner brings
+  (lyrics, articles, transcripts), cliffs span several words and idioms at native
+  speed, and tasks include retelling under time and switching register.
+- Skills are tracked separately (meaning, sound, speaking), so a learner who reads
+  well but speaks little, or understands speech but cannot read, gets the right mix.
+- Corrections are confidence-gated: assert a fix only when the score margin is
+  large; otherwise shade lightly and show what was expected.
+- Engine tests must include simulated learners (brand new, early, intermediate
+  reader with weak speaking, advanced, heritage speaker) and check that the
+  known-word band holds, that there is always a next step at zero knowledge, and
+  that new material never runs out at the top.
+
 ## Plan
 
 | Step | What | Output |

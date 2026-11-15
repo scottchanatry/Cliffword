@@ -66,6 +66,30 @@
  * Everything else (learner memory, difficulty curves, placement, selection weights, rung
  * thresholds, target choice) is a documented judgement call to be calibrated from
  * learner logs, not from the proof test.
+ *
+ * Speaking, lyrics and sessions (judgement calls, none measured; each module documents
+ * the reasoning next to its defaults):
+ *
+ * | Object                            | Field                          | Value              |
+ * |-----------------------------------|--------------------------------|--------------------|
+ * | DEFAULT_COMMAND_OPTIONS           | minConfidence, maxWords        | 0.6, 8             |
+ * | DEFAULT_ALIGN_TRANSCRIPT_OPTIONS  | maxSpan (split/joined words)   | 3                  |
+ * | DEFAULT_RETELL_OPTIONS / LANES    | pauseMs, lanes                 | 700, 60/45/30 s    |
+ * | DEFAULT_SPOKEN_TIME_OPTIONS       | min / max utterance, streak    | 300 ms, 120 s, 30 s|
+ * | DEFAULT_REPAIR_OPTIONS            | repairOn, maxRepairs           | ['assert'], 1      |
+ * | DEFAULT_NO_SE_OPTIONS             | landedShare, maxRepeats        | 1, 2               |
+ * | DEFAULT_DURATION_OPTIONS          | msPerSyllable                  | 150                |
+ * | DEFAULT_LYRIC_CLIFF_OPTIONS       | cliffWords, maxPositions, limit| 2, 4, 3            |
+ * | DEFAULT_BROUGHT_TEXT_CLIFF_OPTIONS| cliffWords                     | 3                  |
+ * | DEFAULT_LYRIC_ANSWER_OPTIONS      | neutralCredit, streetCredit... | full, partial      |
+ * | DEFAULT_ECHO_OPTIONS              | nearRatio, nearCost            | 0.2, 0.5           |
+ * | DEFAULT_STORY_SESSION_OPTIONS     | chapter, positions, candidates | 6, 3, 2            |
+ * | DEFAULT_OPTION_CHOICE_OPTIONS     | distractor floor               | partialFloor       |
+ * | DEFAULT_TOP_N_OPTIONS             | n                              | 10 (simulation)    |
+ * | DEFAULT_HTTP_MODEL_OPTIONS        | timeoutMs                      | 120000             |
+ *
+ * Language data the speaking module reads from the pack (LanguagePack.commands, fillers,
+ * streetEndings): SPANISH_COMMANDS, SPANISH_FILLERS, SPANISH_STREET_ENDINGS.
  */
 
 // Scoring
@@ -101,3 +125,40 @@ export { SPANISH_SCORING_PREFIX } from './lang/es';
 export { DEFAULT_LEADING_CLIPS, DEFAULT_TRAILING_CLIPS } from './lang/es/segment';
 export { DEFAULT_FIND_SLANG_OPTIONS } from './lang/es/registers';
 export { DEFAULT_EN_ES_OPTIONS } from './pair/en-es';
+
+// Speaking
+export { DEFAULT_COMMAND_OPTIONS } from './speaking/commands';
+export { DEFAULT_ALIGN_TRANSCRIPT_OPTIONS } from './speaking/align';
+export { DEFAULT_COVERAGE_OPTIONS, DEFAULT_RETELL_OPTIONS, RETELL_LANES } from './speaking/retell';
+export { DEFAULT_SPOKEN_TIME_OPTIONS } from './speaking/spokenTime';
+export { DEFAULT_JUDGE_ATTEMPT_OPTIONS, DEFAULT_REPAIR_OPTIONS } from './speaking/repair';
+export { DEFAULT_NO_SE_OPTIONS } from './speaking/noSe';
+export { DEFAULT_DURATION_OPTIONS } from './speaking/duration';
+
+// Lyrics and brought text
+export { DEFAULT_LRC_TAGS, DEFAULT_PARSE_LYRICS_OPTIONS } from './lyrics/parse';
+export { DEFAULT_REGISTER_PAIR_OPTIONS, DEFAULT_SLANG_MATCH_OPTIONS, DEFAULT_SLANG_NOTE_OPTIONS } from './lyrics/slang';
+export {
+  DEFAULT_BROUGHT_TEXT_CLIFF_OPTIONS,
+  DEFAULT_LYRIC_ANSWER_OPTIONS,
+  DEFAULT_LYRIC_CLIFF_OPTIONS,
+  DEFAULT_TEXT_CLIFF_WEIGHTS,
+} from './lyrics/cliffs';
+export { DEFAULT_SURPRISE_MAP_OPTIONS } from './lyrics/surprise';
+export { DEFAULT_ECHO_OPTIONS } from './lyrics/echo';
+export { DEFAULT_ALIGN_OPTIONS } from './lyrics/align';
+export { DEFAULT_SPLIT_TEXT_OPTIONS } from './lyrics/units';
+
+// Sessions
+export { DEFAULT_SESSION_SETTINGS } from './session/common';
+export { DEFAULT_LANDING_OPTIONS, DEFAULT_OPTION_CHOICE_OPTIONS } from './session/cliff';
+export { DEFAULT_VIEW_OPTIONS } from './session/view';
+export { DEFAULT_STORY_SESSION_OPTIONS } from './session/story';
+export { DEFAULT_LYRIC_SESSION_OPTIONS } from './session/lyric';
+
+// Model adapters (model/contract.ts DEFAULT_CONTRACT_OPTIONS is test-only: it imports vitest)
+export { DEFAULT_HTTP_MODEL_OPTIONS } from './model/http';
+export { DEFAULT_TOP_N_OPTIONS } from './model/topN';
+
+// Spanish speaking data (LanguagePack.commands, fillers, streetEndings)
+export { SPANISH_COMMANDS, SPANISH_FILLERS, SPANISH_STREET_ENDINGS } from './lang/es/commands';

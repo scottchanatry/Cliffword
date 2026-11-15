@@ -18,6 +18,13 @@ const OPENING_PUNCT = new Set(['¿', '¡', '«', '“', '‘', '„', '‚', '�
 const SENTENCE_END = new Set(['.', '?', '!', '…', '。', '？', '！']);
 /** Closing marks that may follow sentence-final punctuation. */
 const CLOSING_PUNCT = new Set(['»', '”', '’', '"', "'", ')', ']', '}', '›']);
+/**
+ * A character of a script written without spaces between words (Han, Hiragana, Katakana,
+ * Thai, Lao, Khmer, Myanmar) or CJK punctuation and full-width forms: a word or sentence
+ * written after it takes no space. Script-level data, not language data: it holds for
+ * every language written in these scripts.
+ */
+const NO_SPACE_SCRIPT_RE = /^[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Thai}\p{Script=Lao}\p{Script=Khmer}\p{Script=Myanmar}\u3000-\u303F\u30FC\uFF00-\uFFEF]$/u;
 
 /**
  * Combining marks treated as "accents" by default when comparing answers that may be
@@ -89,8 +96,10 @@ export function endsInsideWord(text: string): boolean {
  * True if a word written right after `context` needs a leading space under the model
  * spacing convention ("a token that begins a new word carries its leading space").
  *
- * No space is needed when the context is empty, already ends in whitespace, or ends in
- * opening punctuation (¿ ¡ « “ ( and so on). A straight double quote counts as opening
+ * No space is needed when the context is empty, already ends in whitespace, ends in
+ * opening punctuation (¿ ¡ « “ ( and so on), or ends in a character of a script written
+ * without spaces (Japanese, Chinese, Thai; CJK punctuation such as 。 and full-width
+ * forms), where words and sentences follow each other directly. A straight double quote counts as opening
  * when the context holds an odd number of them. An apostrophe counts as opening unless
  * it directly follows a letter (then it is word-final, as in "pa'"). Anything else (a
  * word, a number, a comma, a full stop) needs a space.
@@ -99,6 +108,7 @@ export function needsLeadingSpace(context: string): boolean {
   const last = lastChar(context);
   if (!last || isSpace(last)) return false;
   if (OPENING_PUNCT.has(last)) return false;
+  if (NO_SPACE_SCRIPT_RE.test(last)) return false;
   if (last === '"') {
     const count = context.split('"').length - 1;
     return count % 2 === 0;

@@ -1,0 +1,86 @@
+{
+ "meta": {
+  "when": "2026-11-15T22:18:02.704Z",
+  "load": [
+   0.24,
+   1.11,
+   1.54
+  ],
+  "cores": 4
+ },
+ "score10words": {
+  "median": 183,
+  "min": 101,
+  "max": 7132,
+  "reps": 7
+ },
+ "next20": {
+  "median": 82,
+  "min": 77,
+  "max": 127,
+  "reps": 7
+ },
+ "next50": {
+  "median": 87,
+  "min": 78,
+  "max": 109,
+  "reps": 7
+ },
+ "generate1x24": {
+  "median": 1493,
+  "min": 1493,
+  "max": 1558,
+  "reps": 3
+ },
+ "generate4x24": {
+  "median": 5867,
+  "min": 5736,
+  "max": 5867,
+  "reps": 2
+ },
+ "judge": {
+  "median": 673,
+  "min": 655,
+  "max": 946,
+  "reps": 3
+ },
+ "scoreWords": {
+  "median": 7,
+  "min": 6,
+  "max": 104,
+  "reps": 5
+ },
+ "nextWords": {
+  "median": 2670,
+  "min": 2594,
+  "max": 2865,
+  "reps": 3
+ },
+ "cliffAnswer": {
+  "median": 2742,
+  "min": 2711,
+  "max": 8955,
+  "reps": 3
+ },
+ "scoreTop10": {
+  "median": 1649,
+  "min": 1385,
+  "max": 1809,
+  "reps": 3
+ },
+ "judgeTop10": {
+  "median": 3702,
+  "min": 3540,
+  "max": 3702,
+  "reps": 2
+ },
+ "meta2": {
+  "when": "2026-11-15T22:19:16.263Z",
+  "load": [
+   3.05,
+   1.83,
+   1.77
+  ],
+  "cores": 4
+ }
+}

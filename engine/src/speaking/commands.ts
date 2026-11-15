@@ -19,7 +19,7 @@
  *      character when the phrase has two or more words and that word is long enough
  *      ("otra ves" for "otra vez", a common recognizer spelling of a seseo speaker);
  *      single-word phrases never match loosely ("lista" is not "listo");
- *    - a filler word or phrase (options.fillers; DEFAULT_FILLERS[pack.code] by default),
+ *    - a filler word or phrase (options.fillers; LanguagePack.fillers by default),
  *      at most maxFillerWords of them.
  *    Repeating the command ("otra vez, otra vez") is allowed. For commands that take an
  *    argument (options.argumentCommands: 'meaning' by default), up to maxArgumentWords
@@ -32,14 +32,13 @@
  */
 import type { LanguagePack, SpokenCommand } from '../lang/types';
 import { DEFAULT_ACCENT_MARKS } from '../scoring/text';
-import { defaultFillers } from './langDefaults';
 import { charDistance, codeLength, phraseKeys, spokenWords } from './text';
 
 /** Tunable numbers and data of command matching. */
 export interface CommandOptions {
   /**
    * Filler words and phrases dropped around a command, written as the pack spells them.
-   * undefined: DEFAULT_FILLERS[pack.code] (none for an unlisted language).
+   * undefined: LanguagePack.fillers (none when the pack has none).
    */
   fillers: readonly string[] | undefined;
   /** Confidence lost per filler word: a filler makes it a little likelier the learner was starting an answer. */
@@ -212,7 +211,7 @@ function sameKeys(a: readonly string[], b: readonly string[]): boolean {
  */
 export function matchCommand(
   transcript: string,
-  pack: Pick<LanguagePack, 'code' | 'segment' | 'normalize' | 'foldAccents' | 'commands'>,
+  pack: Pick<LanguagePack, 'code' | 'segment' | 'normalize' | 'foldAccents' | 'commands' | 'fillers'>,
   opts: Partial<CommandOptions> = {},
 ): CommandMatch | null {
   const o: CommandOptions = { ...DEFAULT_COMMAND_OPTIONS, ...opts };
@@ -221,7 +220,7 @@ export function matchCommand(
   const words = spokenWords(pack, transcript, o.marks);
   if (words.length === 0 || words.length > o.maxWords) return null;
   const keys = words.map((w) => w.key);
-  const fillers = (o.fillers ?? defaultFillers(pack.code)).map((f) => phraseKeys(pack, f, o.marks)).filter((k) => k.length > 0);
+  const fillers = (o.fillers ?? pack.fillers ?? []).map((f) => phraseKeys(pack, f, o.marks)).filter((k) => k.length > 0);
   const fillerWords = new Set(fillers.filter((f) => f.length === 1).map((f) => f[0] as string));
 
   if (o.answer !== undefined) {

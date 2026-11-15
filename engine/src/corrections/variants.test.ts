@@ -393,9 +393,11 @@ describe('generateVariants: slang and register', () => {
     expect(vs.some((v) => v.start === s && v.end === e)).toBe(true);
   });
 
-  it('keeps the slang word intact when deleting the article in front of it', () => {
+  it('never deletes the article in front of a slang word, so the slang word is never re-capitalized', () => {
+    // The determiner belongs to the slang noun ("el corillo", "un chin"): on the real
+    // model deleting it caused street-register false asserts (proof/ENGINE_REAL_MODEL.md).
     const vs = generateVariants(full, street, { maxVariants: 100 });
-    expect(texts(vs)).toContain("corillo ya 'tá listo pa' bailar.");
+    expect(texts(vs)).not.toContain("corillo ya 'tá listo pa' bailar.");
     expect(texts(vs)).not.toContain("Corillo ya 'tá listo pa' bailar.");
   });
 

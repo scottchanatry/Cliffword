@@ -1,0 +1,2475 @@
+{
+ "meta": {
+  "when": "2026-11-15T22:24:11.620Z",
+  "load": [
+   5.38,
+   3.93,
+   2.66
+  ],
+  "cores": 4
+ },
+ "calls": {
+  "scoreContinuation": {
+   "calls": 266,
+   "msPerCall": 287.9
+  }
+ },
+ "rows": [
+  {
+   "id": 1,
+   "region": "PR",
+   "text": "¿Qué es la que hay, mano?",
+   "slangNamed": [],
+   "slangSegments": [],
+   "street": {
+    "verdict": "assert",
+    "margin": 5.443171004166825,
+    "best": "¿Qué es que hay, mano?",
+    "bestRule": "es.article.delete",
+    "bestKey": "es.article",
+    "wordIndex": 2,
+    "variants": 3,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.gender",
+    "secondMargin": -0.3232824714181852,
+    "text": "¿Qué es la que hay, mano?",
+    "ms": 5033,
+    "touchingSlang": 0,
+    "edit": " la->"
+   },
+   "neutral": {
+    "verdict": "assert",
+    "margin": 4.057366560927559,
+    "best": "¿Qué es que hay, mano?",
+    "bestRule": "es.article.delete",
+    "bestKey": "es.article",
+    "wordIndex": 2,
+    "variants": 5,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.gender",
+    "secondMargin": 0.6166620952776753,
+    "text": "¿Qué es la que hay, mano?",
+    "touchingSlang": 0,
+    "edit": " la->"
+   },
+   "words": [
+    {
+     "word": "Qué",
+     "slang": false,
+     "neutralSurprisal": 1.97,
+     "neutralHeat": 0,
+     "streetSurprisal": 1.83,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "es",
+     "slang": false,
+     "neutralSurprisal": 2.01,
+     "neutralHeat": 0,
+     "streetSurprisal": 1.92,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "la",
+     "slang": false,
+     "neutralSurprisal": 1.4,
+     "neutralHeat": 0,
+     "streetSurprisal": 2.06,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "que",
+     "slang": false,
+     "neutralSurprisal": 8.02,
+     "neutralHeat": 1,
+     "streetSurprisal": 6.95,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "hay",
+     "slang": false,
+     "neutralSurprisal": 6.35,
+     "neutralHeat": 0,
+     "streetSurprisal": 6.39,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "mano",
+     "slang": false,
+     "neutralSurprisal": 11.54,
+     "neutralHeat": 2,
+     "streetSurprisal": 8.7,
+     "streetRawHeat": 1,
+     "streetHeat": 1
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "region": "PR",
+   "text": "Vamo' a janguear con el corillo esta noche.",
+   "slangNamed": [
+    "vamo'",
+    "janguear",
+    "corillo"
+   ],
+   "slangSegments": [
+    "Vamo'",
+    "a",
+    "janguear",
+    "corillo"
+   ],
+   "street": {
+    "verdict": "ok",
+    "margin": -2.529631958849567,
+    "best": "Vamo' janguear con el corillo esta noche.",
+    "bestRule": "es.personal_a.delete",
+    "bestKey": "es.personal_a",
+    "wordIndex": null,
+    "variants": 4,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.article",
+    "secondMargin": -3.803154199642588,
+    "text": "Vamo' a janguear con el corillo esta noche.",
+    "ms": 3700,
+    "touchingSlang": 1,
+    "edit": " a->"
+   },
+   "neutral": {
+    "verdict": "assert",
+    "margin": 6.876005710297669,
+    "best": "Vamo' janguear con el corillo esta noche.",
+    "bestRule": "es.personal_a.delete",
+    "bestKey": "es.personal_a",
+    "wordIndex": 1,
+    "variants": 7,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.article",
+    "secondMargin": -4.388040093500923,
+    "text": "Vamo' a janguear con el corillo esta noche.",
+    "touchingSlang": 1,
+    "edit": " a->"
+   },
+   "words": [
+    {
+     "word": "Vamo'",
+     "slang": true,
+     "neutralSurprisal": 23.08,
+     "neutralHeat": 3,
+     "streetSurprisal": 7.19,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "a",
+     "slang": true,
+     "neutralSurprisal": 0.09,
+     "neutralHeat": 0,
+     "streetSurprisal": 0.59,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "janguear",
+     "slang": true,
+     "neutralSurprisal": 26.53,
+     "neutralHeat": 3,
+     "streetSurprisal": 4.12,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "con",
+     "slang": false,
+     "neutralSurprisal": 2.77,
+     "neutralHeat": 0,
+     "streetSurprisal": 2.59,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "el",
+     "slang": false,
+     "neutralSurprisal": 1.76,
+     "neutralHeat": 0,
+     "streetSurprisal": 1.06,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "corillo",
+     "slang": true,
+     "neutralSurprisal": 12.92,
+     "neutralHeat": 3,
+     "streetSurprisal": 3.36,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "esta",
+     "slang": false,
+     "neutralSurprisal": 6.27,
+     "neutralHeat": 0,
+     "streetSurprisal": 6.18,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "noche",
+     "slang": false,
+     "neutralSurprisal": 0.19,
+     "neutralHeat": 0,
+     "streetSurprisal": 0.18,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    }
+   ]
+  },
+  {
+   "id": 3,
+   "region": "PR",
+   "text": "Esa vaina 'tá brutal.",
+   "slangNamed": [
+    "'tá",
+    "brutal"
+   ],
+   "slangSegments": [
+    "'tá",
+    "brutal"
+   ],
+   "street": {
+    "verdict": "ok",
+    "margin": -4.73484031405107,
+    "best": "Ese vaina 'tá brutal.",
+    "bestRule": "es.gender",
+    "bestKey": "es.gender",
+    "wordIndex": null,
+    "variants": 1,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": null,
+    "secondMargin": null,
+    "text": "Esa vaina 'tá brutal.",
+    "ms": 526,
+    "touchingSlang": 0,
+    "edit": "Esa->Ese"
+   },
+   "neutral": {
+    "verdict": "ok",
+    "margin": -5.896667734274757,
+    "best": "Esa vaina 'tá brutales.",
+    "bestRule": "es.number",
+    "bestKey": "es.number",
+    "wordIndex": null,
+    "variants": 4,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.gender",
+    "secondMargin": -7.488160683562256,
+    "text": "Esa vaina 'tá brutal.",
+    "touchingSlang": 1,
+    "edit": "brutal->brutales"
+   },
+   "words": [
+    {
+     "word": "Esa",
+     "slang": false,
+     "neutralSurprisal": 8.55,
+     "neutralHeat": 0,
+     "streetSurprisal": 10.21,
+     "streetRawHeat": 1,
+     "streetHeat": 1
+    },
+    {
+     "word": "vaina",
+     "slang": false,
+     "neutralSurprisal": 10.21,
+     "neutralHeat": 2,
+     "streetSurprisal": 11.01,
+     "streetRawHeat": 2,
+     "streetHeat": 2
+    },
+    {
+     "word": "'tá",
+     "slang": true,
+     "neutralSurprisal": 20.33,
+     "neutralHeat": 3,
+     "streetSurprisal": 12.42,
+     "streetRawHeat": 3,
+     "streetHeat": 0
+    },
+    {
+     "word": "brutal",
+     "slang": true,
+     "neutralSurprisal": 11.81,
+     "neutralHeat": 2,
+     "streetSurprisal": 7.18,
+     "streetRawHeat": 1,
+     "streetHeat": 0
+    }
+   ]
+  },
+  {
+   "id": 4,
+   "region": "PR",
+   "text": "¿Pa' qué tú quieres eso?",
+   "slangNamed": [
+    "pa'"
+   ],
+   "slangSegments": [
+    "Pa'"
+   ],
+   "street": {
+    "verdict": "ok",
+    "margin": null,
+    "best": null,
+    "bestRule": null,
+    "bestKey": null,
+    "wordIndex": null,
+    "variants": 0,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": null,
+    "secondMargin": null,
+    "text": "¿Pa' qué tú quieres eso?",
+    "ms": 392,
+    "touchingSlang": 0,
+    "edit": null
+   },
+   "neutral": {
+    "verdict": "ok",
+    "margin": null,
+    "best": null,
+    "bestRule": null,
+    "bestKey": null,
+    "wordIndex": null,
+    "variants": 0,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": null,
+    "secondMargin": null,
+    "text": "¿Pa' qué tú quieres eso?",
+    "touchingSlang": 0,
+    "edit": null
+   },
+   "words": [
+    {
+     "word": "Pa'",
+     "slang": true,
+     "neutralSurprisal": 14.34,
+     "neutralHeat": 2,
+     "streetSurprisal": 8.06,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "qué",
+     "slang": false,
+     "neutralSurprisal": 2.32,
+     "neutralHeat": 0,
+     "streetSurprisal": 1.63,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "tú",
+     "slang": false,
+     "neutralSurprisal": 7.27,
+     "neutralHeat": 1,
+     "streetSurprisal": 7.88,
+     "streetRawHeat": 1,
+     "streetHeat": 1
+    },
+    {
+     "word": "quieres",
+     "slang": false,
+     "neutralSurprisal": 5.41,
+     "neutralHeat": 0,
+     "streetSurprisal": 5.51,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "eso",
+     "slang": false,
+     "neutralSurprisal": 5.58,
+     "neutralHeat": 0,
+     "streetSurprisal": 6.04,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    }
+   ]
+  },
+  {
+   "id": 5,
+   "region": "PR",
+   "text": "Ese pana mío es bien chévere.",
+   "slangNamed": [
+    "pana",
+    "chévere"
+   ],
+   "slangSegments": [
+    "pana",
+    "chévere"
+   ],
+   "street": {
+    "verdict": "ok",
+    "margin": -0.7963631030088258,
+    "best": "Ese pana mía es bien chévere.",
+    "bestRule": "es.gender",
+    "bestKey": "es.gender",
+    "wordIndex": null,
+    "variants": 3,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.ser_estar",
+    "secondMargin": -2.0390070582373276,
+    "text": "Ese pana mío es bien chévere.",
+    "ms": 856,
+    "touchingSlang": 0,
+    "edit": "mío->mía"
+   },
+   "neutral": {
+    "verdict": "hint",
+    "margin": 2.1721004129065697,
+    "best": "Ese pana mía es bien chévere.",
+    "bestRule": "es.gender",
+    "bestKey": "es.gender",
+    "wordIndex": 2,
+    "variants": 5,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.ser_estar",
+    "secondMargin": -6.124492087541576,
+    "text": "Ese pana mío es bien chévere.",
+    "touchingSlang": 0,
+    "edit": "mío->mía"
+   },
+   "words": [
+    {
+     "word": "Ese",
+     "slang": false,
+     "neutralSurprisal": 8.03,
+     "neutralHeat": 0,
+     "streetSurprisal": 9.78,
+     "streetRawHeat": 1,
+     "streetHeat": 1
+    },
+    {
+     "word": "pana",
+     "slang": true,
+     "neutralSurprisal": 11.87,
+     "neutralHeat": 2,
+     "streetSurprisal": 2.62,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "mío",
+     "slang": false,
+     "neutralSurprisal": 8.86,
+     "neutralHeat": 1,
+     "streetSurprisal": 6.67,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "es",
+     "slang": false,
+     "neutralSurprisal": 1.8,
+     "neutralHeat": 0,
+     "streetSurprisal": 4.35,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "bien",
+     "slang": false,
+     "neutralSurprisal": 6.12,
+     "neutralHeat": 0,
+     "streetSurprisal": 6.74,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "chévere",
+     "slang": true,
+     "neutralSurprisal": 11.11,
+     "neutralHeat": 2,
+     "streetSurprisal": 1.58,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    }
+   ]
+  },
+  {
+   "id": 6,
+   "region": "PR",
+   "text": "Estoy janguiando en la playa con mis panas.",
+   "slangNamed": [],
+   "slangSegments": [],
+   "street": {
+    "verdict": "ok",
+    "margin": -6.502023512178052,
+    "best": "Estoy janguiando en el playa con mis panas.",
+    "bestRule": "es.gender",
+    "bestKey": "es.gender",
+    "wordIndex": null,
+    "variants": 3,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.article",
+    "secondMargin": -7.409692027429067,
+    "text": "Estoy janguiando en la playa con mis panas.",
+    "ms": 1605,
+    "touchingSlang": 0,
+    "edit": "la->el"
+   },
+   "neutral": {
+    "verdict": "ok",
+    "margin": -2.9803220816781177,
+    "best": "Estoy janguiando en la playa con mi panas.",
+    "bestRule": "es.number",
+    "bestKey": "es.number",
+    "wordIndex": null,
+    "variants": 6,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.gender",
+    "secondMargin": -3.874429873195112,
+    "text": "Estoy janguiando en la playa con mis panas.",
+    "touchingSlang": 0,
+    "edit": "mis->mi"
+   },
+   "words": [
+    {
+     "word": "Estoy",
+     "slang": false,
+     "neutralSurprisal": 5.79,
+     "neutralHeat": 0,
+     "streetSurprisal": 9.04,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "janguiando",
+     "slang": false,
+     "neutralSurprisal": 27.64,
+     "neutralHeat": 3,
+     "streetSurprisal": 15.92,
+     "streetRawHeat": 3,
+     "streetHeat": 3
+    },
+    {
+     "word": "en",
+     "slang": false,
+     "neutralSurprisal": 2.17,
+     "neutralHeat": 0,
+     "streetSurprisal": 1.9,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "la",
+     "slang": false,
+     "neutralSurprisal": 1.71,
+     "neutralHeat": 0,
+     "streetSurprisal": 0.84,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "playa",
+     "slang": false,
+     "neutralSurprisal": 6.09,
+     "neutralHeat": 0,
+     "streetSurprisal": 4.29,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "con",
+     "slang": false,
+     "neutralSurprisal": 2.41,
+     "neutralHeat": 0,
+     "streetSurprisal": 2.8,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "mis",
+     "slang": false,
+     "neutralSurprisal": 1.34,
+     "neutralHeat": 0,
+     "streetSurprisal": 0.95,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "panas",
+     "slang": false,
+     "neutralSurprisal": 15.99,
+     "neutralHeat": 3,
+     "streetSurprisal": 5.62,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    }
+   ]
+  },
+  {
+   "id": 7,
+   "region": "DO",
+   "text": "Dímelo, loco, ¿qué lo que?",
+   "slangNamed": [
+    "dímelo",
+    "loco",
+    "qué lo que"
+   ],
+   "slangSegments": [
+    "Dímelo",
+    "loco",
+    "qué",
+    "lo",
+    "que"
+   ],
+   "street": {
+    "verdict": "ok",
+    "margin": null,
+    "best": null,
+    "bestRule": null,
+    "bestKey": null,
+    "wordIndex": null,
+    "variants": 0,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": null,
+    "secondMargin": null,
+    "text": "Dímelo, loco, ¿qué lo que?",
+    "ms": 352,
+    "touchingSlang": 0,
+    "edit": null
+   },
+   "neutral": {
+    "verdict": "ok",
+    "margin": -7.003636399423236,
+    "best": "Dímelo, locos, ¿qué lo que?",
+    "bestRule": "es.number",
+    "bestKey": "es.number",
+    "wordIndex": null,
+    "variants": 2,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.gender",
+    "secondMargin": -7.118339224676966,
+    "text": "Dímelo, loco, ¿qué lo que?",
+    "touchingSlang": 2,
+    "edit": "loco->locos"
+   },
+   "words": [
+    {
+     "word": "Dímelo",
+     "slang": true,
+     "neutralSurprisal": 13.15,
+     "neutralHeat": 2,
+     "streetSurprisal": 7.28,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "loco",
+     "slang": true,
+     "neutralSurprisal": 11.06,
+     "neutralHeat": 2,
+     "streetSurprisal": 0.57,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "qué",
+     "slang": true,
+     "neutralSurprisal": 1.3,
+     "neutralHeat": 0,
+     "streetSurprisal": 0.19,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "lo",
+     "slang": true,
+     "neutralSurprisal": 8.12,
+     "neutralHeat": 1,
+     "streetSurprisal": 0.01,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "que",
+     "slang": true,
+     "neutralSurprisal": 4.1,
+     "neutralHeat": 0,
+     "streetSurprisal": 0,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    }
+   ]
+  },
+  {
+   "id": 8,
+   "region": "PR",
+   "text": "Ese carro 'tá to' jevi.",
+   "slangNamed": [
+    "'tá",
+    "to'"
+   ],
+   "slangSegments": [
+    "'tá",
+    "to'"
+   ],
+   "street": {
+    "verdict": "ok",
+    "margin": 0.07275329968017274,
+    "best": "Esa carro 'tá to' jevi.",
+    "bestRule": "es.gender",
+    "bestKey": "es.gender",
+    "wordIndex": null,
+    "variants": 1,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": null,
+    "secondMargin": null,
+    "text": "Ese carro 'tá to' jevi.",
+    "ms": 510,
+    "touchingSlang": 0,
+    "edit": "Ese->Esa"
+   },
+   "neutral": {
+    "verdict": "ok",
+    "margin": -0.5385923257046699,
+    "best": "Esa carro 'tá to' jevi.",
+    "bestRule": "es.gender",
+    "bestKey": "es.gender",
+    "wordIndex": null,
+    "variants": 3,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.number",
+    "secondMargin": -6.837244251494653,
+    "text": "Ese carro 'tá to' jevi.",
+    "touchingSlang": 0,
+    "edit": "Ese->Esa"
+   },
+   "words": [
+    {
+     "word": "Ese",
+     "slang": false,
+     "neutralSurprisal": 8.03,
+     "neutralHeat": 0,
+     "streetSurprisal": 9.12,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "carro",
+     "slang": false,
+     "neutralSurprisal": 7.92,
+     "neutralHeat": 1,
+     "streetSurprisal": 6.9,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "'tá",
+     "slang": true,
+     "neutralSurprisal": 20.04,
+     "neutralHeat": 3,
+     "streetSurprisal": 12.81,
+     "streetRawHeat": 3,
+     "streetHeat": 0
+    },
+    {
+     "word": "to'",
+     "slang": true,
+     "neutralSurprisal": 13.32,
+     "neutralHeat": 3,
+     "streetSurprisal": 10.4,
+     "streetRawHeat": 2,
+     "streetHeat": 0
+    },
+    {
+     "word": "jevi",
+     "slang": false,
+     "neutralSurprisal": 16.83,
+     "neutralHeat": 3,
+     "streetSurprisal": 18.43,
+     "streetRawHeat": 3,
+     "streetHeat": 3
+    }
+   ]
+  },
+  {
+   "id": 9,
+   "region": "PR",
+   "text": "No me jodas con esa vaina.",
+   "slangNamed": [],
+   "slangSegments": [],
+   "street": {
+    "verdict": "ok",
+    "margin": -2.197790962928874,
+    "best": "No me jodas con ese vaina.",
+    "bestRule": "es.gender",
+    "bestKey": "es.gender",
+    "wordIndex": null,
+    "variants": 1,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": null,
+    "secondMargin": null,
+    "text": "No me jodas con esa vaina.",
+    "ms": 467,
+    "touchingSlang": 0,
+    "edit": "esa->ese"
+   },
+   "neutral": {
+    "verdict": "ok",
+    "margin": -3.7257135888538073,
+    "best": "No me jodas con ese vaina.",
+    "bestRule": "es.gender",
+    "bestKey": "es.gender",
+    "wordIndex": null,
+    "variants": 3,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.number",
+    "secondMargin": -9.519174914860848,
+    "text": "No me jodas con esa vaina.",
+    "touchingSlang": 0,
+    "edit": "esa->ese"
+   },
+   "words": [
+    {
+     "word": "No",
+     "slang": false,
+     "neutralSurprisal": 4.28,
+     "neutralHeat": 0,
+     "streetSurprisal": 6.13,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "me",
+     "slang": false,
+     "neutralSurprisal": 1.88,
+     "neutralHeat": 0,
+     "streetSurprisal": 1.26,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "jodas",
+     "slang": false,
+     "neutralSurprisal": 10,
+     "neutralHeat": 2,
+     "streetSurprisal": 12.14,
+     "streetRawHeat": 3,
+     "streetHeat": 3
+    },
+    {
+     "word": "con",
+     "slang": false,
+     "neutralSurprisal": 3.43,
+     "neutralHeat": 0,
+     "streetSurprisal": 3.98,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "esa",
+     "slang": false,
+     "neutralSurprisal": 4.07,
+     "neutralHeat": 0,
+     "streetSurprisal": 3.12,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "vaina",
+     "slang": false,
+     "neutralSurprisal": 11.23,
+     "neutralHeat": 2,
+     "streetSurprisal": 11.33,
+     "streetRawHeat": 2,
+     "streetHeat": 2
+    }
+   ]
+  },
+  {
+   "id": 10,
+   "region": "DO",
+   "text": "Tengo un chin de hambre.",
+   "slangNamed": [
+    "chin"
+   ],
+   "slangSegments": [
+    "chin"
+   ],
+   "street": {
+    "verdict": "assert",
+    "margin": 3.212382841266262,
+    "best": "Tengo chin de hambre.",
+    "bestRule": "es.article.delete",
+    "bestKey": "es.article",
+    "wordIndex": 1,
+    "variants": 5,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.gender",
+    "secondMargin": -2.621582602819217,
+    "text": "Tengo un chin de hambre.",
+    "ms": 1731,
+    "touchingSlang": 0,
+    "edit": " un->"
+   },
+   "neutral": {
+    "verdict": "ok",
+    "margin": -1.0853069372466564,
+    "best": "Tengo chin de hambre.",
+    "bestRule": "es.article.delete",
+    "bestKey": "es.article",
+    "wordIndex": null,
+    "variants": 7,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.gender",
+    "secondMargin": -4.46630458432945,
+    "text": "Tengo un chin de hambre.",
+    "touchingSlang": 0,
+    "edit": " un->"
+   },
+   "words": [
+    {
+     "word": "Tengo",
+     "slang": false,
+     "neutralSurprisal": 5.32,
+     "neutralHeat": 0,
+     "streetSurprisal": 7.2,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "un",
+     "slang": false,
+     "neutralSurprisal": 1.1,
+     "neutralHeat": 0,
+     "streetSurprisal": 1.26,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "chin",
+     "slang": true,
+     "neutralSurprisal": 12.47,
+     "neutralHeat": 3,
+     "streetSurprisal": 9.83,
+     "streetRawHeat": 2,
+     "streetHeat": 0
+    },
+    {
+     "word": "de",
+     "slang": false,
+     "neutralSurprisal": 7.53,
+     "neutralHeat": 1,
+     "streetSurprisal": 1.15,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "hambre",
+     "slang": false,
+     "neutralSurprisal": 11.14,
+     "neutralHeat": 2,
+     "streetSurprisal": 10.06,
+     "streetRawHeat": 2,
+     "streetHeat": 2
+    }
+   ]
+  },
+  {
+   "id": 11,
+   "region": "PR",
+   "text": "Ahorita vengo, voy pa' la tienda.",
+   "slangNamed": [
+    "pa'"
+   ],
+   "slangSegments": [
+    "pa'"
+   ],
+   "street": {
+    "verdict": "ok",
+    "margin": -6.574785036263918,
+    "best": "Ahorita vengo, voy pa' el tienda.",
+    "bestRule": "es.gender",
+    "bestKey": "es.gender",
+    "wordIndex": null,
+    "variants": 2,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.article",
+    "secondMargin": -15.515197935090193,
+    "text": "Ahorita vengo, voy pa' la tienda.",
+    "ms": 576,
+    "touchingSlang": 0,
+    "edit": "la->el"
+   },
+   "neutral": {
+    "verdict": "ok",
+    "margin": -7.560356726222569,
+    "best": "Ahorita vengo, voy pa' el tienda.",
+    "bestRule": "es.gender",
+    "bestKey": "es.gender",
+    "wordIndex": null,
+    "variants": 4,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.number",
+    "secondMargin": -10.140621919116153,
+    "text": "Ahorita vengo, voy pa' la tienda.",
+    "touchingSlang": 0,
+    "edit": "la->el"
+   },
+   "words": [
+    {
+     "word": "Ahorita",
+     "slang": false,
+     "neutralSurprisal": 11.82,
+     "neutralHeat": 1,
+     "streetSurprisal": 10.74,
+     "streetRawHeat": 1,
+     "streetHeat": 1
+    },
+    {
+     "word": "vengo",
+     "slang": false,
+     "neutralSurprisal": 7.53,
+     "neutralHeat": 1,
+     "streetSurprisal": 6.5,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "voy",
+     "slang": false,
+     "neutralSurprisal": 5.79,
+     "neutralHeat": 0,
+     "streetSurprisal": 6.16,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "pa'",
+     "slang": true,
+     "neutralSurprisal": 10.66,
+     "neutralHeat": 2,
+     "streetSurprisal": 5.81,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "la",
+     "slang": false,
+     "neutralSurprisal": 1.46,
+     "neutralHeat": 0,
+     "streetSurprisal": 1.69,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "tienda",
+     "slang": false,
+     "neutralSurprisal": 3.32,
+     "neutralHeat": 0,
+     "streetSurprisal": 3.22,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    }
+   ]
+  },
+  {
+   "id": 12,
+   "region": "PR",
+   "text": "El corillo está esperando afuera.",
+   "slangNamed": [
+    "corillo"
+   ],
+   "slangSegments": [
+    "corillo"
+   ],
+   "street": {
+    "verdict": "ok",
+    "margin": -8.442862404232429,
+    "best": "El corillo es esperando afuera.",
+    "bestRule": "es.ser_estar",
+    "bestKey": "es.ser_estar",
+    "wordIndex": null,
+    "variants": 3,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.article",
+    "secondMargin": -12.071772896285971,
+    "text": "El corillo está esperando afuera.",
+    "ms": 828,
+    "touchingSlang": 0,
+    "edit": "está->es"
+   },
+   "neutral": {
+    "verdict": "ok",
+    "margin": -5.369948275963239,
+    "best": "corillo está esperando afuera.",
+    "bestRule": "es.article.delete",
+    "bestKey": "es.article",
+    "wordIndex": null,
+    "variants": 4,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.ser_estar",
+    "secondMargin": -6.000594308811923,
+    "text": "El corillo está esperando afuera.",
+    "touchingSlang": 0,
+    "edit": "El ->"
+   },
+   "words": [
+    {
+     "word": "El",
+     "slang": false,
+     "neutralSurprisal": 3.96,
+     "neutralHeat": 0,
+     "streetSurprisal": 4.09,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "corillo",
+     "slang": true,
+     "neutralSurprisal": 16.47,
+     "neutralHeat": 3,
+     "streetSurprisal": 3.67,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "está",
+     "slang": false,
+     "neutralSurprisal": 4.29,
+     "neutralHeat": 0,
+     "streetSurprisal": 3.18,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "esperando",
+     "slang": false,
+     "neutralSurprisal": 10.61,
+     "neutralHeat": 2,
+     "streetSurprisal": 8.8,
+     "streetRawHeat": 1,
+     "streetHeat": 1
+    },
+    {
+     "word": "afuera",
+     "slang": false,
+     "neutralSurprisal": 9.8,
+     "neutralHeat": 2,
+     "streetSurprisal": 8.74,
+     "streetRawHeat": 1,
+     "streetHeat": 1
+    }
+   ]
+  },
+  {
+   "id": 13,
+   "region": "PR",
+   "text": "Mi pana, eso 'tá cabrón.",
+   "slangNamed": [
+    "pana",
+    "'tá",
+    "cabrón"
+   ],
+   "slangSegments": [
+    "pana",
+    "'tá",
+    "cabrón"
+   ],
+   "street": {
+    "verdict": "ok",
+    "margin": null,
+    "best": null,
+    "bestRule": null,
+    "bestKey": null,
+    "wordIndex": null,
+    "variants": 0,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": null,
+    "secondMargin": null,
+    "text": "Mi pana, eso 'tá cabrón.",
+    "ms": 372,
+    "touchingSlang": 0,
+    "edit": null
+   },
+   "neutral": {
+    "verdict": "ok",
+    "margin": -4.734511508154085,
+    "best": "Mis pana, eso 'tá cabrón.",
+    "bestRule": "es.number",
+    "bestKey": "es.number",
+    "wordIndex": null,
+    "variants": 1,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": null,
+    "secondMargin": null,
+    "text": "Mi pana, eso 'tá cabrón.",
+    "touchingSlang": 0,
+    "edit": "Mi->Mis"
+   },
+   "words": [
+    {
+     "word": "Mi",
+     "slang": false,
+     "neutralSurprisal": 5.65,
+     "neutralHeat": 0,
+     "streetSurprisal": 6.7,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "pana",
+     "slang": true,
+     "neutralSurprisal": 9.24,
+     "neutralHeat": 1,
+     "streetSurprisal": 1.94,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "eso",
+     "slang": false,
+     "neutralSurprisal": 7.35,
+     "neutralHeat": 1,
+     "streetSurprisal": 7.19,
+     "streetRawHeat": 1,
+     "streetHeat": 1
+    },
+    {
+     "word": "'tá",
+     "slang": true,
+     "neutralSurprisal": 21.85,
+     "neutralHeat": 3,
+     "streetSurprisal": 11.62,
+     "streetRawHeat": 2,
+     "streetHeat": 0
+    },
+    {
+     "word": "cabrón",
+     "slang": true,
+     "neutralSurprisal": 10.62,
+     "neutralHeat": 2,
+     "streetSurprisal": 6.76,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    }
+   ]
+  },
+  {
+   "id": 14,
+   "region": "CU",
+   "text": "¿Qué volá, asere?",
+   "slangNamed": [
+    "asere"
+   ],
+   "slangSegments": [
+    "Qué",
+    "asere"
+   ],
+   "street": {
+    "verdict": "ok",
+    "margin": null,
+    "best": null,
+    "bestRule": null,
+    "bestKey": null,
+    "wordIndex": null,
+    "variants": 0,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": null,
+    "secondMargin": null,
+    "text": "¿Qué volá, asere?",
+    "ms": 337,
+    "touchingSlang": 0,
+    "edit": null
+   },
+   "neutral": {
+    "verdict": "ok",
+    "margin": null,
+    "best": null,
+    "bestRule": null,
+    "bestKey": null,
+    "wordIndex": null,
+    "variants": 0,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": null,
+    "secondMargin": null,
+    "text": "¿Qué volá, asere?",
+    "touchingSlang": 0,
+    "edit": null
+   },
+   "words": [
+    {
+     "word": "Qué",
+     "slang": true,
+     "neutralSurprisal": 1.97,
+     "neutralHeat": 0,
+     "streetSurprisal": 2.07,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "volá",
+     "slang": false,
+     "neutralSurprisal": 12.72,
+     "neutralHeat": 3,
+     "streetSurprisal": 8.75,
+     "streetRawHeat": 1,
+     "streetHeat": 1
+    },
+    {
+     "word": "asere",
+     "slang": true,
+     "neutralSurprisal": 17.48,
+     "neutralHeat": 3,
+     "streetSurprisal": 6.1,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    }
+   ]
+  },
+  {
+   "id": 15,
+   "region": "CU",
+   "text": "Eso 'tá en candela.",
+   "slangNamed": [
+    "'tá"
+   ],
+   "slangSegments": [
+    "'tá",
+    "en"
+   ],
+   "street": {
+    "verdict": "ok",
+    "margin": null,
+    "best": null,
+    "bestRule": null,
+    "bestKey": null,
+    "wordIndex": null,
+    "variants": 0,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": null,
+    "secondMargin": null,
+    "text": "Eso 'tá en candela.",
+    "ms": 377,
+    "touchingSlang": 0,
+    "edit": null
+   },
+   "neutral": {
+    "verdict": "ok",
+    "margin": null,
+    "best": null,
+    "bestRule": null,
+    "bestKey": null,
+    "wordIndex": null,
+    "variants": 0,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": null,
+    "secondMargin": null,
+    "text": "Eso 'tá en candela.",
+    "touchingSlang": 0,
+    "edit": null
+   },
+   "words": [
+    {
+     "word": "Eso",
+     "slang": false,
+     "neutralSurprisal": 8.26,
+     "neutralHeat": 0,
+     "streetSurprisal": 8.02,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "'tá",
+     "slang": true,
+     "neutralSurprisal": 20.39,
+     "neutralHeat": 3,
+     "streetSurprisal": 13.92,
+     "streetRawHeat": 3,
+     "streetHeat": 0
+    },
+    {
+     "word": "en",
+     "slang": true,
+     "neutralSurprisal": 3.44,
+     "neutralHeat": 0,
+     "streetSurprisal": 3.87,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "candela",
+     "slang": false,
+     "neutralSurprisal": 11.38,
+     "neutralHeat": 2,
+     "streetSurprisal": 12.12,
+     "streetRawHeat": 3,
+     "streetHeat": 3
+    }
+   ]
+  },
+  {
+   "id": 16,
+   "region": "PR",
+   "text": "Me voy pa' casa, que 'toy cansao.",
+   "slangNamed": [
+    "pa'",
+    "'toy"
+   ],
+   "slangSegments": [
+    "pa'",
+    "'toy"
+   ],
+   "street": {
+    "verdict": "hint",
+    "margin": 1.5965287362030693,
+    "best": "Me voy pa' la casa, que 'toy cansao.",
+    "bestRule": "es.article.insert.la",
+    "bestKey": "es.article",
+    "wordIndex": 3,
+    "variants": 2,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": null,
+    "secondMargin": null,
+    "text": "Me voy pa' casa, que 'toy cansao.",
+    "ms": 629,
+    "touchingSlang": 0,
+    "edit": "->la "
+   },
+   "neutral": {
+    "verdict": "ok",
+    "margin": -0.674862033937579,
+    "best": "Me voy pa' la casa, que 'toy cansao.",
+    "bestRule": "es.article.insert.la",
+    "bestKey": "es.article",
+    "wordIndex": null,
+    "variants": 3,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.number",
+    "secondMargin": -11.741488915681828,
+    "text": "Me voy pa' casa, que 'toy cansao.",
+    "touchingSlang": 0,
+    "edit": "->la "
+   },
+   "words": [
+    {
+     "word": "Me",
+     "slang": false,
+     "neutralSurprisal": 4.46,
+     "neutralHeat": 0,
+     "streetSurprisal": 6.55,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "voy",
+     "slang": false,
+     "neutralSurprisal": 4.66,
+     "neutralHeat": 0,
+     "streetSurprisal": 3.99,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "pa'",
+     "slang": true,
+     "neutralSurprisal": 15.71,
+     "neutralHeat": 3,
+     "streetSurprisal": 5.07,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "casa",
+     "slang": false,
+     "neutralSurprisal": 3.46,
+     "neutralHeat": 0,
+     "streetSurprisal": 4.03,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "que",
+     "slang": false,
+     "neutralSurprisal": 5.4,
+     "neutralHeat": 0,
+     "streetSurprisal": 4.3,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "'toy",
+     "slang": true,
+     "neutralSurprisal": 18.99,
+     "neutralHeat": 3,
+     "streetSurprisal": 9.12,
+     "streetRawHeat": 1,
+     "streetHeat": 0
+    },
+    {
+     "word": "cansao",
+     "slang": false,
+     "neutralSurprisal": 18.52,
+     "neutralHeat": 3,
+     "streetSurprisal": 16.54,
+     "streetRawHeat": 3,
+     "streetHeat": 3
+    }
+   ]
+  },
+  {
+   "id": 17,
+   "region": "CO",
+   "text": "Parcero, ¿qué más pues?",
+   "slangNamed": [
+    "parcero",
+    "qué más"
+   ],
+   "slangSegments": [
+    "Parcero",
+    "qué",
+    "más"
+   ],
+   "street": {
+    "verdict": "ok",
+    "margin": null,
+    "best": null,
+    "bestRule": null,
+    "bestKey": null,
+    "wordIndex": null,
+    "variants": 0,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": null,
+    "secondMargin": null,
+    "text": "Parcero, ¿qué más pues?",
+    "ms": 424,
+    "touchingSlang": 0,
+    "edit": null
+   },
+   "neutral": {
+    "verdict": "ok",
+    "margin": null,
+    "best": null,
+    "bestRule": null,
+    "bestKey": null,
+    "wordIndex": null,
+    "variants": 0,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": null,
+    "secondMargin": null,
+    "text": "Parcero, ¿qué más pues?",
+    "touchingSlang": 0,
+    "edit": null
+   },
+   "words": [
+    {
+     "word": "Parcero",
+     "slang": true,
+     "neutralSurprisal": 25.57,
+     "neutralHeat": 3,
+     "streetSurprisal": 10.39,
+     "streetRawHeat": 1,
+     "streetHeat": 0
+    },
+    {
+     "word": "qué",
+     "slang": true,
+     "neutralSurprisal": 2.23,
+     "neutralHeat": 0,
+     "streetSurprisal": 1.13,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "más",
+     "slang": true,
+     "neutralSurprisal": 4.94,
+     "neutralHeat": 0,
+     "streetSurprisal": 0.01,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "pues",
+     "slang": false,
+     "neutralSurprisal": 9.93,
+     "neutralHeat": 2,
+     "streetSurprisal": 11.16,
+     "streetRawHeat": 2,
+     "streetHeat": 2
+    }
+   ]
+  },
+  {
+   "id": 18,
+   "region": "CO",
+   "text": "Esa fiesta estuvo bacana.",
+   "slangNamed": [],
+   "slangSegments": [],
+   "street": {
+    "verdict": "assert",
+    "margin": 5.745371717713063,
+    "best": "Esa fiesta fue bacana.",
+    "bestRule": "es.ser_estar",
+    "bestKey": "es.ser_estar",
+    "wordIndex": 2,
+    "variants": 3,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.aspect",
+    "secondMargin": 0.2778512861363325,
+    "text": "Esa fiesta estuvo bacana.",
+    "ms": 832,
+    "touchingSlang": 0,
+    "edit": "estuvo->fue"
+   },
+   "neutral": {
+    "verdict": "assert",
+    "margin": 6.762254318842615,
+    "best": "Esa fiesta fue bacana.",
+    "bestRule": "es.ser_estar",
+    "bestKey": "es.ser_estar",
+    "wordIndex": 2,
+    "variants": 5,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.aspect",
+    "secondMargin": -0.6186321240544643,
+    "text": "Esa fiesta estuvo bacana.",
+    "touchingSlang": 0,
+    "edit": "estuvo->fue"
+   },
+   "words": [
+    {
+     "word": "Esa",
+     "slang": false,
+     "neutralSurprisal": 8.55,
+     "neutralHeat": 0,
+     "streetSurprisal": 9.65,
+     "streetRawHeat": 1,
+     "streetHeat": 1
+    },
+    {
+     "word": "fiesta",
+     "slang": false,
+     "neutralSurprisal": 5.63,
+     "neutralHeat": 0,
+     "streetSurprisal": 6.8,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "estuvo",
+     "slang": false,
+     "neutralSurprisal": 5.65,
+     "neutralHeat": 0,
+     "streetSurprisal": 5.81,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "bacana",
+     "slang": false,
+     "neutralSurprisal": 14.89,
+     "neutralHeat": 3,
+     "streetSurprisal": 14.78,
+     "streetRawHeat": 3,
+     "streetHeat": 3
+    }
+   ]
+  },
+  {
+   "id": 19,
+   "region": "PR",
+   "text": "No tengo chavos pa' salir hoy.",
+   "slangNamed": [
+    "chavos",
+    "pa'"
+   ],
+   "slangSegments": [
+    "chavos",
+    "pa'"
+   ],
+   "street": {
+    "verdict": "ok",
+    "margin": null,
+    "best": null,
+    "bestRule": null,
+    "bestKey": null,
+    "wordIndex": null,
+    "variants": 0,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": null,
+    "secondMargin": null,
+    "text": "No tengo chavos pa' salir hoy.",
+    "ms": 403,
+    "touchingSlang": 0,
+    "edit": null
+   },
+   "neutral": {
+    "verdict": "ok",
+    "margin": null,
+    "best": null,
+    "bestRule": null,
+    "bestKey": null,
+    "wordIndex": null,
+    "variants": 0,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": null,
+    "secondMargin": null,
+    "text": "No tengo chavos pa' salir hoy.",
+    "touchingSlang": 0,
+    "edit": null
+   },
+   "words": [
+    {
+     "word": "No",
+     "slang": false,
+     "neutralSurprisal": 4.28,
+     "neutralHeat": 0,
+     "streetSurprisal": 6.58,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "tengo",
+     "slang": false,
+     "neutralSurprisal": 5.49,
+     "neutralHeat": 0,
+     "streetSurprisal": 6.03,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "chavos",
+     "slang": true,
+     "neutralSurprisal": 16.41,
+     "neutralHeat": 3,
+     "streetSurprisal": 5.7,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "pa'",
+     "slang": true,
+     "neutralSurprisal": 11.86,
+     "neutralHeat": 2,
+     "streetSurprisal": 7.9,
+     "streetRawHeat": 1,
+     "streetHeat": 0
+    },
+    {
+     "word": "salir",
+     "slang": false,
+     "neutralSurprisal": 5.8,
+     "neutralHeat": 0,
+     "streetSurprisal": 6.5,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "hoy",
+     "slang": false,
+     "neutralSurprisal": 6.32,
+     "neutralHeat": 0,
+     "streetSurprisal": 5.01,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    }
+   ]
+  },
+  {
+   "id": 20,
+   "region": "PR",
+   "text": "Deja la bobería y vamo' ya.",
+   "slangNamed": [
+    "vamo'"
+   ],
+   "slangSegments": [
+    "vamo'"
+   ],
+   "street": {
+    "verdict": "ok",
+    "margin": -1.3840272790816712,
+    "best": "Deja bobería y vamo' ya.",
+    "bestRule": "es.article.delete",
+    "bestKey": "es.article",
+    "wordIndex": null,
+    "variants": 2,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.gender",
+    "secondMargin": -5.486674370629437,
+    "text": "Deja la bobería y vamo' ya.",
+    "ms": 690,
+    "touchingSlang": 0,
+    "edit": " la->"
+   },
+   "neutral": {
+    "verdict": "assert",
+    "margin": 4.1281472940966495,
+    "best": "Deja bobería y vamo' ya.",
+    "bestRule": "es.article.delete",
+    "bestKey": "es.article",
+    "wordIndex": 1,
+    "variants": 3,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.gender",
+    "secondMargin": -3.7673359672904496,
+    "text": "Deja la bobería y vamo' ya.",
+    "touchingSlang": 0,
+    "edit": " la->"
+   },
+   "words": [
+    {
+     "word": "Deja",
+     "slang": false,
+     "neutralSurprisal": 11.25,
+     "neutralHeat": 1,
+     "streetSurprisal": 11.85,
+     "streetRawHeat": 1,
+     "streetHeat": 1
+    },
+    {
+     "word": "la",
+     "slang": false,
+     "neutralSurprisal": 4.71,
+     "neutralHeat": 0,
+     "streetSurprisal": 3.68,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "bobería",
+     "slang": false,
+     "neutralSurprisal": 21.58,
+     "neutralHeat": 3,
+     "streetSurprisal": 18.17,
+     "streetRawHeat": 3,
+     "streetHeat": 3
+    },
+    {
+     "word": "y",
+     "slang": false,
+     "neutralSurprisal": 3.25,
+     "neutralHeat": 0,
+     "streetSurprisal": 2.23,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "vamo'",
+     "slang": true,
+     "neutralSurprisal": 21.8,
+     "neutralHeat": 3,
+     "streetSurprisal": 1.95,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "ya",
+     "slang": false,
+     "neutralSurprisal": 7.21,
+     "neutralHeat": 1,
+     "streetSurprisal": 6.49,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    }
+   ]
+  },
+  {
+   "id": 21,
+   "region": "DO",
+   "text": "Ese tipo es un tíguere.",
+   "slangNamed": [
+    "tíguere"
+   ],
+   "slangSegments": [
+    "tíguere"
+   ],
+   "street": {
+    "verdict": "ok",
+    "margin": -1.0071527894929453,
+    "best": "Ese tipo es tíguere.",
+    "bestRule": "es.article.delete",
+    "bestKey": "es.article",
+    "wordIndex": null,
+    "variants": 4,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.gender",
+    "secondMargin": -6.554610049212748,
+    "text": "Ese tipo es un tíguere.",
+    "ms": 991,
+    "touchingSlang": 0,
+    "edit": " un->"
+   },
+   "neutral": {
+    "verdict": "ok",
+    "margin": 0.8805175126452767,
+    "best": "Ese tipo es tíguere.",
+    "bestRule": "es.article.delete",
+    "bestKey": "es.article",
+    "wordIndex": null,
+    "variants": 7,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.number",
+    "secondMargin": -5.04350770827287,
+    "text": "Ese tipo es un tíguere.",
+    "touchingSlang": 0,
+    "edit": " un->"
+   },
+   "words": [
+    {
+     "word": "Ese",
+     "slang": false,
+     "neutralSurprisal": 8.03,
+     "neutralHeat": 0,
+     "streetSurprisal": 9.99,
+     "streetRawHeat": 1,
+     "streetHeat": 1
+    },
+    {
+     "word": "tipo",
+     "slang": false,
+     "neutralSurprisal": 3.94,
+     "neutralHeat": 0,
+     "streetSurprisal": 2.53,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "es",
+     "slang": false,
+     "neutralSurprisal": 7.07,
+     "neutralHeat": 1,
+     "streetSurprisal": 3.11,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "un",
+     "slang": false,
+     "neutralSurprisal": 1.23,
+     "neutralHeat": 0,
+     "streetSurprisal": 0.64,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "tíguere",
+     "slang": true,
+     "neutralSurprisal": 36.36,
+     "neutralHeat": 3,
+     "streetSurprisal": 3.54,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    }
+   ]
+  },
+  {
+   "id": 22,
+   "region": "PR",
+   "text": "Bregamos con eso mañana.",
+   "slangNamed": [],
+   "slangSegments": [],
+   "street": {
+    "verdict": "ok",
+    "margin": -12.881079408034203,
+    "best": "Bregábamos con eso mañana.",
+    "bestRule": "es.aspect",
+    "bestKey": "es.aspect",
+    "wordIndex": null,
+    "variants": 1,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": null,
+    "secondMargin": null,
+    "text": "Bregamos con eso mañana.",
+    "ms": 562,
+    "touchingSlang": 0,
+    "edit": "Bregamos->Bregábamos"
+   },
+   "neutral": {
+    "verdict": "ok",
+    "margin": -9.034460504579268,
+    "best": "Bregamos con eso mañanas.",
+    "bestRule": "es.number",
+    "bestKey": "es.number",
+    "wordIndex": null,
+    "variants": 2,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.aspect",
+    "secondMargin": -12.350837410660333,
+    "text": "Bregamos con eso mañana.",
+    "touchingSlang": 0,
+    "edit": "mañana->mañanas"
+   },
+   "words": [
+    {
+     "word": "Bregamos",
+     "slang": false,
+     "neutralSurprisal": 20.77,
+     "neutralHeat": 3,
+     "streetSurprisal": 20.41,
+     "streetRawHeat": 3,
+     "streetHeat": 3
+    },
+    {
+     "word": "con",
+     "slang": false,
+     "neutralSurprisal": 2.17,
+     "neutralHeat": 0,
+     "streetSurprisal": 2.38,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "eso",
+     "slang": false,
+     "neutralSurprisal": 8.13,
+     "neutralHeat": 1,
+     "streetSurprisal": 7.18,
+     "streetRawHeat": 1,
+     "streetHeat": 1
+    },
+    {
+     "word": "mañana",
+     "slang": false,
+     "neutralSurprisal": 10.33,
+     "neutralHeat": 2,
+     "streetSurprisal": 10.07,
+     "streetRawHeat": 2,
+     "streetHeat": 2
+    }
+   ]
+  },
+  {
+   "id": 23,
+   "region": "PR",
+   "text": "¡Wepa! Ganamos el juego.",
+   "slangNamed": [
+    "wepa"
+   ],
+   "slangSegments": [
+    "Wepa"
+   ],
+   "street": {
+    "verdict": "ok",
+    "margin": -5.367643761355815,
+    "best": "¡Wepa! Ganamos juego.",
+    "bestRule": "es.article.delete",
+    "bestKey": "es.article",
+    "wordIndex": null,
+    "variants": 3,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.aspect",
+    "secondMargin": -7.704449121208587,
+    "text": "¡Wepa! Ganamos el juego.",
+    "ms": 618,
+    "touchingSlang": 0,
+    "edit": " el->"
+   },
+   "neutral": {
+    "verdict": "ok",
+    "margin": -4.354367598630219,
+    "best": "¡Wepa! Ganamos juego.",
+    "bestRule": "es.article.delete",
+    "bestKey": "es.article",
+    "wordIndex": null,
+    "variants": 5,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.number",
+    "secondMargin": -5.626674417640274,
+    "text": "¡Wepa! Ganamos el juego.",
+    "touchingSlang": 0,
+    "edit": " el->"
+   },
+   "words": [
+    {
+     "word": "Wepa",
+     "slang": true,
+     "neutralSurprisal": 21,
+     "neutralHeat": 3,
+     "streetSurprisal": 3.53,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "Ganamos",
+     "slang": false,
+     "neutralSurprisal": 13.26,
+     "neutralHeat": 2,
+     "streetSurprisal": 12.08,
+     "streetRawHeat": 2,
+     "streetHeat": 2
+    },
+    {
+     "word": "el",
+     "slang": false,
+     "neutralSurprisal": 0.79,
+     "neutralHeat": 0,
+     "streetSurprisal": 0.48,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "juego",
+     "slang": false,
+     "neutralSurprisal": 4.49,
+     "neutralHeat": 0,
+     "streetSurprisal": 4.53,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    }
+   ]
+  },
+  {
+   "id": 24,
+   "region": "PR",
+   "text": "Estoy pela'o este mes.",
+   "slangNamed": [],
+   "slangSegments": [],
+   "street": {
+    "verdict": "ok",
+    "margin": 0.22742922476794547,
+    "best": "Soy pela'o este mes.",
+    "bestRule": "es.ser_estar",
+    "bestKey": "es.ser_estar",
+    "wordIndex": null,
+    "variants": 2,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.gender",
+    "secondMargin": -7.749891804644598,
+    "text": "Estoy pela'o este mes.",
+    "ms": 591,
+    "touchingSlang": 0,
+    "edit": "Estoy->Soy"
+   },
+   "neutral": {
+    "verdict": "hint",
+    "margin": 1.4916005505392107,
+    "best": "Soy pela'o este mes.",
+    "bestRule": "es.ser_estar",
+    "bestKey": "es.ser_estar",
+    "wordIndex": 0,
+    "variants": 4,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.number",
+    "secondMargin": -5.158533944034765,
+    "text": "Estoy pela'o este mes.",
+    "touchingSlang": 0,
+    "edit": "Estoy->Soy"
+   },
+   "words": [
+    {
+     "word": "Estoy",
+     "slang": false,
+     "neutralSurprisal": 5.79,
+     "neutralHeat": 0,
+     "streetSurprisal": 9.04,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "pela'o",
+     "slang": false,
+     "neutralSurprisal": 25.43,
+     "neutralHeat": 3,
+     "streetSurprisal": 21.71,
+     "streetRawHeat": 3,
+     "streetHeat": 3
+    },
+    {
+     "word": "este",
+     "slang": false,
+     "neutralSurprisal": 6.31,
+     "neutralHeat": 0,
+     "streetSurprisal": 6.81,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "mes",
+     "slang": false,
+     "neutralSurprisal": 2.69,
+     "neutralHeat": 0,
+     "streetSurprisal": 3.67,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    }
+   ]
+  },
+  {
+   "id": 25,
+   "region": "PR",
+   "text": "Qué chévere que viniste, mi pana.",
+   "slangNamed": [
+    "chévere",
+    "pana"
+   ],
+   "slangSegments": [
+    "chévere",
+    "pana"
+   ],
+   "street": {
+    "verdict": "ok",
+    "margin": -4.92733698080821,
+    "best": "Qué chévere que venías, mi pana.",
+    "bestRule": "es.aspect",
+    "bestKey": "es.aspect",
+    "wordIndex": null,
+    "variants": 1,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": null,
+    "secondMargin": null,
+    "text": "Qué chévere que viniste, mi pana.",
+    "ms": 495,
+    "touchingSlang": 0,
+    "edit": "viniste->venías"
+   },
+   "neutral": {
+    "verdict": "ok",
+    "margin": -5.643340293044634,
+    "best": "Qué chévere que viniste, mis pana.",
+    "bestRule": "es.number",
+    "bestKey": "es.number",
+    "wordIndex": null,
+    "variants": 2,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.aspect",
+    "secondMargin": -6.596879625612836,
+    "text": "Qué chévere que viniste, mi pana.",
+    "touchingSlang": 0,
+    "edit": "mi->mis"
+   },
+   "words": [
+    {
+     "word": "Qué",
+     "slang": false,
+     "neutralSurprisal": 8.23,
+     "neutralHeat": 0,
+     "streetSurprisal": 10.57,
+     "streetRawHeat": 1,
+     "streetHeat": 1
+    },
+    {
+     "word": "chévere",
+     "slang": true,
+     "neutralSurprisal": 10.49,
+     "neutralHeat": 2,
+     "streetSurprisal": 2.87,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "que",
+     "slang": false,
+     "neutralSurprisal": 3,
+     "neutralHeat": 0,
+     "streetSurprisal": 0.73,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "viniste",
+     "slang": false,
+     "neutralSurprisal": 7.19,
+     "neutralHeat": 1,
+     "streetSurprisal": 7.49,
+     "streetRawHeat": 1,
+     "streetHeat": 1
+    },
+    {
+     "word": "mi",
+     "slang": false,
+     "neutralSurprisal": 4.7,
+     "neutralHeat": 0,
+     "streetSurprisal": 5.37,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "pana",
+     "slang": true,
+     "neutralSurprisal": 10.79,
+     "neutralHeat": 2,
+     "streetSurprisal": 0.08,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    }
+   ]
+  },
+  {
+   "id": 26,
+   "region": "CO",
+   "text": "Ese man es más bacano que el putas.",
+   "slangNamed": [
+    "bacano"
+   ],
+   "slangSegments": [
+    "más",
+    "bacano"
+   ],
+   "street": {
+    "verdict": "assert",
+    "margin": 3.54844876513188,
+    "best": "Ese man es más bacano que putas.",
+    "bestRule": "es.article.delete",
+    "bestKey": "es.article",
+    "wordIndex": 6,
+    "variants": 4,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.gender",
+    "secondMargin": 2.0973200505052745,
+    "text": "Ese man es más bacano que el putas.",
+    "ms": 899,
+    "touchingSlang": 0,
+    "edit": " el->"
+   },
+   "neutral": {
+    "verdict": "hint",
+    "margin": 2.9958264364574205,
+    "best": "Ese man es más bacano que putas.",
+    "bestRule": "es.article.delete",
+    "bestKey": "es.article",
+    "wordIndex": 6,
+    "variants": 6,
+    "dropped": 0,
+    "bounded": false,
+    "secondKey": "es.gender",
+    "secondMargin": 0.633602958648904,
+    "text": "Ese man es más bacano que el putas.",
+    "touchingSlang": 0,
+    "edit": " el->"
+   },
+   "words": [
+    {
+     "word": "Ese",
+     "slang": false,
+     "neutralSurprisal": 8.03,
+     "neutralHeat": 0,
+     "streetSurprisal": 7.48,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "man",
+     "slang": false,
+     "neutralSurprisal": 7.03,
+     "neutralHeat": 1,
+     "streetSurprisal": 7.01,
+     "streetRawHeat": 1,
+     "streetHeat": 1
+    },
+    {
+     "word": "es",
+     "slang": false,
+     "neutralSurprisal": 12.35,
+     "neutralHeat": 3,
+     "streetSurprisal": 13.42,
+     "streetRawHeat": 3,
+     "streetHeat": 3
+    },
+    {
+     "word": "más",
+     "slang": true,
+     "neutralSurprisal": 3.16,
+     "neutralHeat": 0,
+     "streetSurprisal": 4.5,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "bacano",
+     "slang": true,
+     "neutralSurprisal": 11.78,
+     "neutralHeat": 2,
+     "streetSurprisal": 4.13,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "que",
+     "slang": false,
+     "neutralSurprisal": 0.43,
+     "neutralHeat": 0,
+     "streetSurprisal": 0.81,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "el",
+     "slang": false,
+     "neutralSurprisal": 0.37,
+     "neutralHeat": 0,
+     "streetSurprisal": 0.35,
+     "streetRawHeat": 0,
+     "streetHeat": 0
+    },
+    {
+     "word": "putas",
+     "slang": false,
+     "neutralSurprisal": 16.11,
+     "neutralHeat": 3,
+     "streetSurprisal": 15.29,
+     "streetRawHeat": 3,
+     "streetHeat": 3
+    }
+   ]
+  }
+ ]
+}

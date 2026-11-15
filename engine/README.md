@@ -1,7 +1,9 @@
 # Cliffword engine
 
 The language-neutral core of Cliffword in plain TypeScript: word scoring, corrections, the
-learner model and story sentence selection. It talks to a language model only through the
+learner model, story sentence selection, the speaking side (spoken commands, transcript
+alignment, retell, minutes spoken, self-repair), lyrics and brought text, and the session
+state machines the app drives. It talks to a language model only through the
 `LanguageModel` interface, so everything runs and is tested without a phone. Language
 packs (word splitting, word forms, frequency list, correction rules, slang registers) and
 pair packs (glosses, cognates, explanations, interface text) are data passed in. See
@@ -17,23 +19,27 @@ npx vitest run     # all tests, including integration and simulated learners
 
 | Path | What it does |
 |---|---|
-| `src/model/` | The `LanguageModel` contract (`scoreContinuation`, `nextTokens`, `generate`) and a deterministic n-gram mock (`createMockModel`) trained on a small Spanish corpus. |
-| `src/lang/types.ts` | The `LanguagePack` contract: segments, analyses, analysis choice in context, features, correction rule kinds (swap, inflect, insert, delete), slang entries and register packs, the shared `Register` type. |
+| `src/model/` | The `LanguageModel` contract (`scoreContinuation`, `nextTokens`, `generate`; `TokenScore.upperBound` for a top-N runtime), a deterministic n-gram mock (`createMockModel`, Spanish corpus by default, any corpus accepted), `HttpLanguageModel` (`http.ts`, for `proof/model_server.py`), `TopNBoundedModel` (`topN.ts`, what llama.rn forced decoding gives) and `runLanguageModelContract` (`contract.ts`, a test-only helper that imports vitest, so it is not exported from `src/index.ts`). |
+| `src/lang/types.ts` | The `LanguagePack` contract: segments, analyses, analysis choice in context, features, correction rule kinds (swap, inflect, insert, delete, move), slang entries and register packs, the shared `Register` type, enclitic pronouns (`attachClitic`, `splitClitics`), spoken commands (`commands`), command fillers (`fillers`) and regular street endings (`streetEndings`). |
 | `src/lang/choose.ts` | One analysis per word in context (`chooseAnalysesInText`): PROPN for capitalized words mid-sentence, else `pack.chooseAnalysis` with the previous word, else the first analysis. Selection, cliff choice and corrections all key words through it. |
-| `src/lang/es/` | The Spanish pack: segmenter that keeps clipped forms (`'tá`, `pa'`) whole, normalizer, conjugation and inflection, analyzer (exact, then enclitics, then accent-insensitive; a noun or adjective in its own dictionary form first), homographs in context (`chooseSpanishAnalysis`: la comida, he estado, ella vino), a 1788-lemma frequency lexicon that includes every cognate of the pair pack. `createSpanishPack`. |
-| `src/lang/es/rules.ts` | The 14 Spanish correction rules as data: ser/estar, por/para, gender, number (street tolerant), aspect, mood, personal a, articles. |
+| `src/lang/es/` | The Spanish pack: segmenter that keeps clipped forms (`'tá`, `pa'`) whole, normalizer, conjugation and inflection, analyzer (exact, then enclitics, then accent-insensitive; a noun or adjective in its own dictionary form first), homographs in context (`chooseSpanishAnalysis`: la comida, he estado, ella vino), a 1788-lemma frequency lexicon that includes every cognate of the pair pack. `clitics.ts`: enclitics attached keeping the host's stress (leyéndolo, dámelo) and split off again. `commands.ts`: spoken commands, fillers and street endings (`SPANISH_COMMANDS`, `SPANISH_FILLERS`, `SPANISH_STREET_ENDINGS`). `createSpanishPack`. |
+| `src/lang/es/rules.ts` | The 22 Spanish correction rules as data: ser/estar, por/para, gender, number (street tolerant), aspect, mood, personal a, articles, and object pronouns (five move rules for placement, clitic order, le/les to se before lo/la). |
 | `src/lang/es/registers/` | Slang register packs for Puerto Rico, the Dominican Republic, Cuba, Colombia and shared Caribbean clipped forms, with meaning, region, formality and explicit flag. `findSlang`. |
 | `src/pair/types.ts` | The `PairPack` contract. |
-| `src/pair/en-es/` | English speakers learning Spanish: glosses both ways (every lexicon lemma has one), phrase translations, cognates, false friends, an English lexicon for spotting English inside Spanish replies, correction explanations, interface strings. |
+| `src/pair/en-es/` | English speakers learning Spanish: glosses both ways (every lexicon lemma has one), phrase translations, cognates, false friends, an English lexicon for spotting English inside Spanish replies, correction explanations, interface strings (every key a session screen can carry), and the starter story `EN_ES_STARTER` (zero-knowledge scene, canned mode, placement ladder), which `createDefaultPairPack()` includes. |
 | `src/scoring/` | Word surprise and heat (`scoreWords`), whole-word next-word lists from sub-word tokens (`nextWords`), cliff positions (`cliffPositions`) and answer credit (`scoreCliffAnswer`). |
 | `src/corrections/` | Rule-made variants (`generateVariants`) scored against the learner's sentence; the winning rule explains (`judgeSentence`). |
 | `src/learner/` | Per-item, per-skill memory model (`LearnerModel`), continuous difficulty settings (`deriveParams`), cliff rungs and tiles (`cliffRungFor`, `showText`), placement (`PlacementTracker`). |
 | `src/story/` | Target words (`chooseTargets`), the continuation prompt and output cleaning, candidate selection (`selectSentence`), next-sentence generation (`generateNextSentence`), cliff choice (`pickCliff`). |
 | `src/gaps/` | Native-language words inside target-language replies (`findNativeGaps`) and the learner events they imply (`gapEvents`). |
+| `src/speaking/` | Spoken commands (`matchCommand`), expected vs heard words and "Understood N of M" (`alignTranscript`), timed retell (`retellMetrics`, `retellProgress`, `retellCoverage`, `RETELL_LANES`), minutes spoken per local day and streak (`addSpoken`, `spokenStats`), self-repair before a fix (`repairFlow`, `judgeAttempt`, `attemptRepair`, `repairEvents`), "no sé" (`startNoSe`, `advanceNoSe`), native-language answers (`nativeReply`), tile durations (`estimateDurationMs`). |
+| `src/lyrics/` | Pasted lyrics and LRC (`parseLyrics`), slang notes (`slangNotes`), neutral/street line pairs (`registerPairs`), lyric and brought-text cliffs (`lyricCliffs`, `broughtTextCliffs`, `scoreLyricAnswer`), surprise maps (`surpriseMap`), sing-back (`echoLine`), and the one word aligner the engine uses (`alignWords`; speaking reuses it). |
+| `src/session/` | `StorySession` and `LyricSession`: pure, deterministic state machines over `{ model, pack, pair, learner }` that return plain-data screens and the learner events of each step, with `snapshot()` / `restore()`. A null model is canned mode (starter sentences). |
 | `src/packs.ts` | `createDefaultSpanishPack()`, `createDefaultPairPack()` and helpers that turn pack data into learner keys. |
 | `src/config.ts` | Every `DEFAULT_*` options object in one place, with the source of each value (proof test or judgement). |
 | `src/index.ts` | The public API. |
-| `test/` | Integration tests (real packs plus the mock model) and the simulated learners. |
+| `test/` | Integration tests (real packs plus the mock model), review regressions, the simulated learners, the language-neutrality test, and the opt-in real-model tests. |
+| `scripts/real-model.md` | How to run the engine against Qwen3-1.7B through `proof/model_server.py`. |
 
 The engine never imports a language outside `packs.ts`: the app builds packs there and
 passes them to every function.
@@ -73,10 +79,41 @@ Import from `src/index.ts` (the package `main`).
   picks where the story stops and which words are hidden.
 - **Gaps.** `findNativeGaps(text, pack, pair)` finds runs of native words with Spanish
   candidates; `gapEvents(gaps, pack, now)` turns them into `native_gap` events.
-- **Testing.** `createMockModel()` gives a deterministic model for app tests.
+- **Speaking.** `matchCommand(transcript, pack, { answer })` returns a `CommandMatch`
+  (command, confidence, argument for "qué significa X") only when the utterance is
+  essentially the command; fillers come from `pack.fillers`. `alignTranscript(expected,
+  heard, pack, { register })` gives landed, missed and substituted words and
+  `ui: { key: 'stats.understood', params: { n, m } }`; street register accepts clipped
+  forms and `pack.streetEndings`. `retellMetrics(words, { laneMs })` gives words per
+  minute and pauses; `addSpoken(log, ms, at, tzOffsetMin)` and `spokenStats(log, now,
+  tzOffsetMin)` keep the headline metric. `repairFlow` / `attemptRepair` prompt a repair
+  before showing a fix (asserts only); `startNoSe` / `advanceNoSe` play the answer and
+  align the repeat; `nativeReply` turns native words into the target phrase to repeat.
+- **Lyrics and brought text.** `parseLyrics(raw, pack)` gives lines (ids, stanzas,
+  sections, repeats, LRC times). `slangNotes(line, pack, pair)` and
+  `registerPairs(line, pack)` show slang and its neutral line. `lyricCliffs(model, pack,
+  lyrics, { register })` and `broughtTextCliffs(model, pack, text, { register })` rank
+  cliffs per line or sentence; `scoreLyricAnswer` adds spelling and street tolerance to
+  `scoreCliffAnswer`. `surpriseMap` shades any text; `echoLine(expected, heard, pack, {
+  register })` grades a sung-back line.
+- **Sessions.** `StorySession.create({ model, pack, pair, learner, now, seed, startMode })`
+  then `next(at)`, `handleUtterance(transcript, at, { durationMs, words })`,
+  `command`, `pickOption`, `played`, `tapWord`, `revealWord`, `setSettings`,
+  `snapshot()` and `StorySession.restore(snapshot, deps)`. `LyricSession.create({ ...,
+  source: { kind: 'lyrics', lyrics } | { kind: 'text', text } })` likewise, plus
+  `startEcho` and `setRegister`. Every step returns `{ screen, events, speak?, ... }`;
+  events are already applied to the session's learner unless `applyEvents: false`.
+  Display text is always a `UiText` (`{ key, params }`) to look up in `pair.ui`;
+  `SESSION_UI_KEYS` lists every key a screen can carry. Async steps must not overlap
+  (a second one throws).
+- **Model adapters.** `new HttpLanguageModel({ baseUrl })` for `proof/model_server.py`;
+  `new TopNBoundedModel(model, { n })` reports tokens outside the top N as upper bounds
+  (`TokenScore.upperBound`), and the engine never lets a bound raise a verdict or credit
+  (`Judgement.bounded`, `WordScore.bounded`, `CliffResult.bounded`).
+- **Testing.** `createMockModel(corpus?)` gives a deterministic model for app tests.
 
 All randomness is seeded and all time is passed in (ms since epoch), so every function is
-deterministic.
+deterministic. Every tunable default is re-exported from `src/config.ts`.
 
 ## How a story step flows
 
@@ -189,6 +226,7 @@ twice the speed. The full table, with the source of each value, is in `src/confi
 | `DEFAULT_HEAT_OPTIONS.sentenceStartAllowance` | 2.5 nats | Sentence-first words run about 2.7 nats higher. |
 | Frequency baseline | off | Subtracting stand-alone surprisal made localization worse. |
 | `DEFAULT_NEXT_WORD_OPTIONS.minProb` | 1e-3 | The proof method's pruning floor. |
+| `DEFAULT_CREDIT_OPTIONS.partialFloor` | 1e-4 | Real model: credits 40 of 40 natural cliff answers, 0 of 23 wrong ones (0.005 missed 12). |
 
 What the proof showed, and how the engine handles it:
 
@@ -216,6 +254,30 @@ What the proof showed, and how the engine handles it:
   - the memory model, difficulty curves, placement and selection weights.
 
   Calibrate these from learner logs.
+
+## Running against the real model
+
+`test/real-model.test.ts` (adapter contract, parity with the proof, accuracy, timings) and
+`test/real-engine.test.ts` (the engine's own functions on the 93 proof pairs, street
+sentences, heat, cliffs, generation, top-10 forced decoding) are skipped unless
+`CLIFFWORD_MODEL_URL` is set, so `npx vitest run` never needs a server. Full steps and
+measured numbers: `scripts/real-model.md` and `proof/ENGINE_REAL_MODEL.md`.
+
+```bash
+cd proof
+/tmp/claude-0/venv/bin/python model_server.py \
+  --model /home/user/models/Qwen3-1.7B-Q4_K_M.gguf --port 8765 --threads 4 --ctx 2048 &
+cd ../engine
+npm run test:real                                   # real-model.test.ts
+CLIFFWORD_MODEL_URL=http://127.0.0.1:8765 npx vitest run test/real-engine.test.ts
+```
+
+The server handles one request at a time; run one real-model suite at a time. On the
+real model (2026-11-15): judge 64/93 errors asserted (57 with the exact fix), 0 false
+asserts and 2 false hints on the correct sentences, 2 asserts on the 26 street
+sentences, none on slang. Top-N forced decoding loses too much (top-10: 4 asserts), so
+the device needs a native method that scores a supplied text; keep top-50 only as a
+fallback.
 
 ## Contract decisions made during integration
 
@@ -278,6 +340,34 @@ What the proof showed, and how the engine handles it:
   subjunctive (hablase, fuese) as alternative forms; the analyzer tries the clitic
   reading of words that are also slang (dímelo, dale) and of deme/dele (dé + clitic).
 
+## Contract decisions made in the second integration
+
+- `LanguagePack` gained optional `attachClitic`, `splitClitics`, `commands`, `fillers` and
+  `streetEndings`. Fillers and street endings were per-language maps inside
+  `speaking/`; they are pack data now (`SPANISH_FILLERS`, `SPANISH_STREET_ENDINGS`), so no
+  core module holds Spanish words. `DEFAULT_FILLERS`, `DEFAULT_STREET_SUFFIXES`,
+  `defaultFillers` and `defaultStreetSuffixes` are gone; options still override the pack.
+- `CorrectionRule` gained `MoveRule` (object pronoun placement, cluster order);
+  `SwapRule` gained `beforeWords`, `afterWords`, `fromWords`. `DeleteRule` gained
+  `notBeforePos` and `notBeforeWords`, and the generator never deletes a word right
+  before a slang word: `es.article.delete` skips la/los/las before a verb (object
+  pronouns) and articles before que/de/del; `es.personal_a.delete` skips "a" before a
+  verb. On the real model this removed the only false assert on the correct proof
+  sentences and halved the street-register asserts (4 to 2) with no loss of fixes.
+- `PairPack.starter` (`StarterStory`): canned sentences, taught words, placement probes,
+  learner-turn prompts. `createEnEsPairPack({ starter })` defaults it to `EN_ES_STARTER`.
+- `TokenScore.upperBound`, `Judgement.bounded`, `ScoredVariant.bounded`,
+  `WordScore.bounded`, `CliffPosition.bounded`, `CliffResult.bounded` (see config.ts,
+  "Bounded scores"). `DEFAULT_CREDIT_OPTIONS.partialFloor` is 1e-4 (measured).
+- Interface keys: the session's "About N times in 100" key is `landing.timesInHundred`
+  (pack ids have no digits); `landing.justAsNatural`, `story.asks`, `story.noSentence`,
+  `echo.landed` and `lyrics.answer.*` were added to the en-es pack.
+- Spaces follow the script: `needsLeadingSpace` returns false after a character of a
+  script written without spaces (Han, Hiragana, Katakana, Thai, Lao, Khmer, Myanmar) and
+  after CJK punctuation, and sessions (`joinSentences`, `leadAfter`), brought-text
+  context (`unitsBefore`), `judgeSentence`'s context join and `nativeReply` use it, so a
+  Japanese story context is never joined with spaces.
+
 ## Known limits
 
 - No contractions in corrections: inserting "el" after "a" gives "a el", not "al", and
@@ -286,10 +376,23 @@ What the proof showed, and how the engine handles it:
   an accent fix). Typed text without accents can therefore get a wrong explanation: with
   the mock, "Ella esta cansada." gives a gender hint. Speech recognition writes accents;
   typed input needs an accent-restoration step before `judgeSentence`.
-- Clitic placement, voseo, vosotros and negative imperatives are not covered.
-- `Analysis` has no field for enclitic pronouns: "dámelo" analyzes as dar and drops me/lo.
+- Voseo and vosotros are not covered. Pronoun placement misses "He lo visto" (visto is
+  also a form of vestir), pronouns past two verbs, "dálelo", a doubled pronoun ("Lo
+  estoy leyéndolo"), "Compro lo mañana", and a wrong mood with the pronoun already in
+  place ("No lo haz"). `Analysis` has no field for enclitics; `splitClitics` recovers
+  them ("dámelo" -> da + me, lo).
 - Scripts without spaces (Japanese, Chinese) need a pack-aware token classifier for
-  `nextWords` (`opts.classify`); none exists yet.
+  `nextWords` (`opts.classify`); none exists yet, so next-word lists and cliff
+  alternatives are whole token runs there. `test/language-neutral.test.ts` runs scoring,
+  corrections, commands, alignment and sessions on a toy Japanese pack.
+- The story prompt text, region names, leak patterns and abbreviations default to
+  Spanish inside `story/` (`SPANISH_PROMPT_TEXT`, `REGION_NAMES`, `DEFAULT_LEAK_PATTERNS`,
+  `DEFAULT_ABBREVIATIONS`); sessions pass none, so another target language gets a
+  Spanish generation prompt until these move into the packs.
+- Street scoring names the slang of the whole sentence in the prefix, including the
+  hidden cliff words (story and lyric cliffs), which primes the model towards the
+  lyric's own slang. Slang answers are credited from the packs, so this mostly affects
+  the probabilities shown on the landing line.
 - Caribbean -ado to -ao participles (cansao) and dropped final s (ve', ma') are not
   normalized; only listed clipped forms are recognized.
 - Words that are both slang and standard Spanish (vaina, brutal) are corrected only in
@@ -314,7 +417,16 @@ What the proof showed, and how the engine handles it:
   (alg-*, lng-*): multi-word cliff credit, personal a, homographs in context, slang that is
   also standard, variants per rule category without junk, judge asserts whose fix is not in
   the mock corpus, band reachability after placement, decay floors, cliff spans, lexicon
-  coverage, quotes and ordinals, native gaps.
+  coverage, quotes and ordinals, native gaps; and the second integration review (int-*):
+  delete rules that left pronouns and slang alone, wordless utterances, pack fillers,
+  interface keys, the starter in the default pair pack, script-aware joins, public
+  exports, session determinism and restore under odd input.
+- `test/language-neutral.test.ts`: a toy Japanese pack (Intl.Segmenter words, and a
+  dictionary segmenter) through scoreWords, generateVariants, judgeSentence,
+  matchCommand, alignTranscript and StorySession steps with the mock model; no space is
+  ever added between words or sentences.
+- `test/real-model.test.ts`, `test/real-engine.test.ts`: opt-in, against
+  `proof/model_server.py` (see "Running against the real model").
 - `test/simulated-learners.test.ts`: brand new, early, intermediate reader with weak
   speaking, advanced and heritage profiles built from priors and study events. Checks that
   the known-word band holds, that selection picks an in-band or the closest sentence, that a

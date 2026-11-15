@@ -1,0 +1,1 @@
+{ "extends": "/home/user/cliffword/engine/tsconfig.json", "compilerOptions": { "types": ["node"], "noEmit": true, "skipLibCheck": true }, "include": ["measure.ts"] }

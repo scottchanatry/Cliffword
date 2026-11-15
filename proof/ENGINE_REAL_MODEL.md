@@ -11,7 +11,10 @@ the **engine's own public functions** (`judgeSentence`, `scoreWords`, `scoreClif
 `cliffPositions`, `nextWords`, `generateNextSentence`) on the same model and data, with
 the defaults in `engine/src/config.ts`, and measures what a learner would see.
 `engine/test/real-engine.test.ts` encodes the key checks (run it with
-`CLIFFWORD_MODEL_URL=http://127.0.0.1:8765 npx vitest run test/real-engine.test.ts`).
+`CLIFFWORD_MODEL_URL=http://127.0.0.1:8765 npx vitest run test/real-engine.test.ts`,
+about 15 minutes). Run one client at a time: the server answers one request at a time,
+and with a second client the next-word search's parallel requests can wait past the
+10-second connect timeout of Node's fetch.
 
 ## Verdict (plain language)
 
@@ -289,6 +292,9 @@ What goes wrong, all in `story/` (not changed here):
 - **Targets are rarely used.** The intermediate runs never used agarrar or aguantar; the
   in-band winner is a three-word question below the length range (6.6 to 13.7 words),
   because the band term outweighs the length penalty.
+- **The in-band result is fragile.** With only the first two story sentences in the
+  prompt, the same intermediate learner and seed got no in-band candidate, retried, and
+  ended on "La niña se agarró al de la caja." (out of band, a broken phrase).
 - **Prompt leaks:** none of the leak patterns fired; the templates and numbered lists
   ("(1) (2) (3)") are leaks in spirit that the patterns do not catch.
 
@@ -311,7 +317,9 @@ the variant's own rest is bounded.
 | scores | errors asserted (right fix) | errors flagged (right fix) | false asserts | false hints | judgements resting on a bound |
 |---|---|---|---|---|---|
 | exact | 64 (57) | 75 (67) | 1 | 2 | 0 / 186 |
-TOP50_ROWS
+| top-50, no cap (before this step) | 49 (43) | 68 (58) | 1 | 8 | |
+| top-50, cap on the variant side only | 30 (28) | 68 (58) | 0 | 9 | |
+| **top-50, engine (cap on either side)** | **18 (17)** | 68 (58) | **0** | 9 | 135 / 186 |
 | top-10, no cap (before this step) | 39 (35) | 59 (46) | 4 | 14 | |
 | top-10, cap on the variant side only | 10 (10) | 59 (46) | 0 | 18 | |
 | **top-10, engine (cap on either side)** | **4 (4)** | 59 (46) | **0** | 18 | 169 / 186 |
@@ -330,7 +338,13 @@ In plain words:
   logprob, so the shorter sentence looks better than it is.
 - **Capping only the variant side would not help much**: the bound sits in the variant's
   rest in 157 of the 169 cases, so that policy recovers 6 asserts at top-10.
-- TOP50_SUMMARY
+- **Top-50 lists (the outline's fallback) halve the damage but do not remove it.** 135
+  of 186 judgements still rest on a bound. Without the cap the judge asserts 49 errors,
+  6 of them with a wrong fix, plus the one false assert it also makes with exact
+  scores. With the cap it asserts 18 (17 with the right fix) and hints the rest, and 9
+  correct sentences get a hint. Capping only the variant side would give 30 asserts (28
+  right) and still no false assert at this N; the engine keeps the stricter rule because
+  the original-side bound is only valid on raw probabilities (see corrections/judge.ts).
 - **Cliff credit stays safe.** Through top-10 lists the wrong answers mesa and verde come
   back as bounds of about 0.012 (exact: 2e-9 and 1e-7), which would have earned partial
   credit; with the new rule they get none. Answers the model lists itself (leerla, leer,
@@ -354,7 +368,7 @@ rows come from the full runs above):
 | `judgeSentence` (5 variants median, 13 at most) | 0.66 s median, 1.4 s p90 |
 | `scoreWords` | 0.12 s (one call) |
 | `nextWords` (whole-word list, about 30 calls) | 2.7 s |
-| `scoreCliffAnswer` (one next-word search plus up to 2 calls) | 2.7 to 4 s |
+| `scoreCliffAnswer` (one next-word search plus up to 2 calls) | 2.7 to 4 s (7 s under heavier load) |
 | `cliffPositions`, per analysed position | 2.7 s |
 | `generateNextSentence` (n = 4, one or two rounds) | 4 to 12 s |
 | `scoreContinuation` through top-10 lists (one list per token) | 1.6 s |
@@ -373,10 +387,11 @@ letting the caller pass them in would make an answer cost one or two scoring cal
   marks `CliffPosition.bounded`; `scoreCliffAnswer` never gives likely or plausible
   credit on a bounded probability and marks `CliffResult.bounded`. With exact scores
   nothing changes. Unit tests use `TopNBoundedModel` over the mock.
-- **`DEFAULT_CREDIT_OPTIONS.partialFloor` 0.005 → 1e-4** (section 4). Three mock-based
-  assertions elsewhere now pin the mock-scale floor 0.005 (`test/integration.test.ts`,
+- **`DEFAULT_CREDIT_OPTIONS.partialFloor` 0.005 → 1e-4** (section 4). Mock-based checks
+  in other modules now pass the mock-scale floor 0.005 explicitly (the wrong-answer check
+  in `test/integration.test.ts`, the model-only slang credit in
   `src/lyrics/cliffs.test.ts`), because the n-gram mock smooths unseen words to about
-  1e-3.
+  1e-3; their expected values are unchanged.
 - Kept: judge 3 / 1 / tie 1 / length 0, heat [7, 9.5, 12], sentence-start allowance 2.5.
 
 ## 9. Open issues for other modules
@@ -398,6 +413,17 @@ letting the caller pass them in would make an answer cost one or two scoring cal
 7. `scoreCliffAnswer` could accept precomputed alternatives (section 7), and credit an
    answer that shares a lemma with a likely alternative (reír vs reírse).
 
+Update after integration (same day, same server and model): issues 1 and 2 are fixed in
+the rule data. `DeleteRule` gained `notBeforePos` and `notBeforeWords`, and the
+generator never deletes a word right before a slang word. `es.article.delete` skips a
+word before a verb or before que/de/del, and `es.personal_a.delete` skips an "a" before
+a verb. Re-measured with `test/real-engine.test.ts`: judge 64/93 asserted (57 with the
+right fix), 67 flagged with the right fix, 73 right rule, all unchanged; **0 false
+asserts** (was 1) and 2 false hints on the correct sentences; street register **2
+asserts** (was 4): "que el putas" (putas is not in the slang packs) and "estuvo bacana"
+→ "fue bacana". The rule fixes reachable on the incorrect sentences are unchanged
+(76 of 93).
+
 ## Device adapter recommendation
 
 **Use the native scoring method (`llamaScoreText`, docs/OUTLINE.md section 1.2) for
@@ -407,9 +433,10 @@ measurement settles what the brief left open:
 1. **Corrections need exact margins.** Exact scores give 64 asserts (57 with the right
    fix, 60 counting equally correct placements) and 1 false assert, which is a rule bug.
    Through top-N lists the engine, which now refuses to assert on a bound, asserts 4
-   errors at N = 10 and TOP50_ASSERTS at N = 50; without that refusal the lists produce
-   false asserts (4 at N = 10). A larger N does not close the gap, because one unlisted
-   word anywhere in the compared rest is enough.
+   errors at N = 10 and 18 at N = 50; without that refusal the lists produce false
+   asserts (3 more at N = 10) and wrong fixes (4 at N = 10, 6 at N = 50). A larger N
+   does not close the gap, because one unlisted word anywhere in the compared rest is
+   enough: 135 of 186 judgements still rest on a bound at N = 50.
 2. **The native method is also the faster one.** It scores a text with one batched
    decode (the prompt-processing speed the proof measured, 124 tokens/s on 4 CPU
    cores), where forced decoding decodes token by token.
@@ -423,11 +450,12 @@ measurement settles what the brief left open:
    repeat their context). `nextTokens` must return the raw top-k (k up to 50) after a
    context. The outline's self-test (ten proof pairs within 0.15 nats of
    `proof/raw_qwen3-1.7b.json`) catches a mismatch.
-4. **When the fallback is active**, the engine already caps verdicts and credit. The app
-   should show a hint with `Judgement.bounded` very lightly or not at all (at N = 10, 18
-   of 93 correct sentences got one), read `WordScore.bounded` as "at least this
-   surprising", and lean on the options and hint rungs for cliffs, whose answers come
-   from exact next-token lists.
+4. **When the fallback is active**, use N = 50 (or the largest list the runtime allows),
+   not 10: 18 against 4 asserts, 9 against 18 false hints. The engine already caps
+   verdicts and credit. The app should show a hint with `Judgement.bounded` very lightly
+   or not at all (9 of 93 correct sentences got one at N = 50, 18 at N = 10), read
+   `WordScore.bounded` as "at least this surprising", and lean on the options and hint
+   rungs for cliffs, whose answers come from exact next-token lists.
 5. **Latency to watch on device:** the next-word search (about 30 model calls, 2.7 s
    here) dominates cliffs. Reuse the alternatives that `cliffPositions` found when
    scoring an answer at the same cliff (open issue 7), and keep the native `nextTokens`

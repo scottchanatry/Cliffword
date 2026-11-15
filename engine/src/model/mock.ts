@@ -19,7 +19,12 @@ const UNIGRAM_ADD = 0.1;
 const UNKNOWN_CHAR_COST = -1.5;
 const BOS = '<s>';
 const SENTENCE_END = new Set(['.', '?', '!']);
-const NO_SPACE_BEFORE = new Set(['.', ',', '?', '!', ';', ':', ')', '…']);
+/**
+ * Punctuation generated without a space before it. CJK full-width marks are included so
+ * a mock trained on a language written without spaces (Japanese, Chinese) does not
+ * generate "です 。" (test/language-neutral.test.ts).
+ */
+const NO_SPACE_BEFORE = new Set(['.', ',', '?', '!', ';', ':', ')', '…', '。', '、', '！', '？', '」', '』', '）']);
 
 const WORD_RE = /['’]?[\p{L}\p{M}]+(?:['’][\p{L}\p{M}]+)*['’]?/uy;
 const NUMBER_RE = /\d+(?:[.,]\d+)*/uy;

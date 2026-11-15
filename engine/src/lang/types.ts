@@ -163,9 +163,26 @@ export interface InsertRule extends RuleBase {
 }
 
 /** Delete any of these words. Example: an unneeded article or personal "a". */
+/**
+ * Delete a word. The generator never deletes a word right before a slang word (it
+ * belongs to the slang phrase: "un chin", "el corillo"). The optional fields below keep
+ * the rule away from homographs and fixed constructions, looking at the next word (only
+ * spaces in between; its analysis chosen in context, lang/choose.ts).
+ */
 export interface DeleteRule extends RuleBase {
   kind: 'delete';
   words: string[];
+  /**
+   * Optional: the word is not deleted when the next word's part of speech is one of
+   * these. Spanish: la/los/las before a verb are object pronouns, not articles ("La
+   * invité a cenar"); "a" before a verb is "ir a + infinitive", not the personal a.
+   */
+  notBeforePos?: Pos[];
+  /**
+   * Optional: the word is not deleted before these next words (normalized). Spanish:
+   * an article before "que" or "de" stands for a noun ("la que hay", "la de mi madre").
+   */
+  notBeforeWords?: string[];
 }
 
 /**
@@ -399,4 +416,18 @@ export interface LanguagePack {
    * command only.
    */
   readonly commands?: readonly SpokenCommandEntry[];
+  /**
+   * Optional: words and short phrases a speaker says around a spoken command without
+   * changing it (hesitation sounds as recognizers spell them, discourse markers, polite
+   * tails), written lowercase as the pack spells them. The speaking module drops them
+   * when matching commands ("eh, no sé" is "no sé"). None when omitted.
+   */
+  readonly fillers?: readonly string[];
+  /**
+   * Optional: regular street-register word endings as [full, street] pairs, compared on
+   * loose keys (lowercase, accents and apostrophes removed). Transcript alignment in
+   * street register counts a word with one ending as the same word with the other
+   * (Spanish -ado ~ -ao: cansado ~ cansao). None when omitted.
+   */
+  readonly streetEndings?: readonly (readonly [string, string])[];
 }

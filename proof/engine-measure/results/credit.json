@@ -1,0 +1,653 @@
+{
+ "meta": {
+  "when": "2026-11-15T22:32:05.358Z",
+  "load": [
+   4.76,
+   4.29,
+   3.3
+  ],
+  "cores": 4
+ },
+ "calls": {
+  "nextTokens": {
+   "calls": 1428,
+   "msPerCall": 957.6
+  },
+  "scoreContinuation": {
+   "calls": 39,
+   "msPerCall": 134.1
+  }
+ },
+ "rows": [
+  {
+   "opening": "En la playa hacía mucho",
+   "actual": "calor",
+   "label": "natural",
+   "answer": "calor",
+   "prob": 0.6471306008288048,
+   "credit": "full",
+   "reason": "actual",
+   "rank": 1
+  },
+  {
+   "opening": "En la playa hacía mucho",
+   "actual": "calor",
+   "label": "natural",
+   "answer": "frío",
+   "prob": 0.2717129757028894,
+   "credit": "full",
+   "reason": "likely",
+   "rank": 2
+  },
+  {
+   "opening": "En la playa hacía mucho",
+   "actual": "calor",
+   "label": "natural",
+   "answer": "sol",
+   "prob": 0.011861774675422468,
+   "credit": "partial",
+   "reason": "plausible",
+   "rank": 4
+  },
+  {
+   "opening": "En la playa hacía mucho",
+   "actual": "calor",
+   "label": "natural",
+   "answer": "viento",
+   "prob": 0.012736279121750606,
+   "credit": "partial",
+   "reason": "plausible",
+   "rank": 3
+  },
+  {
+   "opening": "En la playa hacía mucho",
+   "actual": "calor",
+   "label": "natural",
+   "answer": "ruido",
+   "prob": 0.004633878614019495,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": 8
+  },
+  {
+   "opening": "En la playa hacía mucho",
+   "actual": "calor",
+   "label": "wrong",
+   "answer": "mesa",
+   "prob": 1.0329159108244447e-8,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "En la playa hacía mucho",
+   "actual": "calor",
+   "label": "wrong",
+   "answer": "verde",
+   "prob": 0.0000011758942263866124,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "En la playa hacía mucho",
+   "actual": "calor",
+   "label": "wrong",
+   "answer": "comer",
+   "prob": 5.252162969282693e-9,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "En la playa hacía mucho",
+   "actual": "calor",
+   "label": "wrong",
+   "answer": "rápido",
+   "prob": 6.672672921047019e-8,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "Esta noche vamos a",
+   "actual": "cenar",
+   "label": "natural",
+   "answer": "cenar",
+   "prob": 0.09383395757686952,
+   "credit": "full",
+   "reason": "actual",
+   "rank": 2
+  },
+  {
+   "opening": "Esta noche vamos a",
+   "actual": "cenar",
+   "label": "natural",
+   "answer": "ver",
+   "prob": 0.17547197634969228,
+   "credit": "full",
+   "reason": "likely",
+   "rank": 1
+  },
+  {
+   "opening": "Esta noche vamos a",
+   "actual": "cenar",
+   "label": "natural",
+   "answer": "comer",
+   "prob": 0.07076249729474483,
+   "credit": "full",
+   "reason": "likely",
+   "rank": 3
+  },
+  {
+   "opening": "Esta noche vamos a",
+   "actual": "cenar",
+   "label": "natural",
+   "answer": "salir",
+   "prob": 0.02630035520093324,
+   "credit": "partial",
+   "reason": "plausible",
+   "rank": 7
+  },
+  {
+   "opening": "Esta noche vamos a",
+   "actual": "cenar",
+   "label": "natural",
+   "answer": "bailar",
+   "prob": 0.0032198844462234893,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "Esta noche vamos a",
+   "actual": "cenar",
+   "label": "natural",
+   "answer": "celebrar",
+   "prob": 0.0420486172698615,
+   "credit": "partial",
+   "reason": "plausible",
+   "rank": 6
+  },
+  {
+   "opening": "Esta noche vamos a",
+   "actual": "cenar",
+   "label": "natural",
+   "answer": "nadar",
+   "prob": 0.0007199007620100049,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "Esta noche vamos a",
+   "actual": "cenar",
+   "label": "wrong",
+   "answer": "mesa",
+   "prob": 0.00000229729002069159,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "Esta noche vamos a",
+   "actual": "cenar",
+   "label": "wrong",
+   "answer": "verde",
+   "prob": 0.0000017149742383886158,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "Esta noche vamos a",
+   "actual": "cenar",
+   "label": "wrong",
+   "answer": "casa",
+   "prob": 0.002905251578895754,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "Esta noche vamos a",
+   "actual": "cenar",
+   "label": "wrong",
+   "answer": "rojo",
+   "prob": 3.452171451023315e-10,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "El perro corrió hacia la",
+   "actual": "puerta",
+   "label": "natural",
+   "answer": "puerta",
+   "prob": 0.06253416255013279,
+   "credit": "full",
+   "reason": "actual",
+   "rank": 4
+  },
+  {
+   "opening": "El perro corrió hacia la",
+   "actual": "puerta",
+   "label": "natural",
+   "answer": "casa",
+   "prob": 0.5562217485826272,
+   "credit": "full",
+   "reason": "likely",
+   "rank": 1
+  },
+  {
+   "opening": "El perro corrió hacia la",
+   "actual": "puerta",
+   "label": "natural",
+   "answer": "calle",
+   "prob": 0.06345983905408308,
+   "credit": "full",
+   "reason": "likely",
+   "rank": 3
+  },
+  {
+   "opening": "El perro corrió hacia la",
+   "actual": "puerta",
+   "label": "natural",
+   "answer": "playa",
+   "prob": 0.007059437428573225,
+   "credit": "partial",
+   "reason": "plausible",
+   "rank": 9
+  },
+  {
+   "opening": "El perro corrió hacia la",
+   "actual": "puerta",
+   "label": "natural",
+   "answer": "ventana",
+   "prob": 0.004602148568549756,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "El perro corrió hacia la",
+   "actual": "puerta",
+   "label": "natural",
+   "answer": "cocina",
+   "prob": 0.00022045269186964165,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "El perro corrió hacia la",
+   "actual": "puerta",
+   "label": "wrong",
+   "answer": "verde",
+   "prob": 0.00001030010209317527,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "El perro corrió hacia la",
+   "actual": "puerta",
+   "label": "wrong",
+   "answer": "comer",
+   "prob": 1.0054105463111764e-7,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "El perro corrió hacia la",
+   "actual": "puerta",
+   "label": "wrong",
+   "answer": "rápido",
+   "prob": 1.225598316527919e-8,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "El perro corrió hacia la",
+   "actual": "puerta",
+   "label": "wrong",
+   "answer": "ayer",
+   "prob": 4.989995763806527e-7,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "La niña abrió la puerta y",
+   "actual": "salió",
+   "label": "natural",
+   "answer": "salió",
+   "prob": 0.02045552551129694,
+   "credit": "full",
+   "reason": "actual",
+   "rank": 6
+  },
+  {
+   "opening": "La niña abrió la puerta y",
+   "actual": "salió",
+   "label": "natural",
+   "answer": "entró",
+   "prob": 0.1402551498478508,
+   "credit": "full",
+   "reason": "likely",
+   "rank": 2
+  },
+  {
+   "opening": "La niña abrió la puerta y",
+   "actual": "salió",
+   "label": "natural",
+   "answer": "vio",
+   "prob": 0.16747141167130647,
+   "credit": "full",
+   "reason": "likely",
+   "rank": 1
+  },
+  {
+   "opening": "La niña abrió la puerta y",
+   "actual": "salió",
+   "label": "natural",
+   "answer": "miró",
+   "prob": 0.015583960803057993,
+   "credit": "partial",
+   "reason": "plausible",
+   "rank": 10
+  },
+  {
+   "opening": "La niña abrió la puerta y",
+   "actual": "salió",
+   "label": "natural",
+   "answer": "gritó",
+   "prob": 0.011673106842944897,
+   "credit": "partial",
+   "reason": "plausible",
+   "rank": null
+  },
+  {
+   "opening": "La niña abrió la puerta y",
+   "actual": "salió",
+   "label": "natural",
+   "answer": "corrió",
+   "prob": 0.003303012317964295,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "La niña abrió la puerta y",
+   "actual": "salió",
+   "label": "natural",
+   "answer": "sonrió",
+   "prob": 0.006116962053020812,
+   "credit": "partial",
+   "reason": "plausible",
+   "rank": null
+  },
+  {
+   "opening": "La niña abrió la puerta y",
+   "actual": "salió",
+   "label": "wrong",
+   "answer": "mesa",
+   "prob": 4.066758669523073e-8,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "La niña abrió la puerta y",
+   "actual": "salió",
+   "label": "wrong",
+   "answer": "verde",
+   "prob": 0.0000013426994143065163,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "La niña abrió la puerta y",
+   "actual": "salió",
+   "label": "wrong",
+   "answer": "rápido",
+   "prob": 5.425381257346914e-7,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "La niña abrió la puerta y",
+   "actual": "salió",
+   "label": "wrong",
+   "answer": "casa",
+   "prob": 0.0000012589539057248596,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "Mi hermano siempre",
+   "actual": "llega",
+   "label": "natural",
+   "answer": "llega",
+   "prob": 0.0032938733178909064,
+   "credit": "full",
+   "reason": "actual",
+   "rank": null
+  },
+  {
+   "opening": "Mi hermano siempre",
+   "actual": "llega",
+   "label": "natural",
+   "answer": "dice",
+   "prob": 0.10864618826694222,
+   "credit": "full",
+   "reason": "likely",
+   "rank": 1
+  },
+  {
+   "opening": "Mi hermano siempre",
+   "actual": "llega",
+   "label": "natural",
+   "answer": "come",
+   "prob": 0.005537933404781698,
+   "credit": "partial",
+   "reason": "plausible",
+   "rank": null
+  },
+  {
+   "opening": "Mi hermano siempre",
+   "actual": "llega",
+   "label": "natural",
+   "answer": "trabaja",
+   "prob": 0.0010876866007582617,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "Mi hermano siempre",
+   "actual": "llega",
+   "label": "natural",
+   "answer": "juega",
+   "prob": 0.0023981145001221913,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "Mi hermano siempre",
+   "actual": "llega",
+   "label": "natural",
+   "answer": "canta",
+   "prob": 0.0033706242517636677,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "Mi hermano siempre",
+   "actual": "llega",
+   "label": "wrong",
+   "answer": "mesa",
+   "prob": 0.000002947370377982225,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "Mi hermano siempre",
+   "actual": "llega",
+   "label": "wrong",
+   "answer": "verde",
+   "prob": 0.00000232758469513084,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "Mi hermano siempre",
+   "actual": "llega",
+   "label": "wrong",
+   "answer": "azul",
+   "prob": 2.6125925885390197e-10,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "Mi hermano siempre",
+   "actual": "llega",
+   "label": "wrong",
+   "answer": "puerta",
+   "prob": 6.387047738086291e-7,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "ces vio una nota en la puerta y empezó a",
+   "actual": "leerla",
+   "label": "natural",
+   "answer": "leerla",
+   "prob": 0.09309081034773731,
+   "credit": "full",
+   "reason": "actual",
+   "rank": 3
+  },
+  {
+   "opening": "ces vio una nota en la puerta y empezó a",
+   "actual": "leerla",
+   "label": "natural",
+   "answer": "leer",
+   "prob": 0.06901035727601908,
+   "credit": "full",
+   "reason": "likely",
+   "rank": 4
+  },
+  {
+   "opening": "ces vio una nota en la puerta y empezó a",
+   "actual": "leerla",
+   "label": "natural",
+   "answer": "llorar",
+   "prob": 0.3295411648635398,
+   "credit": "full",
+   "reason": "likely",
+   "rank": 1
+  },
+  {
+   "opening": "ces vio una nota en la puerta y empezó a",
+   "actual": "leerla",
+   "label": "natural",
+   "answer": "reír",
+   "prob": 0.0005571401871270613,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "ces vio una nota en la puerta y empezó a",
+   "actual": "leerla",
+   "label": "natural",
+   "answer": "gritar",
+   "prob": 0.00104811428279216,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "ces vio una nota en la puerta y empezó a",
+   "actual": "leerla",
+   "label": "natural",
+   "answer": "sonreír",
+   "prob": 0.010887735893071704,
+   "credit": "partial",
+   "reason": "plausible",
+   "rank": null
+  },
+  {
+   "opening": "ces vio una nota en la puerta y empezó a",
+   "actual": "leerla",
+   "label": "natural",
+   "answer": "buscar",
+   "prob": 0.017184592577593305,
+   "credit": "partial",
+   "reason": "plausible",
+   "rank": 7
+  },
+  {
+   "opening": "ces vio una nota en la puerta y empezó a",
+   "actual": "leerla",
+   "label": "natural",
+   "answer": "pensar",
+   "prob": 0.03330914739365785,
+   "credit": "partial",
+   "reason": "plausible",
+   "rank": 6
+  },
+  {
+   "opening": "ces vio una nota en la puerta y empezó a",
+   "actual": "leerla",
+   "label": "wrong",
+   "answer": "mesa",
+   "prob": 1.7335960194063552e-9,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "ces vio una nota en la puerta y empezó a",
+   "actual": "leerla",
+   "label": "wrong",
+   "answer": "verde",
+   "prob": 1.4157583618080324e-7,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "ces vio una nota en la puerta y empezó a",
+   "actual": "leerla",
+   "label": "wrong",
+   "answer": "puerta",
+   "prob": 5.089776006360769e-9,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  },
+  {
+   "opening": "ces vio una nota en la puerta y empezó a",
+   "actual": "leerla",
+   "label": "wrong",
+   "answer": "rápido",
+   "prob": 4.960440326578281e-8,
+   "credit": "none",
+   "reason": "unlikely",
+   "rank": null
+  }
+ ]
+}

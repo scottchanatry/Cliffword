@@ -1,7 +1,9 @@
 /**
  * English interface strings for Spanish learners, keyed by id. Placeholders are written
  * {name} and filled by the app: {n}, {m}, {minutes}, {seconds}, {round}, {rounds},
- * {sound}, {expected}, {fix}, {region}. Spoken commands stay in Spanish because the
+ * {sound}, {expected}, {fix}, {region}, {speaker}, {word}, {answer}, {lyric}, {street},
+ * {neutral}. Every key a session screen can carry is listed in SESSION_UI_KEYS
+ * (engine/src/session/uiKeys.ts); this pack covers all of them. Spoken commands stay in Spanish because the
  * learner says them; their English meaning follows the dash.
  */
 export const UI_STRINGS: Readonly<Record<string, string>> = {
@@ -27,6 +29,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = {
   'landing.plausible': 'That works. A Spanish speaker could say it too.',
   'landing.form': 'Right word, different form. Try it again.',
   'landing.unlikely': 'Not quite. Here’s what a Spanish speaker would say.',
+  'landing.timesInHundred': 'About {n} times in 100, a Spanish speaker says that here.',
+  'landing.justAsNatural': '“{word}” is just as natural.',
 
   // Spoken commands (said in Spanish)
   'commands.title': 'Say these any time',
@@ -45,6 +49,8 @@ export const UI_STRINGS: Readonly<Record<string, string>> = {
   'repair.prompt': 'Want to try that again?',
   'repair.expected': 'Expected: {expected}',
   'repair.fix': 'Try: {fix}',
+  'story.asks': '{speaker} asks you',
+  'story.noSentence': 'No sentence is ready yet. Try again in a moment.',
   'falseFriend.title': 'Looks like English, but isn’t',
 
   // Timed retell
@@ -82,6 +88,12 @@ export const UI_STRINGS: Readonly<Record<string, string>> = {
   'music.pasteLyrics': 'Paste lyrics',
   'music.pasteLyricsHint': 'Paste the lyrics of the song you’re playing.',
   'music.singBack': 'Sing the line back.',
+  'echo.landed': '{n} of {m} landed',
+  'lyrics.answer.spelling': 'Same words. Spelling marks don’t count when you sing.',
+  'lyrics.answer.neutralForStreet': '“{answer}” is the neutral way to say “{lyric}” ({neutral} for {street}). Both count.',
+  'lyrics.answer.streetForNeutral': '“{answer}” is the street way to say “{lyric}” ({street} for {neutral}).',
+  'lyrics.answer.streetVariant': 'Different slang, same meaning as “{lyric}”.',
+  'lyrics.answer.judgedNeutral': 'Slang can’t be scored directly, so your answer was checked as “{neutral}”.',
 
   // Start
   'onboarding.brandNew': 'I’m brand new',

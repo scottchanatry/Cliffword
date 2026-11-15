@@ -1,7 +1,7 @@
 /**
  * Speaking module: the engine side of speaking first. Pure, deterministic and
- * language-neutral; language data comes from the packs (LanguagePack.commands, register
- * packs) and from the per-language option defaults in langDefaults.ts.
+ * language-neutral; language data comes from the packs (LanguagePack.commands, fillers,
+ * streetEndings, register packs).
  *
  * - matchCommand: spoken commands (otra vez, más despacio, no sé, siguiente, listo, qué
  *   significa) in a recognized utterance, only when it is essentially the command.
@@ -80,7 +80,6 @@ export type { NativePhrase, NativeReply, NativeReplyOptions } from './native';
 export { DEFAULT_DURATION_OPTIONS, estimateDurationMs, estimateDurations, fallbackSyllables } from './duration';
 export type { DurationOptions, WordDuration } from './duration';
 
-export { DEFAULT_FILLERS, DEFAULT_STREET_SUFFIXES, defaultFillers, defaultStreetSuffixes } from './langDefaults';
 
 // text.ts holds internal helpers. Its UiText is structurally identical to lyrics' UiText
 // (which the engine exports), so it is not re-exported here, to keep one name per type.

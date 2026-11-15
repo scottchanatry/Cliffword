@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { createDefaultSpanishPack } from '../packs';
 import type { LanguagePack, Segment, SpokenCommand } from '../lang/types';
 import { DEFAULT_COMMAND_OPTIONS, matchCommand } from './commands';
-import { DEFAULT_FILLERS } from './langDefaults';
 import { phraseKeys } from './text';
 
 const pack = createDefaultSpanishPack();
@@ -137,7 +136,7 @@ describe('matchCommand with the Spanish pack', () => {
   });
 
   it('keeps its Spanish fillers clear of every command word', () => {
-    const fillers = (DEFAULT_FILLERS.es ?? []).flatMap((f) => phraseKeys(pack, f));
+    const fillers = (pack.fillers ?? []).flatMap((f) => phraseKeys(pack, f));
     for (const entry of pack.commands ?? []) {
       for (const phrase of entry.phrases) {
         const keys = phraseKeys(pack, phrase);

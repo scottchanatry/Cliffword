@@ -5,12 +5,13 @@
  */
 import { slangNorm, SPANISH_REGISTERS } from '../../lang/es/registers';
 import type { RegisterPack } from '../../lang/types';
-import type { PairPack } from '../types';
+import type { PairPack, StarterStory } from '../types';
 import { COGNATES } from './cognates';
 import { EXPLANATIONS } from './explanations';
 import { FALSE_FRIENDS } from './falseFriends';
 import { glossEs, toTargetEs } from './glossary';
 import { NATIVE_LEXICON_WORDS } from './nativeLexicon';
+import { EN_ES_STARTER } from './starter';
 import { UI_STRINGS } from './ui';
 
 export interface EnEsPairPackOptions {
@@ -19,9 +20,15 @@ export interface EnEsPairPackOptions {
    * (janguear, 'tá, pa'). Defaults to SPANISH_REGISTERS; pass [] to disable.
    */
   registers: readonly RegisterPack[];
+  /**
+   * The canned first story (PairPack.starter): zero-knowledge sentences, canned mode
+   * before the model is loaded, the placement ladder. Defaults to EN_ES_STARTER; pass
+   * null for a pack without one (sessions then need a model to say anything).
+   */
+  starter: StarterStory | null;
 }
 
-export const DEFAULT_EN_ES_OPTIONS: EnEsPairPackOptions = { registers: SPANISH_REGISTERS };
+export const DEFAULT_EN_ES_OPTIONS: EnEsPairPackOptions = { registers: SPANISH_REGISTERS, starter: EN_ES_STARTER };
 
 /**
  * Index the English glosses of slang entries by lemma and by norm (first entry wins,
@@ -62,6 +69,7 @@ export function createEnEsPairPack(opts: Partial<EnEsPairPackOptions> = {}): Pai
     falseFriends: Object.freeze(Object.fromEntries(FALSE_FRIENDS.map((f) => [f.es, f.warning]))),
     explanations: Object.freeze({ ...EXPLANATIONS }),
     ui: Object.freeze({ ...UI_STRINGS }),
+    ...(o.starter ? { starter: o.starter } : {}),
   };
 }
 
@@ -83,3 +91,4 @@ export { EN_IRREGULAR } from './glossaryEnEs';
 export { EXPLANATIONS, EXPLANATION_KEYS } from './explanations';
 export type { ExplanationKey } from './explanations';
 export { UI_STRINGS } from './ui';
+export { EN_ES_STARTER } from './starter';

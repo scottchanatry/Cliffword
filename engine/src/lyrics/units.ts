@@ -5,6 +5,7 @@
  */
 import type { LanguagePack } from '../lang/types';
 import { splitSentences } from '../story/text';
+import { needsLeadingSpace } from '../scoring/text';
 import type { Lyrics } from './parse';
 import { accentFolder, contentSegmentsOf, normOf } from './text';
 
@@ -108,7 +109,8 @@ export function lyricUnits(lyrics: Lyrics, skipAdlibs: boolean): TextUnit[] {
 /**
  * The text before unit `u`: up to `count` earlier units that are not skipped, each
  * followed by its separator for lines ("a\nb\n") or joined by spaces for sentences
- * ("A. B."), ready to follow a scoring prefix.
+ * ("A. B."; no space in a script written without spaces), ready to follow a scoring
+ * prefix.
  */
 export function unitsBefore(units: readonly TextUnit[], u: number, count: number): string {
   const prev: TextUnit[] = [];
@@ -119,5 +121,8 @@ export function unitsBefore(units: readonly TextUnit[], u: number, count: number
   if (prev.length === 0) return '';
   const sep = (units[u] as TextUnit).separator;
   if (sep === '\n') return prev.map((p) => p.text + '\n').join('');
+  // A space only where the script uses one: Japanese or Chinese sentences follow each
+  // other directly (needsLeadingSpace).
+  if (sep === ' ') return prev.reduce((acc, p) => (acc === '' ? p.text : acc + (needsLeadingSpace(acc) ? ' ' : '') + p.text), '');
   return prev.map((p) => p.text).join(sep);
 }

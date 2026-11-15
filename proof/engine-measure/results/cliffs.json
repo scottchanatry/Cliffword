@@ -1,0 +1,609 @@
+{
+ "meta": {
+  "when": "2026-11-15T22:24:12.254Z",
+  "load": [
+   5.27,
+   3.93,
+   2.67
+  ],
+  "cores": 4
+ },
+ "context": "Marta llegó tarde al mercado. Buscó al señor de las frutas, pero su puesto estaba cerrado. Entonces vio una nota en la puerta y empezó a",
+ "answers": [
+  {
+   "actual": "leerla",
+   "answer": "leerla",
+   "credit": "full",
+   "reason": "actual",
+   "prob": 0.09309081034773731,
+   "rank": 3,
+   "scored": "leerla",
+   "bounded": false,
+   "ms": 4067
+  },
+  {
+   "actual": "leerla",
+   "answer": "leer",
+   "credit": "full",
+   "reason": "likely",
+   "prob": 0.06901035727601908,
+   "rank": 4,
+   "scored": "leer",
+   "bounded": false,
+   "ms": 3721
+  },
+  {
+   "actual": "leerla",
+   "answer": "llorar",
+   "credit": "full",
+   "reason": "likely",
+   "prob": 0.3295411648635398,
+   "rank": 1,
+   "scored": "llorar",
+   "bounded": false,
+   "ms": 3769
+  },
+  {
+   "actual": "leerla",
+   "answer": "reír",
+   "credit": "none",
+   "reason": "unlikely",
+   "prob": 0.0005571401871270613,
+   "rank": null,
+   "scored": "reír",
+   "bounded": false,
+   "ms": 4078
+  },
+  {
+   "actual": "leerla",
+   "answer": "reir",
+   "credit": "none",
+   "reason": "unlikely",
+   "prob": 0.0005571401871270613,
+   "rank": null,
+   "scored": "reír",
+   "bounded": false,
+   "ms": 3855
+  },
+  {
+   "actual": "leerla",
+   "answer": "gritar",
+   "credit": "none",
+   "reason": "unlikely",
+   "prob": 0.00104811428279216,
+   "rank": null,
+   "scored": "gritar",
+   "bounded": false,
+   "ms": 3631
+  },
+  {
+   "actual": "leerla",
+   "answer": "sonreír",
+   "credit": "partial",
+   "reason": "plausible",
+   "prob": 0.010887735893071704,
+   "rank": null,
+   "scored": "sonreír",
+   "bounded": false,
+   "ms": 3996
+  },
+  {
+   "actual": "leerla",
+   "answer": "mesa",
+   "credit": "none",
+   "reason": "unlikely",
+   "prob": 1.7335960194063552e-9,
+   "rank": null,
+   "scored": "mesa",
+   "bounded": false,
+   "ms": 3851
+  },
+  {
+   "actual": "leerla",
+   "answer": "verde",
+   "credit": "none",
+   "reason": "unlikely",
+   "prob": 1.4157583618080324e-7,
+   "rank": null,
+   "scored": "verde",
+   "bounded": false,
+   "ms": 3850
+  },
+  {
+   "actual": "leerla",
+   "answer": "puerta",
+   "credit": "none",
+   "reason": "unlikely",
+   "prob": 5.089776006360769e-9,
+   "rank": null,
+   "scored": "puerta",
+   "bounded": false,
+   "ms": 3997
+  },
+  {
+   "actual": "leerla",
+   "answer": "lee",
+   "credit": "partial",
+   "reason": "form",
+   "prob": 6.213211777819244e-7,
+   "rank": null,
+   "scored": "lee",
+   "bounded": false,
+   "ms": 3970
+  },
+  {
+   "actual": "leerla",
+   "answer": "leyó",
+   "credit": "partial",
+   "reason": "form",
+   "prob": 7.529117542941364e-9,
+   "rank": null,
+   "scored": "leyó",
+   "bounded": false,
+   "ms": 4084
+  },
+  {
+   "actual": "leerla",
+   "answer": "leía",
+   "credit": "partial",
+   "reason": "form",
+   "prob": 3.122487957419734e-9,
+   "rank": null,
+   "scored": "leía",
+   "bounded": false,
+   "ms": 11449
+  },
+  {
+   "actual": "leerla",
+   "answer": "comió",
+   "credit": "none",
+   "reason": "unlikely",
+   "prob": 2.273611203078062e-7,
+   "rank": null,
+   "scored": "comió",
+   "bounded": false,
+   "ms": 3898
+  },
+  {
+   "actual": "leerla",
+   "answer": "xyzzy",
+   "credit": "none",
+   "reason": "unlikely",
+   "prob": 9.819992784051046e-16,
+   "rank": null,
+   "scored": "xyzzy",
+   "bounded": false,
+   "ms": 5585
+  },
+  {
+   "actual": "leerla",
+   "answer": "read",
+   "credit": "none",
+   "reason": "unlikely",
+   "prob": 0.000001509367497007927,
+   "rank": null,
+   "scored": "read",
+   "bounded": false,
+   "ms": 3864
+  },
+  {
+   "actual": "leerla en voz alta",
+   "answer": "leerla en voz alta",
+   "credit": "full",
+   "reason": "actual",
+   "prob": 0.00006991566496743318,
+   "rank": null,
+   "scored": "leerla en voz alta",
+   "bounded": false,
+   "ms": 3804
+  },
+  {
+   "actual": "leerla en voz alta",
+   "answer": "leer la nota",
+   "credit": "partial",
+   "reason": "plausible",
+   "prob": 0.0006750214163031391,
+   "rank": null,
+   "scored": "leer la nota",
+   "bounded": false,
+   "ms": 3812
+  },
+  {
+   "actual": "leerla en voz alta",
+   "answer": "leerla",
+   "credit": "partial",
+   "reason": "plausible",
+   "prob": 0.09309081034773731,
+   "rank": 3,
+   "scored": "leerla",
+   "bounded": false,
+   "ms": 3785
+  },
+  {
+   "actual": "leerla en voz alta",
+   "answer": "llorar",
+   "credit": "partial",
+   "reason": "plausible",
+   "prob": 0.3295411648635398,
+   "rank": 1,
+   "scored": "llorar",
+   "bounded": false,
+   "ms": 4109
+  },
+  {
+   "actual": "leerla en voz alta",
+   "answer": "reír a carcajadas",
+   "credit": "partial",
+   "reason": "plausible",
+   "prob": 4.9935066345013676e-8,
+   "rank": null,
+   "scored": "reír a carcajadas",
+   "bounded": false,
+   "ms": 5754
+  },
+  {
+   "actual": "leerla en voz alta",
+   "answer": "leerla en silencio",
+   "credit": "partial",
+   "reason": "plausible",
+   "prob": 7.05025474971515e-7,
+   "rank": null,
+   "scored": "leerla en silencio",
+   "bounded": false,
+   "ms": 5556
+  },
+  {
+   "actual": "leerla en voz alta",
+   "answer": "mesa verde grande",
+   "credit": "none",
+   "reason": "unlikely",
+   "prob": 7.36202525459796e-20,
+   "rank": null,
+   "scored": "mesa verde grande",
+   "bounded": false,
+   "ms": 3919
+  },
+  {
+   "actual": "leerla en voz alta",
+   "answer": "lee la nota",
+   "credit": "none",
+   "reason": "unlikely",
+   "prob": 1.0401514819630986e-8,
+   "rank": null,
+   "scored": "lee la nota",
+   "bounded": false,
+   "ms": 4180
+  }
+ ],
+ "alternatives": [
+  {
+   "word": "llorar",
+   "prob": 0.3295
+  },
+  {
+   "word": "correr",
+   "prob": 0.2266
+  },
+  {
+   "word": "leerla",
+   "prob": 0.0931
+  },
+  {
+   "word": "leer",
+   "prob": 0.069
+  },
+  {
+   "word": "caminar",
+   "prob": 0.044
+  },
+  {
+   "word": "pensar",
+   "prob": 0.0333
+  },
+  {
+   "word": "buscar",
+   "prob": 0.0172
+  },
+  {
+   "word": "escribir",
+   "prob": 0.0159
+  },
+  {
+   "word": "reírse",
+   "prob": 0.0143
+  },
+  {
+   "word": "preocuparse",
+   "prob": 0.0131
+  }
+ ],
+ "top10": [
+  {
+   "answer": "leerla",
+   "credit": "full",
+   "reason": "actual",
+   "prob": 0.09309081034773731,
+   "bounded": false
+  },
+  {
+   "answer": "leer",
+   "credit": "full",
+   "reason": "likely",
+   "prob": 0.06901035727601908,
+   "bounded": false
+  },
+  {
+   "answer": "llorar",
+   "credit": "full",
+   "reason": "likely",
+   "prob": 0.3295411648635398,
+   "bounded": false
+  },
+  {
+   "answer": "reír",
+   "credit": "none",
+   "reason": "unlikely",
+   "prob": 0.0005571401871270613,
+   "bounded": false
+  },
+  {
+   "answer": "reir",
+   "credit": "none",
+   "reason": "unlikely",
+   "prob": 0.0005571401871270613,
+   "bounded": false
+  },
+  {
+   "answer": "gritar",
+   "credit": "none",
+   "reason": "unlikely",
+   "prob": 0.01276634465013683,
+   "bounded": true
+  },
+  {
+   "answer": "sonreír",
+   "credit": "partial",
+   "reason": "plausible",
+   "prob": 0.010887735893071704,
+   "bounded": false
+  },
+  {
+   "answer": "mesa",
+   "credit": "none",
+   "reason": "unlikely",
+   "prob": 0.01243349247143143,
+   "bounded": true
+  },
+  {
+   "answer": "verde",
+   "credit": "none",
+   "reason": "unlikely",
+   "prob": 0.011634417389272327,
+   "bounded": true
+  },
+  {
+   "answer": "puerta",
+   "credit": "none",
+   "reason": "unlikely",
+   "prob": 0.00009940458886044634,
+   "bounded": true
+  },
+  {
+   "answer": "lee",
+   "credit": "partial",
+   "reason": "form",
+   "prob": 0.011991109222586414,
+   "bounded": true
+  },
+  {
+   "answer": "leyó",
+   "credit": "partial",
+   "reason": "form",
+   "prob": 0.00000457184182553648,
+   "bounded": true
+  },
+  {
+   "answer": "leía",
+   "credit": "partial",
+   "reason": "form",
+   "prob": 0.00004806286148673608,
+   "bounded": true
+  },
+  {
+   "answer": "comió",
+   "credit": "none",
+   "reason": "unlikely",
+   "prob": 0.000019478392649154326,
+   "bounded": true
+  },
+  {
+   "answer": "xyzzy",
+   "credit": "none",
+   "reason": "unlikely",
+   "prob": 0.00002221309542119344,
+   "bounded": true
+  },
+  {
+   "answer": "read",
+   "credit": "none",
+   "reason": "unlikely",
+   "prob": 0.0001476979949853692,
+   "bounded": true
+  }
+ ],
+ "positions": {
+  "ms": 37144,
+  "perPositionMs": 2653,
+  "rows": [
+   {
+    "word": "Entonces",
+    "actualProb": 0.0395,
+    "plausible": 7,
+    "top": [
+     "Ella 0.16",
+     "No 0.05",
+     "Se 0.05",
+     "Entonces 0.04",
+     "El 0.03"
+    ]
+   },
+   {
+    "word": "vio",
+    "actualProb": 0.0042,
+    "plausible": 2,
+    "top": [
+     "se 0.07",
+     "ella 0.03",
+     "decidió 0.02",
+     "buscó 0.01",
+     "le 0.01"
+    ]
+   },
+   {
+    "word": "una",
+    "actualProb": 0.0327,
+    "plausible": 5,
+    "top": [
+     "a 0.51",
+     "un 0.20",
+     "que 0.04",
+     "una 0.03",
+     "al 0.02"
+    ]
+   },
+   {
+    "word": "nota",
+    "actualProb": 0.0043,
+    "plausible": 5,
+    "top": [
+     "caja 0.27",
+     "fruta 0.04",
+     "flor 0.03",
+     "botella 0.02",
+     "señora 0.02"
+    ]
+   },
+   {
+    "word": "en",
+    "actualProb": 0.2105,
+    "plausible": 7,
+    "top": [
+     "que 0.43",
+     "en 0.21",
+     "de 0.10",
+     "escrita 0.06",
+     "sobre 0.04"
+    ]
+   },
+   {
+    "word": "la",
+    "actualProb": 0.2149,
+    "plausible": 2,
+    "top": [
+     "el 0.74",
+     "la 0.21",
+     "un 0.01",
+     "una 0.01",
+     "las 0.00"
+    ]
+   },
+   {
+    "word": "puerta",
+    "actualProb": 0.1761,
+    "plausible": 7,
+    "top": [
+     "pared 0.49",
+     "puerta 0.18",
+     "calle 0.04",
+     "acera 0.03",
+     "que 0.03"
+    ]
+   },
+   {
+    "word": "y",
+    "actualProb": 0.0033,
+    "plausible": 3,
+    "top": [
+     "de 0.39",
+     "del 0.26",
+     "que 0.09",
+     "y 0.00",
+     "con 0.00"
+    ]
+   },
+   {
+    "word": "empezó",
+    "actualProb": 0.0005,
+    "plausible": 5,
+    "top": [
+     "se 0.65",
+     "leyó 0.12",
+     "la 0.06",
+     "le 0.05",
+     "leía 0.03"
+    ]
+   },
+   {
+    "word": "a",
+    "actualProb": 0.9429,
+    "plausible": 1,
+    "top": [
+     "a 0.94"
+    ]
+   },
+   {
+    "word": "leerla",
+    "actualProb": 0.0931,
+    "plausible": 6,
+    "top": [
+     "llorar 0.33",
+     "correr 0.23",
+     "leerla 0.09",
+     "leer 0.07",
+     "caminar 0.04"
+    ]
+   },
+   {
+    "word": "en",
+    "actualProb": 0.0009,
+    "plausible": 1,
+    "top": [
+     "con 0.03",
+     "y 0.00"
+    ]
+   },
+   {
+    "word": "voz",
+    "actualProb": 0.8715,
+    "plausible": 3,
+    "top": [
+     "voz 0.87",
+     "la 0.03",
+     "el 0.03",
+     "silencio 0.01",
+     "español 0.01"
+    ]
+   },
+   {
+    "word": "alta",
+    "actualProb": 0.9773,
+    "plausible": 1,
+    "top": [
+     "alta 0.98",
+     "baja 0.00",
+     "muy 0.00"
+    ]
+   }
+  ]
+ },
+ "calls": {
+  "nextTokens": {
+   "calls": 1088,
+   "msPerCall": 747.8
+  },
+  "scoreContinuation": {
+   "calls": 28,
+   "msPerCall": 101.2
+  }
+ }
+}

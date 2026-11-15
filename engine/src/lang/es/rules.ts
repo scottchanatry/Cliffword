@@ -247,12 +247,18 @@ export const PERSONAL_A_INSERT_RULE: InsertRule = {
   notBeforeWords: ['el'],
 };
 
-/** Personal "a" where none belongs: "Tengo a un perro" -> "Tengo un perro". */
+/**
+ * Personal "a" where none belongs: "Tengo a un perro" -> "Tengo un perro". Never before
+ * a verb: "a" + infinitive is a preposition the verb requires ("empezó a llover", "vamos
+ * a cenar", "Vamo' a janguear"), and deleting it was the commonest junk variant on the
+ * real model (proof/ENGINE_REAL_MODEL.md: asserted "Vamo' a janguear" in neutral).
+ */
 export const PERSONAL_A_DELETE_RULE: DeleteRule = {
   id: 'es.personal_a.delete',
   kind: 'delete',
   explainKey: 'es.personal_a',
   words: ['a'],
+  notBeforePos: ['VERB', 'AUX'],
 };
 
 /** The articles the article rules insert and delete. */
@@ -299,6 +305,12 @@ export const ARTICLE_DELETE_RULE: DeleteRule = {
   kind: 'delete',
   explainKey: 'es.article',
   words: [...SPANISH_ARTICLES],
+  // la/los/las before a verb are object pronouns ("La invité a cenar.", "cuando la
+  // conocí"): deleting them gave the only false assert on the 93 correct proof sentences
+  // (+8.7 nats on Qwen3-1.7B, proof/ENGINE_REAL_MODEL.md). An article before "que" or
+  // "de" stands for a noun ("la que hay", "la de mi madre"), never a stray article.
+  notBeforePos: ['VERB', 'AUX'],
+  notBeforeWords: ['que', 'de', 'del'],
 };
 
 // ---------------------------------------------------------------------------

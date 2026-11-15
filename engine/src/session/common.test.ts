@@ -148,7 +148,7 @@ describe('landing data', () => {
     expect(o.headline).toEqual({ key: 'landing.likely' });
     expect(o.timesIn100).toBe(31);
     expect(o.notes).toEqual([
-      { key: 'landing.timesIn100', params: { n: 31 } },
+      { key: 'landing.timesInHundred', params: { n: 31 } },
       { key: 'landing.justAsNatural', params: { word: 'leer' } },
     ]);
     expect(o.points.map((p) => p.text)).toEqual(['comer', 'reír', 'llorar', 'leer']);

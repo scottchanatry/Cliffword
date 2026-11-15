@@ -12,7 +12,7 @@ import { PlacementTracker, rankOfFromPack } from '../learner/placement';
 import { DEFAULT_DIFFICULTY_OPTIONS } from '../learner/difficulty';
 import type { Alignment } from '../speaking/align';
 import { looseKey, normOf } from '../lyrics/text';
-import { DEFAULT_ACCENT_MARKS } from '../scoring/text';
+import { DEFAULT_ACCENT_MARKS, needsLeadingSpace } from '../scoring/text';
 import type { AlignmentView, PriorSpec, SessionSettings, TextMode } from './types';
 
 /**
@@ -159,4 +159,20 @@ export function plain<T>(value: T): T {
 /** Credited speaking time is added only for finite, positive lengths. */
 export function finitePositive(x: number | undefined): number {
   return typeof x === 'number' && Number.isFinite(x) && x > 0 ? x : 0;
+}
+
+/**
+ * The space to put between a text and what follows it: ' ' when needsLeadingSpace says
+ * so (after a word or a full stop in a language written with spaces), '' otherwise (an
+ * empty text, a trailing space, a script written without spaces such as Japanese).
+ */
+export function leadAfter(text: string): string {
+  return needsLeadingSpace(text) ? ' ' : '';
+}
+
+/** Sentences joined into one text, with a space between them only where the script uses one. */
+export function joinSentences(parts: readonly string[]): string {
+  let out = '';
+  for (const p of parts) out += (out ? leadAfter(out) : '') + p;
+  return out;
 }

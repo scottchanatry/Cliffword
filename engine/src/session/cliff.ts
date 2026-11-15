@@ -301,7 +301,7 @@ export function buildOutcome(result: CliffResult, ctx: OutcomeContext): CliffOut
     .map((p) => ({ ...p, x: Math.min(1, Math.max(0, (Math.log(Math.max(p.prob, o.floor)) - lo) / (hi - lo))) }))
     .sort((a, b) => a.x - b.x || (a.text < b.text ? -1 : a.text > b.text ? 1 : 0));
 
-  if (outcome.timesIn100 !== null && outcome.timesIn100 >= 1) outcome.notes.push({ key: 'landing.timesIn100', params: { n: outcome.timesIn100 } });
+  if (outcome.timesIn100 !== null && outcome.timesIn100 >= 1) outcome.notes.push({ key: 'landing.timesInHundred', params: { n: outcome.timesIn100 } });
   const topAlt = result.alternatives[0]?.prob ?? 0;
   const natural = (p: number) => (topAlt > 0 && p >= o.naturalRatio * topAlt) || p >= o.naturalFloor;
   let other: string | undefined;

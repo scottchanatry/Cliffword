@@ -137,7 +137,7 @@ describe('answers at the cliff', () => {
     expect(o.timesIn100).toBe(Math.round((o.prob as number) * 100));
     expect(o.points.find((p) => p.answer)?.text).toBe('llorar');
     expect(o.points.length).toBeGreaterThanOrEqual(3);
-    expect(o.notes[0]).toEqual({ key: 'landing.timesIn100', params: { n: o.timesIn100 as number } });
+    expect(o.notes[0]).toEqual({ key: 'landing.timesInHundred', params: { n: o.timesIn100 as number } });
     expect(o.headline).toEqual({ key: 'landing.likely' });
   });
 
@@ -576,7 +576,8 @@ describe('model sentences', () => {
   });
 
   it('shows an error screen (and tries again on next) when there is nothing at all to say', async () => {
-    const s = make({ pair: createDefaultPairPack() });
+    // createDefaultPairPack() now carries EN_ES_STARTER; this case needs a pack without one.
+    const s = make({ pair: { ...createDefaultPairPack(), starter: undefined } });
     const st = await s.next(T0);
     expect(screenOf(st, 'error').ui).toEqual({ key: 'story.noSentence' });
     expect((await s.next(T0 + 1)).screen.kind).toBe('error');

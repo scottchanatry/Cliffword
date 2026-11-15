@@ -85,6 +85,8 @@ import {
   effectiveRate,
   finitePositive,
   hintFor,
+  joinSentences,
+  leadAfter,
   looseText,
   plain,
   resolveSessionSettings,
@@ -818,7 +820,7 @@ export class StorySession {
   }
 
   private storyText(): string {
-    return this.state.story.slice(-this.o.contextSentences).join(' ');
+    return joinSentences(this.state.story.slice(-this.o.contextSentences));
   }
 
   private scoringCtx(before: string, text: string): string {
@@ -856,7 +858,7 @@ export class StorySession {
     const first = words[span.wordIndex];
     if (!first) return null;
     const storyText = this.storyText();
-    const lead = storyText ? ' ' : '';
+    const lead = leadAfter(storyText);
     const upToCliff = lead + s.text.slice(0, span.start);
     const params = this.params(at);
     const rung = cliffRungFor(this.deps.learner, first.key, at);
@@ -972,7 +974,7 @@ export class StorySession {
       const words = sentenceWords(pack, cand.text, this.regOpts());
       if (!settings.showExplicit && words.some((w) => w.explicit)) continue;
       if (tries >= this.o.candidateTries) break;
-      const cur = await this.cutCliff(model, cand.text, words, story.join(' '), forced ? [forced.key] : cand.targetsHit, targets, params, at, forced);
+      const cur = await this.cutCliff(model, cand.text, words, joinSentences(story), forced ? [forced.key] : cand.targetsHit, targets, params, at, forced);
       if (cur === 'no_position') continue;
       tries += 1;
       if (cur) return cur;
@@ -1000,7 +1002,7 @@ export class StorySession {
     forced?: { key: string; rank: number },
   ): Promise<CurrentSentence | null | 'no_position'> {
     const pack = this.deps.pack;
-    const lead = storyText ? ' ' : '';
+    const lead = leadAfter(storyText);
     const sentenceText = lead + sentence;
     const context = this.scoringCtx(storyText, sentenceText);
     const pickCtx = {
@@ -1535,7 +1537,7 @@ export class StorySession {
       judge: { before: storyText, register, regions },
       flow: { ...this.o.repair, register, regions },
     });
-    const lead = storyText ? ' ' : '';
+    const lead = leadAfter(storyText);
     const scores = await scoreWords(model, pack, this.scoringCtx(storyText, lead + transcript), lead + transcript, register === 'street' ? { exempt: slangExemption(pack, regions) } : {});
     const said: SaidWord[] = scores.map((w) => ({ text: w.segment.text, heat: w.heat }));
     const h = turn.repair.highlight;
@@ -1594,7 +1596,7 @@ export class StorySession {
   // -- retell -------------------------------------------------------------------
 
   private startRetell(at: number): StoryStep {
-    const scene = this.state.chapterSentences.join(' ');
+    const scene = joinSentences(this.state.chapterSentences);
     this.state.retell = { round: 0, scene, results: [], stats: [] };
     this.state.phase = 'retell';
     this.state.screen = this.retellScreen();

@@ -22,6 +22,8 @@ export {
   buildPrior,
   effectiveRate,
   hintFor,
+  joinSentences,
+  leadAfter,
   looseText,
   resolveSessionSettings,
   sameWords,

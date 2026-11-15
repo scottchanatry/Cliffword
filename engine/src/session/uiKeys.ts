@@ -4,7 +4,7 @@
  * through sessions are listed too (repair.*, retell.round, stats.understood, echo.landed,
  * lyrics.answer.*).
  *
- * Placeholders: cliff.hint {sound}; landing.timesIn100 {n}; landing.justAsNatural {word};
+ * Placeholders: cliff.hint {sound}; landing.timesInHundred {n}; landing.justAsNatural {word};
  * story.asks {speaker}; retell.round {round} {rounds} {seconds}; stats.understood {n}
  * {m}; echo.landed {n} {m}; repair.expected {expected}; repair.fix {fix} {expected};
  * lyrics.answer.* {answer} {lyric} {street} {neutral}.
@@ -22,7 +22,7 @@ export const SESSION_UI_KEYS: readonly string[] = [
   'landing.plausible',
   'landing.form',
   'landing.unlikely',
-  'landing.timesIn100',
+  'landing.timesInHundred',
   'landing.justAsNatural',
   // Learner turns and self-repair.
   'story.asks',

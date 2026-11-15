@@ -17,7 +17,7 @@
  *      clipping only drops sounds, so "mai" (neutral "mamá") or "klk" (neutral "qué
  *      tal") are other words, not shortened ones;
  *    - 'suffix': a regular street ending (options.streetSuffixes, by default
- *      DEFAULT_STREET_SUFFIXES[pack.code]: Spanish -ado ~ -ao, "cansado" ~ "cansao").
+ *      LanguagePack.streetEndings: Spanish -ado ~ -ao, "cansado" ~ "cansao").
  * 3. Spans of up to maxSpan words on either side may match as a unit: when their keys
  *    concatenate to the same string (the recognizer split or joined a word: "pa lante"
  *    for "pa'lante") or, in street register, through a multi-word clipped form ("pa'l" ~
@@ -34,7 +34,6 @@ import type { LanguagePack, Register } from '../lang/types';
 import { alignWords } from '../lyrics/align';
 import type { WordEquivalent } from '../lyrics/align';
 import { DEFAULT_ACCENT_MARKS } from '../scoring/text';
-import { defaultStreetSuffixes } from './langDefaults';
 import type { SpokenWord, UiText } from './text';
 import { applicableRegisters, charDistance, codeLength, isSubsequence, phraseKeys, spokenWords } from './text';
 
@@ -53,7 +52,7 @@ export interface AlignTranscriptOptions {
    * pack of the language pack.
    */
   regions: readonly string[];
-  /** Regular street endings [full, street]; undefined: DEFAULT_STREET_SUFFIXES[pack.code]. */
+  /** Regular street endings [full, street]; undefined: LanguagePack.streetEndings (none when absent). */
   streetSuffixes: readonly (readonly [string, string])[] | undefined;
   /** Longest span (in words, either side) that may match as a unit. */
   maxSpan: number;
@@ -278,7 +277,7 @@ function spanEquivalents(E: readonly SpokenWord[], H: readonly SpokenWord[], ctx
 export function alignTranscript(
   expected: string,
   heard: string,
-  pack: Pick<LanguagePack, 'code' | 'segment' | 'normalize' | 'foldAccents' | 'registers'>,
+  pack: Pick<LanguagePack, 'code' | 'segment' | 'normalize' | 'foldAccents' | 'registers' | 'streetEndings'>,
   opts: Partial<AlignTranscriptOptions> = {},
 ): Alignment {
   const o: AlignTranscriptOptions = { ...DEFAULT_ALIGN_TRANSCRIPT_OPTIONS, ...opts };
@@ -288,7 +287,7 @@ export function alignTranscript(
   const ctx: MatchContext = {
     street,
     clipped: street ? clippedEquivalences(pack, o.regions, o.marks) : new Map(),
-    suffixes: street ? (o.streetSuffixes ?? defaultStreetSuffixes(pack.code)) : [],
+    suffixes: street ? (o.streetSuffixes ?? pack.streetEndings ?? []) : [],
   };
   const maxSpan = Math.max(1, Math.floor(o.maxSpan));
   const steps = alignWords(

@@ -1,0 +1,1838 @@
+{
+ "meta": {
+  "when": "2026-11-15T22:34:00.824Z",
+  "load": [
+   5.5,
+   4.75,
+   3.58
+  ],
+  "cores": 4
+ },
+ "calls": {
+  "generate": {
+   "calls": 20,
+   "msPerCall": 5733
+  }
+ },
+ "rows": [
+  {
+   "learner": "brand new (cognate prior)",
+   "vocab": 225,
+   "sentenceWords": {
+    "min": 4.245181026308491,
+    "max": 8.628715499984592
+   },
+   "band": {
+    "min": 0.95,
+    "max": 0.98
+   },
+   "targets": [
+    "es:el",
+    "es:de"
+   ],
+   "seed": 1,
+   "ms": 9153,
+   "generateMs": 9010,
+   "sentence": "El y de _.",
+   "inBand": false,
+   "retried": true,
+   "candidates": 8,
+   "accepted": 8,
+   "inBandCandidates": 0,
+   "rejects": {},
+   "bestShare": 0.002,
+   "targetsHit": [
+    "es:el",
+    "es:de"
+   ],
+   "rounds": [
+    {
+     "simple": false,
+     "raw": [
+      " \"El y de _______.\" ",
+      " \"El y de...\" ",
+      " \"El y de _______ _______ _______ _______ _______ _______ _______ _______ _______ _______ _______",
+      " El y de ________."
+     ],
+     "cleaned": [
+      "El y de _.",
+      "El y de...",
+      "El y de _ _ _ _ _ _ _ _ _ _ _.",
+      "El y de."
+     ]
+    },
+    {
+     "simple": true,
+     "raw": [
+      " El gato se comió el ratón.  ",
+      " \"El perro saltó sobre el tómbolo.\" ",
+      " \"La luna se mantiene en el cielo durante la noche.\"",
+      " \"Un hombre caminaba hacia el oeste, llevando un puente de madera sobre un río.\" (1"
+     ],
+     "cleaned": [
+      "El gato se comió el ratón.",
+      "El perro saltó sobre el tómbolo.",
+      "La luna se mantiene en el cielo durante la noche.",
+      "Un hombre caminaba hacia el oeste, llevando un puente de madera sobre un río."
+     ]
+    }
+   ],
+   "ranked": [
+    {
+     "text": "El y de _.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 3 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 3 words vs 4.245..8.629 (-1.245)",
+      "unknown non-targets: es:y; allowance 0.322 (-2.713)"
+     ]
+    },
+    {
+     "text": "El y de...",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 3 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 3 words vs 4.245..8.629 (-1.245)",
+      "unknown non-targets: es:y; allowance 0.322 (-2.713)"
+     ]
+    },
+    {
+     "text": "El y de _ _ _ _ _ _ _ _ _ _ _.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 3 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 3 words vs 4.245..8.629 (-1.245)",
+      "unknown non-targets: es:y; allowance 0.322 (-2.713)"
+     ]
+    },
+    {
+     "text": "El y de.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 3 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 3 words vs 4.245..8.629 (-1.245)",
+      "unknown non-targets: es:y; allowance 0.322 (-2.713)"
+     ]
+    },
+    {
+     "text": "El gato se comió el ratón.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 6 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el (+3)",
+      "length 6 words vs 4.245..8.629",
+      "unknown non-targets: es:gato, es:se, es:comer, es:ratón; allowance 0.322 (-14.713)"
+     ]
+    },
+    {
+     "text": "El perro saltó sobre el tómbolo.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 6 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el (+3)",
+      "length 6 words vs 4.245..8.629",
+      "unknown non-targets: es:perro, es:saltar, es:sobre, es:tómbolo; allowance 0.322 (-14.713)"
+     ]
+    },
+    {
+     "text": "La luna se mantiene en el cielo durante la noche.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 10 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el (+3)",
+      "length 10 words vs 4.245..8.629 (-1.371)",
+      "unknown non-targets: es:luna, es:se, es:mantener, es:en, es:cielo, es:durante, es:noche; allowance 0.322 (-26.713)"
+     ]
+    },
+    {
+     "text": "Un hombre caminaba hacia el oeste, llevando un puente de madera sobre un río.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 14 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 14 words vs 4.245..8.629 (-5.371)",
+      "unknown non-targets: es:un, es:hombre, es:caminar, es:hacia, es:oeste, es:llevar, es:puente, es:madera, es:sobre, es:río; allowance 0.322 (-38.713)"
+     ]
+    }
+   ]
+  },
+  {
+   "learner": "brand new (cognate prior)",
+   "vocab": 225,
+   "sentenceWords": {
+    "min": 4.245181026308491,
+    "max": 8.628715499984592
+   },
+   "band": {
+    "min": 0.95,
+    "max": 0.98
+   },
+   "targets": [
+    "es:el",
+    "es:de"
+   ],
+   "seed": 2,
+   "ms": 8446,
+   "generateMs": 8439,
+   "sentence": "El y de...",
+   "inBand": false,
+   "retried": true,
+   "candidates": 8,
+   "accepted": 8,
+   "inBandCandidates": 0,
+   "rejects": {},
+   "bestShare": 0.002,
+   "targetsHit": [
+    "es:el",
+    "es:de"
+   ],
+   "rounds": [
+    {
+     "simple": false,
+     "raw": [
+      " \"El y de...\" ",
+      " \"El y de _______ _______ _______ _______ _______ _______ _______ _______ _______ _______ _______",
+      " El y de ________.",
+      " El y de se come en la cena. (Esta oración es incorrecta, pero se puede usar como base para construir"
+     ],
+     "cleaned": [
+      "El y de...",
+      "El y de _ _ _ _ _ _ _ _ _ _ _.",
+      "El y de.",
+      "El y de se come en la cena."
+     ]
+    },
+    {
+     "simple": true,
+     "raw": [
+      " \"El perro saltó sobre el tómbolo.\" ",
+      " \"La luna se mantiene en el cielo durante la noche.\"",
+      " \"Un hombre caminaba hacia el oeste, llevando un puente de madera sobre un río.\" (1",
+      " El perro de Pablo come un perrito."
+     ],
+     "cleaned": [
+      "El perro saltó sobre el tómbolo.",
+      "La luna se mantiene en el cielo durante la noche.",
+      "Un hombre caminaba hacia el oeste, llevando un puente de madera sobre un río.",
+      "El perro de Pablo come un perrito."
+     ]
+    }
+   ],
+   "ranked": [
+    {
+     "text": "El y de...",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 3 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 3 words vs 4.245..8.629 (-1.245)",
+      "unknown non-targets: es:y; allowance 0.322 (-2.713)"
+     ]
+    },
+    {
+     "text": "El y de _ _ _ _ _ _ _ _ _ _ _.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 3 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 3 words vs 4.245..8.629 (-1.245)",
+      "unknown non-targets: es:y; allowance 0.322 (-2.713)"
+     ]
+    },
+    {
+     "text": "El y de.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 3 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 3 words vs 4.245..8.629 (-1.245)",
+      "unknown non-targets: es:y; allowance 0.322 (-2.713)"
+     ]
+    },
+    {
+     "text": "El perro de Pablo come un perrito.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 6 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 7 words vs 4.245..8.629",
+      "unknown non-targets: es:perro, es:comer, es:un, es:perrito; allowance 0.322 (-14.713)"
+     ]
+    },
+    {
+     "text": "El perro saltó sobre el tómbolo.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 6 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el (+3)",
+      "length 6 words vs 4.245..8.629",
+      "unknown non-targets: es:perro, es:saltar, es:sobre, es:tómbolo; allowance 0.322 (-14.713)"
+     ]
+    },
+    {
+     "text": "El y de se come en la cena.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 8 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 8 words vs 4.245..8.629",
+      "unknown non-targets: es:y, es:se, es:comer, es:en, es:cenar; allowance 0.322 (-18.713)"
+     ]
+    },
+    {
+     "text": "La luna se mantiene en el cielo durante la noche.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 10 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el (+3)",
+      "length 10 words vs 4.245..8.629 (-1.371)",
+      "unknown non-targets: es:luna, es:se, es:mantener, es:en, es:cielo, es:durante, es:noche; allowance 0.322 (-26.713)"
+     ]
+    },
+    {
+     "text": "Un hombre caminaba hacia el oeste, llevando un puente de madera sobre un río.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 14 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 14 words vs 4.245..8.629 (-5.371)",
+      "unknown non-targets: es:un, es:hombre, es:caminar, es:hacia, es:oeste, es:llevar, es:puente, es:madera, es:sobre, es:río; allowance 0.322 (-38.713)"
+     ]
+    }
+   ]
+  },
+  {
+   "learner": "brand new (cognate prior)",
+   "vocab": 225,
+   "sentenceWords": {
+    "min": 4.245181026308491,
+    "max": 8.628715499984592
+   },
+   "band": {
+    "min": 0.95,
+    "max": 0.98
+   },
+   "targets": [
+    "es:el",
+    "es:de"
+   ],
+   "seed": 3,
+   "ms": 11691,
+   "generateMs": 11685,
+   "sentence": "El y de _ _ _ _ _ _ _ _ _ _ _.",
+   "inBand": false,
+   "retried": true,
+   "candidates": 8,
+   "accepted": 8,
+   "inBandCandidates": 0,
+   "rejects": {},
+   "bestShare": 0.002,
+   "targetsHit": [
+    "es:el",
+    "es:de"
+   ],
+   "rounds": [
+    {
+     "simple": false,
+     "raw": [
+      " \"El y de _______ _______ _______ _______ _______ _______ _______ _______ _______ _______ _______",
+      " El y de ________.",
+      " El y de se come en la cena. (Esta oración es incorrecta, pero se puede usar como base para construir",
+      " \"El y de son amigos.\" "
+     ],
+     "cleaned": [
+      "El y de _ _ _ _ _ _ _ _ _ _ _.",
+      "El y de.",
+      "El y de se come en la cena.",
+      "El y de son amigos."
+     ]
+    },
+    {
+     "simple": true,
+     "raw": [
+      " \"La luna se mantiene en el cielo durante la noche.\"",
+      " \"Un hombre caminaba hacia el oeste, llevando un puente de madera sobre un río.\" (1",
+      " El perro de Pablo come un perrito.",
+      " El perro corre por la calle."
+     ],
+     "cleaned": [
+      "La luna se mantiene en el cielo durante la noche.",
+      "Un hombre caminaba hacia el oeste, llevando un puente de madera sobre un río.",
+      "El perro de Pablo come un perrito.",
+      "El perro corre por la calle."
+     ]
+    }
+   ],
+   "ranked": [
+    {
+     "text": "El y de _ _ _ _ _ _ _ _ _ _ _.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 3 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 3 words vs 4.245..8.629 (-1.245)",
+      "unknown non-targets: es:y; allowance 0.322 (-2.713)"
+     ]
+    },
+    {
+     "text": "El y de.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 3 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 3 words vs 4.245..8.629 (-1.245)",
+      "unknown non-targets: es:y; allowance 0.322 (-2.713)"
+     ]
+    },
+    {
+     "text": "El y de son amigos.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 5 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 5 words vs 4.245..8.629",
+      "unknown non-targets: es:y, es:ser, es:amigo; allowance 0.322 (-10.713)"
+     ]
+    },
+    {
+     "text": "El perro de Pablo come un perrito.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 6 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 7 words vs 4.245..8.629",
+      "unknown non-targets: es:perro, es:comer, es:un, es:perrito; allowance 0.322 (-14.713)"
+     ]
+    },
+    {
+     "text": "El perro corre por la calle.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 6 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el (+3)",
+      "length 6 words vs 4.245..8.629",
+      "unknown non-targets: es:perro, es:correr, es:por, es:calle; allowance 0.322 (-14.713)"
+     ]
+    },
+    {
+     "text": "El y de se come en la cena.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 8 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 8 words vs 4.245..8.629",
+      "unknown non-targets: es:y, es:se, es:comer, es:en, es:cenar; allowance 0.322 (-18.713)"
+     ]
+    },
+    {
+     "text": "La luna se mantiene en el cielo durante la noche.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 10 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el (+3)",
+      "length 10 words vs 4.245..8.629 (-1.371)",
+      "unknown non-targets: es:luna, es:se, es:mantener, es:en, es:cielo, es:durante, es:noche; allowance 0.322 (-26.713)"
+     ]
+    },
+    {
+     "text": "Un hombre caminaba hacia el oeste, llevando un puente de madera sobre un río.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 14 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 14 words vs 4.245..8.629 (-5.371)",
+      "unknown non-targets: es:un, es:hombre, es:caminar, es:hacia, es:oeste, es:llevar, es:puente, es:madera, es:sobre, es:río; allowance 0.322 (-38.713)"
+     ]
+    }
+   ]
+  },
+  {
+   "learner": "brand new (cognate prior)",
+   "vocab": 225,
+   "sentenceWords": {
+    "min": 4.245181026308491,
+    "max": 8.628715499984592
+   },
+   "band": {
+    "min": 0.95,
+    "max": 0.98
+   },
+   "targets": [
+    "es:el",
+    "es:de"
+   ],
+   "seed": 4,
+   "ms": 6894,
+   "generateMs": 6890,
+   "sentence": "El y de.",
+   "inBand": false,
+   "retried": true,
+   "candidates": 8,
+   "accepted": 8,
+   "inBandCandidates": 0,
+   "rejects": {},
+   "bestShare": 0.002,
+   "targetsHit": [
+    "es:el",
+    "es:de"
+   ],
+   "rounds": [
+    {
+     "simple": false,
+     "raw": [
+      " El y de ________.",
+      " El y de se come en la cena. (Esta oración es incorrecta, pero se puede usar como base para construir",
+      " \"El y de son amigos.\" ",
+      " \"El y de _________\"."
+     ],
+     "cleaned": [
+      "El y de.",
+      "El y de se come en la cena.",
+      "El y de son amigos.",
+      "\"El y de _\"."
+     ]
+    },
+    {
+     "simple": true,
+     "raw": [
+      " \"Un hombre caminaba hacia el oeste, llevando un puente de madera sobre un río.\" (1",
+      " El perro de Pablo come un perrito.",
+      " El perro corre por la calle.",
+      " \"El perro de Carlos se comió el plátano.\""
+     ],
+     "cleaned": [
+      "Un hombre caminaba hacia el oeste, llevando un puente de madera sobre un río.",
+      "El perro de Pablo come un perrito.",
+      "El perro corre por la calle.",
+      "El perro de Carlos se comió el plátano."
+     ]
+    }
+   ],
+   "ranked": [
+    {
+     "text": "El y de.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 3 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 3 words vs 4.245..8.629 (-1.245)",
+      "unknown non-targets: es:y; allowance 0.322 (-2.713)"
+     ]
+    },
+    {
+     "text": "\"El y de _\".",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 3 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 3 words vs 4.245..8.629 (-1.245)",
+      "unknown non-targets: es:y; allowance 0.322 (-2.713)"
+     ]
+    },
+    {
+     "text": "El y de son amigos.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 5 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 5 words vs 4.245..8.629",
+      "unknown non-targets: es:y, es:ser, es:amigo; allowance 0.322 (-10.713)"
+     ]
+    },
+    {
+     "text": "El perro de Pablo come un perrito.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 6 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 7 words vs 4.245..8.629",
+      "unknown non-targets: es:perro, es:comer, es:un, es:perrito; allowance 0.322 (-14.713)"
+     ]
+    },
+    {
+     "text": "El perro de Carlos se comió el plátano.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 7 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 8 words vs 4.245..8.629",
+      "unknown non-targets: es:perro, es:se, es:comer, es:plátano; allowance 0.322 (-14.713)"
+     ]
+    },
+    {
+     "text": "El perro corre por la calle.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 6 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el (+3)",
+      "length 6 words vs 4.245..8.629",
+      "unknown non-targets: es:perro, es:correr, es:por, es:calle; allowance 0.322 (-14.713)"
+     ]
+    },
+    {
+     "text": "El y de se come en la cena.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 8 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 8 words vs 4.245..8.629",
+      "unknown non-targets: es:y, es:se, es:comer, es:en, es:cenar; allowance 0.322 (-18.713)"
+     ]
+    },
+    {
+     "text": "Un hombre caminaba hacia el oeste, llevando un puente de madera sobre un río.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 14 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 14 words vs 4.245..8.629 (-5.371)",
+      "unknown non-targets: es:un, es:hombre, es:caminar, es:hacia, es:oeste, es:llevar, es:puente, es:madera, es:sobre, es:río; allowance 0.322 (-38.713)"
+     ]
+    }
+   ]
+  },
+  {
+   "learner": "brand new, story under way",
+   "vocab": 225,
+   "sentenceWords": {
+    "min": 4.245181026308491,
+    "max": 8.628715499984592
+   },
+   "band": {
+    "min": 0.95,
+    "max": 0.98
+   },
+   "targets": [
+    "es:el",
+    "es:de"
+   ],
+   "seed": 1,
+   "ms": 6653,
+   "generateMs": 6649,
+   "sentence": "El.",
+   "inBand": false,
+   "retried": true,
+   "candidates": 8,
+   "accepted": 3,
+   "inBandCandidates": 0,
+   "rejects": {
+    "empty": 1,
+    "repeat": 4
+   },
+   "bestShare": 1,
+   "targetsHit": [
+    "es:el"
+   ],
+   "rounds": [
+    {
+     "simple": false,
+     "raw": [
+      " El",
+      " El y de.",
+      " El y de.",
+      " "
+     ],
+     "cleaned": [
+      "El.",
+      "El y de.",
+      "El y de.",
+      ""
+     ]
+    },
+    {
+     "simple": true,
+     "raw": [
+      " Marta llegó tarde al mercado. El mercado (1) (2) (3) (4) (5) (6",
+      " Marta llegó tarde al mercado.",
+      " Marta llegó tarde al mercado. El vendedor le ofreció un precio muy barato. El vendedor le ofreció un",
+      " Marta llegó tarde al mercado. El mercado fue aburrido. El mercado fue aburrido. El mercado fue abur"
+     ],
+     "cleaned": [
+      "Marta llegó tarde al mercado.",
+      "Marta llegó tarde al mercado.",
+      "Marta llegó tarde al mercado.",
+      "Marta llegó tarde al mercado."
+     ]
+    }
+   ],
+   "ranked": [
+    {
+     "text": "El.",
+     "accepted": true,
+     "inBand": false,
+     "share": 1,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 1 counted words; band share 1 vs band 0.95..0.98 (above by 0.02, -0.6)",
+      "targets hit: es:el (+3)",
+      "length 1 words vs 4.245..8.629 (-3.245)"
+     ]
+    },
+    {
+     "text": "El y de.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 3 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 3 words vs 4.245..8.629 (-1.245)",
+      "unknown non-targets: es:y; allowance 0.322 (-2.713)"
+     ]
+    },
+    {
+     "text": "El y de.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 3 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 3 words vs 4.245..8.629 (-1.245)",
+      "unknown non-targets: es:y; allowance 0.322 (-2.713)"
+     ]
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "reasons": [
+      "rejected: empty",
+      "known share 1 over 0 counted words; band share 1 vs band 0.95..0.98 (above by 0.02, -0.6)",
+      "no target hit",
+      "length 0 words vs 4.245..8.629 (-4.245)"
+     ]
+    },
+    {
+     "text": "Marta llegó tarde al mercado.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [
+      "repeat"
+     ],
+     "reasons": [
+      "rejected: repeat",
+      "known share 0.002 over 5 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "no target hit",
+      "length 5 words vs 4.245..8.629",
+      "unknown non-targets: es:marta, es:llegar, es:tarde, es:al, es:mercado; allowance 0.322 (-18.713)"
+     ]
+    },
+    {
+     "text": "Marta llegó tarde al mercado.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [
+      "repeat"
+     ],
+     "reasons": [
+      "rejected: repeat",
+      "known share 0.002 over 5 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "no target hit",
+      "length 5 words vs 4.245..8.629",
+      "unknown non-targets: es:marta, es:llegar, es:tarde, es:al, es:mercado; allowance 0.322 (-18.713)"
+     ]
+    },
+    {
+     "text": "Marta llegó tarde al mercado.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [
+      "repeat"
+     ],
+     "reasons": [
+      "rejected: repeat",
+      "known share 0.002 over 5 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "no target hit",
+      "length 5 words vs 4.245..8.629",
+      "unknown non-targets: es:marta, es:llegar, es:tarde, es:al, es:mercado; allowance 0.322 (-18.713)"
+     ]
+    },
+    {
+     "text": "Marta llegó tarde al mercado.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [
+      "repeat"
+     ],
+     "reasons": [
+      "rejected: repeat",
+      "known share 0.002 over 5 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "no target hit",
+      "length 5 words vs 4.245..8.629",
+      "unknown non-targets: es:marta, es:llegar, es:tarde, es:al, es:mercado; allowance 0.322 (-18.713)"
+     ]
+    }
+   ]
+  },
+  {
+   "learner": "brand new, story under way",
+   "vocab": 225,
+   "sentenceWords": {
+    "min": 4.245181026308491,
+    "max": 8.628715499984592
+   },
+   "band": {
+    "min": 0.95,
+    "max": 0.98
+   },
+   "targets": [
+    "es:el",
+    "es:de"
+   ],
+   "seed": 2,
+   "ms": 38311,
+   "generateMs": 38308,
+   "sentence": "La.",
+   "inBand": false,
+   "retried": true,
+   "candidates": 8,
+   "accepted": 3,
+   "inBandCandidates": 0,
+   "rejects": {
+    "empty": 1,
+    "repeat": 4
+   },
+   "bestShare": 1,
+   "targetsHit": [
+    "es:el"
+   ],
+   "rounds": [
+    {
+     "simple": false,
+     "raw": [
+      " El y de.",
+      " El y de.",
+      " ",
+      " La"
+     ],
+     "cleaned": [
+      "El y de.",
+      "El y de.",
+      "",
+      "La."
+     ]
+    },
+    {
+     "simple": true,
+     "raw": [
+      " Marta llegó tarde al mercado.",
+      " Marta llegó tarde al mercado. El vendedor le ofreció un precio muy barato. El vendedor le ofreció un",
+      " Marta llegó tarde al mercado. El mercado fue aburrido. El mercado fue aburrido. El mercado fue abur",
+      " Marta llegó tarde al mercado."
+     ],
+     "cleaned": [
+      "Marta llegó tarde al mercado.",
+      "Marta llegó tarde al mercado.",
+      "Marta llegó tarde al mercado.",
+      "Marta llegó tarde al mercado."
+     ]
+    }
+   ],
+   "ranked": [
+    {
+     "text": "La.",
+     "accepted": true,
+     "inBand": false,
+     "share": 1,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 1 counted words; band share 1 vs band 0.95..0.98 (above by 0.02, -0.6)",
+      "targets hit: es:el (+3)",
+      "length 1 words vs 4.245..8.629 (-3.245)"
+     ]
+    },
+    {
+     "text": "El y de.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 3 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 3 words vs 4.245..8.629 (-1.245)",
+      "unknown non-targets: es:y; allowance 0.322 (-2.713)"
+     ]
+    },
+    {
+     "text": "El y de.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 3 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 3 words vs 4.245..8.629 (-1.245)",
+      "unknown non-targets: es:y; allowance 0.322 (-2.713)"
+     ]
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "reasons": [
+      "rejected: empty",
+      "known share 1 over 0 counted words; band share 1 vs band 0.95..0.98 (above by 0.02, -0.6)",
+      "no target hit",
+      "length 0 words vs 4.245..8.629 (-4.245)"
+     ]
+    },
+    {
+     "text": "Marta llegó tarde al mercado.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [
+      "repeat"
+     ],
+     "reasons": [
+      "rejected: repeat",
+      "known share 0.002 over 5 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "no target hit",
+      "length 5 words vs 4.245..8.629",
+      "unknown non-targets: es:marta, es:llegar, es:tarde, es:al, es:mercado; allowance 0.322 (-18.713)"
+     ]
+    },
+    {
+     "text": "Marta llegó tarde al mercado.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [
+      "repeat"
+     ],
+     "reasons": [
+      "rejected: repeat",
+      "known share 0.002 over 5 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "no target hit",
+      "length 5 words vs 4.245..8.629",
+      "unknown non-targets: es:marta, es:llegar, es:tarde, es:al, es:mercado; allowance 0.322 (-18.713)"
+     ]
+    },
+    {
+     "text": "Marta llegó tarde al mercado.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [
+      "repeat"
+     ],
+     "reasons": [
+      "rejected: repeat",
+      "known share 0.002 over 5 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "no target hit",
+      "length 5 words vs 4.245..8.629",
+      "unknown non-targets: es:marta, es:llegar, es:tarde, es:al, es:mercado; allowance 0.322 (-18.713)"
+     ]
+    },
+    {
+     "text": "Marta llegó tarde al mercado.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [
+      "repeat"
+     ],
+     "reasons": [
+      "rejected: repeat",
+      "known share 0.002 over 5 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "no target hit",
+      "length 5 words vs 4.245..8.629",
+      "unknown non-targets: es:marta, es:llegar, es:tarde, es:al, es:mercado; allowance 0.322 (-18.713)"
+     ]
+    }
+   ]
+  },
+  {
+   "learner": "brand new, story under way",
+   "vocab": 225,
+   "sentenceWords": {
+    "min": 4.245181026308491,
+    "max": 8.628715499984592
+   },
+   "band": {
+    "min": 0.95,
+    "max": 0.98
+   },
+   "targets": [
+    "es:el",
+    "es:de"
+   ],
+   "seed": 3,
+   "ms": 5344,
+   "generateMs": 5341,
+   "sentence": "La.",
+   "inBand": false,
+   "retried": true,
+   "candidates": 8,
+   "accepted": 3,
+   "inBandCandidates": 0,
+   "rejects": {
+    "empty": 1,
+    "repeat": 4
+   },
+   "bestShare": 1,
+   "targetsHit": [
+    "es:el"
+   ],
+   "rounds": [
+    {
+     "simple": false,
+     "raw": [
+      " El y de.",
+      " ",
+      " La",
+      " El y de."
+     ],
+     "cleaned": [
+      "El y de.",
+      "",
+      "La.",
+      "El y de."
+     ]
+    },
+    {
+     "simple": true,
+     "raw": [
+      " Marta llegó tarde al mercado. El vendedor le ofreció un precio muy barato. El vendedor le ofreció un",
+      " Marta llegó tarde al mercado. El mercado fue aburrido. El mercado fue aburrido. El mercado fue abur",
+      " Marta llegó tarde al mercado.",
+      " Marta llegó tarde al mercado."
+     ],
+     "cleaned": [
+      "Marta llegó tarde al mercado.",
+      "Marta llegó tarde al mercado.",
+      "Marta llegó tarde al mercado.",
+      "Marta llegó tarde al mercado."
+     ]
+    }
+   ],
+   "ranked": [
+    {
+     "text": "La.",
+     "accepted": true,
+     "inBand": false,
+     "share": 1,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 1 counted words; band share 1 vs band 0.95..0.98 (above by 0.02, -0.6)",
+      "targets hit: es:el (+3)",
+      "length 1 words vs 4.245..8.629 (-3.245)"
+     ]
+    },
+    {
+     "text": "El y de.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 3 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 3 words vs 4.245..8.629 (-1.245)",
+      "unknown non-targets: es:y; allowance 0.322 (-2.713)"
+     ]
+    },
+    {
+     "text": "El y de.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 3 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 3 words vs 4.245..8.629 (-1.245)",
+      "unknown non-targets: es:y; allowance 0.322 (-2.713)"
+     ]
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "reasons": [
+      "rejected: empty",
+      "known share 1 over 0 counted words; band share 1 vs band 0.95..0.98 (above by 0.02, -0.6)",
+      "no target hit",
+      "length 0 words vs 4.245..8.629 (-4.245)"
+     ]
+    },
+    {
+     "text": "Marta llegó tarde al mercado.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [
+      "repeat"
+     ],
+     "reasons": [
+      "rejected: repeat",
+      "known share 0.002 over 5 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "no target hit",
+      "length 5 words vs 4.245..8.629",
+      "unknown non-targets: es:marta, es:llegar, es:tarde, es:al, es:mercado; allowance 0.322 (-18.713)"
+     ]
+    },
+    {
+     "text": "Marta llegó tarde al mercado.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [
+      "repeat"
+     ],
+     "reasons": [
+      "rejected: repeat",
+      "known share 0.002 over 5 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "no target hit",
+      "length 5 words vs 4.245..8.629",
+      "unknown non-targets: es:marta, es:llegar, es:tarde, es:al, es:mercado; allowance 0.322 (-18.713)"
+     ]
+    },
+    {
+     "text": "Marta llegó tarde al mercado.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [
+      "repeat"
+     ],
+     "reasons": [
+      "rejected: repeat",
+      "known share 0.002 over 5 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "no target hit",
+      "length 5 words vs 4.245..8.629",
+      "unknown non-targets: es:marta, es:llegar, es:tarde, es:al, es:mercado; allowance 0.322 (-18.713)"
+     ]
+    },
+    {
+     "text": "Marta llegó tarde al mercado.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [
+      "repeat"
+     ],
+     "reasons": [
+      "rejected: repeat",
+      "known share 0.002 over 5 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "no target hit",
+      "length 5 words vs 4.245..8.629",
+      "unknown non-targets: es:marta, es:llegar, es:tarde, es:al, es:mercado; allowance 0.322 (-18.713)"
+     ]
+    }
+   ]
+  },
+  {
+   "learner": "brand new, story under way",
+   "vocab": 225,
+   "sentenceWords": {
+    "min": 4.245181026308491,
+    "max": 8.628715499984592
+   },
+   "band": {
+    "min": 0.95,
+    "max": 0.98
+   },
+   "targets": [
+    "es:el",
+    "es:de"
+   ],
+   "seed": 4,
+   "ms": 7443,
+   "generateMs": 7438,
+   "sentence": "La.",
+   "inBand": false,
+   "retried": true,
+   "candidates": 8,
+   "accepted": 3,
+   "inBandCandidates": 0,
+   "rejects": {
+    "empty": 1,
+    "repeat": 4
+   },
+   "bestShare": 1,
+   "targetsHit": [
+    "es:el"
+   ],
+   "rounds": [
+    {
+     "simple": false,
+     "raw": [
+      " ",
+      " La",
+      " El y de.",
+      " El mercado ___________."
+     ],
+     "cleaned": [
+      "",
+      "La.",
+      "El y de.",
+      "El mercado _."
+     ]
+    },
+    {
+     "simple": true,
+     "raw": [
+      " Marta llegó tarde al mercado. El mercado fue aburrido. El mercado fue aburrido. El mercado fue abur",
+      " Marta llegó tarde al mercado.",
+      " Marta llegó tarde al mercado.",
+      " Marta llegó tarde al mercado. El sol se puso. El viento se apagó. El viento se ap"
+     ],
+     "cleaned": [
+      "Marta llegó tarde al mercado.",
+      "Marta llegó tarde al mercado.",
+      "Marta llegó tarde al mercado.",
+      "Marta llegó tarde al mercado."
+     ]
+    }
+   ],
+   "ranked": [
+    {
+     "text": "La.",
+     "accepted": true,
+     "inBand": false,
+     "share": 1,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 1 counted words; band share 1 vs band 0.95..0.98 (above by 0.02, -0.6)",
+      "targets hit: es:el (+3)",
+      "length 1 words vs 4.245..8.629 (-3.245)"
+     ]
+    },
+    {
+     "text": "El y de.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 3 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el, es:de (+6)",
+      "length 3 words vs 4.245..8.629 (-1.245)",
+      "unknown non-targets: es:y; allowance 0.322 (-2.713)"
+     ]
+    },
+    {
+     "text": "El mercado _.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "reasons": [
+      "known share 0.002 over 2 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "targets hit: es:el (+3)",
+      "length 2 words vs 4.245..8.629 (-2.245)",
+      "unknown non-targets: es:mercado; allowance 0.322 (-2.713)"
+     ]
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "reasons": [
+      "rejected: empty",
+      "known share 1 over 0 counted words; band share 1 vs band 0.95..0.98 (above by 0.02, -0.6)",
+      "no target hit",
+      "length 0 words vs 4.245..8.629 (-4.245)"
+     ]
+    },
+    {
+     "text": "Marta llegó tarde al mercado.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [
+      "repeat"
+     ],
+     "reasons": [
+      "rejected: repeat",
+      "known share 0.002 over 5 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "no target hit",
+      "length 5 words vs 4.245..8.629",
+      "unknown non-targets: es:marta, es:llegar, es:tarde, es:al, es:mercado; allowance 0.322 (-18.713)"
+     ]
+    },
+    {
+     "text": "Marta llegó tarde al mercado.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [
+      "repeat"
+     ],
+     "reasons": [
+      "rejected: repeat",
+      "known share 0.002 over 5 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "no target hit",
+      "length 5 words vs 4.245..8.629",
+      "unknown non-targets: es:marta, es:llegar, es:tarde, es:al, es:mercado; allowance 0.322 (-18.713)"
+     ]
+    },
+    {
+     "text": "Marta llegó tarde al mercado.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [
+      "repeat"
+     ],
+     "reasons": [
+      "rejected: repeat",
+      "known share 0.002 over 5 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "no target hit",
+      "length 5 words vs 4.245..8.629",
+      "unknown non-targets: es:marta, es:llegar, es:tarde, es:al, es:mercado; allowance 0.322 (-18.713)"
+     ]
+    },
+    {
+     "text": "Marta llegó tarde al mercado.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [
+      "repeat"
+     ],
+     "reasons": [
+      "rejected: repeat",
+      "known share 0.002 over 5 counted words; band share 0.002 vs band 0.95..0.98 (below by 0.948, -94.8)",
+      "no target hit",
+      "length 5 words vs 4.245..8.629",
+      "unknown non-targets: es:marta, es:llegar, es:tarde, es:al, es:mercado; allowance 0.322 (-18.713)"
+     ]
+    }
+   ]
+  },
+  {
+   "learner": "intermediate (about 1200 lexemes)",
+   "vocab": 1257,
+   "sentenceWords": {
+    "min": 6.632319690445613,
+    "max": 13.668230457607407
+   },
+   "band": {
+    "min": 0.95,
+    "max": 0.98
+   },
+   "targets": [
+    "es:agarrar",
+    "es:aguantar"
+   ],
+   "seed": 1,
+   "ms": 4640,
+   "generateMs": 4638,
+   "sentence": "¿Qué dijo Marta?",
+   "inBand": true,
+   "retried": false,
+   "candidates": 4,
+   "accepted": 3,
+   "inBandCandidates": 1,
+   "rejects": {
+    "unbalanced_quotes": 1
+   },
+   "bestShare": 0.97,
+   "targetsHit": [],
+   "rounds": [
+    {
+     "simple": false,
+     "raw": [
+      " El señor de las frutas le dijo: \"Pero no se preocupe, Marta. Si quieres llevar los frutos, tienes que agarrarlos y ag",
+      " Marta leía la nota con cuidado.",
+      " Marta leía la nota con cuidado.",
+      " ¿Qué dijo Marta?"
+     ],
+     "cleaned": [
+      "El señor de las frutas le dijo: \"Pero no se preocupe, Marta.",
+      "Marta leía la nota con cuidado.",
+      "Marta leía la nota con cuidado.",
+      "¿Qué dijo Marta?"
+     ]
+    }
+   ],
+   "ranked": [
+    {
+     "text": "¿Qué dijo Marta?",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "reasons": [
+      "known share 0.97 over 2 counted words; band share 0.97 vs band 0.95..0.98 (in band)",
+      "no target hit",
+      "length 3 words vs 6.632..13.668 (-3.632)"
+     ]
+    },
+    {
+     "text": "Marta leía la nota con cuidado.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.772,
+     "rejected": [],
+     "reasons": [
+      "known share 0.772 over 6 counted words; band share 0.772 vs band 0.95..0.98 (below by 0.178, -17.791)",
+      "no target hit",
+      "length 6 words vs 6.632..13.668 (-0.632)",
+      "unknown non-targets: es:marta; allowance 0.508 (-1.97)"
+     ]
+    },
+    {
+     "text": "Marta leía la nota con cuidado.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.772,
+     "rejected": [],
+     "reasons": [
+      "known share 0.772 over 6 counted words; band share 0.772 vs band 0.95..0.98 (below by 0.178, -17.791)",
+      "no target hit",
+      "length 6 words vs 6.632..13.668 (-0.632)",
+      "unknown non-targets: es:marta; allowance 0.508 (-1.97)"
+     ]
+    },
+    {
+     "text": "El señor de las frutas le dijo: \"Pero no se preocupe, Marta.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [
+      "unbalanced_quotes"
+     ],
+     "reasons": [
+      "rejected: unbalanced_quotes",
+      "known share 0.969 over 11 counted words; band share 0.969 vs band 0.95..0.98 (in band)",
+      "no target hit",
+      "length 12 words vs 6.632..13.668"
+     ]
+    }
+   ]
+  },
+  {
+   "learner": "intermediate (about 1200 lexemes)",
+   "vocab": 1257,
+   "sentenceWords": {
+    "min": 6.632319690445613,
+    "max": 13.668230457607407
+   },
+   "band": {
+    "min": 0.95,
+    "max": 0.98
+   },
+   "targets": [
+    "es:agarrar",
+    "es:aguantar"
+   ],
+   "seed": 2,
+   "ms": 3552,
+   "generateMs": 3551,
+   "sentence": "¿Qué dijo Marta?",
+   "inBand": true,
+   "retried": false,
+   "candidates": 4,
+   "accepted": 4,
+   "inBandCandidates": 1,
+   "rejects": {},
+   "bestShare": 0.97,
+   "targetsHit": [],
+   "rounds": [
+    {
+     "simple": false,
+     "raw": [
+      " Marta leía la nota con cuidado.",
+      " Marta leía la nota con cuidado.",
+      " ¿Qué dijo Marta?",
+      " La notificación que leía \"¡No puede aguantar la fruta!\" le hizo reír."
+     ],
+     "cleaned": [
+      "Marta leía la nota con cuidado.",
+      "Marta leía la nota con cuidado.",
+      "¿Qué dijo Marta?",
+      "La notificación que leía \"¡No puede aguantar la fruta!\""
+     ]
+    }
+   ],
+   "ranked": [
+    {
+     "text": "¿Qué dijo Marta?",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "reasons": [
+      "known share 0.97 over 2 counted words; band share 0.97 vs band 0.95..0.98 (in band)",
+      "no target hit",
+      "length 3 words vs 6.632..13.668 (-3.632)"
+     ]
+    },
+    {
+     "text": "La notificación que leía \"¡No puede aguantar la fruta!\"",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.848,
+     "rejected": [],
+     "reasons": [
+      "known share 0.809 over 9 counted words; band share 0.848 vs band 0.95..0.98 (below by 0.102, -10.228)",
+      "targets hit: es:aguantar (+3)",
+      "length 9 words vs 6.632..13.668",
+      "unknown non-targets: es:notificación; allowance 0.508 (-1.97)"
+     ]
+    },
+    {
+     "text": "Marta leía la nota con cuidado.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.772,
+     "rejected": [],
+     "reasons": [
+      "known share 0.772 over 6 counted words; band share 0.772 vs band 0.95..0.98 (below by 0.178, -17.791)",
+      "no target hit",
+      "length 6 words vs 6.632..13.668 (-0.632)",
+      "unknown non-targets: es:marta; allowance 0.508 (-1.97)"
+     ]
+    },
+    {
+     "text": "Marta leía la nota con cuidado.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.772,
+     "rejected": [],
+     "reasons": [
+      "known share 0.772 over 6 counted words; band share 0.772 vs band 0.95..0.98 (below by 0.178, -17.791)",
+      "no target hit",
+      "length 6 words vs 6.632..13.668 (-0.632)",
+      "unknown non-targets: es:marta; allowance 0.508 (-1.97)"
+     ]
+    }
+   ]
+  },
+  {
+   "learner": "intermediate (about 1200 lexemes)",
+   "vocab": 1257,
+   "sentenceWords": {
+    "min": 6.632319690445613,
+    "max": 13.668230457607407
+   },
+   "band": {
+    "min": 0.95,
+    "max": 0.98
+   },
+   "targets": [
+    "es:agarrar",
+    "es:aguantar"
+   ],
+   "seed": 3,
+   "ms": 8188,
+   "generateMs": 8186,
+   "sentence": "¿Qué dijo Marta?",
+   "inBand": true,
+   "retried": false,
+   "candidates": 4,
+   "accepted": 3,
+   "inBandCandidates": 1,
+   "rejects": {
+    "unbalanced_quotes": 1
+   },
+   "bestShare": 0.97,
+   "targetsHit": [],
+   "rounds": [
+    {
+     "simple": false,
+     "raw": [
+      " Marta leía la nota con cuidado.",
+      " ¿Qué dijo Marta?",
+      " La notificación que leía \"¡No puede aguantar la fruta!\" le hizo reír.",
+      " El señor de las frutas le dijo: \"No vayas a perder la oportunidad de comprar frutas. Si no agarras frutas, no las podrás ag"
+     ],
+     "cleaned": [
+      "Marta leía la nota con cuidado.",
+      "¿Qué dijo Marta?",
+      "La notificación que leía \"¡No puede aguantar la fruta!\"",
+      "El señor de las frutas le dijo: \"No vayas a perder la oportunidad de comprar frutas."
+     ]
+    }
+   ],
+   "ranked": [
+    {
+     "text": "¿Qué dijo Marta?",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "reasons": [
+      "known share 0.97 over 2 counted words; band share 0.97 vs band 0.95..0.98 (in band)",
+      "no target hit",
+      "length 3 words vs 6.632..13.668 (-3.632)"
+     ]
+    },
+    {
+     "text": "La notificación que leía \"¡No puede aguantar la fruta!\"",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.848,
+     "rejected": [],
+     "reasons": [
+      "known share 0.809 over 9 counted words; band share 0.848 vs band 0.95..0.98 (below by 0.102, -10.228)",
+      "targets hit: es:aguantar (+3)",
+      "length 9 words vs 6.632..13.668",
+      "unknown non-targets: es:notificación; allowance 0.508 (-1.97)"
+     ]
+    },
+    {
+     "text": "Marta leía la nota con cuidado.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.772,
+     "rejected": [],
+     "reasons": [
+      "known share 0.772 over 6 counted words; band share 0.772 vs band 0.95..0.98 (below by 0.178, -17.791)",
+      "no target hit",
+      "length 6 words vs 6.632..13.668 (-0.632)",
+      "unknown non-targets: es:marta; allowance 0.508 (-1.97)"
+     ]
+    },
+    {
+     "text": "El señor de las frutas le dijo: \"No vayas a perder la oportunidad de comprar frutas.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.952,
+     "rejected": [
+      "unbalanced_quotes"
+     ],
+     "reasons": [
+      "rejected: unbalanced_quotes",
+      "known share 0.952 over 16 counted words; band share 0.952 vs band 0.95..0.98 (in band)",
+      "no target hit",
+      "length 16 words vs 6.632..13.668 (-2.332)"
+     ]
+    }
+   ]
+  },
+  {
+   "learner": "intermediate (about 1200 lexemes)",
+   "vocab": 1257,
+   "sentenceWords": {
+    "min": 6.632319690445613,
+    "max": 13.668230457607407
+   },
+   "band": {
+    "min": 0.95,
+    "max": 0.98
+   },
+   "targets": [
+    "es:agarrar",
+    "es:aguantar"
+   ],
+   "seed": 4,
+   "ms": 4526,
+   "generateMs": 4525,
+   "sentence": "¿Qué dijo Marta?",
+   "inBand": true,
+   "retried": false,
+   "candidates": 4,
+   "accepted": 2,
+   "inBandCandidates": 1,
+   "rejects": {
+    "unbalanced_quotes": 1,
+    "empty": 1
+   },
+   "bestShare": 0.97,
+   "targetsHit": [],
+   "rounds": [
+    {
+     "simple": false,
+     "raw": [
+      " ¿Qué dijo Marta?",
+      " La notificación que leía \"¡No puede aguantar la fruta!\" le hizo reír.",
+      " El señor de las frutas le dijo: \"No vayas a perder la oportunidad de comprar frutas. Si no agarras frutas, no las podrás ag",
+      " "
+     ],
+     "cleaned": [
+      "¿Qué dijo Marta?",
+      "La notificación que leía \"¡No puede aguantar la fruta!\"",
+      "El señor de las frutas le dijo: \"No vayas a perder la oportunidad de comprar frutas.",
+      ""
+     ]
+    }
+   ],
+   "ranked": [
+    {
+     "text": "¿Qué dijo Marta?",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "reasons": [
+      "known share 0.97 over 2 counted words; band share 0.97 vs band 0.95..0.98 (in band)",
+      "no target hit",
+      "length 3 words vs 6.632..13.668 (-3.632)"
+     ]
+    },
+    {
+     "text": "La notificación que leía \"¡No puede aguantar la fruta!\"",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.848,
+     "rejected": [],
+     "reasons": [
+      "known share 0.809 over 9 counted words; band share 0.848 vs band 0.95..0.98 (below by 0.102, -10.228)",
+      "targets hit: es:aguantar (+3)",
+      "length 9 words vs 6.632..13.668",
+      "unknown non-targets: es:notificación; allowance 0.508 (-1.97)"
+     ]
+    },
+    {
+     "text": "El señor de las frutas le dijo: \"No vayas a perder la oportunidad de comprar frutas.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.952,
+     "rejected": [
+      "unbalanced_quotes"
+     ],
+     "reasons": [
+      "rejected: unbalanced_quotes",
+      "known share 0.952 over 16 counted words; band share 0.952 vs band 0.95..0.98 (in band)",
+      "no target hit",
+      "length 16 words vs 6.632..13.668 (-2.332)"
+     ]
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "reasons": [
+      "rejected: empty",
+      "known share 1 over 0 counted words; band share 1 vs band 0.95..0.98 (above by 0.02, -0.6)",
+      "no target hit",
+      "length 0 words vs 6.632..13.668 (-6.632)"
+     ]
+    }
+   ]
+  }
+ ]
+}

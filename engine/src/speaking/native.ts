@@ -19,6 +19,7 @@ import { candidateLemma, findNativeGaps } from '../gaps/capture';
 import { chooseAnalysesInText } from '../lang/choose';
 import { lexemeKey } from '../learner/types';
 import { sentenceStartFlags } from '../story/text';
+import { needsLeadingSpace } from '../scoring/text';
 import type { UiText } from './text';
 import { spokenWords } from './text';
 
@@ -31,8 +32,8 @@ export interface NativeReplyOptions {
   /** Overrides for findNativeGaps. */
   gap?: Partial<GapOptions>;
   /**
-   * Put between the phrases of several gaps in targetPhrase. ' ' for languages written
-   * with spaces, '' otherwise (like JudgeOptions.contextSeparator).
+   * Put between the phrases of several gaps in targetPhrase. Default: a space only where
+   * the script uses one (needsLeadingSpace), so Spanish gets ' ' and Japanese ''.
    */
   phraseSeparator?: string;
   /** PairPack.ui key of the prompt to repeat ('cliff.repeatAloud'). */
@@ -113,7 +114,11 @@ export function nativeReply(transcript: string, pack: LanguagePack, pair: PairPa
     return { native: g.text, start: g.start, end: g.end, target: best, lemma: candidateLemma(best, pack), fromExpected: false };
   });
   const targets = phrases.map((p) => p.target).filter((t): t is string => t !== null);
-  const targetPhrase = targets.length ? targets.join(opts.phraseSeparator ?? ' ') : null;
+  // Phrases joined with the given separator, else with a space only where the script uses
+  // one (needsLeadingSpace: none after Japanese or Chinese text).
+  const targetPhrase = targets.length
+    ? targets.reduce((acc, t) => acc + (opts.phraseSeparator ?? (needsLeadingSpace(acc) ? ' ' : '')) + t)
+    : null;
   const events: LearnerEvent[] = phrases
     .filter((p): p is NativePhrase & { lemma: string } => p.lemma !== null)
     .map((p) => ({ type: 'native_gap', key: lexemeKey(pack.code, p.lemma), at: opts.at }));

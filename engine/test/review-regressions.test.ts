@@ -25,8 +25,44 @@ import {
   rankOfFromPack,
   scoreCliffAnswer,
   slangLexemeKeys,
+  // Integration review (int-*)
+  DEFAULT_ALIGN_TRANSCRIPT_OPTIONS,
+  DEFAULT_NO_SE_OPTIONS,
+  DEFAULT_REPAIR_OPTIONS,
+  EN_ES_STARTER,
+  HttpLanguageModel,
+  LyricSession,
+  PRONOUN_MOVE_RULES,
+  SESSION_UI_KEYS,
+  SPANISH_COMMANDS,
+  StorySession,
+  TopNBoundedModel,
+  addSpoken,
+  advanceNoSe,
+  alignTranscript,
+  alignWords,
+  attachClitic,
+  attemptRepair,
+  checkTokenScores,
+  createEnEsPairPack,
+  echoLine,
+  estimateDurationMs,
+  joinSentences,
+  lyricCliffs,
+  matchCommand,
+  nativeReply,
+  needsLeadingSpace,
+  parseLyrics,
+  registerPairs,
+  repairFlow,
+  retellMetrics,
+  slangNotes,
+  splitClitics,
+  startNoSe,
+  startRepair,
+  surpriseMap,
 } from '../src';
-import type { CliffPosition, PriorFn, Segment, SelectContext } from '../src';
+import type { CliffPosition, PriorFn, Segment, SelectContext, StoryStep } from '../src';
 import { LEXICON } from '../src/lang/es/lexicon';
 
 const T0 = Date.UTC(2026, 10, 15, 8, 0, 0);
@@ -393,6 +429,203 @@ describe('lng-12: every rule category with the real pack, without the corpus doi
       expect(j.verdict, text).toBe('assert');
       expect(j.best?.text, text).toBe(fixed);
       expect(j.explainKey, text).toBe(key);
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Integration review (task F): speaking, lyrics, session, pronoun placement, bounded
+// scores, the model harness. Each block names its finding (int-*).
+// ---------------------------------------------------------------------------
+
+describe('int-1: delete rules leave pronouns, a + infinitive and slang phrases alone', () => {
+  it('never deletes la/los/las before a verb (object pronouns), the only false assert on the real model', () => {
+    expect(variantTexts('La invité a cenar.', 'es.article.delete')).toEqual([]);
+    expect(variantTexts('Ella tenía el pelo largo cuando la conocí.', 'es.article.delete')).not.toContain(
+      'Ella tenía el pelo largo cuando conocí.',
+    );
+    expect(variantTexts('Las vi en el parque.', 'es.article.delete')).not.toContain('Vi en el parque.');
+  });
+
+  it('never deletes the "a" of a + infinitive', () => {
+    expect(variantTexts('Ayer de repente empezó a llover.', 'es.personal_a.delete')).toEqual([]);
+    expect(variantTexts("Vamo' a janguear con el corillo esta noche.", 'es.personal_a.delete')).toEqual([]);
+    expect(variantTexts('La invité a cenar.', 'es.personal_a.delete')).toEqual([]);
+  });
+
+  it('never deletes an article before a slang word or before que/de', () => {
+    expect(variantTexts('Tengo un chin de hambre.', 'es.article.delete', 'street')).toEqual([]);
+    expect(variantTexts('¿Qué es la que hay, mano?', 'es.article.delete', 'street')).toEqual([]);
+    expect(variantTexts('La de mi madre es roja.', 'es.article.delete')).toEqual([]);
+  });
+
+  it('still deletes a stray article or personal a where one does not belong', () => {
+    expect(variantTexts('Tengo a un perro.', 'es.personal_a.delete')).toContain('Tengo un perro.');
+    expect(variantTexts('Compré a un coche nuevo.', 'es.personal_a.delete')).toContain('Compré un coche nuevo.');
+    expect(variantTexts('Soy un profesor.', 'es.article.delete')).toContain('Soy profesor.');
+    expect(variantTexts('Me gusta la Marta.', 'es.article.delete')).toContain('Me gusta Marta.');
+  });
+});
+
+describe('int-2: a wordless utterance is not an attempt (empty transcript, punctuation, emoji)', () => {
+  const judgement = (text: string) => judgeSentence(model, pack, 'Frase en español:\n', text);
+
+  it('repairFlow neither passes it as ok nor spends a repair', async () => {
+    const start = startRepair();
+    for (const t of ['', '   ', '...', '🙂']) {
+      const s = repairFlow(start, { type: 'attempt', text: t, at: T0, judgement: await judgement(t) }, pack);
+      expect(s, JSON.stringify(t)).toBe(start);
+      expect(s.phase).toBe('awaiting_attempt');
+    }
+    const ok = await attemptRepair(start, model, pack, '', T0);
+    expect(ok.phase).toBe('awaiting_attempt');
+    expect(ok.attempts).toEqual([]);
+  });
+
+  it('advanceNoSe does not count it as one of the repeats', () => {
+    let s = startNoSe({ answer: 'mercado', key: 'es:mercado', at: T0 });
+    s = advanceNoSe(s, { type: 'played' }, pack);
+    for (const t of ['', '¿?', '🙂🙂']) s = advanceNoSe(s, { type: 'repeat', transcript: t, at: T0 + 1 }, pack);
+    expect(s).toMatchObject({ step: 'prompt_repeat', repeats: 0 });
+    s = advanceNoSe(s, { type: 'repeat', transcript: 'mercado', at: T0 + 2 }, pack);
+    expect(s).toMatchObject({ step: 'done', landed: true, repeats: 1 });
+  });
+
+  it('matchCommand and alignTranscript give nothing for it, without throwing', () => {
+    for (const t of ['', '   ', '...', '🙂', '​']) {
+      expect(matchCommand(t, pack), JSON.stringify(t)).toBeNull();
+      expect(alignTranscript('Ella está en el mercado.', t, pack)).toMatchObject({ understood: 0, total: 5, extra: [] });
+    }
+    expect(alignTranscript('', 'hola', pack)).toMatchObject({ understood: 0, total: 0 });
+  });
+});
+
+describe('int-3: fillers and street endings are pack data, not code in the speaking module', () => {
+  it('createSpanishPack carries them and the speaking module reads them from the pack', () => {
+    expect(pack.fillers).toContain('eh');
+    expect(pack.streetEndings).toContainEqual(['ado', 'ao']);
+    expect(matchCommand('eh, no sé', pack)?.command).toBe('dont_know');
+    expect(matchCommand('eh, no sé', { ...pack, fillers: [] })).toBeNull();
+    expect(alignTranscript('cansado', 'cansao', pack, { register: 'street' }).understood).toBe(1);
+    expect(alignTranscript('cansado', 'cansao', { ...pack, streetEndings: [] }, { register: 'street' }).understood).toBe(0);
+  });
+});
+
+describe('int-4: every interface key a screen can carry exists in the en-es pack', () => {
+  it('covers SESSION_UI_KEYS and the speaking and lyrics keys, with well-formed ids', () => {
+    const ui = pair.ui;
+    const keys = [
+      ...SESSION_UI_KEYS,
+      DEFAULT_ALIGN_TRANSCRIPT_OPTIONS.uiKey,
+      DEFAULT_REPAIR_OPTIONS.promptKey,
+      DEFAULT_REPAIR_OPTIONS.expectedKey,
+      DEFAULT_REPAIR_OPTIONS.fixKey,
+      DEFAULT_NO_SE_OPTIONS.repeatKey,
+      'stats.spokenToday',
+    ];
+    for (const k of keys) {
+      expect(ui[k], k).toBeTruthy();
+      // The pack's own id rule (pair/en-es/data.test.ts): dotted lowerCamel, no digits.
+      expect(k).toMatch(/^[a-z][A-Za-z]*(?:\.[A-Za-z][A-Za-z]*)+$/);
+    }
+    expect(ui['landing.timesInHundred']).toContain('{n}');
+    expect(ui['echo.landed']).toContain('{m}');
+  });
+});
+
+describe('int-5: the default pair pack carries the starter story', () => {
+  it('so a session without a model always has a first step', async () => {
+    expect(pair.starter).toBe(EN_ES_STARTER);
+    expect(createEnEsPairPack({ starter: null }).starter).toBeUndefined();
+    const s = StorySession.create({ model: null, pack, pair, learner: new LearnerModel(), now: T0, seed: 1 });
+    expect((await s.next(T0 + 1000)).screen.kind).toBe('cliff');
+  });
+});
+
+describe('int-6: joins put a space only where the script uses one', () => {
+  it('needsLeadingSpace keeps Spanish as before and adds no space after Japanese or Chinese', () => {
+    expect(needsLeadingSpace('Ella está en el mercado.')).toBe(true);
+    expect(needsLeadingSpace('Ella está en el')).toBe(true);
+    expect(needsLeadingSpace('¿')).toBe(false);
+    expect(needsLeadingSpace('Frase en español:\n')).toBe(false);
+    expect(needsLeadingSpace('私は猫が好きです。')).toBe(false);
+    expect(needsLeadingSpace('我喜欢猫')).toBe(false);
+    expect(needsLeadingSpace('ネコ')).toBe(false);
+  });
+
+  it('joinSentences and nativeReply follow it', () => {
+    expect(joinSentences(['Hola.', 'Adiós.'])).toBe('Hola. Adiós.');
+    expect(joinSentences(['猫です。', '犬です。'])).toBe('猫です。犬です。');
+    expect(joinSentences([])).toBe('');
+    const r = nativeReply('the house and the beach', pack, pair, { at: T0 });
+    expect(r.targetPhrase ?? '').not.toMatch(/^\s|\s$|\s\s/u);
+  });
+});
+
+describe('int-7: the public API exports the new modules', () => {
+  it('reaches speaking, lyrics, session and the model adapters from src/index.ts', () => {
+    for (const f of [
+      matchCommand, alignTranscript, retellMetrics, addSpoken, repairFlow, startNoSe, nativeReply, estimateDurationMs,
+      parseLyrics, slangNotes, registerPairs, lyricCliffs, surpriseMap, echoLine, alignWords,
+      StorySession.create, LyricSession.create, HttpLanguageModel, TopNBoundedModel, checkTokenScores,
+      attachClitic, splitClitics,
+    ]) expect(typeof f).toBe('function');
+    expect(SPANISH_COMMANDS.length).toBeGreaterThan(0);
+    expect(PRONOUN_MOVE_RULES.every((r) => r.kind === 'move')).toBe(true);
+  });
+});
+
+describe('int-8: sessions stay plain data and deterministic under odd input', () => {
+  it('a story session survives empty, emoji and out-of-range input, and restores to the same steps', async () => {
+    const odd: Array<(s: StorySession, t: number) => Promise<StoryStep> | StoryStep> = [
+      (s, t) => s.next(t),
+      (s, t) => s.handleUtterance('', t),
+      (s, t) => s.handleUtterance('🙂', t),
+      (s, t) => s.handleUtterance('...', t),
+      (s, t) => s.pickOption(-1, t),
+      (s, t) => s.pickOption(99, t),
+      (s, t) => s.pickOption(Number.NaN, t),
+      (s, t) => s.tapWord(-1, t),
+      (s, t) => s.revealWord(99, t),
+      (s, t) => s.played(t),
+      (s, t) => s.command('meaning', t, '🙂'),
+      (s, t) => s.handleUtterance('no sé', t),
+      (s, t) => s.handleUtterance('', t),
+      (s, t) => s.handleUtterance('mercado', t),
+      (s, t) => s.next(t),
+    ];
+    const run = async (s: StorySession, from: number, to: number) => {
+      const out: string[] = [];
+      for (let i = from; i < to; i++) {
+        const step = await (odd[i % odd.length] as (s: StorySession, t: number) => Promise<StoryStep> | StoryStep)(s, T0 + 1000 * (i + 1));
+        const json = JSON.stringify(step);
+        expect(JSON.parse(json)).toEqual(step);
+        expect(json).not.toMatch(/NaN|Infinity/);
+        out.push(json);
+      }
+      return out;
+    };
+    const make = () => StorySession.create({ model, pack, pair, learner: new LearnerModel(), now: T0, seed: 5 });
+    const a = make();
+    const b = make();
+    expect(await run(a, 0, 30)).toEqual(await run(b, 0, 30));
+    const restored = StorySession.restore(JSON.parse(JSON.stringify(a.snapshot())), {
+      model, pack, pair, learner: LearnerModel.restore(a.learner.snapshot()),
+    });
+    expect(await run(restored, 30, 45)).toEqual(await run(a, 30, 45));
+  });
+
+  it('a lyric session over empty or emoji-only text ends cleanly', async () => {
+    for (const source of [
+      { kind: 'text' as const, text: '' },
+      { kind: 'text' as const, text: '🙂 ... ¿?' },
+      { kind: 'lyrics' as const, lyrics: parseLyrics('[Coro]\n\n[Verso 1]', pack) },
+    ]) {
+      const s = LyricSession.create({ model, pack, pair, learner: new LearnerModel(), now: T0, seed: 1, source });
+      const step = await s.next(T0 + 1000);
+      expect(step.screen.kind).toBe('done');
+      expect((await s.handleUtterance('🙂', T0 + 2000)).events).toEqual([]);
+      expect(JSON.parse(JSON.stringify(s.snapshot()))).toEqual(s.snapshot());
     }
   });
 });

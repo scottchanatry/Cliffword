@@ -21,7 +21,7 @@
  */
 import type { LanguagePack, Segment } from '../lang/types';
 import type { LanguageModel, TokenScore } from '../model/types';
-import { clampLogprob } from '../scoring/text';
+import { clampLogprob, needsLeadingSpace } from '../scoring/text';
 import { DEFAULT_VARIANT_OPTIONS, generateVariantSet } from './variants';
 import type { Variant, VariantOptions } from './variants';
 
@@ -49,7 +49,9 @@ export interface JudgeOptions extends VariantOptions {
   lengthAdjustPerToken: number;
   /**
    * Inserted between a non-empty context and the sentence when neither already has
-   * whitespace at the join. ' ' for languages written with spaces; '' otherwise.
+   * whitespace at the join and a space belongs after the context (needsLeadingSpace: not
+   * after opening punctuation or a script written without spaces, so a Japanese context
+   * needs no override). ' ' for languages written with spaces; '' forces none.
    */
   contextSeparator: string;
   /**
@@ -181,9 +183,15 @@ export function decideVerdict(
   return verdict;
 }
 
-/** Joining string between context and sentence (see JudgeOptions.contextSeparator). */
+/**
+ * Joining string between context and sentence (see JudgeOptions.contextSeparator): none
+ * when the context is empty, the text starts with a space, or no space belongs after the
+ * context (it ends in a space, opening punctuation or a script written without spaces,
+ * per needsLeadingSpace: a Japanese story context ending in 。 takes the sentence
+ * directly).
+ */
 function contextJoin(context: string, text: string, separator: string): string {
-  if (!context || /\s$/u.test(context) || /^\s/u.test(text)) return '';
+  if (!context || !needsLeadingSpace(context) || /^\s/u.test(text)) return '';
   return separator;
 }
 

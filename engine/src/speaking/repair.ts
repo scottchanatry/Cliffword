@@ -153,7 +153,7 @@ export function isRepairFinal(state: Pick<RepairState, 'phase'>): boolean {
   return FINAL_REPAIR_PHASES.includes(state.phase);
 }
 
-type Pack = Pick<LanguagePack, 'code' | 'segment' | 'normalize' | 'analyze' | 'chooseAnalysis' | 'foldAccents' | 'registers'>;
+type Pack = Pick<LanguagePack, 'code' | 'segment' | 'normalize' | 'analyze' | 'chooseAnalysis' | 'foldAccents' | 'registers' | 'streetEndings'>;
 
 interface WordInfo {
   wordIndex: number;
@@ -250,6 +250,10 @@ export function repairFlow(state: RepairState, input: RepairInput, pack: Pack, o
     if (state.phase !== 'prompt_repair' || state.attempts.length === 0) return state;
     return showAnswer(state, state.attempts, { gaveUp: true }, o);
   }
+
+  // An attempt with no words (the recognizer heard nothing, or only punctuation or an
+  // emoji) is not an attempt: it neither passes as ok nor uses up a repair.
+  if (!pack.segment(input.text).some((x) => x.kind === 'word' || x.kind === 'number')) return state;
 
   const attempt: RepairAttempt = { text: input.text, at: input.at, judgement: input.judgement };
   const attempts = [...state.attempts, attempt];

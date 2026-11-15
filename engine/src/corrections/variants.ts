@@ -622,17 +622,21 @@ function deleteVariants(
   rule: DeleteRule,
 ): Variant[] {
   const targets = new Set(rule.words.map((w) => pack.normalize(w)));
+  const notBeforeWords = new Set((rule.notBeforeWords ?? []).map((w) => pack.normalize(w)));
   const out: Variant[] = [];
   for (let i = 0; i < words.length; i++) {
     const w = words[i] as Word;
     if (w.protected || !targets.has(w.norm)) continue;
+    const next = adjacentNextWord(segments, words, i);
+    // The word belongs to a slang phrase that follows it ("un chin"), or the next word
+    // shows it is not the word the rule deletes (a pronoun before a verb, "la que").
+    if (next && (next.protected || notBeforeWords.has(next.norm) || (next.pos !== undefined && rule.notBeforePos?.includes(next.pos)))) continue;
     const before = segments[w.segIndex - 1];
     const after = segments[w.segIndex + 1];
     let start = w.seg.start;
     let end = w.seg.end;
     if (before && before.kind === 'space') start = before.start;
     else if (after && after.kind === 'space') end = after.end;
-    const next = adjacentNextWord(segments, words, i);
     // A protected (slang) next word keeps its exact text, so it is not re-capitalized.
     const recap =
       next !== undefined &&

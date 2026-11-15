@@ -45,7 +45,9 @@ export function createDefaultSpanishPack(opts: DefaultPackOptions = {}): Languag
 
 /**
  * The English -> Spanish pair pack, with slang glosses from the same register packs as
- * createDefaultSpanishPack (all regions unless opts.regions is given).
+ * createDefaultSpanishPack (all regions unless opts.regions is given) and the canned
+ * starter story (EN_ES_STARTER) that StorySession uses at zero knowledge and in canned
+ * mode.
  */
 export function createDefaultPairPack(opts: DefaultPackOptions = {}): PairPack {
   return createEnEsPairPack({ registers: spanishRegistersFor(opts.regions) });

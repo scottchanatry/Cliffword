@@ -104,12 +104,13 @@ export function startNoSe(args: { answer: string; key: string; at: number }): No
 /**
  * One step of the no-sé flow (see the module comment). Pure: returns a new state, or the
  * same state when the input does not apply (anything after done; 'played' outside
- * play_answer). A repeat is accepted while playing too (the learner may talk over).
+ * play_answer; a repeat with no words). A repeat is accepted while playing too (the
+ * learner may talk over).
  */
 export function advanceNoSe(
   state: NoSeState,
   input: NoSeInput,
-  pack: Pick<LanguagePack, 'code' | 'segment' | 'normalize' | 'foldAccents' | 'registers'>,
+  pack: Pick<LanguagePack, 'code' | 'segment' | 'normalize' | 'foldAccents' | 'registers' | 'streetEndings'>,
   opts: Partial<NoSeOptions> = {},
 ): NoSeState {
   const o: NoSeOptions = { ...DEFAULT_NO_SE_OPTIONS, ...opts };
@@ -122,6 +123,8 @@ export function advanceNoSe(
     case 'skip':
       return { ...state, step: 'done', ui: null };
     case 'repeat': {
+      // A repeat with no words (the recognizer heard nothing) does not use up a repeat.
+      if (!pack.segment(input.transcript).some((x) => x.kind === 'word' || x.kind === 'number')) return state;
       const last = alignTranscript(state.answer, input.transcript, pack, { register: o.register, regions: o.regions });
       const repeats = state.repeats + 1;
       const landed = last.total > 0 && last.share >= o.landedShare - 1e-9;

@@ -183,7 +183,7 @@ export interface CliffOutcome {
   points: LandingPoint[];
   /** landing.<reason> ("You landed where a Spanish speaker would."). */
   headline: UiText;
-  /** landing.timesIn100 ({n}) and landing.justAsNatural ({word}) when they apply. */
+  /** landing.timesInHundred ({n}) and landing.justAsNatural ({word}) when they apply. */
   notes: UiText[];
   /** Why a street or spelling variant earned credit (lyrics.answer.*). */
   explanation?: UiText;

@@ -9,7 +9,7 @@ import type { CorrectionRule, LanguagePack, RegisterPack, SpokenCommandEntry } f
 import { createAnalyzer } from './analyze';
 import { chooseSpanishAnalysis } from './choose';
 import { attachClitic, splitClitics } from './clitics';
-import { SPANISH_COMMANDS } from './commands';
+import { SPANISH_COMMANDS, SPANISH_FILLERS, SPANISH_STREET_ENDINGS } from './commands';
 import { inflect } from './inflect';
 import { LEMMAS_BY_FREQUENCY, frequencyRank } from './lexicon';
 import { normalize, stripAccents } from './normalize';
@@ -22,6 +22,10 @@ export interface SpanishPackOptions {
   scoringPrefix?: string;
   /** Overrides SPANISH_COMMANDS (spoken commands for the speaking module). */
   commands?: readonly SpokenCommandEntry[];
+  /** Overrides SPANISH_FILLERS (words dropped around a spoken command). */
+  fillers?: readonly string[];
+  /** Overrides SPANISH_STREET_ENDINGS (regular street endings for transcript alignment). */
+  streetEndings?: readonly (readonly [string, string])[];
 }
 
 /** Fixed context for scoring a Spanish sentence; the prefix measured in the proof test. */
@@ -56,7 +60,8 @@ export function registerClips(registers: readonly RegisterPack[]): { leading: st
  * he estado, ella vino). foldAccents is stripAccents (accents and diaeresis go, ñ stays); frequencyList
  * is LEMMAS_BY_FREQUENCY. attachClitic and splitClitics (clitics.ts) attach enclitic
  * pronouns keeping the host's stress (leyendo + lo -> leyéndolo) and split them off again
- * (dámelo -> da + me, lo), for the move rules. commands defaults to SPANISH_COMMANDS.
+ * (dámelo -> da + me, lo), for the move rules. commands defaults to SPANISH_COMMANDS,
+ * fillers to SPANISH_FILLERS and streetEndings to SPANISH_STREET_ENDINGS.
  * Defaults to no correction rules and no registers.
  */
 export function createSpanishPack(opts: SpanishPackOptions = {}): LanguagePack {
@@ -81,6 +86,8 @@ export function createSpanishPack(opts: SpanishPackOptions = {}): LanguagePack {
     attachClitic,
     splitClitics: (word: string) => splitClitics(word),
     commands: opts.commands ?? SPANISH_COMMANDS,
+    fillers: opts.fillers ?? SPANISH_FILLERS,
+    streetEndings: opts.streetEndings ?? SPANISH_STREET_ENDINGS,
   };
 }
 
@@ -91,6 +98,6 @@ export { inflect, paradigm, pluralize, feminine } from './inflect';
 export { analyze, createAnalyzer, DEFAULT_ANALYZE_OPTIONS } from './analyze';
 export { chooseSpanishAnalysis, VERB_CUE_ADVERBS } from './choose';
 export { attachClitic, splitClitics } from './clitics';
-export { SPANISH_COMMANDS } from './commands';
+export { SPANISH_COMMANDS, SPANISH_FILLERS, SPANISH_STREET_ENDINGS } from './commands';
 export { frequencyRank, LEXICON, LEMMAS_BY_FREQUENCY, lexiconRows } from './lexicon';
 export type { LexRow, LexGender } from './lexicon';

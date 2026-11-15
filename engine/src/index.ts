@@ -12,6 +12,13 @@
  * - learner:     per-item, per-skill memory model; difficulty settings; placement
  * - story:       target words, prompt, candidate selection, next sentence, cliff choice
  * - gaps:        native-language words inside target-language replies
+ * - speaking:    spoken commands, transcript alignment, retell, minutes spoken, self-repair,
+ *                "no sé", native-language answers, tile durations
+ * - lyrics:      pasted lyrics and brought text: parsing, slang notes, register pairs,
+ *                lyric cliffs, surprise maps, sing-back echo, the shared word aligner
+ * - session:     StorySession and LyricSession, the state machines the app drives
+ * - model:       the LanguageModel contract, the deterministic mock, the HTTP adapter for
+ *                proof/model_server.py and the top-N bounded wrapper
  *
  * Every tunable default is also re-exported from ./config, with the table of values that
  * wait on proof/RESULTS.md.
@@ -92,16 +99,36 @@ export {
 } from './gaps/capture';
 export type { GapOptions, NativeGap, NativeGapWord } from './gaps/capture';
 
+// Speaking, lyrics and sessions (their barrels list their public API)
+export * from './speaking';
+export * from './lyrics';
+export * from './session';
+
 // Packs for Spanish for English speakers
 export * from './packs';
-export { createSpanishPack } from './lang/es';
+export { SPANISH_COMMANDS, attachClitic, createSpanishPack, splitClitics } from './lang/es';
 export type { SpanishPackOptions } from './lang/es';
-export { SPANISH_EXPLAIN_KEYS, SPANISH_RULES } from './lang/es/rules';
+export {
+  CLITIC_ORDER,
+  NEGATION_WORDS,
+  PRONOUN_MOVE_RULES,
+  SPANISH_CLITICS,
+  SPANISH_EXPLAIN_KEYS,
+  SPANISH_RULES,
+} from './lang/es/rules';
 export type { SpanishExplainKey } from './lang/es/rules';
 export { REGION_CODES, SPANISH_REGISTERS, expandRegions, findSlang, registerFor } from './lang/es/registers';
 export type { FindSlangOptions } from './lang/es/registers';
-export { FALSE_FRIENDS, createEnEsPairPack, falseFriend } from './pair/en-es';
+export { EN_ES_STARTER, FALSE_FRIENDS, createEnEsPairPack, falseFriend } from './pair/en-es';
 export type { EnEsPairPackOptions, FalseFriend } from './pair/en-es';
 
-// Deterministic mock model, for app tests without a real model
+// Model adapters. Deterministic mock model, for app tests without a real model.
 export { MockLanguageModel, createMockModel } from './model/mock';
+// HTTP adapter for proof/model_server.py (development and real-model tests).
+export { DEFAULT_HTTP_MODEL_OPTIONS, HttpLanguageModel, HttpModelError, checkTokenScores } from './model/http';
+export type { FetchLike, FetchResponseLike, HttpModelHealth, HttpModelOptions } from './model/http';
+// A runtime that reports only top-N token lists (llama.rn forced decoding), simulated.
+export { DEFAULT_TOP_N_OPTIONS, TopNBoundedModel, boundedCount } from './model/topN';
+export type { TopNOptions } from './model/topN';
+// model/contract.ts (runLanguageModelContract) is a test-only helper: it imports vitest
+// and registers tests, so it is imported by path from test files, never from here.

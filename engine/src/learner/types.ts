@@ -59,6 +59,25 @@ export type LearnerEvent =
 /** How a cliff is answered: pick from spoken options, free answer with a first-sound hint, free answer. */
 export type CliffRung = 'options' | 'hint' | 'free';
 
+/**
+ * Continuous difficulty settings derived from the learner model. There are no level
+ * modes; every field moves smoothly with what the learner knows and how they are doing.
+ */
+export interface DifficultyParams {
+  /** Target sentence length in words. */
+  sentenceWords: { min: number; max: number };
+  /** Allowed share of known words per sentence (meaning skill). Stays near 0.95 to 0.98 at every level. */
+  knownBand: { min: number; max: number };
+  /** New lexemes to introduce per sentence; fractional means "every other sentence" etc. */
+  newWordsPerSentence: number;
+  /** Speech playback rate; 1 = natural speed. */
+  speechRate: number;
+  /** Number of words hidden at a cliff. */
+  cliffWords: number;
+  /** A word is shown as a tile (text hidden) when pKnown(sound) is at least this. */
+  tileThreshold: number;
+}
+
 /** Read-only view of the learner model used by the rest of the engine. */
 export interface LearnerView {
   /** Probability in [0, 1] that the learner has this skill for this item at time `now`. */

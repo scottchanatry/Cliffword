@@ -2,7 +2,10 @@
  * The only way the engine talks to a language model.
  *
  * Adapters (llama.rn on device, llama.cpp in tests, the mock below) implement this.
- * All log-probabilities are natural logs.
+ * All log-probabilities are natural logs. A log-probability may be -Infinity (the mock
+ * returns it for a token that cannot follow a partial word); engine code clamps every
+ * token log-probability to a finite floor (logprobFloor, -100 by default) before
+ * summing, and ignores zero-probability candidates.
  *
  * Spacing convention: a token that begins a new word carries its leading space.
  * Example: context "Marta llegó tarde al", text " mercado". Token texts are exact

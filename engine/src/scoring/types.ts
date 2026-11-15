@@ -28,7 +28,11 @@ export interface NextWord {
 export interface CliffPosition {
   wordIndex: number;
   segment: Segment;
-  /** log P(actual word | context up to it). */
+  /**
+   * log P(actual word | context up to it), as a whole word: the sum of its tokens plus,
+   * by default, the log of the end-of-word (boundary) mass, so it is on the same scale as
+   * the alternatives (see CliffOptions.actualBoundary in scoring/cliff.ts).
+   */
   actualLogprob: number;
   /** Most likely next words at this position, most likely first. */
   alternatives: NextWord[];
@@ -51,7 +55,14 @@ export type CreditReason =
   | 'unlikely';
 
 export interface CliffResult {
+  /** The answer exactly as given. */
   answer: string;
+  /**
+   * The text that was actually scored or matched, after trimming, case adjustment and
+   * accent restoration ("reir" -> "reír"). Optional for producers other than
+   * scoreCliffAnswer; '' when the answer had no words.
+   */
+  scored?: string;
   logprob: number;
   prob: number;
   /** 1-based rank among alternatives, or null if not among them. */

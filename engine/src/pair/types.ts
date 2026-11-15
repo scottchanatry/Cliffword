@@ -16,8 +16,19 @@ export interface PairPack {
    * target-language reply. Excludes words that are also common target words.
    */
   readonly nativeLexicon: ReadonlySet<string>;
-  /** Candidate target lemmas for a native word, best first. [] if unknown. */
+  /**
+   * Candidate target lemmas for a native word or short phrase ("hardware store"), best
+   * first. [] if unknown. A candidate may be a dictionary form that is not the pack's
+   * lemma (a feminine person noun such as "chica"); run LanguagePack.analyze on it to get
+   * the lemma for a learner key.
+   */
   toTarget(nativeWord: string): string[];
+  /**
+   * Optional false-friend warnings, keyed by target lemma: shown when the learner meets
+   * a target word that looks like a native word but means something else
+   * (es "embarazada" is not en "embarrassed").
+   */
+  readonly falseFriends?: Readonly<Record<string, string>>;
   /** Explanations shown with corrections, keyed by CorrectionRule.explainKey. */
   readonly explanations: Readonly<Record<string, string>>;
   /** Interface strings in the native language, keyed by id. */

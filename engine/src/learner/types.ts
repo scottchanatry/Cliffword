@@ -6,6 +6,7 @@
  * deterministic and testable.
  */
 import type { Features } from '../lang/types';
+import type { Credit } from '../scoring/types';
 
 /** meaning: understands it; sound: recognizes it by ear; written: recognizes it as text; speaking: can produce it. */
 export type Skill = 'meaning' | 'sound' | 'written' | 'speaking';
@@ -44,7 +45,7 @@ export type LearnerEvent =
   /** Asked for the meaning (gloss) of the word. */
   | { type: 'gloss_lookup'; key: string; at: number }
   /** Produced the word at a cliff. credit from cliff scoring. rung = how much help was given. */
-  | { type: 'cliff_answer'; key: string; at: number; credit: 'full' | 'partial' | 'none'; rung: CliffRung }
+  | { type: 'cliff_answer'; key: string; at: number; credit: Credit; rung: CliffRung }
   /** Said "no sé" at a cliff for this target word. */
   | { type: 'cliff_skip'; key: string; at: number }
   /** Used the word correctly in free speech. */

@@ -1,0 +1,450 @@
+diff --git a/node_modules/llama.rn/cpp/jsi/JSIScore.h b/node_modules/llama.rn/cpp/jsi/JSIScore.h
+new file mode 100644
+index 0000000..2e6126f
+--- /dev/null
++++ b/node_modules/llama.rn/cpp/jsi/JSIScore.h
+@@ -0,0 +1,386 @@
++#pragma once
++
++// llamaScoreText: log-probability of every token of a supplied text after a
++// context, from one batched decode with logits for the text positions.
++//
++// Added by a patch-package patch (Cliffword). Header-only so that neither the
++// podspec glob nor android/src/main/CMakeLists.txt (explicit JNI_SOURCE_FILES)
++// needs to change: RNLlamaJSI.cpp includes it, and RNLlamaJSI.cpp is compiled
++// from source on both platforms even when the prebuilt rnllama.xcframework /
++// jniLibs are used.
++//
++// Only llama_* and common_* functions are called (the iOS framework exports
++// them); no ggml_* symbol is referenced (rn-llama.h: the glue must not bind
++// ggml symbols through the framework).
++
++#include "JSINativeHeaders.h"
++
++#include <algorithm>
++#include <chrono>
++#include <cmath>
++#include <cstdint>
++#include <stdexcept>
++#include <string>
++#include <utility>
++#include <vector>
++
++namespace rnllama_jsi {
++
++    struct ScoreTextOptions {
++        // Token id put before the context (-1 = none). Pass it explicitly: do not
++        // rely on llama_vocab_bos(). The unsloth Qwen3 GGUFs have no
++        // tokenizer.ggml.bos_token_id, so llama.cpp's gpt2 default (11, ",") would
++        // be returned. Cliffword's proof scored after llama_vocab_eos() of that
++        // file, <|im_end|> = 151645. Without a start token or a context, the first
++        // text token cannot be scored.
++        int32_t start_token = -1;
++        // Parse special-token text written in the context (e.g. "<|im_start|>")
++        // as special tokens. Off by default: story and lyric text must never
++        // become control tokens; pass the start token as start_token instead.
++        // The scored text is never parsed for special tokens.
++        bool parse_special_context = false;
++        // Alternatives returned for each scored character group (0 = none).
++        int top_k = 0;
++        // Most likely next tokens after context + text (0 = none). With an
++        // empty text this is a raw-softmax nextTokens(context, k).
++        int next_top_k = 0;
++        // Bounds the logits buffer llama.cpp allocates: n_vocab * 4 bytes per
++        // output row (Qwen3: 151936 * 4 = 0.6 MB). 64 rows = 39 MB.
++        int max_outputs_per_decode = 64;
++        // Reuse the KV-cache prefix shared with the previous op on sequence 0
++        // (completion or score). The completion's own prefix logic then reuses
++        // what this call leaves behind.
++        bool reuse_cache = true;
++    };
++
++    namespace score_detail {
++
++        inline bool isUtf8Continuation(unsigned char c) {
++            return (c & 0xC0) == 0x80;
++        }
++
++        inline size_t utf8SeqLen(unsigned char c) {
++            if (c < 0x80) return 1;
++            if ((c >> 5) == 0x6) return 2;
++            if ((c >> 4) == 0xE) return 3;
++            if ((c >> 3) == 0x1E) return 4;
++            return 1; // invalid lead byte: count it as one unit
++        }
++
++        inline bool isWellFormedUtf8(const std::string& s) {
++            size_t i = 0;
++            while (i < s.size()) {
++                const unsigned char c = (unsigned char) s[i];
++                const size_t len = utf8SeqLen(c);
++                if (len == 1 && c >= 0x80) return false;
++                if (i + len > s.size()) return false;
++                for (size_t k = 1; k < len; ++k) {
++                    if (!isUtf8Continuation((unsigned char) s[i + k])) return false;
++                }
++                i += len;
++            }
++            return true;
++        }
++
++        // UTF-16 code-unit offset (JavaScript string index) of every UTF-8 byte
++        // offset that starts a character, and of the end; -1 inside a character.
++        inline std::vector<int> utf16Offsets(const std::string& s) {
++            std::vector<int> out(s.size() + 1, -1);
++            int u16 = 0;
++            size_t i = 0;
++            while (i < s.size()) {
++                out[i] = u16;
++                size_t len = utf8SeqLen((unsigned char) s[i]);
++                if (i + len > s.size()) len = s.size() - i;
++                u16 += (len == 4) ? 2 : 1; // astral characters are surrogate pairs in JS
++                i += len;
++            }
++            out[s.size()] = u16;
++            return out;
++        }
++
++        struct Alt {
++            llama_token id;
++            float logprob;
++        };
++
++        // log(sum(exp(logits))), computed stably in double precision.
++        inline double logSumExp(const float* logits, int n_vocab) {
++            float mx = -INFINITY;
++            for (int i = 0; i < n_vocab; ++i) mx = std::max(mx, logits[i]);
++            double sum = 0.0;
++            for (int i = 0; i < n_vocab; ++i) sum += std::exp((double) logits[i] - (double) mx);
++            return (double) mx + std::log(sum);
++        }
++
++        inline std::vector<Alt> topK(const float* logits, int n_vocab, double lse, int k) {
++            std::vector<Alt> out;
++            if (k <= 0) return out;
++            k = std::min(k, n_vocab);
++            std::vector<llama_token> ids(n_vocab);
++            for (int i = 0; i < n_vocab; ++i) ids[i] = i;
++            std::partial_sort(ids.begin(), ids.begin() + k, ids.end(),
++                [logits](llama_token a, llama_token b) { return logits[a] > logits[b]; });
++            out.reserve(k);
++            for (int i = 0; i < k; ++i) {
++                out.push_back({ids[i], (float) ((double) logits[ids[i]] - lse)});
++            }
++            return out;
++        }
++
++        // A candidate token as JSON. A piece that is not whole UTF-8 (a byte-level
++        // token holding part of a character) cannot be a JS string: it is sent as
++        // bytes with partial: true.
++        inline json altJson(const llama_vocab* vocab, const Alt& a) {
++            const std::string piece = common_token_to_piece(vocab, a.id, false);
++            json j = json::object();
++            j["id"] = a.id;
++            j["logprob"] = a.logprob;
++            if (isWellFormedUtf8(piece)) {
++                j["text"] = piece;
++            } else {
++                j["text"] = "";
++                j["partial"] = true;
++                json bytes = json::array();
++                for (unsigned char c : piece) bytes.push_back((int) c);
++                j["bytes"] = bytes;
++            }
++            return j;
++        }
++
++        struct BatchHolder {
++            llama_batch batch;
++            explicit BatchHolder(int32_t n) : batch(llama_batch_init(n, 0, 1)) {}
++            ~BatchHolder() { llama_batch_free(batch); }
++            BatchHolder(const BatchHolder&) = delete;
++            BatchHolder& operator=(const BatchHolder&) = delete;
++        };
++
++    } // namespace score_detail
++
++    // Runs on a worker thread with the context claimed (ContextClaim), so no
++    // completion, decide or other op touches sequence 0 meanwhile.
++    inline json scoreText(
++        rnllama::llama_rn_context* rn,
++        const std::string& context,
++        const std::string& text,
++        const ScoreTextOptions& opt
++    ) {
++        using namespace score_detail;
++        const auto t0 = std::chrono::steady_clock::now();
++
++        if (rn == nullptr || rn->ctx == nullptr || rn->model == nullptr) {
++            throw std::runtime_error("scoreText: context is not loaded");
++        }
++        if (rn->parallel_mode_enabled) {
++            // the slots own the sequences; clearing memory would drop them
++            throw std::runtime_error("scoreText: disable parallel mode first");
++        }
++        if (rn->params.embedding) {
++            throw std::runtime_error("scoreText: context was created in embedding mode");
++        }
++
++        llama_context* lctx = rn->ctx;
++        const llama_model* model = rn->model;
++        const llama_vocab* vocab = llama_model_get_vocab(model);
++        const int n_vocab = llama_vocab_n_tokens(vocab);
++
++        // 1. Tokenize context and text separately. The engine's convention puts a
++        //    word's leading space in the text, so the boundary is a word boundary.
++        std::vector<llama_token> all;
++        if (opt.start_token >= 0) {
++            if (opt.start_token >= n_vocab) {
++                throw std::invalid_argument("scoreText: start_token is outside the vocabulary");
++            }
++            all.push_back((llama_token) opt.start_token);
++        }
++        if (!context.empty()) {
++            const auto ctoks = common_tokenize(vocab, context, false, opt.parse_special_context);
++            all.insert(all.end(), ctoks.begin(), ctoks.end());
++        }
++        const size_t n_ctx_tok = all.size();
++        if (n_ctx_tok == 0) {
++            throw std::invalid_argument("scoreText: empty context and no start_token");
++        }
++        std::vector<llama_token> ttoks;
++        if (!text.empty()) {
++            ttoks = common_tokenize(vocab, text, false, false);
++        }
++        all.insert(all.end(), ttoks.begin(), ttoks.end());
++        const size_t N = all.size();
++        if (N > (size_t) llama_n_ctx(lctx)) {
++            throw std::runtime_error("scoreText: context + text exceed n_ctx");
++        }
++
++        // 2. The token pieces must rebuild the text byte for byte, or offsets
++        //    cannot be given. SentencePiece models may add one leading space.
++        std::vector<std::string> pieces;
++        pieces.reserve(ttoks.size());
++        std::string joined;
++        for (const llama_token id : ttoks) {
++            pieces.push_back(common_token_to_piece(vocab, id, false));
++            joined += pieces.back();
++        }
++        if (joined != text) {
++            if (!pieces.empty() && joined.size() == text.size() + 1 && joined[0] == ' ' &&
++                joined.compare(1, std::string::npos, text) == 0 && !pieces[0].empty()) {
++                pieces[0].erase(0, 1);
++            } else {
++                throw std::runtime_error("scoreText: token pieces do not rebuild the text (normalize to NFC)");
++            }
++        }
++
++        // 3. Reuse the cached prefix of sequence 0. The completion keeps its mirror
++        //    of what sequence 0 holds in completion->embd; the frontier check guards
++        //    against a last sampled token that was never decoded.
++        llama_memory_t mem = llama_get_memory(lctx);
++        const bool fragileMemory = llama_model_is_recurrent(model) || llama_model_is_hybrid(model) ||
++            (llama_model_n_swa(model) > 0 && !rn->params.swa_full);
++        auto* comp = rn->completion;
++
++        size_t n_past = 0;
++        if (opt.reuse_cache && !fragileMemory && comp != nullptr) {
++            const llama_pos frontier = llama_memory_seq_pos_max(mem, 0) + 1;
++            const auto& cached = comp->embd;
++            size_t common = 0;
++            while (common < cached.size() && common < N && cached[common] == all[common]) ++common;
++            common = std::min(common, (size_t) std::max<llama_pos>(0, frontier));
++            // logits are needed from the last context token on
++            n_past = std::min(common, n_ctx_tok - 1);
++        }
++        if (comp != nullptr) {
++            // invalid until this call succeeds: a failure leaves the completion to
++            // re-evaluate its whole prompt
++            comp->embd.clear();
++            comp->n_past = 0;
++        }
++        if (n_past == 0) {
++            llama_memory_clear(mem, false);
++        } else if (!llama_memory_seq_rm(mem, 0, (llama_pos) n_past, -1)) {
++            llama_memory_clear(mem, false);
++            n_past = 0;
++        }
++
++        // 4. Decode [n_past, N) in batches; request logits where the next token is
++        //    a text token, and at the end when next_top_k is asked for.
++        auto wantsOutput = [&](size_t p) {
++            return (p + 1 >= n_ctx_tok && p + 1 < N) || (opt.next_top_k > 0 && p + 1 == N);
++        };
++
++        const int n_batch = std::max(1, (int) llama_n_batch(lctx));
++        const int max_out = std::max(1, opt.max_outputs_per_decode);
++        std::vector<float> lp(ttoks.size(), 0.0f);
++        std::vector<std::vector<Alt>> alts(opt.top_k > 0 ? ttoks.size() : 0);
++        std::vector<Alt> nextAlts;
++
++        BatchHolder holder(n_batch);
++        llama_batch& batch = holder.batch;
++        std::vector<std::pair<int32_t, size_t>> outs; // (index in batch, position)
++
++        size_t p = n_past;
++        while (p < N) {
++            batch.n_tokens = 0;
++            outs.clear();
++            while (p < N && batch.n_tokens < n_batch) {
++                const bool out = wantsOutput(p);
++                if (out && (int) outs.size() >= max_out) break;
++                if (out) outs.emplace_back(batch.n_tokens, p);
++                rnllama::llama_batch_add(&batch, all[p], (llama_pos) p, {0}, out);
++                ++p;
++            }
++            const int32_t rc = llama_decode(lctx, batch);
++            if (rc != 0) {
++                llama_memory_clear(mem, false);
++                throw std::runtime_error("scoreText: llama_decode failed with code " + std::to_string(rc));
++            }
++            for (const auto& [bidx, pos] : outs) {
++                const float* row = llama_get_logits_ith(lctx, bidx);
++                if (row == nullptr) {
++                    llama_memory_clear(mem, false);
++                    throw std::runtime_error("scoreText: no logits for a scored position");
++                }
++                const double lse = logSumExp(row, n_vocab);
++                if (pos + 1 < N) {
++                    const size_t ti = pos + 1 - n_ctx_tok;
++                    lp[ti] = (float) ((double) row[all[pos + 1]] - lse);
++                    if (opt.top_k > 0) alts[ti] = topK(row, n_vocab, lse, opt.top_k);
++                } else {
++                    nextAlts = topK(row, n_vocab, lse, opt.next_top_k);
++                }
++            }
++        }
++
++        // 5. Sequence 0 now holds all N tokens. Tell the completion, so its next
++        //    prompt reuses the shared prefix (story context) instead of re-evaluating.
++        if (fragileMemory) {
++            llama_memory_clear(mem, false);
++        } else if (comp != nullptr) {
++            comp->embd = all;
++            comp->n_past = (llama_pos) N;
++        }
++
++        // 6. Merge byte-level tokens into groups that start and end on UTF-8
++        //    character boundaries (Spanish á é í ó ú ñ ¿ ¡ may split), summing
++        //    log-probabilities. Offsets are UTF-16 indices into the JS string.
++        const std::vector<int> u16 = utf16Offsets(text);
++        json tokens = json::array();
++        size_t byte = 0;
++        size_t gStart = 0;
++        size_t gFirst = 0;
++        double gSum = 0.0;
++        bool inGroup = false;
++        for (size_t i = 0; i < pieces.size(); ++i) {
++            if (!inGroup) {
++                inGroup = true;
++                gStart = byte;
++                gFirst = i;
++                gSum = 0.0;
++            }
++            gSum += (double) lp[i];
++            byte += pieces[i].size();
++            const bool boundary = byte >= text.size() || !isUtf8Continuation((unsigned char) text[byte]);
++            if (boundary && byte > gStart) {
++                const size_t gEnd = std::min(byte, text.size());
++                json t = json::object();
++                t["text"] = text.substr(gStart, gEnd - gStart);
++                t["start"] = u16[gStart];
++                t["end"] = u16[gEnd];
++                t["logprob"] = gSum;
++                t["n_tokens"] = (int) (i - gFirst + 1);
++                if (opt.top_k > 0) {
++                    json top = json::array();
++                    for (const auto& a : alts[gFirst]) top.push_back(altJson(vocab, a));
++                    t["top"] = top;
++                }
++                tokens.push_back(t);
++                inGroup = false;
++            }
++        }
++        if (inGroup && text.size() > gStart) {
++            // only reachable with ill-formed UTF-8 at the very end: keep the
++            // tokens concatenating to the whole text
++            json t = json::object();
++            t["text"] = text.substr(gStart);
++            t["start"] = u16[gStart] >= 0 ? u16[gStart] : 0;
++            t["end"] = u16[text.size()];
++            t["logprob"] = gSum;
++            t["n_tokens"] = (int) (pieces.size() - gFirst);
++            tokens.push_back(t);
++        }
++
++        json result = json::object();
++        result["tokens"] = tokens;
++        result["n_context_tokens"] = (int) n_ctx_tok;
++        result["n_text_tokens"] = (int) ttoks.size();
++        result["n_reused"] = (int) n_past;
++        result["n_evaluated"] = (int) (N - n_past);
++        if (opt.next_top_k > 0) {
++            json next = json::array();
++            for (const auto& a : nextAlts) next.push_back(altJson(vocab, a));
++            result["next"] = next;
++        }
++        result["t_ms"] = std::chrono::duration<double, std::milli>(std::chrono::steady_clock::now() - t0).count();
++        return result;
++    }
++
++} // namespace rnllama_jsi
+diff --git a/node_modules/llama.rn/cpp/jsi/RNLlamaJSI.cpp b/node_modules/llama.rn/cpp/jsi/RNLlamaJSI.cpp
+index 4699569..b96104c 100644
+--- a/node_modules/llama.rn/cpp/jsi/RNLlamaJSI.cpp
++++ b/node_modules/llama.rn/cpp/jsi/RNLlamaJSI.cpp
+@@ -10,6 +10,7 @@
+ #include "JSITaskManager.h"
+ #include "JSINativeHeaders.h"
+ #include "JSIJson.h"
++#include "JSIScore.h"
+ 
+ #include <algorithm>
+ #include <atomic>
+@@ -895,6 +896,45 @@ namespace rnllama_jsi {
+         );
+         runtime.global().setProperty(runtime, "llamaDetokenize", detokenize);
+ 
++        // llamaScoreText(ctxId, context, text, opts?) -> Promise<{
++        //   tokens: [{ text, start, end, logprob, n_tokens, top? }],
++        //   next?: [{ id, text, logprob, partial?, bytes? }],
++        //   n_context_tokens, n_text_tokens, n_reused, n_evaluated, t_ms }>
++        // opts: { start_token, parse_special_context, top_k, next_top_k,
++        //         max_outputs_per_decode, reuse_cache } (see JSIScore.h)
++        // Not in index.ts's jsiBindingKeys, so it stays on global.
++        auto scoreTextFn = jsi::Function::createFromHostFunction(runtime,
++            jsi::PropNameID::forAscii(runtime, "llamaScoreText"),
++            4,
++            [callInvoker](jsi::Runtime& runtime, const jsi::Value& thisValue, const jsi::Value* arguments, size_t count) -> jsi::Value {
++                if (count < 3 || !arguments[0].isNumber() || !arguments[1].isString() || !arguments[2].isString()) {
++                    throw jsi::JSError(runtime, "llamaScoreText(contextId, context, text, opts?)");
++                }
++                int contextId = (int)arguments[0].asNumber();
++                std::string context = arguments[1].asString(runtime).utf8(runtime);
++                std::string text = arguments[2].asString(runtime).utf8(runtime);
++                json o = (count > 3 && arguments[3].isObject()) ? toJson(runtime, arguments[3]) : json::object();
++
++                ScoreTextOptions opts;
++                opts.start_token = getPropertyAsInt(o, "start_token", opts.start_token);
++                opts.parse_special_context = getPropertyAsBool(o, "parse_special_context", opts.parse_special_context);
++                opts.top_k = getPropertyAsInt(o, "top_k", opts.top_k);
++                opts.next_top_k = getPropertyAsInt(o, "next_top_k", opts.next_top_k);
++                opts.max_outputs_per_decode = getPropertyAsInt(o, "max_outputs_per_decode", opts.max_outputs_per_decode);
++                opts.reuse_cache = getPropertyAsBool(o, "reuse_cache", opts.reuse_cache);
++
++                return createPromiseTask(runtime, callInvoker, [contextId, context, text, opts]() -> PromiseResultGenerator {
++                    auto ctx = getContextOrThrow(contextId);
++                    ContextClaim claim(ctx);
++                    json result = scoreText(ctx, context, text, opts);
++                    return [result](jsi::Runtime& rt) {
++                        return fromJson(rt, result);
++                    };
++                }, contextId);
++            }
++        );
++        runtime.global().setProperty(runtime, "llamaScoreText", scoreTextFn);
++
+         // llamaGetFormattedChat(ctxId, messages, chatTemplate?, opts?)
+         //   messages: OpenAI-compatible messages as a JSON string. Kept as a
+         //             string on purpose: llama.cpp's common_json can only be

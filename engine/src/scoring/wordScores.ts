@@ -6,7 +6,7 @@
 import type { LanguagePack, Segment } from '../lang/types';
 import type { LanguageModel, TokenScore } from '../model/types';
 import type { Heat, WordScore } from './types';
-import { clampLogprob, isSpace } from './text';
+import { atSentenceStart, clampLogprob, isSpace } from './text';
 
 /**
  * Returns how much of a word's surprisal (in nats) is explained by the word itself rather
@@ -29,15 +29,42 @@ export interface HeatOptions {
    * clamped to it, so word scores and sums stay finite and comparable.
    */
   logprobFloor: number;
-  /** Optional typical-surprisal hook; see SurprisalBaseline and frequencyBaseline(). */
+  /**
+   * Optional typical-surprisal hook; see SurprisalBaseline and frequencyBaseline(). Off by
+   * default: in the proof test, subtracting a word's stand-alone surprisal made error
+   * localization worse (70% top-1 with no baseline, 44% at half weight, 27% at full).
+   */
   baseline?: SurprisalBaseline;
+  /**
+   * Nats subtracted from the first word of each sentence before the thresholds apply.
+   * The first word has little context, so it is surprising for no fault of the learner
+   * (proof test, Qwen3-1.7B: median 6.7 nats for sentence-first words vs 4.0 for the
+   * rest).
+   */
+  sentenceStartAllowance: number;
+  /**
+   * Whether the first word of the scored text starts a sentence. scoreWords works it out
+   * from the context (a context that is empty, ends a sentence, or ends in a line break,
+   * as the scoring prefix does); wordScoresFromTokens assumes true unless told.
+   */
+  startsSentence?: boolean;
+  /**
+   * Words for which this returns true keep their surprisal but get heat 0. Street
+   * register passes slangExemption(pack, regions): the model cannot judge slang.
+   */
+  exempt?: (segment: Segment) => boolean;
 }
 
 export const DEFAULT_HEAT_OPTIONS: Readonly<HeatOptions> = {
-  // set from proof/RESULTS.md. Placeholders: heat 1 below p = 1.8% (4 nats),
-  // heat 2 below p = 0.09% (7 nats), heat 3 below p = 0.005% (10 nats).
-  thresholds: [4, 7, 10],
+  // Proof test (Qwen3-1.7B, neutral prefix), surprisal of the words of correct sentences
+  // after the first: p75 6.2-6.5, p90 8.2-8.9, p95 10.7-11.1 nats; error words: median
+  // 8.2, 62% >= 7, 33% >= 10, 18% >= 12. So heat 1 marks roughly the top fifth of correct
+  // words, heat 2 the top tenth and heat 3 the top 2-3%, while about half of error words
+  // reach heat 2. The most surprising word is the error only 70% of the time (top two:
+  // 89%), so shading stays soft; corrections locate errors from rule variants instead.
+  thresholds: [7, 9.5, 12],
   logprobFloor: -100,
+  sentenceStartAllowance: 2.5,
 };
 
 export interface FrequencyBaselineOptions {
@@ -54,11 +81,10 @@ export interface FrequencyBaselineOptions {
 }
 
 export const DEFAULT_BASELINE_OPTIONS: Readonly<FrequencyBaselineOptions> = {
-  // set from proof/RESULTS.md
+  // Not used by default: in the proof test a stand-alone-surprisal baseline made error
+  // localization worse (see HeatOptions.baseline). Kept for experiments.
   commonRank: 500,
-  // set from proof/RESULTS.md
   natsPerLogRank: 0.5,
-  // set from proof/RESULTS.md
   maxBaseline: 4,
 };
 
@@ -160,8 +186,14 @@ export function wordScoresFromTokens(
 ): WordScore[] {
   const o = { ...DEFAULT_HEAT_OPTIONS, ...opts };
   const sums = alignTokensToWords(tokens, segments, o.logprobFloor);
-  const words = segments.filter((s) => s.kind === 'word');
-  return words.map((segment, wordIndex) => {
+  const out: WordScore[] = [];
+  let before = '';
+  for (const segment of segments) {
+    if (segment.kind !== 'word') {
+      before += segment.text;
+      continue;
+    }
+    const wordIndex = out.length;
     const logprob = sums[wordIndex] ?? 0;
     const surprisal = 0 - logprob;
     let adjusted = surprisal;
@@ -169,8 +201,22 @@ export function wordScoresFromTokens(
       const b = o.baseline(segment.norm, segment);
       if (Number.isFinite(b)) adjusted -= b;
     }
-    return { segment, wordIndex, logprob, surprisal, heat: heatFor(adjusted, o.thresholds) };
-  });
+    const sentenceStart = wordIndex === 0 ? o.startsSentence !== false : atSentenceStart(before);
+    if (sentenceStart && Number.isFinite(o.sentenceStartAllowance)) adjusted -= o.sentenceStartAllowance;
+    const heat: Heat = o.exempt?.(segment) ? 0 : heatFor(adjusted, o.thresholds);
+    out.push({ segment, wordIndex, logprob, surprisal, heat });
+    before += segment.text;
+  }
+  return out;
+}
+
+/**
+ * Whether text scored after `context` starts a sentence: the context is empty, ends a
+ * sentence, or ends in a line break (as a scoring prefix such as "Frase en español:\n"
+ * does).
+ */
+export function contextStartsSentence(context: string): boolean {
+  return /\n[ \t]*$/.test(context) || atSentenceStart(context);
 }
 
 /**
@@ -193,7 +239,7 @@ export async function scoreWords(
   const segments = pack.segment(text);
   if (!segments.some((s) => s.kind === 'word')) return [];
   const tokens = await model.scoreContinuation(context, text);
-  return wordScoresFromTokens(tokens, segments, opts);
+  return wordScoresFromTokens(tokens, segments, { startsSentence: contextStartsSentence(context), ...opts });
 }
 
 /**

@@ -47,17 +47,26 @@ export interface JudgeOptions extends VariantOptions {
   logprobFloor: number;
 }
 
-/** Defaults. The margins are placeholders until the proof test measures them. */
+/**
+ * Defaults. Margins from the proof test (proof/RESULTS.md, 93 minimal pairs over 9 rules,
+ * Qwen3-1.7B, scored after the neutral prefix; see scoring/context.ts):
+ * - margin >= 3 nats: 80% of errors caught with no false flags, so assert;
+ * - 1 to 3 nats: a soft hint brings the catch to 95% with one false flag;
+ * - below 1 nat: treat as acceptable.
+ * The weakest rules were ser/estar, por/para and the personal a (90 to 92%).
+ */
 export const DEFAULT_JUDGE_OPTIONS: Readonly<JudgeOptions> = {
   ...DEFAULT_VARIANT_OPTIONS,
-  /** set from proof/RESULTS.md (margin above which >= 95% of flagged pairs are true errors). */
   assertMargin: 3,
-  /** set from proof/RESULTS.md */
   hintMargin: 1,
-  /** set from proof/RESULTS.md */
+  /** Judgement call, not measured: rules within 1 nat of each other cannot be told apart. */
   tieMargin: 1,
-  /** set from proof/RESULTS.md (typical cost of a short function-word token). */
-  lengthAdjustPerToken: 1,
+  /**
+   * 0 from the proof test: on Qwen3-1.7B a length bias for inserts and deletes (personal
+   * a, articles) caught no more errors at any setting from 0.5 to 1.5 nats per token.
+   * (On Qwen3-4B, 1 nat per token caught 2 more of 93 errors.)
+   */
+  lengthAdjustPerToken: 0,
   contextSeparator: ' ',
   logprobFloor: -100,
 };

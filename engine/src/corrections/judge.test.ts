@@ -161,11 +161,14 @@ describe('judgeSentence with the mock model', () => {
 
   it('skips streetTolerant rules (number) in street register', async () => {
     const text = 'Los libro nuevos.';
-    const neutral = await judgeSentence(mock, pack, '', text);
+    // The trigram mock charges each extra token far more than a real model, so its
+    // insert/delete margins need the length bias the real-model default (0) leaves out.
+    const mockLength = { lengthAdjustPerToken: 1 };
+    const neutral = await judgeSentence(mock, pack, '', text, mockLength);
     expect(neutral.verdict).toBe('assert');
     expect(neutral.explainKey).toBe('es.number');
     expect(neutral.best?.text).toBe('Los libros nuevos.');
-    const street = await judgeSentence(mock, pack, '', text, { register: 'street' });
+    const street = await judgeSentence(mock, pack, '', text, { ...mockLength, register: 'street' });
     expect(street.variants.some((v) => v.explainKey === 'es.number')).toBe(false);
     expect(street.explainKey).not.toBe('es.number');
     expect(street.verdict).not.toBe('assert');

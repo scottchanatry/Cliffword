@@ -11,6 +11,8 @@ const { casual, clipped, vulgar } = builders(CARIB);
 export const CARIB_REGISTER: RegisterPack = {
   id: 'es-CARIB',
   region: CARIB,
+  // Same shape as the Puerto Rico prefix measured in the proof test; not measured itself.
+  scoringPrefix: 'Conversación entre panas en el Caribe, en español de la calle, con palabras como {words}:\n',
   entries: [
     // estar without its first syllable
     clipped("'tar", 'estar', 'to be (clipped "estar")'),

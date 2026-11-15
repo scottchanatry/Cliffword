@@ -49,7 +49,12 @@ export interface VariantOptions {
 /** Defaults for variant generation. */
 export const DEFAULT_VARIANT_OPTIONS: Readonly<VariantOptions> = {
   register: 'neutral',
-  /** Each variant costs one scoreContinuation call. set from proof/RESULTS.md (speed: one sentence plus N variants). */
+  /**
+   * Each variant costs one scoreContinuation call. Proof test speed: a ten-word sentence
+   * plus six variants took 1.9 s on 4 CPU cores for Qwen3-1.7B without KV-cache reuse;
+   * judgeSentence shares the prefix, so 16 should stay near interactive speed on a phone.
+   * Measure on device and lower if needed.
+   */
   maxVariants: 16,
   agreeInserted: true,
   capitalizedUnknownAsPropn: true,

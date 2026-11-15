@@ -63,7 +63,8 @@ export const DEFAULT_NEXT_SENTENCE_TUNING: Readonly<NextSentenceTuning> = {
   retryTemperature: 0.6,
   retry: true,
   stop: ['\n'],
-  // set from proof/RESULTS.md (tokens per Spanish word for the chosen model's tokenizer)
+  // Proof test: Qwen3 uses about 1.6 tokens per Spanish word, punctuation included; 2
+  // leaves headroom so a sentence is not cut off.
   tokensPerWord: 2,
   extraTokens: 8,
   contextSentences: 4,

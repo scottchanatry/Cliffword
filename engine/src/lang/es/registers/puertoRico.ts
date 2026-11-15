@@ -10,6 +10,8 @@ const { word, casual, phrase, clipped, vulgar } = builders(PR);
 export const PR_REGISTER: RegisterPack = {
   id: 'es-PR',
   region: PR,
+  // The prefix measured in the proof test.
+  scoringPrefix: 'Conversación entre panas en Puerto Rico, en español de la calle, con palabras como {words}:\n',
   entries: [
     // Going out and friends
     casual('janguear', 'salir', 'to hang out, go out'),

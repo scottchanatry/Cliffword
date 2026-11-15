@@ -105,13 +105,16 @@ export interface NextWordOptions {
 
 export const DEFAULT_NEXT_WORD_OPTIONS: Readonly<NextWordOptions> = {
   k: 10,
-  // set from proof/RESULTS.md (speed vs. recall of the next-word lists)
+  // Proof test: a beam of 30 partial words per level over the 60 best first tokens,
+  // 4 pieces deep, pruned at 0.001, took about 60 model calls (8 s for Qwen3-1.7B on 4
+  // CPU cores without KV-cache reuse) and gave usable top-10 lists for standard Spanish
+  // (top-10 mass 0.33 to 0.99). Cliffs need about 10 alternatives, so the beam here is
+  // narrower to keep a cliff under the call budget; widen it if lists look thin on device.
   beamWidth: 12,
-  // set from proof/RESULTS.md (larger means a tighter boundary-mass lower bound)
   topTokens: 20,
   maxPieces: 4,
-  // set from proof/RESULTS.md
-  minProb: 1e-4,
+  // Proof test pruning floor.
+  minProb: 1e-3,
   // Covers the worst case 1 + beamWidth * maxPieces = 49 plus one pending-space level.
   maxModelCalls: 64,
   boundaryEstimate: 'seen',

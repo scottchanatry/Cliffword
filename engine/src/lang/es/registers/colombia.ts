@@ -10,6 +10,8 @@ const { word, casual, phrase, clipped, vulgar } = builders(CO);
 export const CO_REGISTER: RegisterPack = {
   id: 'es-CO',
   region: CO,
+  // Same shape as the Puerto Rico prefix measured in the proof test; not measured itself.
+  scoringPrefix: 'Conversación entre parceros en Colombia, en español de la calle, con palabras como {words}:\n',
   entries: [
     // Greetings and friends
     casual('parce', 'amigo', 'buddy, mate'),

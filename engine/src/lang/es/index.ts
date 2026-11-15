@@ -16,7 +16,12 @@ import { createSegmenter } from './segment';
 export interface SpanishPackOptions {
   rules?: readonly CorrectionRule[];
   registers?: readonly RegisterPack[];
+  /** Overrides SPANISH_SCORING_PREFIX. */
+  scoringPrefix?: string;
 }
+
+/** Fixed context for scoring a Spanish sentence; the prefix measured in the proof test. */
+export const SPANISH_SCORING_PREFIX = 'Frase en español:\n';
 
 /**
  * Clipped forms in register packs that start or end with an apostrophe ('tá, pa'),
@@ -65,6 +70,7 @@ export function createSpanishPack(opts: SpanishPackOptions = {}): LanguagePack {
     frequencyList: LEMMAS_BY_FREQUENCY,
     rules,
     registers,
+    scoringPrefix: opts.scoringPrefix ?? SPANISH_SCORING_PREFIX,
   };
 }
 

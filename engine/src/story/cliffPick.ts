@@ -55,7 +55,9 @@ export interface CliffPickOptions {
 }
 
 export const DEFAULT_CLIFF_PICK_OPTIONS: Readonly<CliffPickOptions> = {
-  // set from proof/RESULTS.md (the plausibility floor of the chosen model)
+  // Checked against the proof test's next-word lists (Qwen3-1.7B): the tenth most likely
+  // word of a standard opening has about 0.01, so 0.02 keeps a cliff word among the
+  // model's real candidates. Not yet checked against learner answers.
   probFloor: 0.02,
   targetBonus: 2,
   meaningNotSpeakingWeight: 1.5,

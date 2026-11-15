@@ -7,38 +7,38 @@
  * takes options merges a Partial<...> over these defaults, so a caller overrides only
  * what it needs.
  *
- * Values that wait on the proof test (proof/RESULTS.md, step 1 of docs/BRIEF.md). They
- * are placeholders until then; each is marked "set from proof/RESULTS.md" in its source.
+ * Proof test outcome (proof/RESULTS.md, step 1 of docs/BRIEF.md). Model: Qwen3-1.7B,
+ * Q4_K_M (1.1 GB): the same 97% minimal-pair accuracy as Qwen3-4B at half the size and
+ * twice the speed. Gemma 3n E2B gave broken output in that llama.cpp build; retest it
+ * on llama.rn before ruling it out.
  *
- * | Object                          | Field                         | Placeholder | What the proof test measures                                  |
- * |---------------------------------|-------------------------------|-------------|---------------------------------------------------------------|
- * | DEFAULT_HEAT_OPTIONS            | thresholds                    | [4, 7, 10]  | surprisal (nats) of correct vs. wrong words, per heat level   |
- * | DEFAULT_BASELINE_OPTIONS        | commonRank                    | 500         | rank below which rarity adds no surprisal                     |
- * | DEFAULT_BASELINE_OPTIONS        | natsPerLogRank                | 0.5         | how much rarity explains surprisal on correct sentences       |
- * | DEFAULT_BASELINE_OPTIONS        | maxBaseline                   | 4           | cap on the rarity allowance                                   |
- * | DEFAULT_NEXT_WORD_OPTIONS       | beamWidth                     | 12          | next-word recall vs. speed (step 5, whole-word lists)         |
- * | DEFAULT_NEXT_WORD_OPTIONS       | topTokens                     | 20          | boundary-mass tightness vs. speed                             |
- * | DEFAULT_NEXT_WORD_OPTIONS       | minProb                       | 1e-4        | smallest word probability worth keeping                       |
- * | DEFAULT_CLIFF_OPTIONS           | plausibleFloor                | 0.02        | probability of natural alternative continuations              |
- * | DEFAULT_CREDIT_OPTIONS          | fullRatio                     | 0.25        | answer probability relative to the top alternative            |
- * | DEFAULT_CREDIT_OPTIONS          | fullFloor                     | 0.05        | absolute probability of natural answers                       |
- * | DEFAULT_CREDIT_OPTIONS          | partialFloor                  | 0.005       | probability of possible-but-unusual answers                   |
- * | DEFAULT_CREDIT_OPTIONS          | multiFullMargin               | 1.0         | nats per word, multi-word answers vs. the actual words        |
- * | DEFAULT_CREDIT_OPTIONS          | multiPartialMargin            | 2.5         | same, for partial credit                                      |
- * | DEFAULT_VARIANT_OPTIONS         | maxVariants                   | 16          | time to score one sentence plus N variants (speed)            |
- * | DEFAULT_JUDGE_OPTIONS           | maxVariants                   | 16          | (inherited from DEFAULT_VARIANT_OPTIONS)                      |
- * | DEFAULT_JUDGE_OPTIONS           | assertMargin                  | 3           | margin above which >= 95% of flagged pairs are true errors    |
- * | DEFAULT_JUDGE_OPTIONS           | hintMargin                    | 1           | margin distribution of correct vs. incorrect pairs            |
- * | DEFAULT_JUDGE_OPTIONS           | tieMargin                     | 1           | margins between competing rules                               |
- * | DEFAULT_JUDGE_OPTIONS           | lengthAdjustPerToken          | 1           | typical cost of a short function-word token (insert/delete)   |
- * | DEFAULT_CLIFF_PICK_OPTIONS      | probFloor                     | 0.02        | probability below which a cliff word is not guessable         |
- * | DEFAULT_NEXT_SENTENCE_TUNING    | tokensPerWord                 | 2           | tokens per Spanish word for the chosen model's tokenizer      |
- * | EVENT_EVIDENCE (learner/model)  | cliff_answer.partial          | weights     | how often the scorer's plausible/form verdicts are right      |
- * | EVENT_EVIDENCE (learner/model)  | spoke_error                   | weight 0.6  | precision of asserted corrections                             |
+ * | Object                          | Field                  | Value          | Source                                                        |
+ * |---------------------------------|------------------------|----------------|---------------------------------------------------------------|
+ * | LanguagePack.scoringPrefix (es) |                        | "Frase en español:\n" | measured: required (97% vs 85% without)               |
+ * | RegisterPack.scoringPrefix (PR) |                        | names slang    | measured: helps only the words it names; see scoring/context  |
+ * | DEFAULT_JUDGE_OPTIONS           | assertMargin           | 3              | measured: 80% of errors caught, 0 false flags                 |
+ * | DEFAULT_JUDGE_OPTIONS           | hintMargin             | 1              | measured: 95% caught with hints, 1 false flag                 |
+ * | DEFAULT_JUDGE_OPTIONS           | lengthAdjustPerToken   | 0              | measured: no gain on 1.7B (mock tests pin 1)                  |
+ * | DEFAULT_JUDGE_OPTIONS           | tieMargin              | 1              | judgement                                                     |
+ * | DEFAULT_HEAT_OPTIONS            | thresholds             | [7, 9.5, 12]   | measured: top fifth / tenth / 2-3% of correct words           |
+ * | DEFAULT_HEAT_OPTIONS            | sentenceStartAllowance | 2.5            | measured: first words run 2.7 nats higher                     |
+ * | DEFAULT_HEAT_OPTIONS            | baseline               | off            | measured: a frequency baseline hurt localization              |
+ * | DEFAULT_NEXT_WORD_OPTIONS       | minProb                | 1e-3           | proof method's pruning floor                                  |
+ * | DEFAULT_NEXT_WORD_OPTIONS       | beamWidth, topTokens   | 12, 20         | narrower than the proof (30, 60) to fit the call budget       |
+ * | DEFAULT_CLIFF_OPTIONS           | plausibleFloor         | 0.02           | checked against the proof's next-word lists                   |
+ * | DEFAULT_CLIFF_PICK_OPTIONS      | probFloor              | 0.02           | checked against the proof's next-word lists                   |
+ * | DEFAULT_CREDIT_OPTIONS          | floors, ratio, margins | unchanged      | consistent with the lists; calibrate from learner answers     |
+ * | DEFAULT_VARIANT_OPTIONS         | maxVariants            | 16             | 1.9 s for 1 + 6 on 4 CPU cores; measure on device             |
+ * | DEFAULT_NEXT_SENTENCE_TUNING    | tokensPerWord          | 2              | measured 1.6 for Qwen3, plus headroom                         |
+ * | EVENT_EVIDENCE (learner/model)  | cliff_answer.partial   | weights        | judgement; calibrate from learner logs                        |
+ * | EVENT_EVIDENCE (learner/model)  | spoke_error            | weight 0.6     | asserts had no false flags; kept moderate                     |
  *
- * Also waiting on the proof test, but not yet a setting: whether street-register
- * scoring needs a register-setting context prefix (the slang penalty with and without
- * one), and which model the device adapter loads.
+ * Street register (measured): slang scores about 4.5 nats per word worse than neutral
+ * paraphrases and a register prefix recovers only 1.2, so street mode must pass
+ * slangExemption(pack, regions) as HeatOptions.exempt (never shade slang), score after
+ * scoringContext(pack, before, { register: 'street', regions, words: slangIn(...) }),
+ * and take cliff answers on slang or lyric lines from the pack or the lyrics, not from
+ * next-word lists (top-10 mass 0.12 there). Corrections already protect slang words.
  *
  * Everything else (learner memory, difficulty curves, placement, selection weights, rung
  * thresholds, target choice) is a documented judgement call to be calibrated from
@@ -49,6 +49,7 @@
 export { DEFAULT_HEAT_OPTIONS, DEFAULT_BASELINE_OPTIONS } from './scoring/wordScores';
 export { DEFAULT_NEXT_WORD_OPTIONS } from './scoring/nextWord';
 export { DEFAULT_CLIFF_OPTIONS, DEFAULT_CREDIT_OPTIONS } from './scoring/cliff';
+export { DEFAULT_SCORING_CONTEXT_OPTIONS } from './scoring/context';
 export { DEFAULT_ACCENT_MARKS } from './scoring/text';
 
 // Corrections
@@ -73,6 +74,7 @@ export { DEFAULT_GAP_OPTIONS } from './gaps/capture';
 
 // Spanish pack and English-Spanish pair pack
 export { DEFAULT_ANALYZE_OPTIONS } from './lang/es/analyze';
+export { SPANISH_SCORING_PREFIX } from './lang/es';
 export { DEFAULT_LEADING_CLIPS, DEFAULT_TRAILING_CLIPS } from './lang/es/segment';
 export { DEFAULT_FIND_SLANG_OPTIONS } from './lang/es/registers';
 export { DEFAULT_EN_ES_OPTIONS } from './pair/en-es';

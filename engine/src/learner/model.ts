@@ -132,8 +132,9 @@ export const EVENT_EVIDENCE: EventEvidenceTable = {
         { skill: 'sound', success: true, weight: 0.3 },
       ],
     },
-    // set from proof/RESULTS.md: how much a partial credit means depends on how often
-    // the scorer's "plausible"/"form" verdicts are right.
+    // Judgement call: how much a partial credit means depends on how often the scorer's
+    // "plausible"/"form" verdicts are right, which the proof test did not measure.
+    // Calibrate from learner logs.
     partial: {
       // A plausible but unusual word, or the right word in the wrong form.
       free: [
@@ -182,9 +183,9 @@ export const EVENT_EVIDENCE: EventEvidenceTable = {
     { skill: 'meaning', success: true, weight: 0.5 },
   ],
   spoke_error: [
-    // set from proof/RESULTS.md: corrections are only asserted above the 95%-precision
-    // margin, but the error is often the form (gender, tense, ser/estar) rather than
-    // the word, so this is a moderate speaking failure and no meaning evidence.
+    // Proof test: asserts (margin >= 3 nats) had no false flags in 93 pairs, but the error
+    // is often the form (gender, tense, ser/estar) rather than the word, so this is a
+    // moderate speaking failure and no meaning evidence.
     { skill: 'speaking', success: false, weight: 0.6 },
   ],
   native_gap: [

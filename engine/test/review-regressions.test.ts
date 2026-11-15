@@ -387,7 +387,9 @@ describe('lng-12: every rule category with the real pack, without the corpus doi
       ['Mi madre es contenta.', 'Mi madre está contenta.', 'es.ser_estar'],
     ];
     for (const [text, fixed, key] of cases) {
-      const j = await judgeSentence(model, pack, '', text);
+      // The trigram mock charges each extra token far more than a real model, so the
+      // personal-a inserts need the length bias the real-model default (0) leaves out.
+      const j = await judgeSentence(model, pack, '', text, { lengthAdjustPerToken: 1 });
       expect(j.verdict, text).toBe('assert');
       expect(j.best?.text, text).toBe(fixed);
       expect(j.explainKey, text).toBe(key);

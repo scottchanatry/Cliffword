@@ -51,7 +51,8 @@ export interface CliffOptions {
 }
 
 export const DEFAULT_CLIFF_OPTIONS: Readonly<CliffOptions> = {
-  // set from proof/RESULTS.md
+  // Checked against the proof test's next-word lists: 2% keeps the model's real
+  // candidates (the tenth word of a standard opening has about 1%).
   plausibleFloor: 0.02,
   k: 10,
   actualBoundary: true,
@@ -103,15 +104,15 @@ export interface CreditOptions {
 }
 
 export const DEFAULT_CREDIT_OPTIONS: Readonly<CreditOptions> = {
-  // set from proof/RESULTS.md
+  // Credit floors. Consistent with the proof test's next-word lists (Qwen3-1.7B: the top
+  // word of a standard opening has 0.08 to 0.65, natural runners-up 0.02 to 0.2), but
+  // the proof did not score learner answers, so calibrate these from learner logs.
+  // Cliffs on slang or lyric lines need answers from the pack or the lyrics: the
+  // model's lists there are useless (top-10 mass 0.12).
   fullRatio: 0.25,
-  // set from proof/RESULTS.md
   fullFloor: 0.05,
-  // set from proof/RESULTS.md
   partialFloor: 0.005,
-  // set from proof/RESULTS.md
   multiFullMargin: 1.0,
-  // set from proof/RESULTS.md
   multiPartialMargin: 2.5,
   k: 10,
   includeBoundary: true,

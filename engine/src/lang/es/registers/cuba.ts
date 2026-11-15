@@ -10,6 +10,8 @@ const { word, casual, phrase, vulgar } = builders(CU);
 export const CU_REGISTER: RegisterPack = {
   id: 'es-CU',
   region: CU,
+  // Same shape as the Puerto Rico prefix measured in the proof test; not measured itself.
+  scoringPrefix: 'Conversación entre amigos en Cuba, en español de la calle, con palabras como {words}:\n',
   entries: [
     // Greetings and friends
     phrase('qué bolá', 'qué tal', "what's up?"),

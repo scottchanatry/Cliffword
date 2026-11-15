@@ -188,6 +188,14 @@ export interface RegisterPack {
   /** Region code used in SlangEntry.regions, e.g. "PR". */
   region: string;
   entries: SlangEntry[];
+  /**
+   * Optional context line put before street-register text when it is scored, with
+   * "{words}" where the slang words to name go. Proof test: naming a word in this line
+   * cut its surprisal sharply (janguear 27 to 3 nats) while unnamed slang stayed very
+   * surprising, so scoringContext() names the slang found in the text. See
+   * scoring/context.ts.
+   */
+  scoringPrefix?: string;
 }
 
 /**
@@ -237,4 +245,11 @@ export interface LanguagePack {
   readonly frequencyList?: readonly string[];
   readonly rules: readonly CorrectionRule[];
   readonly registers: readonly RegisterPack[];
+  /**
+   * Optional fixed context put before a learner's sentence when it is scored (Spanish:
+   * "Frase en español:\n"). Proof test: without it, correct-vs-incorrect accuracy fell
+   * from 97% to 85% and the flag threshold rose from 0 to 3.5-5.5 nats. Every score that
+   * is compared with another must use the same prefix. See scoring/context.ts.
+   */
+  readonly scoringPrefix?: string;
 }

@@ -10,6 +10,8 @@ const { word, casual, phrase, clipped, vulgar } = builders(DO);
 export const DO_REGISTER: RegisterPack = {
   id: 'es-DO',
   region: DO,
+  // Same shape as the Puerto Rico prefix measured in the proof test; not measured itself.
+  scoringPrefix: 'Conversación entre panas en República Dominicana, en español de la calle, con palabras como {words}:\n',
   entries: [
     // Greetings and address
     phrase('qué lo que', 'qué tal', "what's up?", { alsoStandard: true }),

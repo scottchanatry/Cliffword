@@ -31,7 +31,7 @@ npx vitest run     # all tests, including integration and simulated learners
 | `src/story/` | Target words (`chooseTargets`), the continuation prompt and output cleaning, candidate selection (`selectSentence`), next-sentence generation (`generateNextSentence`), cliff choice (`pickCliff`). |
 | `src/gaps/` | Native-language words inside target-language replies (`findNativeGaps`) and the learner events they imply (`gapEvents`). |
 | `src/packs.ts` | `createDefaultSpanishPack()`, `createDefaultPairPack()` and helpers that turn pack data into learner keys. |
-| `src/config.ts` | Every `DEFAULT_*` options object in one place, with the table of values that wait on the proof test. |
+| `src/config.ts` | Every `DEFAULT_*` options object in one place, with the source of each value (proof test or judgement). |
 | `src/index.ts` | The public API. |
 | `test/` | Integration tests (real packs plus the mock model) and the simulated learners. |
 
@@ -174,31 +174,48 @@ analysed position (a next-word search of at most 49 calls and one boundary call;
 `positions` to analyse a few); an answer 1 next-word search plus up to 2 calls; a judgement
 1 plus one per variant (at most 16).
 
-## Thresholds that wait on the proof test
+## Thresholds from the proof test
 
-These are placeholders until `proof/RESULTS.md` exists. Each is marked
-`set from proof/RESULTS.md` in its source and listed in `src/config.ts`.
+`proof/RESULTS.md` measured probability scoring on Qwen3-1.7B and Qwen3-4B (Q4_K_M). The
+engine targets **Qwen3-1.7B**: the same 97% minimal-pair accuracy at half the size and
+twice the speed. The full table, with the source of each value, is in `src/config.ts`.
 
-| Setting | Placeholder | Measured by the proof test |
+| Setting | Value | Why |
 |---|---|---|
-| `DEFAULT_HEAT_OPTIONS.thresholds` | 4, 7, 10 nats | surprisal of correct vs. wrong words |
-| `DEFAULT_BASELINE_OPTIONS` (commonRank, natsPerLogRank, maxBaseline) | 500, 0.5, 4 | how much rarity explains surprisal |
-| `DEFAULT_NEXT_WORD_OPTIONS` (beamWidth, topTokens, minProb) | 12, 20, 1e-4 | next-word recall vs. speed |
-| `DEFAULT_CLIFF_OPTIONS.plausibleFloor` | 0.02 | probability of natural alternatives |
-| `DEFAULT_CREDIT_OPTIONS` (fullRatio, fullFloor, partialFloor) | 0.25, 0.05, 0.005 | probability of natural and unusual answers |
-| `DEFAULT_CREDIT_OPTIONS` (multiFullMargin, multiPartialMargin) | 1.0, 2.5 nats/word | multi-word answers |
-| `DEFAULT_VARIANT_OPTIONS.maxVariants` | 16 | time for one sentence plus N variants |
-| `DEFAULT_JUDGE_OPTIONS.assertMargin` | 3 nats | margin above which at least 95% of flags are true errors |
-| `DEFAULT_JUDGE_OPTIONS` (hintMargin, tieMargin, lengthAdjustPerToken) | 1, 1, 1 | margin distributions; cost of a function-word token |
-| `DEFAULT_CLIFF_PICK_OPTIONS.probFloor` | 0.02 | guessability of a cliff word |
-| `DEFAULT_NEXT_SENTENCE_TUNING.tokensPerWord` | 2 | tokenizer of the chosen model |
-| `EVENT_EVIDENCE.cliff_answer.partial`, `EVENT_EVIDENCE.spoke_error` | weights | how often partial credit and asserted fixes are right |
+| Scoring prefix (`LanguagePack.scoringPrefix`) | `Frase en español:\n` | Required: 97% accuracy with it, 85% without. Use `scoringContext()` for every score. |
+| `DEFAULT_JUDGE_OPTIONS` assert / hint | 3 / 1 nats | At 3 nats: 80% of errors caught, 0 false flags. With hints at 1 nat: 95% caught, 1 false flag. |
+| `DEFAULT_JUDGE_OPTIONS.lengthAdjustPerToken` | 0 | A length bias did not help on 1.7B. Mock-model tests pin 1. |
+| `DEFAULT_HEAT_OPTIONS.thresholds` | 7, 9.5, 12 nats | Shades about the top fifth, tenth and 2-3% of correct words. |
+| `DEFAULT_HEAT_OPTIONS.sentenceStartAllowance` | 2.5 nats | Sentence-first words run about 2.7 nats higher. |
+| Frequency baseline | off | Subtracting stand-alone surprisal made localization worse. |
+| `DEFAULT_NEXT_WORD_OPTIONS.minProb` | 1e-3 | The proof method's pruning floor. |
 
-Also open until then: whether street-register scoring needs a register-setting context
-prefix (the proof test measures the slang penalty with and without one), and which model
-the device adapter loads. Everything else (memory model, difficulty curves, placement,
-selection weights, rung thresholds, target choice) is a documented judgement call to be
-calibrated from learner logs.
+What the proof showed, and how the engine handles it:
+
+- **Locating errors**: the most surprising word is the error only 70% of the time (89% if
+  you take the top two). Shading stays soft. Corrections locate the error from the rule
+  variant that wins.
+- **Slang**: street sentences score about 4.5 nats per word worse than neutral
+  paraphrases, and a register prefix recovers only about 1.2 nats per word, for the
+  words it names. Street mode therefore:
+  - passes `slangExemption(pack, regions)` as `HeatOptions.exempt`, so slang is never
+    shaded;
+  - scores after `scoringContext(pack, before, { register: 'street', regions, words:
+    slangIn(pack, text, regions) })`;
+  - relies on corrections already protecting slang words.
+
+  Only the Puerto Rico prefix was measured; the DO, CU, CO and CARIB prefixes share its
+  shape.
+- **Slang cliffs**: next-word lists are useless after slang openings (top-10 mass 0.12).
+  Cliffs on slang or lyric lines must take their answers from the pack or the lyrics.
+- **Still judgement calls**:
+  - credit floors and margins;
+  - partial-credit evidence weights;
+  - `maxVariants` (1.9 s for a sentence plus six variants on 4 CPU cores; measure on a
+    phone);
+  - the memory model, difficulty curves, placement and selection weights.
+
+  Calibrate these from learner logs.
 
 ## Contract decisions made during integration
 

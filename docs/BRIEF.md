@@ -44,8 +44,8 @@ Decisions made so far. Read this before doing any work in this repo.
   text, starting assumptions such as cognates).
 - Rules are data, not code. Never assume spaces separate words. All interface text
   is translatable. One multilingual model serves every pair.
-- Stack: Expo React Native; llama.rn with a small multilingual model (Gemma 3n or
-  Qwen3 class); on-device speech in and out; SQLite.
+- Stack: Expo React Native; llama.rn with Qwen3-1.7B (Q4_K_M, 1.1 GB; chosen by the
+  proof test); on-device speech in and out; SQLite.
 - The engine core is plain TypeScript behind a model interface, testable without a
   phone.
 
@@ -83,8 +83,8 @@ Decisions made so far. Read this before doing any work in this repo.
 
 | Step | What | Output |
 |---|---|---|
-| 1. Proof test | Run a small open model in the cloud container and measure whether probability scoring works for Spanish, slang included | `proof/RESULTS.md` |
-| 2. Engine core | The four hard parts as plain tested code: word scoring, corrections, learner model, sentence selection. Thresholds come from step 1 | `engine/` |
+| 1. Proof test | Run a small open model in the cloud container and measure whether probability scoring works for Spanish, slang included | `proof/RESULTS.md` (done) |
+| 2. Engine core | The four hard parts as plain tested code: word scoring, corrections, learner model, sentence selection. Thresholds come from step 1 | `engine/` (done) |
 | 3. Build outline | Architecture, interfaces, and a file-by-file task list where each task has a test that proves it done | `docs/OUTLINE.md` |
 | 4. Build | Screens, data tables, speech, music, store setup, in stages that each end with passing tests | the app |
 
@@ -124,9 +124,27 @@ app code in this step.
    this work, which model, which thresholds, what failed. Commit the scripts, data
    and results.
 
+## Step 1 outcome (2026-11-15)
+
+Details are in `proof/RESULTS.md`; the engine's settings are in `engine/src/config.ts`.
+
+- Probability scoring works for standard Spanish. With the prefix `Frase en español:\n`,
+  Qwen3-1.7B and Qwen3-4B both pick the correct sentence in 97% of 93 minimal pairs.
+  Without the prefix, accuracy drops to 85%.
+- **Model: Qwen3-1.7B.** It matches the 4B accuracy at half the size and twice the
+  speed: 1.9 s for a sentence plus six variants on 4 CPU cores. Gemma 3n E2B gave
+  broken output in that llama.cpp build; retest it on llama.rn.
+- Correction margins: assert at 3 nats or more (no false flags in the test), soft hint
+  from 1 to 3 nats.
+- The most surprising word is the error only 70% of the time. Shading is soft, and
+  corrections locate the error from the rule variant instead.
+- Slang cannot be scored by probability: about 4.5 nats per word worse than neutral
+  Spanish. Street mode exempts register-pack words from shading, names them in a
+  street prefix, and takes cliff answers on slang or lyric lines from the pack or the
+  lyrics.
+
 ## Not done yet
 
-- The proof test above.
 - Singer pitch cannot be read from Apple Music audio; pitch can only be shown for
   the learner's own voice.
 - On-device scoring of a given text: llama.rn (checked 0.13.0-rc.11, 2026-11-12)

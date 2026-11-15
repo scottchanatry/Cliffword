@@ -1,3 +1,5 @@
 node_modules/
 *.gguf
 .DS_Store
+models/
+__pycache__/

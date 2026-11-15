@@ -1,0 +1,11073 @@
+{
+ "model": "Qwen3-1.7B-Q4_K_M.gguf",
+ "pairs": [
+  {
+   "id": 1,
+   "rule": "ser_estar",
+   "correct": "Mi hermano está enfermo hoy.",
+   "incorrect": "Mi hermano es enfermo hoy.",
+   "plain": {
+    "c": -51.00794415814143,
+    "i": -56.89648087978854,
+    "c_ntok": 9,
+    "i_ntok": 9
+   },
+   "neutral": {
+    "c": -22.189556068501737,
+    "i": -29.383553553165825,
+    "c_ntok": 9,
+    "i_ntok": 9
+   },
+   "loc": {
+    "words": [
+     [
+      "Mi",
+      5.645307658619172
+     ],
+     [
+      "hermano",
+      1.6430579877372193
+     ],
+     [
+      "es",
+      2.7347970470215137
+     ],
+     [
+      "enfermo",
+      7.05473567565456
+     ],
+     [
+      "hoy",
+      11.498059307454467
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 4,
+    "hit": false
+   },
+   "register": {
+    "c": -28.195027673156144,
+    "i": -33.360498225866216,
+    "c_ntok": 9,
+    "i_ntok": 9
+   },
+   "loc2": {
+    "0.0": {
+     "top": 4,
+     "hit": false
+    },
+    "0.5": {
+     "top": 4,
+     "hit": false
+    },
+    "1.0": {
+     "top": 4,
+     "hit": false
+    },
+    "top2_hit": false
+   }
+  },
+  {
+   "id": 2,
+   "rule": "ser_estar",
+   "correct": "Madrid está en España.",
+   "incorrect": "Madrid es en España.",
+   "plain": {
+    "c": -37.967448871305706,
+    "i": -44.52899356245439,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "neutral": {
+    "c": -19.6541589128002,
+    "i": -21.852605380937558,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "loc": {
+    "words": [
+     [
+      "Madrid",
+      7.800425484645823
+     ],
+     [
+      "es",
+      2.011707689357587
+     ],
+     [
+      "en",
+      7.617254614605166
+     ],
+     [
+      "España",
+      2.7481061647618263
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 0,
+    "hit": false
+   },
+   "register": {
+    "c": -29.818217614317856,
+    "i": -31.194241459617857,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 3,
+   "rule": "ser_estar",
+   "correct": "Yo soy profesora de historia.",
+   "incorrect": "Yo estoy profesora de historia.",
+   "plain": {
+    "c": -46.47200116646254,
+    "i": -52.173017971727035,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "neutral": {
+    "c": -22.074603904999964,
+    "i": -33.30975390255129,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "loc": {
+    "words": [
+     [
+      "Yo",
+      6.07176887840677
+     ],
+     [
+      "estoy",
+      5.495105367481278
+     ],
+     [
+      "profesora",
+      15.14810447150698
+     ],
+     [
+      "de",
+      0.8861541794382519
+     ],
+     [
+      "historia",
+      2.837942456043492
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 2,
+    "hit": true
+   },
+   "register": {
+    "c": -33.112789877276775,
+    "i": -40.50696457867066,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "loc2": {
+    "0.0": {
+     "top": 2,
+     "hit": true
+    },
+    "0.5": {
+     "top": 2,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 4,
+   "rule": "ser_estar",
+   "correct": "Estamos muy cansados después del viaje.",
+   "incorrect": "Somos muy cansados después del viaje.",
+   "plain": {
+    "c": -50.422908772489244,
+    "i": -54.757384222742374,
+    "c_ntok": 10,
+    "i_ntok": 10
+   },
+   "neutral": {
+    "c": -23.582092952452605,
+    "i": -31.008237662395864,
+    "c_ntok": 10,
+    "i_ntok": 10
+   },
+   "loc": {
+    "words": [
+     [
+      "Somos",
+      7.841321620946679
+     ],
+     [
+      "muy",
+      5.178589323607925
+     ],
+     [
+      "cansados",
+      8.853019814796303
+     ],
+     [
+      "después",
+      4.583742151778392
+     ],
+     [
+      "del",
+      1.8666509162696536
+     ],
+     [
+      "viaje",
+      1.2710561743286708
+     ]
+    ],
+    "err_from": 0,
+    "err_to": 0,
+    "top": 2,
+    "hit": false
+   },
+   "register": {
+    "c": -29.308634932687468,
+    "i": -37.33062450497862,
+    "c_ntok": 10,
+    "i_ntok": 10
+   },
+   "loc2": {
+    "0.0": {
+     "top": 2,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 5,
+   "rule": "ser_estar",
+   "correct": "La fiesta es en mi casa esta noche.",
+   "incorrect": "La fiesta está en mi casa esta noche.",
+   "plain": {
+    "c": -46.34196919517105,
+    "i": -44.578676667669406,
+    "c_ntok": 10,
+    "i_ntok": 10
+   },
+   "neutral": {
+    "c": -27.984595230874774,
+    "i": -26.644177440573912,
+    "c_ntok": 10,
+    "i_ntok": 10
+   },
+   "loc": {
+    "words": [
+     [
+      "La",
+      3.604888080066926
+     ],
+     [
+      "fiesta",
+      6.2220821877123935
+     ],
+     [
+      "está",
+      4.758381680907594
+     ],
+     [
+      "en",
+      1.9242776560045134
+     ],
+     [
+      "mi",
+      3.4928526115731167
+     ],
+     [
+      "casa",
+      0.07478010437666836
+     ],
+     [
+      "esta",
+      5.782519197757333
+     ],
+     [
+      "noche",
+      0.06616289163804755
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 1,
+    "hit": false
+   },
+   "register": {
+    "c": -30.32096491744169,
+    "i": -30.68131941820364,
+    "c_ntok": 10,
+    "i_ntok": 10
+   },
+   "loc2": {
+    "0.0": {
+     "top": 1,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": false
+   }
+  },
+  {
+   "id": 6,
+   "rule": "ser_estar",
+   "correct": "Hoy es lunes.",
+   "incorrect": "Hoy está lunes.",
+   "plain": {
+    "c": -42.625410066027506,
+    "i": -51.444059282691136,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "neutral": {
+    "c": -11.500688250436337,
+    "i": -22.38467454088488,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "loc": {
+    "words": [
+     [
+      "Hoy",
+      5.196576988079571
+     ],
+     [
+      "está",
+      4.487730107436436
+     ],
+     [
+      "lunes",
+      11.293102300264266
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 2,
+    "hit": true
+   },
+   "register": {
+    "c": -13.467051004041993,
+    "i": -22.767912947047208,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "loc2": {
+    "0.0": {
+     "top": 2,
+     "hit": true
+    },
+    "0.5": {
+     "top": 2,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 7,
+   "rule": "ser_estar",
+   "correct": "Mi madre es de Colombia.",
+   "incorrect": "Mi madre está de Colombia.",
+   "plain": {
+    "c": -42.56030027352579,
+    "i": -50.201028038137366,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "neutral": {
+    "c": -15.860280137646638,
+    "i": -27.958135813060256,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "loc": {
+    "words": [
+     [
+      "Mi",
+      5.645307658619172
+     ],
+     [
+      "madre",
+      1.8523812703993854
+     ],
+     [
+      "está",
+      3.6810923075597577
+     ],
+     [
+      "de",
+      2.699756805360419
+     ],
+     [
+      "Colombia",
+      12.135236765363253
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 4,
+    "hit": false
+   },
+   "register": {
+    "c": -23.065184194091277,
+    "i": -31.771936999667474,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "loc2": {
+    "0.0": {
+     "top": 4,
+     "hit": false
+    },
+    "0.5": {
+     "top": 4,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": false
+   }
+  },
+  {
+   "id": 8,
+   "rule": "ser_estar",
+   "correct": "El café está muy caliente ahora.",
+   "incorrect": "El café es muy caliente ahora.",
+   "plain": {
+    "c": -48.94599709228728,
+    "i": -49.71539553958113,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "neutral": {
+    "c": -24.44125341333023,
+    "i": -26.686640888772004,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "loc": {
+    "words": [
+     [
+      "El",
+      3.962854503101594
+     ],
+     [
+      "café",
+      6.646075716608442
+     ],
+     [
+      "es",
+      1.3740966023050307
+     ],
+     [
+      "muy",
+      3.273111349687412
+     ],
+     [
+      "caliente",
+      4.270461477654251
+     ],
+     [
+      "ahora",
+      6.109675427307044
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 1,
+    "hit": false
+   },
+   "register": {
+    "c": -27.420039821256132,
+    "i": -28.231578119904267,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "loc2": {
+    "0.0": {
+     "top": 1,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": false
+   }
+  },
+  {
+   "id": 9,
+   "rule": "ser_estar",
+   "correct": "¿Dónde están las llaves?",
+   "incorrect": "¿Dónde son las llaves?",
+   "plain": {
+    "c": -49.041481208512884,
+    "i": -57.43323554207934,
+    "c_ntok": 9,
+    "i_ntok": 9
+   },
+   "neutral": {
+    "c": -19.780357927734023,
+    "i": -26.761840019301278,
+    "c_ntok": 9,
+    "i_ntok": 9
+   },
+   "loc": {
+    "words": [
+     [
+      "Dónde",
+      4.20861685028516
+     ],
+     [
+      "son",
+      7.069279242864529
+     ],
+     [
+      "las",
+      1.5419095437601185
+     ],
+     [
+      "llaves",
+      6.517949350726333
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 1,
+    "hit": true
+   },
+   "register": {
+    "c": -22.329517094420275,
+    "i": -28.30631111220013,
+    "c_ntok": 9,
+    "i_ntok": 9
+   },
+   "loc2": {
+    "0.0": {
+     "top": 1,
+     "hit": true
+    },
+    "0.5": {
+     "top": 1,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 10,
+   "rule": "ser_estar",
+   "correct": "Son las tres de la tarde.",
+   "incorrect": "Están las tres de la tarde.",
+   "plain": {
+    "c": -49.21497417625522,
+    "i": -57.01029675060526,
+    "c_ntok": 7,
+    "i_ntok": 8
+   },
+   "neutral": {
+    "c": -20.556819332233445,
+    "i": -31.589917764734924,
+    "c_ntok": 7,
+    "i_ntok": 8
+   },
+   "loc": {
+    "words": [
+     [
+      "Están",
+      10.64067780959008
+     ],
+     [
+      "las",
+      6.644852794345267
+     ],
+     [
+      "tres",
+      4.069045553578324
+     ],
+     [
+      "de",
+      3.412725366086489
+     ],
+     [
+      "la",
+      0.0003319279937512375
+     ],
+     [
+      "tarde",
+      5.4747209010814855
+     ]
+    ],
+    "err_from": 0,
+    "err_to": 0,
+    "top": 0,
+    "hit": true
+   },
+   "register": {
+    "c": -21.45793784892888,
+    "i": -32.46324158415847,
+    "c_ntok": 7,
+    "i_ntok": 8
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 11,
+   "rule": "por_para",
+   "correct": "Gracias por tu ayuda.",
+   "incorrect": "Gracias para tu ayuda.",
+   "plain": {
+    "c": -32.8780026357617,
+    "i": -40.79260388072233,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "neutral": {
+    "c": -12.410520068183855,
+    "i": -21.54930759898016,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "loc": {
+    "words": [
+     [
+      "Gracias",
+      6.702208111249114
+     ],
+     [
+      "para",
+      7.637058284101287
+     ],
+     [
+      "tu",
+      3.3919841487847897
+     ],
+     [
+      "ayuda",
+      2.7593372412654187
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 1,
+    "hit": true
+   },
+   "register": {
+    "c": -18.84667430064645,
+    "i": -27.205087616878316,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "loc2": {
+    "0.0": {
+     "top": 1,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 12,
+   "rule": "por_para",
+   "correct": "Caminamos por la playa toda la tarde.",
+   "incorrect": "Caminamos para la playa toda la tarde.",
+   "plain": {
+    "c": -49.9246183405967,
+    "i": -56.1420400170853,
+    "c_ntok": 10,
+    "i_ntok": 10
+   },
+   "neutral": {
+    "c": -29.98986821171961,
+    "i": -37.90360325034798,
+    "c_ntok": 10,
+    "i_ntok": 10
+   },
+   "loc": {
+    "words": [
+     [
+      "Caminamos",
+      14.077477773003334
+     ],
+     [
+      "para",
+      5.632925697218274
+     ],
+     [
+      "la",
+      2.0884756391762904
+     ],
+     [
+      "playa",
+      4.866135642829684
+     ],
+     [
+      "toda",
+      9.16241204430403
+     ],
+     [
+      "la",
+      0.013488856272566402
+     ],
+     [
+      "tarde",
+      0.8459552260672003
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 0,
+    "hit": false
+   },
+   "register": {
+    "c": -35.75318998531943,
+    "i": -41.02155083370732,
+    "c_ntok": 10,
+    "i_ntok": 10
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 13,
+   "rule": "por_para",
+   "correct": "Te llamo por teléfono esta noche.",
+   "incorrect": "Te llamo para teléfono esta noche.",
+   "plain": {
+    "c": -55.636364141929135,
+    "i": -63.2231111673851,
+    "c_ntok": 8,
+    "i_ntok": 8
+   },
+   "neutral": {
+    "c": -24.870235612403864,
+    "i": -35.471795171677954,
+    "c_ntok": 8,
+    "i_ntok": 8
+   },
+   "loc": {
+    "words": [
+     [
+      "Te",
+      7.543647883838899
+     ],
+     [
+      "llamo",
+      6.92298654388085
+     ],
+     [
+      "para",
+      2.5979832634148723
+     ],
+     [
+      "teléfono",
+      10.895853102376725
+     ],
+     [
+      "esta",
+      5.673062254180905
+     ],
+     [
+      "noche",
+      0.2447252866900437
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 3,
+    "hit": true
+   },
+   "register": {
+    "c": -32.13211346904559,
+    "i": -38.51250310741039,
+    "c_ntok": 8,
+    "i_ntok": 8
+   },
+   "loc2": {
+    "0.0": {
+     "top": 3,
+     "hit": true
+    },
+    "0.5": {
+     "top": 3,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 14,
+   "rule": "por_para",
+   "correct": "Necesito el informe para el lunes.",
+   "incorrect": "Necesito el informe por el lunes.",
+   "plain": {
+    "c": -58.7788552271126,
+    "i": -60.01861708294179,
+    "c_ntok": 12,
+    "i_ntok": 12
+   },
+   "neutral": {
+    "c": -29.204801543168355,
+    "i": -33.19652850611255,
+    "c_ntok": 12,
+    "i_ntok": 12
+   },
+   "loc": {
+    "words": [
+     [
+      "Necesito",
+      6.872109358262119
+     ],
+     [
+      "el",
+      5.417282765548077
+     ],
+     [
+      "informe",
+      4.730689869518888
+     ],
+     [
+      "por",
+      5.9772920787208905
+     ],
+     [
+      "el",
+      3.1634148339147514
+     ],
+     [
+      "lunes",
+      5.984174316788878
+     ]
+    ],
+    "err_from": 3,
+    "err_to": 3,
+    "top": 0,
+    "hit": false
+   },
+   "register": {
+    "c": -31.43540381353317,
+    "i": -33.64979747788652,
+    "c_ntok": 12,
+    "i_ntok": 12
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": false
+   }
+  },
+  {
+   "id": 15,
+   "rule": "por_para",
+   "correct": "Voy al mercado para comprar pan.",
+   "incorrect": "Voy al mercado por comprar pan.",
+   "plain": {
+    "c": -57.37023049438874,
+    "i": -66.88625510375358,
+    "c_ntok": 8,
+    "i_ntok": 8
+   },
+   "neutral": {
+    "c": -20.14969208511577,
+    "i": -28.078140944972223,
+    "c_ntok": 8,
+    "i_ntok": 8
+   },
+   "loc": {
+    "words": [
+     [
+      "Voy",
+      5.309972162537633
+     ],
+     [
+      "al",
+      5.067625793200679
+     ],
+     [
+      "mercado",
+      1.5175618316299253
+     ],
+     [
+      "por",
+      4.307124355933651
+     ],
+     [
+      "comprar",
+      6.623875397539336
+     ],
+     [
+      "pan",
+      3.0057002944576885
+     ]
+    ],
+    "err_from": 3,
+    "err_to": 3,
+    "top": 4,
+    "hit": true
+   },
+   "register": {
+    "c": -22.854327915981205,
+    "i": -30.881476571713268,
+    "c_ntok": 8,
+    "i_ntok": 8
+   },
+   "loc2": {
+    "0.0": {
+     "top": 4,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": false
+   }
+  },
+  {
+   "id": 16,
+   "rule": "por_para",
+   "correct": "Trabajo por la mañana.",
+   "incorrect": "Trabajo para la mañana.",
+   "plain": {
+    "c": -47.271275692946126,
+    "i": -43.51510545006524,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "neutral": {
+    "c": -24.228970383960167,
+    "i": -23.35828690867811,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "loc": {
+    "words": [
+     [
+      "Trabajo",
+      9.177612432125384
+     ],
+     [
+      "para",
+      3.4863351525328063
+     ],
+     [
+      "la",
+      2.215604600210139
+     ],
+     [
+      "mañana",
+      6.123911878679028
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 0,
+    "hit": false
+   },
+   "register": {
+    "c": -28.054231155514174,
+    "i": -29.063694505900493,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": false
+   }
+  },
+  {
+   "id": 17,
+   "rule": "por_para",
+   "correct": "Lo hice por primera vez.",
+   "incorrect": "Lo hice para primera vez.",
+   "plain": {
+    "c": -51.24461335230899,
+    "i": -55.110765901804754,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "neutral": {
+    "c": -21.671268141481686,
+    "i": -27.294341059637205,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "loc": {
+    "words": [
+     [
+      "Lo",
+      5.793774722522981
+     ],
+     [
+      "hice",
+      5.657081907018356
+     ],
+     [
+      "para",
+      2.3841686107677083
+     ],
+     [
+      "primera",
+      11.117396080483656
+     ],
+     [
+      "vez",
+      0.0021448188833352983
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 3,
+    "hit": true
+   },
+   "register": {
+    "c": -24.645896969289836,
+    "i": -28.16836231494498,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "loc2": {
+    "0.0": {
+     "top": 3,
+     "hit": true
+    },
+    "0.5": {
+     "top": 3,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 18,
+   "rule": "por_para",
+   "correct": "Por favor, cierra la puerta.",
+   "incorrect": "Para favor, cierra la puerta.",
+   "plain": {
+    "c": -41.29402019085238,
+    "i": -49.06515739202074,
+    "c_ntok": 9,
+    "i_ntok": 9
+   },
+   "neutral": {
+    "c": -21.341284538762057,
+    "i": -27.21307624208894,
+    "c_ntok": 9,
+    "i_ntok": 9
+   },
+   "loc": {
+    "words": [
+     [
+      "Para",
+      6.432382701343782
+     ],
+     [
+      "favor",
+      9.517736316391211
+     ],
+     [
+      "cierra",
+      7.740366159524343
+     ],
+     [
+      "la",
+      0.8221268915745555
+     ],
+     [
+      "puerta",
+      1.070933579078745
+     ]
+    ],
+    "err_from": 0,
+    "err_to": 0,
+    "top": 1,
+    "hit": true
+   },
+   "register": {
+    "c": -20.234359005936096,
+    "i": -29.65171716657339,
+    "c_ntok": 9,
+    "i_ntok": 9
+   },
+   "loc2": {
+    "0.0": {
+     "top": 1,
+     "hit": true
+    },
+    "0.5": {
+     "top": 1,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 19,
+   "rule": "por_para",
+   "correct": "Tengo que terminar esto para mañana.",
+   "incorrect": "Tengo que terminar esto por mañana.",
+   "plain": {
+    "c": -48.30743463159281,
+    "i": -52.00427018848814,
+    "c_ntok": 9,
+    "i_ntok": 9
+   },
+   "neutral": {
+    "c": -26.09607910822782,
+    "i": -29.213889782207275,
+    "c_ntok": 9,
+    "i_ntok": 9
+   },
+   "loc": {
+    "words": [
+     [
+      "Tengo",
+      5.323582113682708
+     ],
+     [
+      "que",
+      1.9705808195003267
+     ],
+     [
+      "terminar",
+      5.2363977361294864
+     ],
+     [
+      "esto",
+      3.4764806435683147
+     ],
+     [
+      "por",
+      4.282821925495835
+     ],
+     [
+      "mañana",
+      8.108317621005314
+     ]
+    ],
+    "err_from": 4,
+    "err_to": 4,
+    "top": 5,
+    "hit": true
+   },
+   "register": {
+    "c": -31.250436221990213,
+    "i": -32.16855600306806,
+    "c_ntok": 9,
+    "i_ntok": 9
+   },
+   "loc2": {
+    "0.0": {
+     "top": 5,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 20,
+   "rule": "por_para",
+   "correct": "Lo mandé por correo.",
+   "incorrect": "Lo mandé para correo.",
+   "plain": {
+    "c": -44.20464510441847,
+    "i": -52.33659264687996,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "neutral": {
+    "c": -24.7356507587056,
+    "i": -34.499448989403234,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "loc": {
+    "words": [
+     [
+      "Lo",
+      5.793774722522981
+     ],
+     [
+      "mandé",
+      11.23716417881879
+     ],
+     [
+      "para",
+      6.772046796146589
+     ],
+     [
+      "correo",
+      7.580189199179977
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 1,
+    "hit": false
+   },
+   "register": {
+    "c": -26.60452486997769,
+    "i": -33.91588906041117,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "loc2": {
+    "0.0": {
+     "top": 1,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 21,
+   "rule": "gender",
+   "correct": "La casa blanca es grande.",
+   "incorrect": "La casa blanco es grande.",
+   "plain": {
+    "c": -43.765932672753166,
+    "i": -51.60205597249048,
+    "c_ntok": 7,
+    "i_ntok": 6
+   },
+   "neutral": {
+    "c": -27.06732346331781,
+    "i": -33.775509568982734,
+    "c_ntok": 7,
+    "i_ntok": 6
+   },
+   "loc": {
+    "words": [
+     [
+      "La",
+      3.604888080066926
+     ],
+     [
+      "casa",
+      4.866359511365446
+     ],
+     [
+      "blanco",
+      13.636313943188647
+     ],
+     [
+      "es",
+      2.7142470374886374
+     ],
+     [
+      "grande",
+      6.110359526516121
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 2,
+    "hit": true
+   },
+   "register": {
+    "c": -29.104383581229406,
+    "i": -36.58411250536988,
+    "c_ntok": 7,
+    "i_ntok": 6
+   },
+   "loc2": {
+    "0.0": {
+     "top": 2,
+     "hit": true
+    },
+    "0.5": {
+     "top": 2,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 22,
+   "rule": "gender",
+   "correct": "El problema es difícil.",
+   "incorrect": "La problema es difícil.",
+   "plain": {
+    "c": -39.285538291057904,
+    "i": -37.51499601527686,
+    "c_ntok": 5,
+    "i_ntok": 5
+   },
+   "neutral": {
+    "c": -19.068719037754928,
+    "i": -26.357461487435486,
+    "c_ntok": 5,
+    "i_ntok": 5
+   },
+   "loc": {
+    "words": [
+     [
+      "La",
+      3.604888080066926
+     ],
+     [
+      "problema",
+      11.03165225123361
+     ],
+     [
+      "es",
+      1.4833148933370768
+     ],
+     [
+      "difícil",
+      7.85617228022673
+     ]
+    ],
+    "err_from": 0,
+    "err_to": 0,
+    "top": 1,
+    "hit": true
+   },
+   "register": {
+    "c": -23.265189128305707,
+    "i": -30.99167417394759,
+    "c_ntok": 5,
+    "i_ntok": 5
+   },
+   "loc2": {
+    "0.0": {
+     "top": 1,
+     "hit": true
+    },
+    "0.5": {
+     "top": 1,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 23,
+   "rule": "gender",
+   "correct": "Tengo una mano fría.",
+   "incorrect": "Tengo un mano fría.",
+   "plain": {
+    "c": -50.0297683979996,
+    "i": -50.51944479041804,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "neutral": {
+    "c": -26.325661099516427,
+    "i": -29.222910298883715,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "loc": {
+    "words": [
+     [
+      "Tengo",
+      5.323582113682708
+     ],
+     [
+      "un",
+      1.1027257474788423
+     ],
+     [
+      "mano",
+      10.198329037822338
+     ],
+     [
+      "fría",
+      9.527693690988865
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 2,
+    "hit": true
+   },
+   "register": {
+    "c": -28.33909085132528,
+    "i": -34.060630688840995,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "loc2": {
+    "0.0": {
+     "top": 2,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 24,
+   "rule": "gender",
+   "correct": "Las flores son bonitas.",
+   "incorrect": "Las flores son bonitos.",
+   "plain": {
+    "c": -35.63799160910548,
+    "i": -41.85880764004451,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "neutral": {
+    "c": -17.993832025797342,
+    "i": -25.12223575746191,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "loc": {
+    "words": [
+     [
+      "Las",
+      6.317500232166536
+     ],
+     [
+      "flores",
+      4.942234935638685
+     ],
+     [
+      "son",
+      1.6560536721361552
+     ],
+     [
+      "bonitos",
+      9.848454403842728
+     ]
+    ],
+    "err_from": 3,
+    "err_to": 3,
+    "top": 3,
+    "hit": true
+   },
+   "register": {
+    "c": -26.026441434452266,
+    "i": -32.549485059625056,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "loc2": {
+    "0.0": {
+     "top": 3,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": false
+   }
+  },
+  {
+   "id": 25,
+   "rule": "gender",
+   "correct": "Mi hermana es alta.",
+   "incorrect": "Mi hermana es alto.",
+   "plain": {
+    "c": -45.73809601856684,
+    "i": -48.090584937621145,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "neutral": {
+    "c": -19.10913449652096,
+    "i": -22.410632700404847,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "loc": {
+    "words": [
+     [
+      "Mi",
+      5.645307658619172
+     ],
+     [
+      "hermana",
+      3.8247942600969758
+     ],
+     [
+      "es",
+      2.665712246072342
+     ],
+     [
+      "alto",
+      7.4617358508787035
+     ]
+    ],
+    "err_from": 3,
+    "err_to": 3,
+    "top": 3,
+    "hit": true
+   },
+   "register": {
+    "c": -27.192053949112967,
+    "i": -29.683429132500194,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "loc2": {
+    "0.0": {
+     "top": 3,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": false
+   }
+  },
+  {
+   "id": 26,
+   "rule": "gender",
+   "correct": "El agua está fría.",
+   "incorrect": "El agua está frío.",
+   "plain": {
+    "c": -35.435860413385306,
+    "i": -46.37098630723014,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "neutral": {
+    "c": -19.64294009203083,
+    "i": -33.60142035354602,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "loc": {
+    "words": [
+     [
+      "El",
+      3.962854503101594
+     ],
+     [
+      "agua",
+      5.4603171259101995
+     ],
+     [
+      "está",
+      4.5202952206627405
+     ],
+     [
+      "frío",
+      17.815000030718135
+     ]
+    ],
+    "err_from": 3,
+    "err_to": 3,
+    "top": 3,
+    "hit": true
+   },
+   "register": {
+    "c": -18.997836139071246,
+    "i": -28.768823983061832,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "loc2": {
+    "0.0": {
+     "top": 3,
+     "hit": true
+    },
+    "0.5": {
+     "top": 3,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 27,
+   "rule": "gender",
+   "correct": "Compré una camisa nueva.",
+   "incorrect": "Compré una camisa nuevo.",
+   "plain": {
+    "c": -59.36652432559605,
+    "i": -63.377290181186126,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "neutral": {
+    "c": -22.776831353929357,
+    "i": -28.451557593567603,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "loc": {
+    "words": [
+     [
+      "Compré",
+      10.897129726910784
+     ],
+     [
+      "una",
+      1.8060462438456506
+     ],
+     [
+      "camisa",
+      5.347592712978274
+     ],
+     [
+      "nuevo",
+      8.632728196182558
+     ]
+    ],
+    "err_from": 3,
+    "err_to": 3,
+    "top": 0,
+    "hit": false
+   },
+   "register": {
+    "c": -29.327657645379954,
+    "i": -35.36370595468143,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 28,
+   "rule": "gender",
+   "correct": "El mapa está en la mesa.",
+   "incorrect": "La mapa está en la mesa.",
+   "plain": {
+    "c": -45.78202588727711,
+    "i": -40.299316122674426,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "neutral": {
+    "c": -25.9947114804655,
+    "i": -28.35210413888364,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "loc": {
+    "words": [
+     [
+      "La",
+      3.604888080066926
+     ],
+     [
+      "mapa",
+      11.177076140393766
+     ],
+     [
+      "está",
+      5.95917536409102
+     ],
+     [
+      "en",
+      1.3481410616244733
+     ],
+     [
+      "la",
+      1.6568760645383278
+     ],
+     [
+      "mesa",
+      3.026692466748973
+     ]
+    ],
+    "err_from": 0,
+    "err_to": 0,
+    "top": 1,
+    "hit": true
+   },
+   "register": {
+    "c": -25.50074140821753,
+    "i": -31.42635767128145,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "loc2": {
+    "0.0": {
+     "top": 1,
+     "hit": true
+    },
+    "0.5": {
+     "top": 1,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 29,
+   "rule": "gender",
+   "correct": "Es una ciudad muy antigua.",
+   "incorrect": "Es una ciudad muy antiguo.",
+   "plain": {
+    "c": -46.56502317739702,
+    "i": -56.4646313457548,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "neutral": {
+    "c": -24.905892403741227,
+    "i": -36.85504394240548,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "loc": {
+    "words": [
+     [
+      "Es",
+      5.378060458606965
+     ],
+     [
+      "una",
+      2.6729030661937614
+     ],
+     [
+      "ciudad",
+      6.712740149485051
+     ],
+     [
+      "muy",
+      3.204985555740315
+     ],
+     [
+      "antiguo",
+      17.225004911950737
+     ]
+    ],
+    "err_from": 4,
+    "err_to": 4,
+    "top": 4,
+    "hit": true
+   },
+   "register": {
+    "c": -29.303090943586593,
+    "i": -40.65044899292353,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "loc2": {
+    "0.0": {
+     "top": 4,
+     "hit": true
+    },
+    "0.5": {
+     "top": 4,
+     "hit": true
+    },
+    "1.0": {
+     "top": 4,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 30,
+   "rule": "gender",
+   "correct": "Los días son largos en verano.",
+   "incorrect": "Las días son largos en verano.",
+   "plain": {
+    "c": -52.49089683388873,
+    "i": -46.83428070878891,
+    "c_ntok": 9,
+    "i_ntok": 9
+   },
+   "neutral": {
+    "c": -24.954134734603524,
+    "i": -32.439687775284575,
+    "c_ntok": 9,
+    "i_ntok": 9
+   },
+   "loc": {
+    "words": [
+     [
+      "Las",
+      6.317500232166536
+     ],
+     [
+      "días",
+      11.699296851004226
+     ],
+     [
+      "son",
+      3.860623113016173
+     ],
+     [
+      "largos",
+      0.6736633186512442
+     ],
+     [
+      "en",
+      4.405936154402018
+     ],
+     [
+      "verano",
+      3.401437125292391
+     ]
+    ],
+    "err_from": 0,
+    "err_to": 0,
+    "top": 1,
+    "hit": true
+   },
+   "register": {
+    "c": -30.85682981645728,
+    "i": -37.401459710277315,
+    "c_ntok": 9,
+    "i_ntok": 9
+   },
+   "loc2": {
+    "0.0": {
+     "top": 1,
+     "hit": true
+    },
+    "0.5": {
+     "top": 1,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 31,
+   "rule": "number",
+   "correct": "Los niños juegan en el parque.",
+   "incorrect": "Los niños juega en el parque.",
+   "plain": {
+    "c": -35.34151184210532,
+    "i": -44.0738506879153,
+    "c_ntok": 9,
+    "i_ntok": 9
+   },
+   "neutral": {
+    "c": -15.49015075834051,
+    "i": -25.61899772382949,
+    "c_ntok": 9,
+    "i_ntok": 9
+   },
+   "loc": {
+    "words": [
+     [
+      "Los",
+      5.345293162769563
+     ],
+     [
+      "niños",
+      3.727902831768586
+     ],
+     [
+      "juega",
+      12.540587451275789
+     ],
+     [
+      "en",
+      1.6499515852693332
+     ],
+     [
+      "el",
+      0.40036398272639195
+     ],
+     [
+      "parque",
+      0.2843102011483875
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 2,
+    "hit": true
+   },
+   "register": {
+    "c": -18.250919935518482,
+    "i": -29.42912357157662,
+    "c_ntok": 9,
+    "i_ntok": 9
+   },
+   "loc2": {
+    "0.0": {
+     "top": 2,
+     "hit": true
+    },
+    "0.5": {
+     "top": 2,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 32,
+   "rule": "number",
+   "correct": "Mis amigos son simpáticos.",
+   "incorrect": "Mis amigos son simpático.",
+   "plain": {
+    "c": -44.75297840329261,
+    "i": -54.59537737751954,
+    "c_ntok": 7,
+    "i_ntok": 6
+   },
+   "neutral": {
+    "c": -22.467953699374597,
+    "i": -34.663101508420084,
+    "c_ntok": 7,
+    "i_ntok": 6
+   },
+   "loc": {
+    "words": [
+     [
+      "Mis",
+      6.658796428150422
+     ],
+     [
+      "amigos",
+      2.034795222065709
+     ],
+     [
+      "son",
+      3.990474788881063
+     ],
+     [
+      "simpático",
+      17.390505928454502
+     ]
+    ],
+    "err_from": 3,
+    "err_to": 3,
+    "top": 3,
+    "hit": true
+   },
+   "register": {
+    "c": -27.041108835346844,
+    "i": -38.00394525434021,
+    "c_ntok": 7,
+    "i_ntok": 6
+   },
+   "loc2": {
+    "0.0": {
+     "top": 3,
+     "hit": true
+    },
+    "0.5": {
+     "top": 3,
+     "hit": true
+    },
+    "1.0": {
+     "top": 3,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 33,
+   "rule": "number",
+   "correct": "Las casas son caras.",
+   "incorrect": "Las casas son cara.",
+   "plain": {
+    "c": -37.34323904348253,
+    "i": -40.458234627642014,
+    "c_ntok": 7,
+    "i_ntok": 6
+   },
+   "neutral": {
+    "c": -26.59045275602845,
+    "i": -29.65637724599587,
+    "c_ntok": 7,
+    "i_ntok": 6
+   },
+   "loc": {
+    "words": [
+     [
+      "Las",
+      6.317500232166536
+     ],
+     [
+      "casas",
+      7.110893281108939
+     ],
+     [
+      "son",
+      4.497830593371206
+     ],
+     [
+      "cara",
+      9.466050996247645
+     ]
+    ],
+    "err_from": 3,
+    "err_to": 3,
+    "top": 3,
+    "hit": true
+   },
+   "register": {
+    "c": -30.01205286029827,
+    "i": -32.76282408762353,
+    "c_ntok": 7,
+    "i_ntok": 6
+   },
+   "loc2": {
+    "0.0": {
+     "top": 3,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 34,
+   "rule": "number",
+   "correct": "Nosotros vivimos en Madrid.",
+   "incorrect": "Nosotros vive en Madrid.",
+   "plain": {
+    "c": -52.95971871841049,
+    "i": -57.86305276767672,
+    "c_ntok": 7,
+    "i_ntok": 6
+   },
+   "neutral": {
+    "c": -24.8988914271698,
+    "i": -30.222142211210954,
+    "c_ntok": 7,
+    "i_ntok": 6
+   },
+   "loc": {
+    "words": [
+     [
+      "Nosotros",
+      8.510192761649211
+     ],
+     [
+      "vive",
+      11.984561517659333
+     ],
+     [
+      "en",
+      0.6410747429650779
+     ],
+     [
+      "Madrid",
+      7.032365434522632
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 1,
+    "hit": true
+   },
+   "register": {
+    "c": -28.8244407111752,
+    "i": -35.241366282035045,
+    "c_ntok": 7,
+    "i_ntok": 6
+   },
+   "loc2": {
+    "0.0": {
+     "top": 1,
+     "hit": true
+    },
+    "0.5": {
+     "top": 1,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 35,
+   "rule": "number",
+   "correct": "Tengo dos perros negros.",
+   "incorrect": "Tengo dos perro negros.",
+   "plain": {
+    "c": -48.7914833929984,
+    "i": -55.19076972863644,
+    "c_ntok": 8,
+    "i_ntok": 8
+   },
+   "neutral": {
+    "c": -22.909900357389397,
+    "i": -29.569156301053265,
+    "c_ntok": 8,
+    "i_ntok": 8
+   },
+   "loc": {
+    "words": [
+     [
+      "Tengo",
+      5.323582113682708
+     ],
+     [
+      "dos",
+      4.074352029217124
+     ],
+     [
+      "perro",
+      8.26451802137521
+     ],
+     [
+      "negros",
+      9.277541512886534
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 3,
+    "hit": true
+   },
+   "register": {
+    "c": -26.65352261688613,
+    "i": -33.12335664501522,
+    "c_ntok": 8,
+    "i_ntok": 8
+   },
+   "loc2": {
+    "0.0": {
+     "top": 3,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 36,
+   "rule": "number",
+   "correct": "Ellos quieren comer ahora.",
+   "incorrect": "Ellos quiere comer ahora.",
+   "plain": {
+    "c": -48.62061799640313,
+    "i": -51.13431383164392,
+    "c_ntok": 7,
+    "i_ntok": 6
+   },
+   "neutral": {
+    "c": -29.202101131340278,
+    "i": -29.785499592761987,
+    "c_ntok": 7,
+    "i_ntok": 6
+   },
+   "loc": {
+    "words": [
+     [
+      "Ellos",
+      8.311123479902907
+     ],
+     [
+      "quiere",
+      8.963136686955078
+     ],
+     [
+      "comer",
+      5.087121932208615
+     ],
+     [
+      "ahora",
+      6.171256116519687
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 1,
+    "hit": true
+   },
+   "register": {
+    "c": -32.93786595737784,
+    "i": -35.23131190104246,
+    "c_ntok": 7,
+    "i_ntok": 6
+   },
+   "loc2": {
+    "0.0": {
+     "top": 1,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 37,
+   "rule": "number",
+   "correct": "Los libros están en la mesa.",
+   "incorrect": "Los libros está en la mesa.",
+   "plain": {
+    "c": -42.479142654130456,
+    "i": -43.695048056714434,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "neutral": {
+    "c": -23.34799009762342,
+    "i": -27.99058719949329,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "loc": {
+    "words": [
+     [
+      "Los",
+      5.345293162769563
+     ],
+     [
+      "libros",
+      5.7883314511533515
+     ],
+     [
+      "está",
+      9.553353836756852
+     ],
+     [
+      "en",
+      1.1570694912600334
+     ],
+     [
+      "la",
+      1.0010237363281584
+     ],
+     [
+      "mesa",
+      3.4972257647778577
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 2,
+    "hit": true
+   },
+   "register": {
+    "c": -26.30340811908461,
+    "i": -31.620241599562195,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "loc2": {
+    "0.0": {
+     "top": 2,
+     "hit": true
+    },
+    "0.5": {
+     "top": 2,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 38,
+   "rule": "number",
+   "correct": "Esas mujeres trabajan mucho.",
+   "incorrect": "Esas mujeres trabaja mucho.",
+   "plain": {
+    "c": -57.39168824916928,
+    "i": -60.414760713382805,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "neutral": {
+    "c": -30.86529035888018,
+    "i": -37.89476734144059,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "loc": {
+    "words": [
+     [
+      "Esas",
+      12.451020363789985
+     ],
+     [
+      "mujeres",
+      5.742859180248947
+     ],
+     [
+      "trabaja",
+      14.230973321216867
+     ],
+     [
+      "mucho",
+      3.29133060206718
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 2,
+    "hit": true
+   },
+   "register": {
+    "c": -33.770099946375176,
+    "i": -42.32797545972781,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "loc2": {
+    "0.0": {
+     "top": 2,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 39,
+   "rule": "number",
+   "correct": "Me gustan las manzanas.",
+   "incorrect": "Me gusta las manzanas.",
+   "plain": {
+    "c": -41.88289031840046,
+    "i": -37.22320244208654,
+    "c_ntok": 8,
+    "i_ntok": 7
+   },
+   "neutral": {
+    "c": -16.698619192759537,
+    "i": -17.813363880931544,
+    "c_ntok": 8,
+    "i_ntok": 7
+   },
+   "loc": {
+    "words": [
+     [
+      "Me",
+      4.461748240894563
+     ],
+     [
+      "gusta",
+      3.9394557846547853
+     ],
+     [
+      "las",
+      4.016826733361453
+     ],
+     [
+      "manzanas",
+      3.380509801345891
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 0,
+    "hit": false
+   },
+   "register": {
+    "c": -22.535560647832,
+    "i": -23.64294375002347,
+    "c_ntok": 8,
+    "i_ntok": 7
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 40,
+   "rule": "number",
+   "correct": "Hay muchas personas aquí.",
+   "incorrect": "Hay muchas persona aquí.",
+   "plain": {
+    "c": -42.491491731298126,
+    "i": -48.329710822771595,
+    "c_ntok": 5,
+    "i_ntok": 5
+   },
+   "neutral": {
+    "c": -24.459792427597126,
+    "i": -31.496533343345,
+    "c_ntok": 5,
+    "i_ntok": 5
+   },
+   "loc": {
+    "words": [
+     [
+      "Hay",
+      8.585177539295442
+     ],
+     [
+      "muchas",
+      3.891380843983469
+     ],
+     [
+      "persona",
+      8.255460259381245
+     ],
+     [
+      "aquí",
+      9.358007369738617
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 3,
+    "hit": true
+   },
+   "register": {
+    "c": -25.563139616262156,
+    "i": -31.155012378023763,
+    "c_ntok": 5,
+    "i_ntok": 5
+   },
+   "loc2": {
+    "0.0": {
+     "top": 3,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 41,
+   "rule": "preterite_imperfect",
+   "correct": "Cuando era niño, vivía en Cuba.",
+   "incorrect": "Cuando fui niño, vivía en Cuba.",
+   "plain": {
+    "c": -55.55079668956207,
+    "i": -50.811508346207354,
+    "c_ntok": 10,
+    "i_ntok": 11
+   },
+   "neutral": {
+    "c": -28.83327017949455,
+    "i": -31.63260117205195,
+    "c_ntok": 10,
+    "i_ntok": 11
+   },
+   "loc": {
+    "words": [
+     [
+      "Cuando",
+      6.676551682140392
+     ],
+     [
+      "fui",
+      6.3789571157481975
+     ],
+     [
+      "niño",
+      5.6961202796584205
+     ],
+     [
+      "vivía",
+      2.8341268639430526
+     ],
+     [
+      "en",
+      0.17715680008017465
+     ],
+     [
+      "Cuba",
+      8.386504783405314
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 5,
+    "hit": false
+   },
+   "register": {
+    "c": -28.7219241641533,
+    "i": -34.93127133843346,
+    "c_ntok": 10,
+    "i_ntok": 11
+   },
+   "loc2": {
+    "0.0": {
+     "top": 5,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": false
+   }
+  },
+  {
+   "id": 42,
+   "rule": "preterite_imperfect",
+   "correct": "De niña, siempre jugaba en la calle.",
+   "incorrect": "De niña, siempre jugué en la calle.",
+   "plain": {
+    "c": -67.43073376457241,
+    "i": -67.48746212988047,
+    "c_ntok": 11,
+    "i_ntok": 11
+   },
+   "neutral": {
+    "c": -26.550864948280456,
+    "i": -32.16166704723099,
+    "c_ntok": 11,
+    "i_ntok": 11
+   },
+   "loc": {
+    "words": [
+     [
+      "De",
+      5.9965535387461255
+     ],
+     [
+      "niña",
+      5.770841237004249
+     ],
+     [
+      "siempre",
+      3.6530579864805226
+     ],
+     [
+      "jugué",
+      8.225642345549407
+     ],
+     [
+      "en",
+      2.9454118579409805
+     ],
+     [
+      "la",
+      1.1107965430876705
+     ],
+     [
+      "calle",
+      2.1717673146204692
+     ]
+    ],
+    "err_from": 3,
+    "err_to": 3,
+    "top": 3,
+    "hit": true
+   },
+   "register": {
+    "c": -29.471267552644164,
+    "i": -32.607028450784775,
+    "c_ntok": 11,
+    "i_ntok": 11
+   },
+   "loc2": {
+    "0.0": {
+     "top": 3,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 43,
+   "rule": "preterite_imperfect",
+   "correct": "Mientras yo cocinaba, sonó el teléfono.",
+   "incorrect": "Mientras yo cociné, sonó el teléfono.",
+   "plain": {
+    "c": -49.63315991936871,
+    "i": -56.24046014799307,
+    "c_ntok": 12,
+    "i_ntok": 12
+   },
+   "neutral": {
+    "c": -29.930083673560024,
+    "i": -35.51957722187149,
+    "c_ntok": 12,
+    "i_ntok": 12
+   },
+   "loc": {
+    "words": [
+     [
+      "Mientras",
+      7.36504418495575
+     ],
+     [
+      "yo",
+      5.68580805650431
+     ],
+     [
+      "cociné",
+      12.34712753630388
+     ],
+     [
+      "sonó",
+      8.18752705460454
+     ],
+     [
+      "el",
+      1.2294908550904948
+     ],
+     [
+      "teléfono",
+      0.01405340429679725
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 2,
+    "hit": true
+   },
+   "register": {
+    "c": -32.80068422877577,
+    "i": -38.27438944354839,
+    "c_ntok": 12,
+    "i_ntok": 12
+   },
+   "loc2": {
+    "0.0": {
+     "top": 2,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": false
+   }
+  },
+  {
+   "id": 44,
+   "rule": "preterite_imperfect",
+   "correct": "El año pasado viajé a México una vez.",
+   "incorrect": "El año pasado viajaba a México una vez.",
+   "plain": {
+    "c": -53.2143689324544,
+    "i": -60.81728825506707,
+    "c_ntok": 11,
+    "i_ntok": 11
+   },
+   "neutral": {
+    "c": -30.13129746108111,
+    "i": -40.31299069757317,
+    "c_ntok": 11,
+    "i_ntok": 11
+   },
+   "loc": {
+    "words": [
+     [
+      "El",
+      3.962854503101594
+     ],
+     [
+      "año",
+      5.802049151056684
+     ],
+     [
+      "pasado",
+      0.5012093938478689
+     ],
+     [
+      "viajaba",
+      10.696340417632545
+     ],
+     [
+      "a",
+      1.1625049600072541
+     ],
+     [
+      "México",
+      4.091719910567683
+     ],
+     [
+      "una",
+      5.627177017282515
+     ],
+     [
+      "vez",
+      0.529721775942958
+     ]
+    ],
+    "err_from": 3,
+    "err_to": 3,
+    "top": 3,
+    "hit": true
+   },
+   "register": {
+    "c": -38.70531289334624,
+    "i": -44.870563782387194,
+    "c_ntok": 11,
+    "i_ntok": 11
+   },
+   "loc2": {
+    "0.0": {
+     "top": 3,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": false
+   }
+  },
+  {
+   "id": 45,
+   "rule": "preterite_imperfect",
+   "correct": "Eran las diez cuando salimos.",
+   "incorrect": "Fueron las diez cuando salimos.",
+   "plain": {
+    "c": -60.660899087025705,
+    "i": -62.40005215251649,
+    "c_ntok": 9,
+    "i_ntok": 10
+   },
+   "neutral": {
+    "c": -33.58254102377374,
+    "i": -35.4466703964386,
+    "c_ntok": 9,
+    "i_ntok": 10
+   },
+   "loc": {
+    "words": [
+     [
+      "Fueron",
+      11.871586458870425
+     ],
+     [
+      "las",
+      3.237153521405339
+     ],
+     [
+      "diez",
+      6.136963285008077
+     ],
+     [
+      "cuando",
+      5.388655908373134
+     ],
+     [
+      "salimos",
+      6.514192720660683
+     ]
+    ],
+    "err_from": 0,
+    "err_to": 0,
+    "top": 0,
+    "hit": true
+   },
+   "register": {
+    "c": -39.38494657496056,
+    "i": -39.275115462824495,
+    "c_ntok": 9,
+    "i_ntok": 10
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 46,
+   "rule": "preterite_imperfect",
+   "correct": "Ella tenía el pelo largo cuando la conocí.",
+   "incorrect": "Ella tuvo el pelo largo cuando la conocí.",
+   "plain": {
+    "c": -58.87459100008773,
+    "i": -63.63590895708205,
+    "c_ntok": 11,
+    "i_ntok": 12
+   },
+   "neutral": {
+    "c": -34.643323778051986,
+    "i": -36.84650526160404,
+    "c_ntok": 11,
+    "i_ntok": 12
+   },
+   "loc": {
+    "words": [
+     [
+      "Ella",
+      9.463231175137576
+     ],
+     [
+      "tuvo",
+      5.582231613347621
+     ],
+     [
+      "el",
+      5.215631860458831
+     ],
+     [
+      "pelo",
+      1.3391673268200692
+     ],
+     [
+      "largo",
+      1.7835781067411263
+     ],
+     [
+      "cuando",
+      5.951329088829915
+     ],
+     [
+      "la",
+      3.377477424679589
+     ],
+     [
+      "conocí",
+      2.847323615963279
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 0,
+    "hit": false
+   },
+   "register": {
+    "c": -40.24204310748123,
+    "i": -44.45880420473369,
+    "c_ntok": 11,
+    "i_ntok": 12
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 47,
+   "rule": "preterite_imperfect",
+   "correct": "Nací en 1990.",
+   "incorrect": "Nacía en 1990.",
+   "plain": {
+    "c": -56.13517118827659,
+    "i": -55.55462738455669,
+    "c_ntok": 10,
+    "i_ntok": 10
+   },
+   "neutral": {
+    "c": -17.694381678190183,
+    "i": -25.79706714599163,
+    "c_ntok": 10,
+    "i_ntok": 10
+   },
+   "loc": {
+    "words": [
+     [
+      "Nacía",
+      14.918116429927913
+     ],
+     [
+      "en",
+      1.299451487081183
+     ],
+     [
+      "1990",
+      6.595726540033578
+     ]
+    ],
+    "err_from": 0,
+    "err_to": 0,
+    "top": 0,
+    "hit": true
+   },
+   "register": {
+    "c": -19.426073198916978,
+    "i": -26.76475738501286,
+    "c_ntok": 10,
+    "i_ntok": 10
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 48,
+   "rule": "preterite_imperfect",
+   "correct": "Hace dos años terminé la universidad.",
+   "incorrect": "Hace dos años terminaba la universidad.",
+   "plain": {
+    "c": -62.03109138819084,
+    "i": -65.67593175588982,
+    "c_ntok": 10,
+    "i_ntok": 10
+   },
+   "neutral": {
+    "c": -24.894243822918902,
+    "i": -28.794676456590196,
+    "c_ntok": 10,
+    "i_ntok": 10
+   },
+   "loc": {
+    "words": [
+     [
+      "Hace",
+      5.97421828446629
+     ],
+     [
+      "dos",
+      3.4383658433589566
+     ],
+     [
+      "años",
+      0.3734120457272034
+     ],
+     [
+      "terminaba",
+      12.769421384629059
+     ],
+     [
+      "la",
+      2.4867321981209916
+     ],
+     [
+      "universidad",
+      1.5205695268390844
+     ]
+    ],
+    "err_from": 3,
+    "err_to": 3,
+    "top": 3,
+    "hit": true
+   },
+   "register": {
+    "c": -26.251410938394343,
+    "i": -31.237326919371075,
+    "c_ntok": 10,
+    "i_ntok": 10
+   },
+   "loc2": {
+    "0.0": {
+     "top": 3,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 49,
+   "rule": "preterite_imperfect",
+   "correct": "¿Qué hora era cuando llegaste?",
+   "incorrect": "¿Qué hora fue cuando llegaste?",
+   "plain": {
+    "c": -56.875697110692144,
+    "i": -60.42480552458719,
+    "c_ntok": 8,
+    "i_ntok": 8
+   },
+   "neutral": {
+    "c": -26.981059836564533,
+    "i": -30.723554263381978,
+    "c_ntok": 8,
+    "i_ntok": 8
+   },
+   "loc": {
+    "words": [
+     [
+      "Qué",
+      1.9655464701040706
+     ],
+     [
+      "hora",
+      4.941602386793219
+     ],
+     [
+      "fue",
+      6.6704012122194705
+     ],
+     [
+      "cuando",
+      3.6167275892107886
+     ],
+     [
+      "llegaste",
+      6.618380375800637
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 2,
+    "hit": true
+   },
+   "register": {
+    "c": -28.506727195928722,
+    "i": -34.625706465923265,
+    "c_ntok": 8,
+    "i_ntok": 8
+   },
+   "loc2": {
+    "0.0": {
+     "top": 2,
+     "hit": true
+    },
+    "0.5": {
+     "top": 2,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 50,
+   "rule": "preterite_imperfect",
+   "correct": "Ayer de repente empezó a llover.",
+   "incorrect": "Ayer de repente empezaba a llover.",
+   "plain": {
+    "c": -57.371311739226,
+    "i": -61.67047863040059,
+    "c_ntok": 11,
+    "i_ntok": 11
+   },
+   "neutral": {
+    "c": -24.55301637051753,
+    "i": -33.14127104478415,
+    "c_ntok": 11,
+    "i_ntok": 11
+   },
+   "loc": {
+    "words": [
+     [
+      "Ayer",
+      7.9431586759293475
+     ],
+     [
+      "de",
+      7.119226497559962
+     ],
+     [
+      "repente",
+      4.592917929268197
+     ],
+     [
+      "empezaba",
+      9.13127213642095
+     ],
+     [
+      "a",
+      0.05018147873055036
+     ],
+     [
+      "llover",
+      3.2433388117946467
+     ]
+    ],
+    "err_from": 3,
+    "err_to": 3,
+    "top": 3,
+    "hit": true
+   },
+   "register": {
+    "c": -29.11986400632957,
+    "i": -36.35089250172053,
+    "c_ntok": 11,
+    "i_ntok": 11
+   },
+   "loc2": {
+    "0.0": {
+     "top": 3,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": false
+   }
+  },
+  {
+   "id": 51,
+   "rule": "subjunctive_wish",
+   "correct": "Quiero que vengas a mi fiesta.",
+   "incorrect": "Quiero que vienes a mi fiesta.",
+   "plain": {
+    "c": -55.93553923626137,
+    "i": -64.26287199159145,
+    "c_ntok": 11,
+    "i_ntok": 10
+   },
+   "neutral": {
+    "c": -21.825402158952183,
+    "i": -26.948028175127817,
+    "c_ntok": 11,
+    "i_ntok": 10
+   },
+   "loc": {
+    "words": [
+     [
+      "Quiero",
+      7.410555184147866
+     ],
+     [
+      "que",
+      1.2447266845603675
+     ],
+     [
+      "vienes",
+      11.713952411099587
+     ],
+     [
+      "a",
+      0.4525606673025161
+     ],
+     [
+      "mi",
+      0.8243251703098551
+     ],
+     [
+      "fiesta",
+      3.3465230858255612
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 2,
+    "hit": true
+   },
+   "register": {
+    "c": -30.415676987164655,
+    "i": -33.79455196861577,
+    "c_ntok": 11,
+    "i_ntok": 10
+   },
+   "loc2": {
+    "0.0": {
+     "top": 2,
+     "hit": true
+    },
+    "0.5": {
+     "top": 2,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 52,
+   "rule": "subjunctive_wish",
+   "correct": "Espero que tengas un buen día.",
+   "incorrect": "Espero que tienes un buen día.",
+   "plain": {
+    "c": -37.57865010055272,
+    "i": -44.862308496895416,
+    "c_ntok": 10,
+    "i_ntok": 9
+   },
+   "neutral": {
+    "c": -13.86507100857563,
+    "i": -17.805878158765417,
+    "c_ntok": 10,
+    "i_ntok": 9
+   },
+   "loc": {
+    "words": [
+     [
+      "Espero",
+      6.588656821235173
+     ],
+     [
+      "que",
+      0.013664363482897155
+     ],
+     [
+      "tienes",
+      8.262051027837565
+     ],
+     [
+      "un",
+      0.528230096023093
+     ],
+     [
+      "buen",
+      0.33340414003008506
+     ],
+     [
+      "día",
+      0.21406224404219823
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 2,
+    "hit": true
+   },
+   "register": {
+    "c": -15.09644198142611,
+    "i": -19.703236506209837,
+    "c_ntok": 10,
+    "i_ntok": 9
+   },
+   "loc2": {
+    "0.0": {
+     "top": 2,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 53,
+   "rule": "subjunctive_wish",
+   "correct": "Ojalá que llueva mañana.",
+   "incorrect": "Ojalá que llueve mañana.",
+   "plain": {
+    "c": -53.259908909855454,
+    "i": -59.91362649720138,
+    "c_ntok": 8,
+    "i_ntok": 9
+   },
+   "neutral": {
+    "c": -21.188484352273363,
+    "i": -28.511461019427266,
+    "c_ntok": 8,
+    "i_ntok": 9
+   },
+   "loc": {
+    "words": [
+     [
+      "Ojalá",
+      7.299082521979889
+     ],
+     [
+      "que",
+      0.15109658956499855
+     ],
+     [
+      "llueve",
+      15.943884492010906
+     ],
+     [
+      "mañana",
+      4.060620732510351
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 2,
+    "hit": true
+   },
+   "register": {
+    "c": -26.858548906070386,
+    "i": -36.04935411575289,
+    "c_ntok": 8,
+    "i_ntok": 9
+   },
+   "loc2": {
+    "0.0": {
+     "top": 2,
+     "hit": true
+    },
+    "0.5": {
+     "top": 2,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 54,
+   "rule": "subjunctive_wish",
+   "correct": "Mis padres quieren que estudie medicina.",
+   "incorrect": "Mis padres quieren que estudio medicina.",
+   "plain": {
+    "c": -66.4273443951499,
+    "i": -66.88943942949447,
+    "c_ntok": 11,
+    "i_ntok": 10
+   },
+   "neutral": {
+    "c": -23.803299179745707,
+    "i": -26.56930774747374,
+    "c_ntok": 11,
+    "i_ntok": 10
+   },
+   "loc": {
+    "words": [
+     [
+      "Mis",
+      6.658796428150422
+     ],
+     [
+      "padres",
+      1.2279380980028258
+     ],
+     [
+      "quieren",
+      6.4595059573723566
+     ],
+     [
+      "que",
+      0.03191963902285578
+     ],
+     [
+      "estudio",
+      5.676634456614003
+     ],
+     [
+      "medicina",
+      5.569900542273408
+     ]
+    ],
+    "err_from": 4,
+    "err_to": 4,
+    "top": 0,
+    "hit": false
+   },
+   "register": {
+    "c": -29.10611448795647,
+    "i": -32.43101525850149,
+    "c_ntok": 11,
+    "i_ntok": 10
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": false
+   }
+  },
+  {
+   "id": 55,
+   "rule": "subjunctive_wish",
+   "correct": "Prefiero que me llames por la noche.",
+   "incorrect": "Prefiero que me llamas por la noche.",
+   "plain": {
+    "c": -75.65884800658105,
+    "i": -75.89202951305062,
+    "c_ntok": 10,
+    "i_ntok": 10
+   },
+   "neutral": {
+    "c": -33.54124871217838,
+    "i": -37.30624147980272,
+    "c_ntok": 10,
+    "i_ntok": 10
+   },
+   "loc": {
+    "words": [
+     [
+      "Prefiero",
+      10.318757943557005
+     ],
+     [
+      "que",
+      1.7349753884414445
+     ],
+     [
+      "me",
+      2.3160145591937686
+     ],
+     [
+      "llamas",
+      11.003397046538595
+     ],
+     [
+      "por",
+      2.0909015773666066
+     ],
+     [
+      "la",
+      4.627366257817233
+     ],
+     [
+      "noche",
+      3.2032296474979756
+     ]
+    ],
+    "err_from": 3,
+    "err_to": 3,
+    "top": 3,
+    "hit": true
+   },
+   "register": {
+    "c": -40.63651326892738,
+    "i": -46.06977808412457,
+    "c_ntok": 10,
+    "i_ntok": 10
+   },
+   "loc2": {
+    "0.0": {
+     "top": 3,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": false
+   }
+  },
+  {
+   "id": 56,
+   "rule": "subjunctive_wish",
+   "correct": "Deseo que seas muy feliz.",
+   "incorrect": "Deseo que eres muy feliz.",
+   "plain": {
+    "c": -50.03652974700298,
+    "i": -52.76146382412299,
+    "c_ntok": 8,
+    "i_ntok": 9
+   },
+   "neutral": {
+    "c": -22.557637447472253,
+    "i": -23.267121317772776,
+    "c_ntok": 8,
+    "i_ntok": 9
+   },
+   "loc": {
+    "words": [
+     [
+      "Deseo",
+      7.320822538565238
+     ],
+     [
+      "que",
+      0.7216080421352611
+     ],
+     [
+      "eres",
+      7.824497970248006
+     ],
+     [
+      "muy",
+      3.405876603715904
+     ],
+     [
+      "feliz",
+      2.1960995124025025
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 2,
+    "hit": true
+   },
+   "register": {
+    "c": -35.687796118406816,
+    "i": -34.16797821429158,
+    "c_ntok": 8,
+    "i_ntok": 9
+   },
+   "loc2": {
+    "0.0": {
+     "top": 2,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 57,
+   "rule": "subjunctive_wish",
+   "correct": "Ella quiere que yo cocine hoy.",
+   "incorrect": "Ella quiere que yo cocino hoy.",
+   "plain": {
+    "c": -61.50314041119559,
+    "i": -74.07385166841709,
+    "c_ntok": 9,
+    "i_ntok": 9
+   },
+   "neutral": {
+    "c": -38.457460790831,
+    "i": -52.826532270727135,
+    "c_ntok": 9,
+    "i_ntok": 9
+   },
+   "loc": {
+    "words": [
+     [
+      "Ella",
+      9.463231175137576
+     ],
+     [
+      "quiere",
+      5.304869643631759
+     ],
+     [
+      "que",
+      0.9767847861877856
+     ],
+     [
+      "yo",
+      1.9636264998648898
+     ],
+     [
+      "cocino",
+      25.331461550024848
+     ],
+     [
+      "hoy",
+      8.602638276971392
+     ]
+    ],
+    "err_from": 4,
+    "err_to": 4,
+    "top": 4,
+    "hit": true
+   },
+   "register": {
+    "c": -44.035410932864124,
+    "i": -56.79936157488574,
+    "c_ntok": 9,
+    "i_ntok": 9
+   },
+   "loc2": {
+    "0.0": {
+     "top": 4,
+     "hit": true
+    },
+    "0.5": {
+     "top": 4,
+     "hit": true
+    },
+    "1.0": {
+     "top": 4,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 58,
+   "rule": "subjunctive_wish",
+   "correct": "Espero que puedas venir.",
+   "incorrect": "Espero que puedes venir.",
+   "plain": {
+    "c": -48.71684563875038,
+    "i": -53.194554052345985,
+    "c_ntok": 8,
+    "i_ntok": 7
+   },
+   "neutral": {
+    "c": -21.442481231579126,
+    "i": -27.036384691480663,
+    "c_ntok": 8,
+    "i_ntok": 7
+   },
+   "loc": {
+    "words": [
+     [
+      "Espero",
+      6.588656821235173
+     ],
+     [
+      "que",
+      0.013664363482897155
+     ],
+     [
+      "puedes",
+      8.523950022283366
+     ],
+     [
+      "venir",
+      7.8980755142607295
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 2,
+    "hit": true
+   },
+   "register": {
+    "c": -20.170862193405625,
+    "i": -27.84386750439489,
+    "c_ntok": 8,
+    "i_ntok": 7
+   },
+   "loc2": {
+    "0.0": {
+     "top": 2,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 59,
+   "rule": "subjunctive_wish",
+   "correct": "Ojalá tengamos suerte.",
+   "incorrect": "Ojalá tenemos suerte.",
+   "plain": {
+    "c": -55.14803383177065,
+    "i": -57.4525704418551,
+    "c_ntok": 8,
+    "i_ntok": 7
+   },
+   "neutral": {
+    "c": -23.06355525608148,
+    "i": -25.975047563456528,
+    "c_ntok": 8,
+    "i_ntok": 7
+   },
+   "loc": {
+    "words": [
+     [
+      "Ojalá",
+      7.299082521979889
+     ],
+     [
+      "tenemos",
+      10.130991227626522
+     ],
+     [
+      "suerte",
+      6.176629592379816
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 1,
+    "hit": true
+   },
+   "register": {
+    "c": -31.86699083175191,
+    "i": -27.72523404982222,
+    "c_ntok": 8,
+    "i_ntok": 7
+   },
+   "loc2": {
+    "0.0": {
+     "top": 1,
+     "hit": true
+    },
+    "0.5": {
+     "top": 1,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 60,
+   "rule": "subjunctive_wish",
+   "correct": "Queremos que nos digas la verdad.",
+   "incorrect": "Queremos que nos dices la verdad.",
+   "plain": {
+    "c": -39.923354791423236,
+    "i": -46.10768000264512,
+    "c_ntok": 10,
+    "i_ntok": 10
+   },
+   "neutral": {
+    "c": -24.369097413361217,
+    "i": -29.68336064243922,
+    "c_ntok": 10,
+    "i_ntok": 10
+   },
+   "loc": {
+    "words": [
+     [
+      "Queremos",
+      9.00740663634791
+     ],
+     [
+      "que",
+      1.8922656272580627
+     ],
+     [
+      "nos",
+      3.956584841672077
+     ],
+     [
+      "dices",
+      8.424919857094281
+     ],
+     [
+      "la",
+      3.791915197287463
+     ],
+     [
+      "verdad",
+      0.5568305210332053
+     ]
+    ],
+    "err_from": 3,
+    "err_to": 3,
+    "top": 0,
+    "hit": false
+   },
+   "register": {
+    "c": -31.27470118875842,
+    "i": -35.83518651491486,
+    "c_ntok": 10,
+    "i_ntok": 10
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 61,
+   "rule": "personal_a",
+   "correct": "Veo a mi madre todos los días.",
+   "incorrect": "Veo mi madre todos los días.",
+   "plain": {
+    "c": -47.418231133326806,
+    "i": -52.28077579689838,
+    "c_ntok": 9,
+    "i_ntok": 8
+   },
+   "neutral": {
+    "c": -27.928440550015775,
+    "i": -32.71773986510745,
+    "c_ntok": 9,
+    "i_ntok": 8
+   },
+   "loc": {
+    "words": [
+     [
+      "Veo",
+      9.962455148987829
+     ],
+     [
+      "mi",
+      7.799220425327326
+     ],
+     [
+      "madre",
+      4.14926008971454
+     ],
+     [
+      "todos",
+      9.104714884337072
+     ],
+     [
+      "los",
+      0.019837840178241084
+     ],
+     [
+      "días",
+      0.18873663796782295
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 0,
+    "hit": false
+   },
+   "register": {
+    "c": -35.61084112173231,
+    "i": -37.1424036127314,
+    "c_ntok": 9,
+    "i_ntok": 8
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": false
+   }
+  },
+  {
+   "id": 62,
+   "rule": "personal_a",
+   "correct": "Conozco a tu hermano.",
+   "incorrect": "Conozco tu hermano.",
+   "plain": {
+    "c": -42.24228332053481,
+    "i": -47.69554223973711,
+    "c_ntok": 9,
+    "i_ntok": 8
+   },
+   "neutral": {
+    "c": -20.636874955775312,
+    "i": -26.16920801724611,
+    "c_ntok": 9,
+    "i_ntok": 8
+   },
+   "loc": {
+    "words": [
+     [
+      "Conozco",
+      11.257633613191926
+     ],
+     [
+      "tu",
+      5.782671635246207
+     ],
+     [
+      "hermano",
+      6.645919078227163
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 0,
+    "hit": false
+   },
+   "register": {
+    "c": -26.380767611780595,
+    "i": -29.074527998037183,
+    "c_ntok": 9,
+    "i_ntok": 8
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 63,
+   "rule": "personal_a",
+   "correct": "Llamé a Juan ayer.",
+   "incorrect": "Llamé Juan ayer.",
+   "plain": {
+    "c": -57.905857336263864,
+    "i": -56.167985490942186,
+    "c_ntok": 8,
+    "i_ntok": 7
+   },
+   "neutral": {
+    "c": -26.96295996174415,
+    "i": -36.19955952627584,
+    "c_ntok": 8,
+    "i_ntok": 7
+   },
+   "loc": {
+    "words": [
+     [
+      "Llamé",
+      11.554592776031194
+     ],
+     [
+      "Juan",
+      14.607890252364262
+     ],
+     [
+      "ayer",
+      8.391656907492665
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 1,
+    "hit": true
+   },
+   "register": {
+    "c": -29.229212932737244,
+    "i": -36.04226392126715,
+    "c_ntok": 8,
+    "i_ntok": 7
+   },
+   "loc2": {
+    "0.0": {
+     "top": 1,
+     "hit": true
+    },
+    "0.5": {
+     "top": 1,
+     "hit": true
+    },
+    "1.0": {
+     "top": 1,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 64,
+   "rule": "personal_a",
+   "correct": "Busco a mi hijo.",
+   "incorrect": "Busco mi hijo.",
+   "plain": {
+    "c": -52.822060931655734,
+    "i": -55.708183402175266,
+    "c_ntok": 6,
+    "i_ntok": 5
+   },
+   "neutral": {
+    "c": -22.68908534880418,
+    "i": -26.08298704660864,
+    "c_ntok": 6,
+    "i_ntok": 5
+   },
+   "loc": {
+    "words": [
+     [
+      "Busco",
+      9.902708981071482
+     ],
+     [
+      "mi",
+      7.463227327196353
+     ],
+     [
+      "hijo",
+      5.422735356472524
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 0,
+    "hit": false
+   },
+   "register": {
+    "c": -27.242922913420884,
+    "i": -27.1959278379964,
+    "c_ntok": 6,
+    "i_ntok": 5
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 65,
+   "rule": "personal_a",
+   "correct": "Ayudamos a los vecinos.",
+   "incorrect": "Ayudamos los vecinos.",
+   "plain": {
+    "c": -53.39046652859259,
+    "i": -59.79606279542261,
+    "c_ntok": 8,
+    "i_ntok": 7
+   },
+   "neutral": {
+    "c": -27.951313697675932,
+    "i": -31.91194401401564,
+    "c_ntok": 8,
+    "i_ntok": 7
+   },
+   "loc": {
+    "words": [
+     [
+      "Ayudamos",
+      16.22038382768798
+     ],
+     [
+      "los",
+      5.2988447864223245
+     ],
+     [
+      "vecinos",
+      5.962977515542473
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 0,
+    "hit": false
+   },
+   "register": {
+    "c": -29.661348121279122,
+    "i": -32.49983911716437,
+    "c_ntok": 8,
+    "i_ntok": 7
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 66,
+   "rule": "personal_a",
+   "correct": "¿Viste a María en la fiesta?",
+   "incorrect": "¿Viste María en la fiesta?",
+   "plain": {
+    "c": -57.95207806296885,
+    "i": -61.01541036665385,
+    "c_ntok": 10,
+    "i_ntok": 9
+   },
+   "neutral": {
+    "c": -24.788140142269196,
+    "i": -30.1758975204337,
+    "c_ntok": 10,
+    "i_ntok": 9
+   },
+   "loc": {
+    "words": [
+     [
+      "Viste",
+      7.257656905327782
+     ],
+     [
+      "María",
+      11.079551843207977
+     ],
+     [
+      "en",
+      1.198852274919038
+     ],
+     [
+      "la",
+      0.6819950437910381
+     ],
+     [
+      "fiesta",
+      3.4626426374118218
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 1,
+    "hit": true
+   },
+   "register": {
+    "c": -33.78438179979406,
+    "i": -38.83329907337616,
+    "c_ntok": 10,
+    "i_ntok": 9
+   },
+   "loc2": {
+    "0.0": {
+     "top": 1,
+     "hit": true
+    },
+    "0.5": {
+     "top": 1,
+     "hit": true
+    },
+    "1.0": {
+     "top": 1,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 67,
+   "rule": "personal_a",
+   "correct": "Quiero mucho a mis abuelos.",
+   "incorrect": "Quiero mucho mis abuelos.",
+   "plain": {
+    "c": -51.328591604055646,
+    "i": -57.725235648701634,
+    "c_ntok": 9,
+    "i_ntok": 8
+   },
+   "neutral": {
+    "c": -25.21933042837668,
+    "i": -30.341436748519868,
+    "c_ntok": 9,
+    "i_ntok": 8
+   },
+   "loc": {
+    "words": [
+     [
+      "Quiero",
+      7.410555184147866
+     ],
+     [
+      "mucho",
+      8.686665084828922
+     ],
+     [
+      "mis",
+      8.117348036706233
+     ],
+     [
+      "abuelos",
+      4.563383725446393
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 1,
+    "hit": false
+   },
+   "register": {
+    "c": -29.592245765820284,
+    "i": -33.190582199093996,
+    "c_ntok": 9,
+    "i_ntok": 8
+   },
+   "loc2": {
+    "0.0": {
+     "top": 1,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 68,
+   "rule": "personal_a",
+   "correct": "Escuché a la profesora con atención.",
+   "incorrect": "Escuché la profesora con atención.",
+   "plain": {
+    "c": -57.843149645999944,
+    "i": -60.16552953670607,
+    "c_ntok": 10,
+    "i_ntok": 9
+   },
+   "neutral": {
+    "c": -29.827621674923027,
+    "i": -31.381309608029888,
+    "c_ntok": 10,
+    "i_ntok": 9
+   },
+   "loc": {
+    "words": [
+     [
+      "Escuché",
+      10.565455326313078
+     ],
+     [
+      "la",
+      2.8425613743324143
+     ],
+     [
+      "profesora",
+      8.308476762069734
+     ],
+     [
+      "con",
+      4.457087237294619
+     ],
+     [
+      "atención",
+      3.2422930319518755
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 0,
+    "hit": false
+   },
+   "register": {
+    "c": -44.17035961249216,
+    "i": -40.408135321661945,
+    "c_ntok": 10,
+    "i_ntok": 9
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": false
+   }
+  },
+  {
+   "id": 69,
+   "rule": "personal_a",
+   "correct": "Visitamos a nuestros primos en Ponce.",
+   "incorrect": "Visitamos nuestros primos en Ponce.",
+   "plain": {
+    "c": -64.15938021263335,
+    "i": -59.56093084496948,
+    "c_ntok": 10,
+    "i_ntok": 9
+   },
+   "neutral": {
+    "c": -37.59221525745358,
+    "i": -37.211988744956614,
+    "c_ntok": 10,
+    "i_ntok": 9
+   },
+   "loc": {
+    "words": [
+     [
+      "Visitamos",
+      13.001155697655971
+     ],
+     [
+      "nuestros",
+      7.465443854520123
+     ],
+     [
+      "primos",
+      5.496571479388027
+     ],
+     [
+      "en",
+      0.5166921089972994
+     ],
+     [
+      "Ponce",
+      7.117064248010859
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 0,
+    "hit": false
+   },
+   "register": {
+    "c": -37.85982215387899,
+    "i": -38.88145011222988,
+    "c_ntok": 10,
+    "i_ntok": 9
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 70,
+   "rule": "personal_a",
+   "correct": "No conozco a nadie aquí.",
+   "incorrect": "No conozco nadie aquí.",
+   "plain": {
+    "c": -52.40462919188468,
+    "i": -60.80652107830464,
+    "c_ntok": 9,
+    "i_ntok": 8
+   },
+   "neutral": {
+    "c": -19.88326860126431,
+    "i": -25.459275504334737,
+    "c_ntok": 9,
+    "i_ntok": 8
+   },
+   "loc": {
+    "words": [
+     [
+      "No",
+      4.275659678882844
+     ],
+     [
+      "conozco",
+      6.354555419225651
+     ],
+     [
+      "nadie",
+      5.800031182442257
+     ],
+     [
+      "aquí",
+      7.11988202006805
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 3,
+    "hit": true
+   },
+   "register": {
+    "c": -23.361450321920795,
+    "i": -27.890613660293273,
+    "c_ntok": 9,
+    "i_ntok": 8
+   },
+   "loc2": {
+    "0.0": {
+     "top": 3,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 71,
+   "rule": "personal_a",
+   "correct": "Compré un coche nuevo.",
+   "incorrect": "Compré a un coche nuevo.",
+   "plain": {
+    "c": -52.03353129306307,
+    "i": -55.23888506970361,
+    "c_ntok": 7,
+    "i_ntok": 8
+   },
+   "neutral": {
+    "c": -17.481399772955292,
+    "i": -27.965961284900697,
+    "c_ntok": 7,
+    "i_ntok": 8
+   },
+   "loc": {
+    "words": [
+     [
+      "Compré",
+      10.897129726910784
+     ],
+     [
+      "a",
+      6.328066583811471
+     ],
+     [
+      "un",
+      0.7664382570048544
+     ],
+     [
+      "coche",
+      6.208680968504752
+     ],
+     [
+      "nuevo",
+      1.7989011970926365
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 0,
+    "hit": false
+   },
+   "register": {
+    "c": -24.42858415769196,
+    "i": -33.46831706457541,
+    "c_ntok": 7,
+    "i_ntok": 8
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 72,
+   "rule": "personal_a",
+   "correct": "Leo el periódico cada día.",
+   "incorrect": "Leo al periódico cada día.",
+   "plain": {
+    "c": -43.18025680872578,
+    "i": -48.655719948722435,
+    "c_ntok": 8,
+    "i_ntok": 8
+   },
+   "neutral": {
+    "c": -20.798480325719773,
+    "i": -28.59553642446047,
+    "c_ntok": 8,
+    "i_ntok": 8
+   },
+   "loc": {
+    "words": [
+     [
+      "Leo",
+      9.26397144646097
+     ],
+     [
+      "al",
+      6.255815120400716
+     ],
+     [
+      "periódico",
+      7.236965649580435
+     ],
+     [
+      "cada",
+      4.228503279282292
+     ],
+     [
+      "día",
+      0.41357846682772553
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 0,
+    "hit": false
+   },
+   "register": {
+    "c": -26.366071085456365,
+    "i": -33.53922050951552,
+    "c_ntok": 8,
+    "i_ntok": 8
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 73,
+   "rule": "articles",
+   "correct": "Me gusta el café.",
+   "incorrect": "Me gusta café.",
+   "plain": {
+    "c": -35.21919935514697,
+    "i": -39.157997240441595,
+    "c_ntok": 5,
+    "i_ntok": 4
+   },
+   "neutral": {
+    "c": -15.778810189674683,
+    "i": -19.91186690883219,
+    "c_ntok": 5,
+    "i_ntok": 4
+   },
+   "loc": {
+    "words": [
+     [
+      "Me",
+      4.461748240894563
+     ],
+     [
+      "gusta",
+      3.9394557846547853
+     ],
+     [
+      "café",
+      9.116852864037723
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 2,
+    "hit": true
+   },
+   "register": {
+    "c": -20.612187601470517,
+    "i": -23.33364287262001,
+    "c_ntok": 5,
+    "i_ntok": 4
+   },
+   "loc2": {
+    "0.0": {
+     "top": 2,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 74,
+   "rule": "articles",
+   "correct": "La vida es bella.",
+   "incorrect": "Vida es bella.",
+   "plain": {
+    "c": -37.34947360641539,
+    "i": -46.83575097529537,
+    "c_ntok": 5,
+    "i_ntok": 5
+   },
+   "neutral": {
+    "c": -14.165776874028685,
+    "i": -22.813228437314713,
+    "c_ntok": 5,
+    "i_ntok": 5
+   },
+   "loc": {
+    "words": [
+     [
+      "Vida",
+      13.147763605408727
+     ],
+     [
+      "es",
+      2.4807363902628894
+     ],
+     [
+      "bella",
+      4.857692065857735
+     ]
+    ],
+    "err_from": 0,
+    "err_to": 0,
+    "top": 0,
+    "hit": true
+   },
+   "register": {
+    "c": -19.58366034603284,
+    "i": -28.03914342920559,
+    "c_ntok": 5,
+    "i_ntok": 5
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 75,
+   "rule": "articles",
+   "correct": "El español es fácil.",
+   "incorrect": "Español es fácil.",
+   "plain": {
+    "c": -43.95858940462662,
+    "i": -54.35375102213928,
+    "c_ntok": 5,
+    "i_ntok": 6
+   },
+   "neutral": {
+    "c": -23.019948723046507,
+    "i": -24.69103309209595,
+    "c_ntok": 5,
+    "i_ntok": 6
+   },
+   "loc": {
+    "words": [
+     [
+      "Español",
+      8.963690421075922
+     ],
+     [
+      "es",
+      4.345401720010272
+     ],
+     [
+      "fácil",
+      8.80794564235929
+     ]
+    ],
+    "err_from": 0,
+    "err_to": 0,
+    "top": 0,
+    "hit": true
+   },
+   "register": {
+    "c": -27.800629419401616,
+    "i": -27.693728920629407,
+    "c_ntok": 5,
+    "i_ntok": 6
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 76,
+   "rule": "articles",
+   "correct": "Voy al cine los sábados.",
+   "incorrect": "Voy a cine los sábados.",
+   "plain": {
+    "c": -60.50997469950742,
+    "i": -55.30419308839798,
+    "c_ntok": 9,
+    "i_ntok": 9
+   },
+   "neutral": {
+    "c": -23.828633855796078,
+    "i": -37.18744243915257,
+    "c_ntok": 9,
+    "i_ntok": 9
+   },
+   "loc": {
+    "words": [
+     [
+      "Voy",
+      5.309972162537633
+     ],
+     [
+      "a",
+      0.03041532872313997
+     ],
+     [
+      "cine",
+      12.26939183435189
+     ],
+     [
+      "los",
+      16.206108273357547
+     ],
+     [
+      "sábados",
+      1.6132552611032944
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 3,
+    "hit": false
+   },
+   "register": {
+    "c": -27.983608187603835,
+    "i": -29.156499757320763,
+    "c_ntok": 9,
+    "i_ntok": 9
+   },
+   "loc2": {
+    "0.0": {
+     "top": 3,
+     "hit": false
+    },
+    "0.5": {
+     "top": 3,
+     "hit": false
+    },
+    "1.0": {
+     "top": 3,
+     "hit": false
+    },
+    "top2_hit": false
+   }
+  },
+  {
+   "id": 77,
+   "rule": "articles",
+   "correct": "Me lavo las manos.",
+   "incorrect": "Me lavo mis manos.",
+   "plain": {
+    "c": -47.15503578684986,
+    "i": -68.23871374361546,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "neutral": {
+    "c": -17.15861553440189,
+    "i": -27.157776916798035,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "loc": {
+    "words": [
+     [
+      "Me",
+      4.461748240894563
+     ],
+     [
+      "lavo",
+      6.967403221573228
+     ],
+     [
+      "mis",
+      10.74132117035196
+     ],
+     [
+      "manos",
+      0.19661813497532432
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 2,
+    "hit": true
+   },
+   "register": {
+    "c": -21.8892452959737,
+    "i": -29.40569808915448,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "loc2": {
+    "0.0": {
+     "top": 2,
+     "hit": true
+    },
+    "0.5": {
+     "top": 2,
+     "hit": true
+    },
+    "1.0": {
+     "top": 2,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 78,
+   "rule": "articles",
+   "correct": "Llegamos a las ocho.",
+   "incorrect": "Llegamos a ocho.",
+   "plain": {
+    "c": -58.35701920025012,
+    "i": -59.99178917690945,
+    "c_ntok": 8,
+    "i_ntok": 7
+   },
+   "neutral": {
+    "c": -22.647846551272433,
+    "i": -23.89175618260208,
+    "c_ntok": 8,
+    "i_ntok": 7
+   },
+   "loc": {
+    "words": [
+     [
+      "Llegamos",
+      9.914476474028712
+     ],
+     [
+      "a",
+      0.4841129033271976
+     ],
+     [
+      "ocho",
+      10.02110902093133
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 2,
+    "hit": true
+   },
+   "register": {
+    "c": -24.66412868642935,
+    "i": -26.880218651240348,
+    "c_ntok": 8,
+    "i_ntok": 7
+   },
+   "loc2": {
+    "0.0": {
+     "top": 2,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 79,
+   "rule": "articles",
+   "correct": "Los perros son leales.",
+   "incorrect": "Perros son leales.",
+   "plain": {
+    "c": -45.15731943719647,
+    "i": -52.859352178976685,
+    "c_ntok": 7,
+    "i_ntok": 6
+   },
+   "neutral": {
+    "c": -24.778213754775432,
+    "i": -28.68908360031524,
+    "c_ntok": 7,
+    "i_ntok": 6
+   },
+   "loc": {
+    "words": [
+     [
+      "Perros",
+      11.158157160840254
+     ],
+     [
+      "son",
+      5.00453097541905
+     ],
+     [
+      "leales",
+      9.014926091399335
+     ]
+    ],
+    "err_from": 0,
+    "err_to": 0,
+    "top": 0,
+    "hit": true
+   },
+   "register": {
+    "c": -28.224049121918537,
+    "i": -32.20558171453872,
+    "c_ntok": 7,
+    "i_ntok": 6
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 80,
+   "rule": "articles",
+   "correct": "Hablé con el señor García.",
+   "incorrect": "Hablé con señor García.",
+   "plain": {
+    "c": -61.859674751542926,
+    "i": -70.03838596991538,
+    "c_ntok": 8,
+    "i_ntok": 7
+   },
+   "neutral": {
+    "c": -27.01730053992682,
+    "i": -34.36587797127932,
+    "c_ntok": 8,
+    "i_ntok": 7
+   },
+   "loc": {
+    "words": [
+     [
+      "Hablé",
+      12.54231749344489
+     ],
+     [
+      "con",
+      0.2504755249186671
+     ],
+     [
+      "señor",
+      12.457801738546411
+     ],
+     [
+      "García",
+      6.587977251754211
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 0,
+    "hit": false
+   },
+   "register": {
+    "c": -28.47925295776,
+    "i": -35.88839945406141,
+    "c_ntok": 8,
+    "i_ntok": 7
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 2,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 81,
+   "rule": "articles",
+   "correct": "Me duele la cabeza.",
+   "incorrect": "Me duele mi cabeza.",
+   "plain": {
+    "c": -46.19066883504232,
+    "i": -47.83876325104688,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "neutral": {
+    "c": -14.687213211595642,
+    "i": -20.648395894509257,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "loc": {
+    "words": [
+     [
+      "Me",
+      4.461748240894563
+     ],
+     [
+      "duele",
+      5.975478138330713
+     ],
+     [
+      "mi",
+      5.512509234375573
+     ],
+     [
+      "cabeza",
+      2.7691227986601517
+     ]
+    ],
+    "err_from": 2,
+    "err_to": 2,
+    "top": 1,
+    "hit": false
+   },
+   "register": {
+    "c": -20.072768427463433,
+    "i": -25.87403459974312,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "loc2": {
+    "0.0": {
+     "top": 1,
+     "hit": false
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 82,
+   "rule": "articles",
+   "correct": "Quiero otro café.",
+   "incorrect": "Quiero un otro café.",
+   "plain": {
+    "c": -44.91125429181813,
+    "i": -52.662315398963386,
+    "c_ntok": 5,
+    "i_ntok": 6
+   },
+   "neutral": {
+    "c": -22.85080466860239,
+    "i": -26.14521860628368,
+    "c_ntok": 5,
+    "i_ntok": 6
+   },
+   "loc": {
+    "words": [
+     [
+      "Quiero",
+      7.410555184147866
+     ],
+     [
+      "un",
+      3.0651841430564613
+     ],
+     [
+      "otro",
+      8.217948165869265
+     ],
+     [
+      "café",
+      5.244528559951188
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 2,
+    "hit": true
+   },
+   "register": {
+    "c": -27.32269355839097,
+    "i": -31.86490995280591,
+    "c_ntok": 5,
+    "i_ntok": 6
+   },
+   "loc2": {
+    "0.0": {
+     "top": 2,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 83,
+   "rule": "pronoun_placement",
+   "correct": "Lo compré ayer.",
+   "incorrect": "Compré lo ayer.",
+   "plain": {
+    "c": -50.05136823315291,
+    "i": -55.09660883263213,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "neutral": {
+    "c": -19.97537235644505,
+    "i": -32.566091115355825,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "loc": {
+    "words": [
+     [
+      "Compré",
+      10.897129726910784
+     ],
+     [
+      "lo",
+      7.953002687632272
+     ],
+     [
+      "ayer",
+      12.258885371456778
+     ]
+    ],
+    "err_from": 0,
+    "err_to": 1,
+    "top": 2,
+    "hit": true
+   },
+   "register": {
+    "c": -22.538982475340408,
+    "i": -36.43372293943503,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "loc2": {
+    "0.0": {
+     "top": 2,
+     "hit": true
+    },
+    "0.5": {
+     "top": 2,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 84,
+   "rule": "pronoun_placement",
+   "correct": "Quiero verte mañana.",
+   "incorrect": "Quiero te ver mañana.",
+   "plain": {
+    "c": -54.72524802859214,
+    "i": -53.61105240065206,
+    "c_ntok": 5,
+    "i_ntok": 6
+   },
+   "neutral": {
+    "c": -26.924725238381452,
+    "i": -31.18505234021957,
+    "c_ntok": 5,
+    "i_ntok": 6
+   },
+   "loc": {
+    "words": [
+     [
+      "Quiero",
+      7.410555184147866
+     ],
+     [
+      "te",
+      7.579724815358707
+     ],
+     [
+      "ver",
+      8.282536978271107
+     ],
+     [
+      "mañana",
+      6.287666053488137
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 2,
+    "top": 2,
+    "hit": true
+   },
+   "register": {
+    "c": -30.32682929376981,
+    "i": -35.3947987543707,
+    "c_ntok": 5,
+    "i_ntok": 6
+   },
+   "loc2": {
+    "0.0": {
+     "top": 2,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": false
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 85,
+   "rule": "pronoun_placement",
+   "correct": "Te lo digo ahora.",
+   "incorrect": "Lo te digo ahora.",
+   "plain": {
+    "c": -38.83791142879509,
+    "i": -51.918123601024085,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "neutral": {
+    "c": -16.316901280980645,
+    "i": -25.467662392916917,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "loc": {
+    "words": [
+     [
+      "Lo",
+      5.793774722522981
+     ],
+     [
+      "te",
+      9.993072322907338
+     ],
+     [
+      "digo",
+      2.3201688934237508
+     ],
+     [
+      "ahora",
+      4.686679679033306
+     ]
+    ],
+    "err_from": 0,
+    "err_to": 1,
+    "top": 1,
+    "hit": true
+   },
+   "register": {
+    "c": -19.46040201538341,
+    "i": -27.698528626700543,
+    "c_ntok": 6,
+    "i_ntok": 6
+   },
+   "loc2": {
+    "0.0": {
+     "top": 1,
+     "hit": true
+    },
+    "0.5": {
+     "top": 1,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 86,
+   "rule": "pronoun_placement",
+   "correct": "No lo hagas.",
+   "incorrect": "No hazlo.",
+   "plain": {
+    "c": -32.712403982203476,
+    "i": -39.10946494456847,
+    "c_ntok": 5,
+    "i_ntok": 4
+   },
+   "neutral": {
+    "c": -13.203622616124445,
+    "i": -20.20355125902063,
+    "c_ntok": 5,
+    "i_ntok": 4
+   },
+   "loc": {
+    "words": [
+     [
+      "No",
+      4.275659678882844
+     ],
+     [
+      "hazlo",
+      14.136584635251465
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 1,
+    "top": 1,
+    "hit": true
+   },
+   "register": {
+    "c": -19.470204447406207,
+    "i": -27.08309932414096,
+    "c_ntok": 5,
+    "i_ntok": 4
+   },
+   "loc2": {
+    "0.0": {
+     "top": 1,
+     "hit": true
+    },
+    "0.5": {
+     "top": 1,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 87,
+   "rule": "pronoun_placement",
+   "correct": "Se lo di a mi hermana.",
+   "incorrect": "Le lo di a mi hermana.",
+   "plain": {
+    "c": -49.60927716968577,
+    "i": -57.83003291351192,
+    "c_ntok": 8,
+    "i_ntok": 8
+   },
+   "neutral": {
+    "c": -24.720215012559976,
+    "i": -26.47775803028663,
+    "c_ntok": 8,
+    "i_ntok": 8
+   },
+   "loc": {
+    "words": [
+     [
+      "Le",
+      6.947615741199739
+     ],
+     [
+      "lo",
+      9.184843673777921
+     ],
+     [
+      "di",
+      3.4637648108161576
+     ],
+     [
+      "a",
+      1.577214674950775
+     ],
+     [
+      "mi",
+      0.618963204409467
+     ],
+     [
+      "hermana",
+      3.152593807718757
+     ]
+    ],
+    "err_from": 0,
+    "err_to": 0,
+    "top": 1,
+    "hit": true
+   },
+   "register": {
+    "c": -27.773051354563812,
+    "i": -31.78349181641741,
+    "c_ntok": 8,
+    "i_ntok": 8
+   },
+   "loc2": {
+    "0.0": {
+     "top": 1,
+     "hit": true
+    },
+    "0.5": {
+     "top": 1,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 88,
+   "rule": "pronoun_placement",
+   "correct": "Estoy leyéndolo ahora.",
+   "incorrect": "Estoy lo leyendo ahora.",
+   "plain": {
+    "c": -53.07922680940818,
+    "i": -56.08390030529943,
+    "c_ntok": 8,
+    "i_ntok": 7
+   },
+   "neutral": {
+    "c": -25.106247890021663,
+    "i": -34.00494032312893,
+    "c_ntok": 8,
+    "i_ntok": 7
+   },
+   "loc": {
+    "words": [
+     [
+      "Estoy",
+      5.787658095234612
+     ],
+     [
+      "lo",
+      8.941057685041885
+     ],
+     [
+      "leyendo",
+      15.036316795911763
+     ],
+     [
+      "ahora",
+      2.810945451076049
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 2,
+    "top": 2,
+    "hit": true
+   },
+   "register": {
+    "c": -33.05266870808144,
+    "i": -36.92765446990125,
+    "c_ntok": 8,
+    "i_ntok": 7
+   },
+   "loc2": {
+    "0.0": {
+     "top": 2,
+     "hit": true
+    },
+    "0.5": {
+     "top": 2,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 89,
+   "rule": "pronoun_placement",
+   "correct": "Me llamó anoche.",
+   "incorrect": "Llamó me anoche.",
+   "plain": {
+    "c": -47.90195329216418,
+    "i": -61.27599161485582,
+    "c_ntok": 6,
+    "i_ntok": 7
+   },
+   "neutral": {
+    "c": -24.875641970945363,
+    "i": -38.56475553048419,
+    "c_ntok": 6,
+    "i_ntok": 7
+   },
+   "loc": {
+    "words": [
+     [
+      "Llamó",
+      14.821770357818302
+     ],
+     [
+      "me",
+      10.31557050349632
+     ],
+     [
+      "anoche",
+      10.639629614830703
+     ]
+    ],
+    "err_from": 0,
+    "err_to": 1,
+    "top": 0,
+    "hit": true
+   },
+   "register": {
+    "c": -28.716619509576372,
+    "i": -39.387426199159854,
+    "c_ntok": 6,
+    "i_ntok": 7
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": true
+    },
+    "1.0": {
+     "top": 1,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 90,
+   "rule": "pronoun_placement",
+   "correct": "Hazlo ahora.",
+   "incorrect": "Lo haz ahora.",
+   "plain": {
+    "c": -42.792988052071834,
+    "i": -40.545026705621346,
+    "c_ntok": 4,
+    "i_ntok": 4
+   },
+   "neutral": {
+    "c": -22.651908741871075,
+    "i": -26.512345844474478,
+    "c_ntok": 4,
+    "i_ntok": 4
+   },
+   "loc": {
+    "words": [
+     [
+      "Lo",
+      5.793774722522981
+     ],
+     [
+      "haz",
+      11.929691127838979
+     ],
+     [
+      "ahora",
+      5.948591838355563
+     ]
+    ],
+    "err_from": 0,
+    "err_to": 1,
+    "top": 1,
+    "hit": true
+   },
+   "register": {
+    "c": -23.51933060236977,
+    "i": -28.349288561133108,
+    "c_ntok": 4,
+    "i_ntok": 4
+   },
+   "loc2": {
+    "0.0": {
+     "top": 1,
+     "hit": true
+    },
+    "0.5": {
+     "top": 1,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 91,
+   "rule": "pronoun_placement",
+   "correct": "Nos vemos mañana.",
+   "incorrect": "Vemos nos mañana.",
+   "plain": {
+    "c": -56.29094062141957,
+    "i": -45.39558477220402,
+    "c_ntok": 5,
+    "i_ntok": 5
+   },
+   "neutral": {
+    "c": -18.529851230685818,
+    "i": -36.045967867489324,
+    "c_ntok": 5,
+    "i_ntok": 5
+   },
+   "loc": {
+    "words": [
+     [
+      "Vemos",
+      11.260068292908727
+     ],
+     [
+      "nos",
+      10.06065469101566
+     ],
+     [
+      "mañana",
+      11.526906747261723
+     ]
+    ],
+    "err_from": 0,
+    "err_to": 1,
+    "top": 2,
+    "hit": true
+   },
+   "register": {
+    "c": -20.36700530716492,
+    "i": -41.11236674216846,
+    "c_ntok": 5,
+    "i_ntok": 5
+   },
+   "loc2": {
+    "0.0": {
+     "top": 2,
+     "hit": true
+    },
+    "0.5": {
+     "top": 2,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 92,
+   "rule": "pronoun_placement",
+   "correct": "La invité a cenar.",
+   "incorrect": "Invité la a cenar.",
+   "plain": {
+    "c": -61.53905308789313,
+    "i": -65.84128400543209,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "neutral": {
+    "c": -35.105319311596375,
+    "i": -40.81560657194585,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "loc": {
+    "words": [
+     [
+      "Invité",
+      13.971760334435393
+     ],
+     [
+      "la",
+      5.053371743715614
+     ],
+     [
+      "a",
+      7.710018553350737
+     ],
+     [
+      "cenar",
+      11.05119451547207
+     ]
+    ],
+    "err_from": 0,
+    "err_to": 1,
+    "top": 0,
+    "hit": true
+   },
+   "register": {
+    "c": -32.530311701122955,
+    "i": -43.909543423905006,
+    "c_ntok": 7,
+    "i_ntok": 7
+   },
+   "loc2": {
+    "0.0": {
+     "top": 0,
+     "hit": true
+    },
+    "0.5": {
+     "top": 0,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": true
+    },
+    "top2_hit": true
+   }
+  },
+  {
+   "id": 93,
+   "rule": "pronoun_placement",
+   "correct": "¿Puedes ayudarme?",
+   "incorrect": "¿Puedes me ayudar?",
+   "plain": {
+    "c": -39.52322817034206,
+    "i": -43.62202455837283,
+    "c_ntok": 7,
+    "i_ntok": 8
+   },
+   "neutral": {
+    "c": -14.540895643432199,
+    "i": -19.187655094937877,
+    "c_ntok": 7,
+    "i_ntok": 8
+   },
+   "loc": {
+    "words": [
+     [
+      "Puedes",
+      3.273321407708048
+     ],
+     [
+      "me",
+      7.162122766459175
+     ],
+     [
+      "ayudar",
+      0.4154329666265803
+     ]
+    ],
+    "err_from": 1,
+    "err_to": 2,
+    "top": 1,
+    "hit": true
+   },
+   "register": {
+    "c": -18.03741226168962,
+    "i": -21.720190167159416,
+    "c_ntok": 7,
+    "i_ntok": 8
+   },
+   "loc2": {
+    "0.0": {
+     "top": 1,
+     "hit": true
+    },
+    "0.5": {
+     "top": 1,
+     "hit": true
+    },
+    "1.0": {
+     "top": 0,
+     "hit": false
+    },
+    "top2_hit": true
+   }
+  }
+ ],
+ "slang": [
+  {
+   "id": 1,
+   "street": "¿Qué es la que hay, mano?",
+   "neutral": {
+    "street": -44.56823598645304,
+    "neutral": -23.81220057768574,
+    "street_words": [
+     [
+      "Qué",
+      1.9655464701040706
+     ],
+     [
+      "es",
+      2.0079466479626533
+     ],
+     [
+      "la",
+      1.4015893484309687
+     ],
+     [
+      "que",
+      8.019697787835383
+     ],
+     [
+      "hay",
+      6.347002148071056
+     ],
+     [
+      "mano",
+      11.539265483618736
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Qué",
+      1.9655464701040706
+     ],
+     [
+      "está",
+      5.093134559949958
+     ],
+     [
+      "pasando",
+      0.12389798094615984
+     ],
+     [
+      "amigo",
+      5.436908953668825
+     ]
+    ],
+    "street_nw": 6,
+    "neutral_nw": 4
+   },
+   "region": "PR",
+   "explicit": false,
+   "plain": {
+    "street": -65.69010545615197,
+    "neutral": -43.966604248438905,
+    "street_words": [
+     [
+      "Qué",
+      17.691274364622835
+     ],
+     [
+      "es",
+      0.6040221136588064
+     ],
+     [
+      "la",
+      1.5283880876123759
+     ],
+     [
+      "que",
+      7.9657416324766555
+     ],
+     [
+      "hay",
+      7.677933510801353
+     ],
+     [
+      "mano",
+      10.497865545396579
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Qué",
+      17.691274364622835
+     ],
+     [
+      "está",
+      5.3068037909049
+     ],
+     [
+      "pasando",
+      0.09186134696059559
+     ],
+     [
+      "amigo",
+      4.788586884311255
+     ]
+    ],
+    "street_nw": 6,
+    "neutral_nw": 4
+   },
+   "register": {
+    "street": -40.00537826926798,
+    "neutral": -23.864294990475738,
+    "street_words": [
+     [
+      "Qué",
+      1.6429518823768217
+     ],
+     [
+      "es",
+      2.4457576758811896
+     ],
+     [
+      "la",
+      1.9302262934880574
+     ],
+     [
+      "que",
+      6.978606315096606
+     ],
+     [
+      "hay",
+      5.854241633865829
+     ],
+     [
+      "mano",
+      8.236370851859606
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Qué",
+      1.6429518823768217
+     ],
+     [
+      "está",
+      5.404461670632166
+     ],
+     [
+      "pasando",
+      0.14936238236181004
+     ],
+     [
+      "amigo",
+      3.8748138748185577
+     ]
+    ],
+    "street_nw": 6,
+    "neutral_nw": 4
+   }
+  },
+  {
+   "id": 2,
+   "street": "Vamo' a janguear con el corillo esta noche.",
+   "neutral": {
+    "street": -74.71291512770479,
+    "neutral": -23.150087973106757,
+    "street_words": [
+     [
+      "Vamo'",
+      23.08129498884292
+     ],
+     [
+      "a",
+      0.08701859304818696
+     ],
+     [
+      "janguear",
+      26.531238672473222
+     ],
+     [
+      "con",
+      2.76521645487072
+     ],
+     [
+      "el",
+      1.7624254268813822
+     ],
+     [
+      "corillo",
+      12.92221641833949
+     ],
+     [
+      "esta",
+      6.273684664973816
+     ],
+     [
+      "noche",
+      0.18703764102219003
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Vamos",
+      6.875449533753454
+     ],
+     [
+      "a",
+      0.0344709119690201
+     ],
+     [
+      "salir",
+      5.196842824351006
+     ],
+     [
+      "con",
+      3.9126978816599056
+     ],
+     [
+      "los",
+      2.9208458874217453
+     ],
+     [
+      "amigos",
+      0.8570606871248381
+     ],
+     [
+      "esta",
+      2.540237370168942
+     ],
+     [
+      "noche",
+      0.04328384408635639
+     ]
+    ],
+    "street_nw": 8,
+    "neutral_nw": 8
+   },
+   "region": "PR",
+   "explicit": false,
+   "plain": {
+    "street": -98.15476567582931,
+    "neutral": -46.36052080224441,
+    "street_words": [
+     [
+      "Vamo'",
+      33.14825129943833
+     ],
+     [
+      "a",
+      4.665167590845719
+     ],
+     [
+      "janguear",
+      26.780873647393804
+     ],
+     [
+      "con",
+      4.492006935425906
+     ],
+     [
+      "el",
+      1.6620087880269887
+     ],
+     [
+      "corillo",
+      15.16179108938999
+     ],
+     [
+      "esta",
+      8.039904123957644
+     ],
+     [
+      "noche",
+      1.8529526572743351
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Vamos",
+      20.95678170994385
+     ],
+     [
+      "a",
+      2.600492091480687
+     ],
+     [
+      "salir",
+      7.256960242649592
+     ],
+     [
+      "con",
+      5.295316006793655
+     ],
+     [
+      "los",
+      3.378407727910149
+     ],
+     [
+      "amigos",
+      2.119848861720257
+     ],
+     [
+      "esta",
+      3.6503265534049527
+     ],
+     [
+      "noche",
+      0.014159767030898237
+     ]
+    ],
+    "street_nw": 8,
+    "neutral_nw": 8
+   },
+   "register": {
+    "street": -39.855595727400356,
+    "neutral": -26.726669142921065,
+    "street_words": [
+     [
+      "Vamo'",
+      22.354479528225422
+     ],
+     [
+      "a",
+      0.06984730505380395
+     ],
+     [
+      "janguear",
+      3.2077716653990347
+     ],
+     [
+      "con",
+      3.0812577299511723
+     ],
+     [
+      "el",
+      1.1298727326355256
+     ],
+     [
+      "corillo",
+      2.5350168063164524
+     ],
+     [
+      "esta",
+      6.301444085131459
+     ],
+     [
+      "noche",
+      0.16016094137754172
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Vamos",
+      9.001260511512722
+     ],
+     [
+      "a",
+      0.3384999070916149
+     ],
+     [
+      "salir",
+      3.85020746326468
+     ],
+     [
+      "con",
+      3.6861628493421374
+     ],
+     [
+      "los",
+      1.980900985093553
+     ],
+     [
+      "amigos",
+      2.3731389392005715
+     ],
+     [
+      "esta",
+      4.229909106174319
+     ],
+     [
+      "noche",
+      0.043090537508904715
+     ]
+    ],
+    "street_nw": 8,
+    "neutral_nw": 8
+   }
+  },
+  {
+   "id": 3,
+   "street": "Esa vaina 'tá brutal.",
+   "neutral": {
+    "street": -52.82364128033746,
+    "neutral": -27.856106290435488,
+    "street_words": [
+     [
+      "Esa",
+      8.554852574063357
+     ],
+     [
+      "vaina",
+      10.205035161106364
+     ],
+     [
+      "'tá",
+      20.32763674224499
+     ],
+     [
+      "brutal",
+      11.812682923691865
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Esa",
+      8.554852574063357
+     ],
+     [
+      "cosa",
+      6.355986210269833
+     ],
+     [
+      "está",
+      4.921814775502898
+     ],
+     [
+      "increíble",
+      6.236296366020666
+     ]
+    ],
+    "street_nw": 4,
+    "neutral_nw": 4
+   },
+   "region": "PR",
+   "explicit": false,
+   "plain": {
+    "street": -76.77294815466158,
+    "neutral": -64.36136821529207,
+    "street_words": [
+     [
+      "Esa",
+      22.28086250878346
+     ],
+     [
+      "vaina",
+      17.30962840855057
+     ],
+     [
+      "'tá",
+      18.87489090243778
+     ],
+     [
+      "brutal",
+      14.642395613488343
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Esa",
+      22.28086250878346
+     ],
+     [
+      "cosa",
+      10.788969898601456
+     ],
+     [
+      "está",
+      10.916187946397198
+     ],
+     [
+      "increíble",
+      15.985751831141133
+     ]
+    ],
+    "street_nw": 4,
+    "neutral_nw": 4
+   },
+   "register": {
+    "street": -46.73584066402341,
+    "neutral": -33.56453315195999,
+    "street_words": [
+     [
+      "Esa",
+      12.658303802513817
+     ],
+     [
+      "vaina",
+      10.755597195427637
+     ],
+     [
+      "'tá",
+      9.82069196842865
+     ],
+     [
+      "brutal",
+      11.187264509910884
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Esa",
+      12.658303802513817
+     ],
+     [
+      "cosa",
+      5.8748837296105325
+     ],
+     [
+      "está",
+      3.9075861657622797
+     ],
+     [
+      "increíble",
+      8.865704815314825
+     ]
+    ],
+    "street_nw": 4,
+    "neutral_nw": 4
+   }
+  },
+  {
+   "id": 4,
+   "street": "¿Pa' qué tú quieres eso?",
+   "neutral": {
+    "street": -40.50819306747471,
+    "neutral": -25.10705735980633,
+    "street_words": [
+     [
+      "Pa'",
+      14.340984617081189
+     ],
+     [
+      "qué",
+      2.3165835798885985
+     ],
+     [
+      "tú",
+      7.274494326113387
+     ],
+     [
+      "quieres",
+      5.408074506709147
+     ],
+     [
+      "eso",
+      5.5801344494480105
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Para",
+      6.0960806421621765
+     ],
+     [
+      "qué",
+      0.1600962186633991
+     ],
+     [
+      "quieres",
+      6.638427144024384
+     ],
+     [
+      "eso",
+      6.465106641820578
+     ]
+    ],
+    "street_nw": 5,
+    "neutral_nw": 4
+   },
+   "region": "PR",
+   "explicit": false,
+   "plain": {
+    "street": -65.4810883507646,
+    "neutral": -49.40298830482507,
+    "street_words": [
+     [
+      "Pa'",
+      26.89377945225308
+     ],
+     [
+      "qué",
+      7.31697450497933
+     ],
+     [
+      "tú",
+      7.496944752131608
+     ],
+     [
+      "quieres",
+      3.766633295268023
+     ],
+     [
+      "eso",
+      9.034121041807134
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Para",
+      21.05604561153293
+     ],
+     [
+      "qué",
+      1.7548959798089332
+     ],
+     [
+      "quieres",
+      7.53450729241618
+     ],
+     [
+      "eso",
+      9.044889861794282
+     ]
+    ],
+    "street_nw": 5,
+    "neutral_nw": 4
+   },
+   "register": {
+    "street": -46.84950689633559,
+    "neutral": -27.891585810336284,
+    "street_words": [
+     [
+      "Pa'",
+      16.190646370990883
+     ],
+     [
+      "qué",
+      3.19348642465866
+     ],
+     [
+      "tú",
+      6.993374658635162
+     ],
+     [
+      "quieres",
+      5.9616450900102915
+     ],
+     [
+      "eso",
+      6.667888103202204
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Para",
+      7.266494668021353
+     ],
+     [
+      "qué",
+      0.1440141178734097
+     ],
+     [
+      "quieres",
+      7.499337579674679
+     ],
+     [
+      "eso",
+      5.344566056569457
+     ]
+    ],
+    "street_nw": 5,
+    "neutral_nw": 4
+   }
+  },
+  {
+   "id": 5,
+   "street": "Ese pana mío es bien chévere.",
+   "neutral": {
+    "street": -49.490039415112435,
+    "neutral": -30.18725375034761,
+    "street_words": [
+     [
+      "Ese",
+      8.027409641934451
+     ],
+     [
+      "pana",
+      11.869323614845577
+     ],
+     [
+      "mío",
+      8.856729501526452
+     ],
+     [
+      "es",
+      1.800234839062613
+     ],
+     [
+      "bien",
+      6.115456911157544
+     ],
+     [
+      "chévere",
+      11.10566763508564
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Ese",
+      8.027409641934451
+     ],
+     [
+      "amigo",
+      5.906930925039777
+     ],
+     [
+      "mío",
+      2.306054665456529
+     ],
+     [
+      "es",
+      3.5664176681404705
+     ],
+     [
+      "muy",
+      0.9928855548642235
+     ],
+     [
+      "agradable",
+      7.853624719047362
+     ]
+    ],
+    "street_nw": 6,
+    "neutral_nw": 6
+   },
+   "region": "PR",
+   "explicit": false,
+   "plain": {
+    "street": -71.34234911393467,
+    "neutral": -57.465629086302634,
+    "street_words": [
+     [
+      "Ese",
+      22.487858234415175
+     ],
+     [
+      "pana",
+      12.084714440853283
+     ],
+     [
+      "mío",
+      12.196032804950619
+     ],
+     [
+      "es",
+      3.649616843211385
+     ],
+     [
+      "bien",
+      6.586857233781696
+     ],
+     [
+      "chévere",
+      12.208176310921294
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Ese",
+      22.487858234415175
+     ],
+     [
+      "amigo",
+      13.082685975288934
+     ],
+     [
+      "mío",
+      6.125634173621245
+     ],
+     [
+      "es",
+      5.336036296027219
+     ],
+     [
+      "muy",
+      1.4087998961166674
+     ],
+     [
+      "agradable",
+      6.742321197825349
+     ]
+    ],
+    "street_nw": 6,
+    "neutral_nw": 6
+   },
+   "register": {
+    "street": -52.71338166570637,
+    "neutral": -39.18896495412682,
+    "street_words": [
+     [
+      "Ese",
+      12.63793331911538
+     ],
+     [
+      "pana",
+      9.17296244409664
+     ],
+     [
+      "mío",
+      10.062946518235767
+     ],
+     [
+      "es",
+      3.498049996527859
+     ],
+     [
+      "bien",
+      7.364229000312976
+     ],
+     [
+      "chévere",
+      8.475228499383627
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Ese",
+      12.63793331911538
+     ],
+     [
+      "amigo",
+      5.660962110086209
+     ],
+     [
+      "mío",
+      2.167330062993004
+     ],
+     [
+      "es",
+      4.358185624939335
+     ],
+     [
+      "muy",
+      2.5099757500555406
+     ],
+     [
+      "agradable",
+      9.740735155443355
+     ]
+    ],
+    "street_nw": 6,
+    "neutral_nw": 6
+   }
+  },
+  {
+   "id": 6,
+   "street": "Estoy janguiando en la playa con mis panas.",
+   "neutral": {
+    "street": -65.01291291295908,
+    "neutral": -24.26323827496838,
+    "street_words": [
+     [
+      "Estoy",
+      5.787658095234612
+     ],
+     [
+      "janguiando",
+      27.637814370887302
+     ],
+     [
+      "en",
+      2.1723679891397674
+     ],
+     [
+      "la",
+      1.7063200542916674
+     ],
+     [
+      "playa",
+      6.088931207555962
+     ],
+     [
+      "con",
+      2.409721157082336
+     ],
+     [
+      "mis",
+      1.3435041412127697
+     ],
+     [
+      "panas",
+      15.98593926476451
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Estoy",
+      5.787658095234612
+     ],
+     [
+      "pasando",
+      5.296321817418485
+     ],
+     [
+      "el",
+      2.279767554820026
+     ],
+     [
+      "rato",
+      1.710042080740454
+     ],
+     [
+      "en",
+      1.892988035735277
+     ],
+     [
+      "la",
+      1.314248918632869
+     ],
+     [
+      "playa",
+      2.0691824414457742
+     ],
+     [
+      "con",
+      2.050973587924773
+     ],
+     [
+      "mis",
+      1.0122038788768737
+     ],
+     [
+      "amigos",
+      0.07735754411885543
+     ]
+    ],
+    "street_nw": 8,
+    "neutral_nw": 10
+   },
+   "region": "PR",
+   "explicit": false,
+   "plain": {
+    "street": -96.51220256427655,
+    "neutral": -55.81647554223486,
+    "street_words": [
+     [
+      "Estoy",
+      25.491258614356507
+     ],
+     [
+      "janguiando",
+      33.79123591846184
+     ],
+     [
+      "en",
+      2.7985192334571534
+     ],
+     [
+      "la",
+      2.427158313480321
+     ],
+     [
+      "playa",
+      6.1209511815175395
+     ],
+     [
+      "con",
+      2.664251674396403
+     ],
+     [
+      "mis",
+      1.5363628065278805
+     ],
+     [
+      "panas",
+      18.87110587809785
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Estoy",
+      25.491258614356507
+     ],
+     [
+      "pasando",
+      11.438117239907697
+     ],
+     [
+      "el",
+      3.2022340432378082
+     ],
+     [
+      "rato",
+      4.507649411002659
+     ],
+     [
+      "en",
+      1.4750362009809481
+     ],
+     [
+      "la",
+      1.0190064229309197
+     ],
+     [
+      "playa",
+      2.567305094492254
+     ],
+     [
+      "con",
+      2.9056388955608083
+     ],
+     [
+      "mis",
+      1.5094808280802097
+     ],
+     [
+      "amigos",
+      0.055524579323992414
+     ]
+    ],
+    "street_nw": 8,
+    "neutral_nw": 10
+   },
+   "register": {
+    "street": -48.15282355920687,
+    "neutral": -28.616857195967572,
+    "street_words": [
+     [
+      "Estoy",
+      9.822821217302218
+     ],
+     [
+      "janguiando",
+      20.101081774406754
+     ],
+     [
+      "en",
+      2.1088832917551383
+     ],
+     [
+      "la",
+      0.8598448383205498
+     ],
+     [
+      "playa",
+      4.299697619246641
+     ],
+     [
+      "con",
+      2.7917086549133723
+     ],
+     [
+      "mis",
+      0.9211573042759985
+     ],
+     [
+      "panas",
+      6.1405049741274045
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Estoy",
+      9.822821217302218
+     ],
+     [
+      "pasando",
+      5.392662118730114
+     ],
+     [
+      "el",
+      2.3605674581368525
+     ],
+     [
+      "rato",
+      0.26017600524449264
+     ],
+     [
+      "en",
+      1.4645612220691762
+     ],
+     [
+      "la",
+      0.7410236168059173
+     ],
+     [
+      "playa",
+      3.970353883547305
+     ],
+     [
+      "con",
+      2.3070953679587882
+     ],
+     [
+      "mis",
+      1.2460890880428115
+     ],
+     [
+      "amigos",
+      0.10740662781380983
+     ]
+    ],
+    "street_nw": 8,
+    "neutral_nw": 10
+   }
+  },
+  {
+   "id": 7,
+   "street": "Dímelo, loco, ¿qué lo que?",
+   "neutral": {
+    "street": -46.00989897051975,
+    "neutral": -26.308523091023563,
+    "street_words": [
+     [
+      "Dímelo",
+      13.154677297038784
+     ],
+     [
+      "loco",
+      11.061832525920536
+     ],
+     [
+      "qué",
+      1.2970351989818087
+     ],
+     [
+      "lo",
+      8.12345198164669
+     ],
+     [
+      "que",
+      4.102397792377927
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Dime",
+      8.180284670573032
+     ],
+     [
+      "amigo",
+      5.536989643019086
+     ],
+     [
+      "qué",
+      1.5378120489366056
+     ],
+     [
+      "tal",
+      3.678134478844371
+     ]
+    ],
+    "street_nw": 5,
+    "neutral_nw": 4
+   },
+   "region": "DR",
+   "explicit": false,
+   "plain": {
+    "street": -75.29369174211469,
+    "neutral": -49.42460815346552,
+    "street_words": [
+     [
+      "Dímelo",
+      39.67450998430086
+     ],
+     [
+      "loco",
+      10.455835756708485
+     ],
+     [
+      "qué",
+      0.65967726464763
+     ],
+     [
+      "lo",
+      8.73592068924215
+     ],
+     [
+      "que",
+      3.1549178451739737
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Dime",
+      26.246536058950255
+     ],
+     [
+      "amigo",
+      11.704933227832935
+     ],
+     [
+      "qué",
+      0.8663137397784946
+     ],
+     [
+      "tal",
+      2.8655355454991236
+     ]
+    ],
+    "street_nw": 5,
+    "neutral_nw": 4
+   },
+   "register": {
+    "street": -43.759929091213436,
+    "neutral": -24.365789877123245,
+    "street_words": [
+     [
+      "Dímelo",
+      15.285970965518757
+     ],
+     [
+      "loco",
+      8.803837628799714
+     ],
+     [
+      "qué",
+      0.7324488427682229
+     ],
+     [
+      "lo",
+      7.369437417641992
+     ],
+     [
+      "que",
+      4.3252677751437325
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Dime",
+      10.168137711670964
+     ],
+     [
+      "amigo",
+      4.312339731762432
+     ],
+     [
+      "qué",
+      0.7856349966301949
+     ],
+     [
+      "tal",
+      2.1250425329420017
+     ]
+    ],
+    "street_nw": 5,
+    "neutral_nw": 4
+   }
+  },
+  {
+   "id": 8,
+   "street": "Ese carro 'tá to' jevi.",
+   "neutral": {
+    "street": -69.44203659187183,
+    "neutral": -25.420570797397385,
+    "street_words": [
+     [
+      "Ese",
+      8.027409641934451
+     ],
+     [
+      "carro",
+      7.923140527395734
+     ],
+     [
+      "'tá",
+      20.04294301005026
+     ],
+     [
+      "to'",
+      13.317990791977092
+     ],
+     [
+      "jevi",
+      16.83241514100156
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Ese",
+      8.027409641934451
+     ],
+     [
+      "coche",
+      6.112976127277131
+     ],
+     [
+      "está",
+      3.188659108578891
+     ],
+     [
+      "muy",
+      3.0811240690833186
+     ],
+     [
+      "bonito",
+      4.228971214421979
+     ]
+    ],
+    "street_nw": 5,
+    "neutral_nw": 5
+   },
+   "region": "PR",
+   "explicit": false,
+   "plain": {
+    "street": -93.66440321492207,
+    "neutral": -53.01433531943328,
+    "street_words": [
+     [
+      "Ese",
+      22.487858234415175
+     ],
+     [
+      "carro",
+      16.96673396036584
+     ],
+     [
+      "'tá",
+      19.479580577120966
+     ],
+     [
+      "to'",
+      11.896840782927898
+     ],
+     [
+      "jevi",
+      17.8654954288656
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Ese",
+      22.487858234415175
+     ],
+     [
+      "coche",
+      14.871788544786124
+     ],
+     [
+      "está",
+      3.845282786873913
+     ],
+     [
+      "muy",
+      4.7960162154195825
+     ],
+     [
+      "bonito",
+      5.557268312003063
+     ]
+    ],
+    "street_nw": 5,
+    "neutral_nw": 5
+   },
+   "register": {
+    "street": -66.77258157405379,
+    "neutral": -33.31765183242414,
+    "street_words": [
+     [
+      "Ese",
+      12.63793331911538
+     ],
+     [
+      "carro",
+      7.116724973245389
+     ],
+     [
+      "'tá",
+      8.873051402606716
+     ],
+     [
+      "to'",
+      16.48018045521429
+     ],
+     [
+      "jevi",
+      18.495817393234248
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Ese",
+      12.63793331911538
+     ],
+     [
+      "coche",
+      5.412820594483883
+     ],
+     [
+      "está",
+      2.8004834681371884
+     ],
+     [
+      "muy",
+      3.7872361940593042
+     ],
+     [
+      "bonito",
+      7.024444294089823
+     ]
+    ],
+    "street_nw": 5,
+    "neutral_nw": 5
+   }
+  },
+  {
+   "id": 9,
+   "street": "No me jodas con esa vaina.",
+   "neutral": {
+    "street": -37.089626894040975,
+    "neutral": -25.24634989989953,
+    "street_words": [
+     [
+      "No",
+      4.275659678882844
+     ],
+     [
+      "me",
+      1.8805839373590922
+     ],
+     [
+      "jodas",
+      9.997676927585525
+     ],
+     [
+      "con",
+      3.429268988425994
+     ],
+     [
+      "esa",
+      4.070240194986576
+     ],
+     [
+      "vaina",
+      11.229837728450576
+     ]
+    ],
+    "neutral_words": [
+     [
+      "No",
+      4.275659678882844
+     ],
+     [
+      "me",
+      1.8805839373590922
+     ],
+     [
+      "molestes",
+      12.782427558714549
+     ],
+     [
+      "con",
+      1.858187963387223
+     ],
+     [
+      "eso",
+      3.602698623654244
+     ]
+    ],
+    "street_nw": 6,
+    "neutral_nw": 5
+   },
+   "region": "PR",
+   "explicit": true,
+   "plain": {
+    "street": -59.614740203652566,
+    "neutral": -56.544307812609595,
+    "street_words": [
+     [
+      "No",
+      10.600958107437657
+     ],
+     [
+      "me",
+      17.58977437575448
+     ],
+     [
+      "jodas",
+      8.316443629096167
+     ],
+     [
+      "con",
+      5.552778989833145
+     ],
+     [
+      "esa",
+      3.958876192942571
+     ],
+     [
+      "vaina",
+      10.808909725610649
+     ]
+    ],
+    "neutral_words": [
+     [
+      "No",
+      10.600958107437657
+     ],
+     [
+      "me",
+      17.58977437575448
+     ],
+     [
+      "molestes",
+      19.77148953503843
+     ],
+     [
+      "con",
+      2.8143123334999163
+     ],
+     [
+      "eso",
+      4.187007074094041
+     ]
+    ],
+    "street_nw": 6,
+    "neutral_nw": 5
+   },
+   "register": {
+    "street": -41.23058214129517,
+    "neutral": -27.952447409664856,
+    "street_words": [
+     [
+      "No",
+      7.518148312312454
+     ],
+     [
+      "me",
+      1.3021248145386703
+     ],
+     [
+      "jodas",
+      11.089860688241934
+     ],
+     [
+      "con",
+      4.712312110782211
+     ],
+     [
+      "esa",
+      3.660517123150196
+     ],
+     [
+      "vaina",
+      10.60465051113737
+     ]
+    ],
+    "neutral_words": [
+     [
+      "No",
+      7.518148312312454
+     ],
+     [
+      "me",
+      1.3021248145386703
+     ],
+     [
+      "molestes",
+      9.626262910921472
+     ],
+     [
+      "con",
+      3.895943979492824
+     ],
+     [
+      "eso",
+      3.516287360026996
+     ]
+    ],
+    "street_nw": 6,
+    "neutral_nw": 5
+   }
+  },
+  {
+   "id": 10,
+   "street": "Tengo un chin de hambre.",
+   "neutral": {
+    "street": -39.04425498994027,
+    "neutral": -15.923187151607165,
+    "street_words": [
+     [
+      "Tengo",
+      5.323582113682708
+     ],
+     [
+      "un",
+      1.1027257474788423
+     ],
+     [
+      "chin",
+      12.474668091930004
+     ],
+     [
+      "de",
+      7.529554786698055
+     ],
+     [
+      "hambre",
+      11.137679157219834
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Tengo",
+      5.323582113682708
+     ],
+     [
+      "un",
+      1.1027257474788423
+     ],
+     [
+      "poco",
+      5.106679982341381
+     ],
+     [
+      "de",
+      0.00529761279529076
+     ],
+     [
+      "hambre",
+      3.3737438171708436
+     ]
+    ],
+    "street_nw": 5,
+    "neutral_nw": 5
+   },
+   "region": "DR",
+   "explicit": false,
+   "plain": {
+    "street": -61.12483124545452,
+    "neutral": -41.08971298302493,
+    "street_words": [
+     [
+      "Tengo",
+      27.89728275562208
+     ],
+     [
+      "un",
+      0.7237691503231526
+     ],
+     [
+      "chin",
+      13.97025715072213
+     ],
+     [
+      "de",
+      6.463043948183381
+     ],
+     [
+      "hambre",
+      10.655250106201693
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Tengo",
+      27.89728275562208
+     ],
+     [
+      "un",
+      0.7237691503231526
+     ],
+     [
+      "poco",
+      4.8738158818012325
+     ],
+     [
+      "de",
+      0.009412233606424427
+     ],
+     [
+      "hambre",
+      6.946238317357873
+     ]
+    ],
+    "street_nw": 5,
+    "neutral_nw": 5
+   },
+   "register": {
+    "street": -40.15538008234217,
+    "neutral": -18.84275749779585,
+    "street_words": [
+     [
+      "Tengo",
+      8.046803781853843
+     ],
+     [
+      "un",
+      1.2597029825356336
+     ],
+     [
+      "chin",
+      11.411555077892636
+     ],
+     [
+      "de",
+      6.259042164653051
+     ],
+     [
+      "hambre",
+      11.276072369632104
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Tengo",
+      8.046803781853843
+     ],
+     [
+      "un",
+      1.2597029825356336
+     ],
+     [
+      "poco",
+      4.698264863354063
+     ],
+     [
+      "de",
+      0.006040239077959397
+     ],
+     [
+      "hambre",
+      3.316306530821421
+     ]
+    ],
+    "street_nw": 5,
+    "neutral_nw": 5
+   }
+  },
+  {
+   "id": 11,
+   "street": "Ahorita vengo, voy pa' la tienda.",
+   "neutral": {
+    "street": -45.472757321076436,
+    "neutral": -49.87990881460958,
+    "street_words": [
+     [
+      "Ahorita",
+      11.81828834681477
+     ],
+     [
+      "vengo",
+      7.528068103423676
+     ],
+     [
+      "voy",
+      5.789784455493798
+     ],
+     [
+      "pa'",
+      10.661306821042055
+     ],
+     [
+      "la",
+      1.459697730829123
+     ],
+     [
+      "tienda",
+      3.3216036289343394
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Vengo",
+      11.096118326478063
+     ],
+     [
+      "en",
+      4.7903523594388515
+     ],
+     [
+      "un",
+      3.3966465187704857
+     ],
+     [
+      "momento",
+      3.4250163352075824
+     ],
+     [
+      "voy",
+      7.870910004645982
+     ],
+     [
+      "a",
+      0.21558056581836932
+     ],
+     [
+      "la",
+      4.570811590425482
+     ],
+     [
+      "tienda",
+      3.7503031268943197
+     ]
+    ],
+    "street_nw": 6,
+    "neutral_nw": 8
+   },
+   "region": "PR",
+   "explicit": false,
+   "plain": {
+    "street": -74.76050618848558,
+    "neutral": -61.507648738452986,
+    "street_words": [
+     [
+      "Ahorita",
+      30.643802121453383
+     ],
+     [
+      "vengo",
+      14.197098951680111
+     ],
+     [
+      "voy",
+      6.741625732472414
+     ],
+     [
+      "pa'",
+      9.122522135136215
+     ],
+     [
+      "la",
+      2.714195674576135
+     ],
+     [
+      "tienda",
+      5.12322383468782
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Vengo",
+      25.886131341014945
+     ],
+     [
+      "en",
+      5.676490220753843
+     ],
+     [
+      "un",
+      2.4371057552186053
+     ],
+     [
+      "momento",
+      4.03834321798628
+     ],
+     [
+      "voy",
+      7.248800633664505
+     ],
+     [
+      "a",
+      0.04568513554404868
+     ],
+     [
+      "la",
+      3.4130139451994146
+     ],
+     [
+      "tienda",
+      1.966879429987669
+     ]
+    ],
+    "street_nw": 6,
+    "neutral_nw": 8
+   },
+   "register": {
+    "street": -46.6851749372321,
+    "neutral": -50.16226995202524,
+    "street_words": [
+     [
+      "Ahorita",
+      14.402505424779672
+     ],
+     [
+      "vengo",
+      6.597119270024792
+     ],
+     [
+      "voy",
+      5.763074390254026
+     ],
+     [
+      "pa'",
+      7.867942594144988
+     ],
+     [
+      "la",
+      2.2052578641160507
+     ],
+     [
+      "tienda",
+      3.3457923319858622
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Vengo",
+      14.767590276832546
+     ],
+     [
+      "en",
+      5.103511001285184
+     ],
+     [
+      "un",
+      3.315717072019804
+     ],
+     [
+      "momento",
+      4.315287948150508
+     ],
+     [
+      "voy",
+      6.5737329002105716
+     ],
+     [
+      "a",
+      0.21458322507136898
+     ],
+     [
+      "la",
+      4.38787135959006
+     ],
+     [
+      "tienda",
+      3.254291486954199
+     ]
+    ],
+    "street_nw": 6,
+    "neutral_nw": 8
+   }
+  },
+  {
+   "id": 12,
+   "street": "El corillo está esperando afuera.",
+   "neutral": {
+    "street": -47.20275511075679,
+    "neutral": -35.86241687460021,
+    "street_words": [
+     [
+      "El",
+      3.962854503101594
+     ],
+     [
+      "corillo",
+      16.473132693202203
+     ],
+     [
+      "está",
+      4.2936018927176285
+     ],
+     [
+      "esperando",
+      10.614585402047569
+     ],
+     [
+      "afuera",
+      9.800540417174894
+     ]
+    ],
+    "neutral_words": [
+     [
+      "El",
+      3.962854503101594
+     ],
+     [
+      "grupo",
+      5.355846872919477
+     ],
+     [
+      "de",
+      0.46604612430390363
+     ],
+     [
+      "amigos",
+      5.277143025933325
+     ],
+     [
+      "está",
+      3.828957483566603
+     ],
+     [
+      "esperando",
+      6.764360625715799
+     ],
+     [
+      "afuera",
+      8.422140745074318
+     ]
+    ],
+    "street_nw": 5,
+    "neutral_nw": 7
+   },
+   "region": "PR",
+   "explicit": false,
+   "plain": {
+    "street": -61.04113558798729,
+    "neutral": -56.410989760610555,
+    "street_words": [
+     [
+      "El",
+      10.775541542496251
+     ],
+     [
+      "corillo",
+      24.391871512861034
+     ],
+     [
+      "está",
+      6.903435352156487
+     ],
+     [
+      "esperando",
+      6.9152859016367385
+     ],
+     [
+      "afuera",
+      9.481675406168334
+     ]
+    ],
+    "neutral_words": [
+     [
+      "El",
+      10.775541542496251
+     ],
+     [
+      "grupo",
+      17.054207446138506
+     ],
+     [
+      "de",
+      0.7473102102786194
+     ],
+     [
+      "amigos",
+      5.046340043632184
+     ],
+     [
+      "está",
+      4.602763278978362
+     ],
+     [
+      "esperando",
+      7.459621722700165
+     ],
+     [
+      "afuera",
+      8.456874238126332
+     ]
+    ],
+    "street_nw": 5,
+    "neutral_nw": 7
+   },
+   "register": {
+    "street": -34.21668020721535,
+    "neutral": -38.21511279327741,
+    "street_words": [
+     [
+      "El",
+      5.420125851374954
+     ],
+     [
+      "corillo",
+      6.139152212949372
+     ],
+     [
+      "está",
+      2.9485141506778207
+     ],
+     [
+      "esperando",
+      9.080151796629073
+     ],
+     [
+      "afuera",
+      8.459632766722438
+     ]
+    ],
+    "neutral_words": [
+     [
+      "El",
+      5.420125851374954
+     ],
+     [
+      "grupo",
+      5.350669020323727
+     ],
+     [
+      "de",
+      0.6132629657756808
+     ],
+     [
+      "amigos",
+      5.518679263713425
+     ],
+     [
+      "está",
+      2.77419500720485
+     ],
+     [
+      "esperando",
+      8.254682413208714
+     ],
+     [
+      "afuera",
+      7.848289196907291
+     ]
+    ],
+    "street_nw": 5,
+    "neutral_nw": 7
+   }
+  },
+  {
+   "id": 13,
+   "street": "Mi pana, eso 'tá cabrón.",
+   "neutral": {
+    "street": -59.357138683210316,
+    "neutral": -32.2285562408297,
+    "street_words": [
+     [
+      "Mi",
+      5.645307658619172
+     ],
+     [
+      "pana",
+      9.235301922800408
+     ],
+     [
+      "eso",
+      7.352605491195146
+     ],
+     [
+      "'tá",
+      21.849576029918893
+     ],
+     [
+      "cabrón",
+      10.61752015777422
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Amigo",
+      10.854633642090421
+     ],
+     [
+      "eso",
+      7.703495543603127
+     ],
+     [
+      "está",
+      4.443454989712689
+     ],
+     [
+      "increíble",
+      8.062345425495886
+     ]
+    ],
+    "street_nw": 5,
+    "neutral_nw": 4
+   },
+   "region": "PR",
+   "explicit": true,
+   "plain": {
+    "street": -84.09647760533107,
+    "neutral": -55.784459880294655,
+    "street_words": [
+     [
+      "Mi",
+      12.051961658920812
+     ],
+     [
+      "pana",
+      21.591712251245177
+     ],
+     [
+      "eso",
+      10.29728163825584
+     ],
+     [
+      "'tá",
+      20.98765190855133
+     ],
+     [
+      "cabrón",
+      11.293016128873964
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Amigo",
+      29.20455167718334
+     ],
+     [
+      "eso",
+      10.890263341672831
+     ],
+     [
+      "está",
+      3.7355827774795918
+     ],
+     [
+      "increíble",
+      8.664779071924691
+     ]
+    ],
+    "street_nw": 5,
+    "neutral_nw": 4
+   },
+   "register": {
+    "street": -44.20885747506308,
+    "neutral": -33.783621394765355,
+    "street_words": [
+     [
+      "Mi",
+      7.771817097407669
+     ],
+     [
+      "pana",
+      6.387885197670498
+     ],
+     [
+      "eso",
+      7.232938530592707
+     ],
+     [
+      "'tá",
+      8.579918168408417
+     ],
+     [
+      "cabrón",
+      10.681904385938552
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Amigo",
+      11.177644230741242
+     ],
+     [
+      "eso",
+      7.727437347755403
+     ],
+     [
+      "está",
+      4.264923512884424
+     ],
+     [
+      "increíble",
+      9.007524698304016
+     ]
+    ],
+    "street_nw": 5,
+    "neutral_nw": 4
+   }
+  },
+  {
+   "id": 14,
+   "street": "¿Qué volá, asere?",
+   "neutral": {
+    "street": -46.768571463359336,
+    "neutral": -19.87266462468546,
+    "street_words": [
+     [
+      "Qué",
+      1.9655464701040706
+     ],
+     [
+      "volá",
+      12.715032761846247
+     ],
+     [
+      "asere",
+      17.47501139682062
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Qué",
+      1.9655464701040706
+     ],
+     [
+      "tal",
+      3.6931044238415596
+     ],
+     [
+      "amigo",
+      4.56894532328417
+     ]
+    ],
+    "street_nw": 3,
+    "neutral_nw": 3
+   },
+   "region": "CU",
+   "explicit": false,
+   "plain": {
+    "street": -67.45660239477779,
+    "neutral": -49.614416550712185,
+    "street_words": [
+     [
+      "Qué",
+      17.691274364622835
+     ],
+     [
+      "volá",
+      14.055350388071679
+     ],
+     [
+      "asere",
+      14.793899009598746
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Qué",
+      17.691274364622835
+     ],
+     [
+      "tal",
+      7.2049179953116385
+     ],
+     [
+      "amigo",
+      6.29298203308927
+     ]
+    ],
+    "street_nw": 3,
+    "neutral_nw": 3
+   },
+   "register": {
+    "street": -48.730453158617344,
+    "neutral": -16.045084092945096,
+    "street_words": [
+     [
+      "Qué",
+      1.6429518823768217
+     ],
+     [
+      "volá",
+      14.431279154742054
+     ],
+     [
+      "asere",
+      18.97877900158435
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Qué",
+      1.6429518823768217
+     ],
+     [
+      "tal",
+      0.8379638678977912
+     ],
+     [
+      "amigo",
+      3.5317046496655515
+     ]
+    ],
+    "street_nw": 3,
+    "neutral_nw": 3
+   }
+  },
+  {
+   "id": 15,
+   "street": "Eso 'tá en candela.",
+   "neutral": {
+    "street": -45.46559785051934,
+    "neutral": -20.26840759577704,
+    "street_words": [
+     [
+      "Eso",
+      8.25920018453699
+     ],
+     [
+      "'tá",
+      20.390819116487073
+     ],
+     [
+      "en",
+      3.4418836358647247
+     ],
+     [
+      "candela",
+      11.37598899609157
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Eso",
+      8.25920018453699
+     ],
+     [
+      "está",
+      4.633169502476897
+     ],
+     [
+      "muy",
+      2.662168104645524
+     ],
+     [
+      "mal",
+      2.693740145765973
+     ]
+    ],
+    "street_nw": 4,
+    "neutral_nw": 4
+   },
+   "region": "CU",
+   "explicit": false,
+   "plain": {
+    "street": -67.60054814360592,
+    "neutral": -44.72390857471883,
+    "street_words": [
+     [
+      "Eso",
+      24.716952620515947
+     ],
+     [
+      "'tá",
+      21.23057337298344
+     ],
+     [
+      "en",
+      5.921800593005331
+     ],
+     [
+      "candela",
+      12.370786315113538
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Eso",
+      24.716952620515947
+     ],
+     [
+      "está",
+      9.893540152732161
+     ],
+     [
+      "muy",
+      4.593313811974445
+     ],
+     [
+      "mal",
+      3.7236937864591417
+     ]
+    ],
+    "street_nw": 4,
+    "neutral_nw": 4
+   },
+   "register": {
+    "street": -39.57517223542572,
+    "neutral": -22.486693523150315,
+    "street_words": [
+     [
+      "Eso",
+      10.937320297264794
+     ],
+     [
+      "'tá",
+      10.076576942478532
+     ],
+     [
+      "en",
+      4.289291572778267
+     ],
+     [
+      "candela",
+      11.707137630418755
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Eso",
+      10.937320297264794
+     ],
+     [
+      "está",
+      4.0015139689693395
+     ],
+     [
+      "muy",
+      2.737278300650772
+     ],
+     [
+      "mal",
+      2.2353988456907006
+     ]
+    ],
+    "street_nw": 4,
+    "neutral_nw": 4
+   }
+  },
+  {
+   "id": 16,
+   "street": "Me voy pa' casa, que 'toy cansao.",
+   "neutral": {
+    "street": -75.6516611048224,
+    "neutral": -23.736542544796688,
+    "street_words": [
+     [
+      "Me",
+      4.461748240894563
+     ],
+     [
+      "voy",
+      4.655560292101074
+     ],
+     [
+      "pa'",
+      15.7126605013606
+     ],
+     [
+      "casa",
+      3.455297726879839
+     ],
+     [
+      "que",
+      5.396296153347748
+     ],
+     [
+      "'toy",
+      18.992198540152305
+     ],
+     [
+      "cansao",
+      18.521208612037032
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Me",
+      4.461748240894563
+     ],
+     [
+      "voy",
+      4.655560292101074
+     ],
+     [
+      "a",
+      0.115386249296798
+     ],
+     [
+      "casa",
+      2.015093177177717
+     ],
+     [
+      "porque",
+      3.7782888787861793
+     ],
+     [
+      "estoy",
+      4.910970507485569
+     ],
+     [
+      "cansado",
+      0.3760904634598148
+     ]
+    ],
+    "street_nw": 7,
+    "neutral_nw": 7
+   },
+   "region": "PR",
+   "explicit": false,
+   "plain": {
+    "street": -98.63493901539965,
+    "neutral": -46.02652442682807,
+    "street_words": [
+     [
+      "Me",
+      11.293566940750646
+     ],
+     [
+      "voy",
+      15.62859686282279
+     ],
+     [
+      "pa'",
+      14.488293372153791
+     ],
+     [
+      "casa",
+      6.2333858569910054
+     ],
+     [
+      "que",
+      4.611156830291512
+     ],
+     [
+      "'toy",
+      17.79758659525408
+     ],
+     [
+      "cansao",
+      22.238904961674947
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Me",
+      11.293566940750646
+     ],
+     [
+      "voy",
+      15.62859686282279
+     ],
+     [
+      "a",
+      0.09852378123665405
+     ],
+     [
+      "casa",
+      7.370776968456586
+     ],
+     [
+      "porque",
+      4.584606838228188
+     ],
+     [
+      "estoy",
+      3.8932574730499363
+     ],
+     [
+      "cansado",
+      0.2742957425039945
+     ]
+    ],
+    "street_nw": 7,
+    "neutral_nw": 7
+   },
+   "register": {
+    "street": -69.33536150077306,
+    "neutral": -30.52012716133375,
+    "street_words": [
+     [
+      "Me",
+      7.293743023616165
+     ],
+     [
+      "voy",
+      4.102113497636012
+     ],
+     [
+      "pa'",
+      10.295396132641866
+     ],
+     [
+      "casa",
+      4.017999245721796
+     ],
+     [
+      "que",
+      5.014125358133409
+     ],
+     [
+      "'toy",
+      13.839170520977257
+     ],
+     [
+      "cansao",
+      19.949759761024687
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Me",
+      7.293743023616165
+     ],
+     [
+      "voy",
+      4.102113497636012
+     ],
+     [
+      "a",
+      0.1561394675016431
+     ],
+     [
+      "casa",
+      3.5693532473494356
+     ],
+     [
+      "porque",
+      5.031474061849206
+     ],
+     [
+      "estoy",
+      5.722165267143568
+     ],
+     [
+      "cansado",
+      2.69181993227983
+     ]
+    ],
+    "street_nw": 7,
+    "neutral_nw": 7
+   }
+  },
+  {
+   "id": 17,
+   "street": "Parcero, ¿qué más pues?",
+   "neutral": {
+    "street": -45.56928791647538,
+    "neutral": -17.798021544687458,
+    "street_words": [
+     [
+      "Parcero",
+      25.569789826932244
+     ],
+     [
+      "qué",
+      2.231195124875776
+     ],
+     [
+      "más",
+      4.944064425104395
+     ],
+     [
+      "pues",
+      9.9268285356282
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Amigo",
+      10.854633642090421
+     ],
+     [
+      "cómo",
+      1.4125896203723218
+     ],
+     [
+      "estás",
+      2.7205053373759314
+     ]
+    ],
+    "street_nw": 4,
+    "neutral_nw": 3
+   },
+   "region": "CO",
+   "explicit": false,
+   "plain": {
+    "street": -60.43936346952661,
+    "neutral": -43.69628099329643,
+    "street_words": [
+     [
+      "Parcero",
+      31.056887961251313
+     ],
+     [
+      "qué",
+      0.7809221236986365
+     ],
+     [
+      "más",
+      7.047610787650171
+     ],
+     [
+      "pues",
+      11.43330673935257
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Amigo",
+      29.20455167718334
+     ],
+     [
+      "cómo",
+      2.229035873920212
+     ],
+     [
+      "estás",
+      4.297251119540615
+     ]
+    ],
+    "street_nw": 4,
+    "neutral_nw": 3
+   },
+   "register": {
+    "street": -44.41472901661366,
+    "neutral": -16.197764506852614,
+    "street_words": [
+     [
+      "Parcero",
+      27.14276346917898
+     ],
+     [
+      "qué",
+      0.9973898729406396
+     ],
+     [
+      "más",
+      5.03865595578716
+     ],
+     [
+      "pues",
+      9.722284889433126
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Amigo",
+      11.177644230741242
+     ],
+     [
+      "cómo",
+      1.8770430123412942
+     ],
+     [
+      "estás",
+      1.2041272259987825
+     ]
+    ],
+    "street_nw": 4,
+    "neutral_nw": 3
+   }
+  },
+  {
+   "id": 18,
+   "street": "Esa fiesta estuvo bacana.",
+   "neutral": {
+    "street": -36.27607781410258,
+    "neutral": -25.622220170468573,
+    "street_words": [
+     [
+      "Esa",
+      8.554852574063357
+     ],
+     [
+      "fiesta",
+      5.628103889894925
+     ],
+     [
+      "estuvo",
+      5.645249466098822
+     ],
+     [
+      "bacana",
+      14.89211949519328
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Esa",
+      8.554852574063357
+     ],
+     [
+      "fiesta",
+      5.628103889894925
+     ],
+     [
+      "estuvo",
+      5.645249466098822
+     ],
+     [
+      "genial",
+      4.181185032483653
+     ]
+    ],
+    "street_nw": 4,
+    "neutral_nw": 4
+   },
+   "region": "CO",
+   "explicit": false,
+   "plain": {
+    "street": -64.55887050496533,
+    "neutral": -51.77015698034621,
+    "street_words": [
+     [
+      "Esa",
+      22.28086250878346
+     ],
+     [
+      "fiesta",
+      14.838853479286847
+     ],
+     [
+      "estuvo",
+      8.672019569518634
+     ],
+     [
+      "bacana",
+      15.505983195213725
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Esa",
+      22.28086250878346
+     ],
+     [
+      "fiesta",
+      14.838853479286847
+     ],
+     [
+      "estuvo",
+      8.672019569518634
+     ],
+     [
+      "genial",
+      3.8337351611695225
+     ]
+    ],
+    "street_nw": 4,
+    "neutral_nw": 4
+   },
+   "register": {
+    "street": -39.90662138603902,
+    "neutral": -31.52280559288541,
+    "street_words": [
+     [
+      "Esa",
+      12.658303802513817
+     ],
+     [
+      "fiesta",
+      6.721579966601463
+     ],
+     [
+      "estuvo",
+      5.724589174815365
+     ],
+     [
+      "bacana",
+      12.752402416483307
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Esa",
+      12.658303802513817
+     ],
+     [
+      "fiesta",
+      6.721579966601463
+     ],
+     [
+      "estuvo",
+      5.724589174815365
+     ],
+     [
+      "genial",
+      4.362701386919832
+     ]
+    ],
+    "street_nw": 4,
+    "neutral_nw": 4
+   }
+  },
+  {
+   "id": 19,
+   "street": "No tengo chavos pa' salir hoy.",
+   "neutral": {
+    "street": -51.23324382359427,
+    "neutral": -27.336697625133024,
+    "street_words": [
+     [
+      "No",
+      4.275659678882844
+     ],
+     [
+      "tengo",
+      5.486046965313194
+     ],
+     [
+      "chavos",
+      16.40774500663078
+     ],
+     [
+      "pa'",
+      11.86158968613329
+     ],
+     [
+      "salir",
+      5.797895686408617
+     ],
+     [
+      "hoy",
+      6.316166201035751
+     ]
+    ],
+    "neutral_words": [
+     [
+      "No",
+      4.275659678882844
+     ],
+     [
+      "tengo",
+      5.486046965313194
+     ],
+     [
+      "dinero",
+      4.007272031994883
+     ],
+     [
+      "para",
+      1.1794524276985334
+     ],
+     [
+      "salir",
+      4.819906912096384
+     ],
+     [
+      "hoy",
+      6.5712458421087545
+     ]
+    ],
+    "street_nw": 6,
+    "neutral_nw": 6
+   },
+   "region": "PR",
+   "explicit": false,
+   "plain": {
+    "street": -71.87260884442695,
+    "neutral": -54.13780275769223,
+    "street_words": [
+     [
+      "No",
+      10.600958107437657
+     ],
+     [
+      "tengo",
+      20.136810427504663
+     ],
+     [
+      "chavos",
+      15.658877362542452
+     ],
+     [
+      "pa'",
+      11.57132114567057
+     ],
+     [
+      "salir",
+      6.151532252536876
+     ],
+     [
+      "hoy",
+      6.470455497143602
+     ]
+    ],
+    "neutral_words": [
+     [
+      "No",
+      10.600958107437657
+     ],
+     [
+      "tengo",
+      20.136810427504663
+     ],
+     [
+      "dinero",
+      6.101664098659669
+     ],
+     [
+      "para",
+      0.9765355994936822
+     ],
+     [
+      "salir",
+      5.254575548351438
+     ],
+     [
+      "hoy",
+      10.114029893572855
+     ]
+    ],
+    "street_nw": 6,
+    "neutral_nw": 6
+   },
+   "register": {
+    "street": -51.08496398719513,
+    "neutral": -32.76274037477444,
+    "street_words": [
+     [
+      "No",
+      7.518148312312454
+     ],
+     [
+      "tengo",
+      6.268098668603612
+     ],
+     [
+      "chavos",
+      13.78166930829046
+     ],
+     [
+      "pa'",
+      9.899620565065428
+     ],
+     [
+      "salir",
+      6.882924826853512
+     ],
+     [
+      "hoy",
+      5.508853878246273
+     ]
+    ],
+    "neutral_words": [
+     [
+      "No",
+      7.518148312312454
+     ],
+     [
+      "tengo",
+      6.268098668603612
+     ],
+     [
+      "dinero",
+      4.310921773678942
+     ],
+     [
+      "para",
+      1.8207113037702023
+     ],
+     [
+      "salir",
+      4.9399760036619424
+     ],
+     [
+      "hoy",
+      6.69249474719002
+     ]
+    ],
+    "street_nw": 6,
+    "neutral_nw": 6
+   }
+  },
+  {
+   "id": 20,
+   "street": "Deja la bobería y vamo' ya.",
+   "neutral": {
+    "street": -71.11351800108923,
+    "neutral": -43.517950574370985,
+    "street_words": [
+     [
+      "Deja",
+      11.245030283258915
+     ],
+     [
+      "la",
+      4.713823327746127
+     ],
+     [
+      "bobería",
+      21.57904086030573
+     ],
+     [
+      "y",
+      3.2549307542161596
+     ],
+     [
+      "vamo'",
+      21.801112426607247
+     ],
+     [
+      "ya",
+      7.208258718156451
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Deja",
+      11.245030283258915
+     ],
+     [
+      "las",
+      6.885474214281771
+     ],
+     [
+      "tonterías",
+      8.8423843230103
+     ],
+     [
+      "y",
+      3.784307633060785
+     ],
+     [
+      "vámonos",
+      5.639761889233211
+     ],
+     [
+      "ya",
+      5.921301598793251
+     ]
+    ],
+    "street_nw": 6,
+    "neutral_nw": 6
+   },
+   "region": "PR",
+   "explicit": false,
+   "plain": {
+    "street": -94.62095042496144,
+    "neutral": -73.78896672868527,
+    "street_words": [
+     [
+      "Deja",
+      28.6655557903239
+     ],
+     [
+      "la",
+      8.8159369615677
+     ],
+     [
+      "bobería",
+      20.76226167738083
+     ],
+     [
+      "y",
+      3.9637393694110448
+     ],
+     [
+      "vamo'",
+      22.75222216687503
+     ],
+     [
+      "ya",
+      7.8654446135707605
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Deja",
+      28.6655557903239
+     ],
+     [
+      "las",
+      13.034588733113111
+     ],
+     [
+      "tonterías",
+      11.44781805151605
+     ],
+     [
+      "y",
+      4.195050383692223
+     ],
+     [
+      "vámonos",
+      8.615291854452387
+     ],
+     [
+      "ya",
+      6.20889832737953
+     ]
+    ],
+    "street_nw": 6,
+    "neutral_nw": 6
+   },
+   "register": {
+    "street": -60.943232793803794,
+    "neutral": -48.82222311795633,
+    "street_words": [
+     [
+      "Deja",
+      13.181852667536525
+     ],
+     [
+      "la",
+      3.452003929284366
+     ],
+     [
+      "bobería",
+      19.053834786502513
+     ],
+     [
+      "y",
+      2.037877234720601
+     ],
+     [
+      "vamo'",
+      14.833577660206144
+     ],
+     [
+      "ya",
+      5.092243662900616
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Deja",
+      13.181852667536525
+     ],
+     [
+      "las",
+      5.479460212853701
+     ],
+     [
+      "tonterías",
+      8.154775012610797
+     ],
+     [
+      "y",
+      2.188543596690835
+     ],
+     [
+      "vámonos",
+      12.432749349321488
+     ],
+     [
+      "ya",
+      6.214606253695039
+     ]
+    ],
+    "street_nw": 6,
+    "neutral_nw": 6
+   }
+  },
+  {
+   "id": 21,
+   "street": "Ese tipo es un tíguere.",
+   "neutral": {
+    "street": -58.16956276509808,
+    "neutral": -21.458960057341713,
+    "street_words": [
+     [
+      "Ese",
+      8.027409641934451
+     ],
+     [
+      "tipo",
+      3.9351902023835272
+     ],
+     [
+      "es",
+      7.065252109821773
+     ],
+     [
+      "un",
+      1.2252776619635313
+     ],
+     [
+      "tíguere",
+      36.358754862550626
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Ese",
+      8.027409641934451
+     ],
+     [
+      "hombre",
+      2.951380731253156
+     ],
+     [
+      "es",
+      1.6729389292636985
+     ],
+     [
+      "muy",
+      2.544484777667032
+     ],
+     [
+      "astuto",
+      5.225077524342542
+     ]
+    ],
+    "street_nw": 5,
+    "neutral_nw": 5
+   },
+   "region": "DR",
+   "explicit": false,
+   "plain": {
+    "street": -78.46627109587844,
+    "neutral": -48.14060993839339,
+    "street_words": [
+     [
+      "Ese",
+      22.487858234415175
+     ],
+     [
+      "tipo",
+      13.44641402170617
+     ],
+     [
+      "es",
+      8.54880124490428
+     ],
+     [
+      "un",
+      2.081804849741024
+     ],
+     [
+      "tíguere",
+      29.38320802014558
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Ese",
+      22.487858234415175
+     ],
+     [
+      "hombre",
+      14.102760819649285
+     ],
+     [
+      "es",
+      1.9138115032081822
+     ],
+     [
+      "muy",
+      1.5249018326811312
+     ],
+     [
+      "astuto",
+      6.136240604057364
+     ]
+    ],
+    "street_nw": 5,
+    "neutral_nw": 5
+   },
+   "register": {
+    "street": -57.862427456163665,
+    "neutral": -28.477415673423025,
+    "street_words": [
+     [
+      "Ese",
+      12.63793331911538
+     ],
+     [
+      "tipo",
+      3.7744627051789825
+     ],
+     [
+      "es",
+      3.127289839225106
+     ],
+     [
+      "un",
+      0.5001676524611719
+     ],
+     [
+      "tíguere",
+      35.20738073629374
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Ese",
+      12.63793331911538
+     ],
+     [
+      "hombre",
+      3.4349222236115997
+     ],
+     [
+      "es",
+      2.0861897590714076
+     ],
+     [
+      "muy",
+      3.159441388873959
+     ],
+     [
+      "astuto",
+      5.9418474868852424
+     ]
+    ],
+    "street_nw": 5,
+    "neutral_nw": 5
+   }
+  },
+  {
+   "id": 22,
+   "street": "Bregamos con eso mañana.",
+   "neutral": {
+    "street": -42.689860306314145,
+    "neutral": -33.967548005898614,
+    "street_words": [
+     [
+      "Bregamos",
+      20.767006341966663
+     ],
+     [
+      "con",
+      2.1653460987256112
+     ],
+     [
+      "eso",
+      8.126443543683003
+     ],
+     [
+      "mañana",
+      10.326910559939915
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Nos",
+      7.358991740650422
+     ],
+     [
+      "ocupamos",
+      8.246870640627824
+     ],
+     [
+      "de",
+      0.13395630930539384
+     ],
+     [
+      "eso",
+      6.656258897040383
+     ],
+     [
+      "mañana",
+      10.668297551959453
+     ]
+    ],
+    "street_nw": 4,
+    "neutral_nw": 5
+   },
+   "region": "PR",
+   "explicit": false,
+   "plain": {
+    "street": -63.76311233138904,
+    "neutral": -64.68445561033779,
+    "street_words": [
+     [
+      "Bregamos",
+      37.17471103445027
+     ],
+     [
+      "con",
+      6.9238287894123705
+     ],
+     [
+      "eso",
+      6.576980278139494
+     ],
+     [
+      "mañana",
+      11.401252516268865
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Nos",
+      14.586185930695104
+     ],
+     [
+      "ocupamos",
+      26.141105059817622
+     ],
+     [
+      "de",
+      5.219183488271739
+     ],
+     [
+      "eso",
+      7.483005820382736
+     ],
+     [
+      "mañana",
+      9.728426544204488
+     ]
+    ],
+    "street_nw": 4,
+    "neutral_nw": 5
+   },
+   "register": {
+    "street": -43.59288531188153,
+    "neutral": -33.58275180258711,
+    "street_words": [
+     [
+      "Bregamos",
+      22.264859879874315
+     ],
+     [
+      "con",
+      2.3402098322216704
+     ],
+     [
+      "eso",
+      7.136961126472006
+     ],
+     [
+      "mañana",
+      10.382582497500122
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Nos",
+      10.328936466914504
+     ],
+     [
+      "ocupamos",
+      8.471680579726025
+     ],
+     [
+      "de",
+      0.2988919463148135
+     ],
+     [
+      "eso",
+      4.7964231620809965
+     ],
+     [
+      "mañana",
+      8.58177967338081
+     ]
+    ],
+    "street_nw": 4,
+    "neutral_nw": 5
+   }
+  },
+  {
+   "id": 23,
+   "street": "¡Wepa! Ganamos el juego.",
+   "neutral": {
+    "street": -48.89283418469708,
+    "neutral": -27.844584305417374,
+    "street_words": [
+     [
+      "Wepa",
+      20.997294739801507
+     ],
+     [
+      "Ganamos",
+      13.262965419641624
+     ],
+     [
+      "el",
+      0.7920554608395461
+     ],
+     [
+      "juego",
+      4.49107452963842
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Qué",
+      1.8794351870432116
+     ],
+     [
+      "bien",
+      2.9899606347677867
+     ],
+     [
+      "Ganamos",
+      12.320848427419083
+     ],
+     [
+      "el",
+      0.7026455183139498
+     ],
+     [
+      "partido",
+      0.521870442289231
+     ]
+    ],
+    "street_nw": 4,
+    "neutral_nw": 5
+   },
+   "region": "PR",
+   "explicit": false,
+   "plain": {
+    "street": -74.13552679111088,
+    "neutral": -56.72387945589182,
+    "street_words": [
+     [
+      "Wepa",
+      33.55421639066779
+     ],
+     [
+      "Ganamos",
+      17.713875684360204
+     ],
+     [
+      "el",
+      0.9347111309195214
+     ],
+     [
+      "juego",
+      3.8282595445093106
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Qué",
+      15.747713700046187
+     ],
+     [
+      "bien",
+      8.579596459581238
+     ],
+     [
+      "Ganamos",
+      14.192936202055254
+     ],
+     [
+      "el",
+      0.8052369653585842
+     ],
+     [
+      "partido",
+      0.4215404132311601
+     ]
+    ],
+    "street_nw": 4,
+    "neutral_nw": 5
+   },
+   "register": {
+    "street": -42.67403937872399,
+    "neutral": -28.94739888313117,
+    "street_words": [
+     [
+      "Wepa",
+      15.814541506459264
+     ],
+     [
+      "Ganamos",
+      12.99582715104884
+     ],
+     [
+      "el",
+      0.5351628243650443
+     ],
+     [
+      "juego",
+      5.250372693367204
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Qué",
+      3.5986715350721727
+     ],
+     [
+      "bien",
+      3.1597524305602898
+     ],
+     [
+      "Ganamos",
+      13.607583559897366
+     ],
+     [
+      "el",
+      0.5855457587649392
+     ],
+     [
+      "partido",
+      0.13978079238320468
+     ]
+    ],
+    "street_nw": 4,
+    "neutral_nw": 5
+   }
+  },
+  {
+   "id": 24,
+   "street": "Estoy pela'o este mes.",
+   "neutral": {
+    "street": -41.995808361102235,
+    "neutral": -24.644723323599635,
+    "street_words": [
+     [
+      "Estoy",
+      5.787658095234612
+     ],
+     [
+      "pela'o",
+      25.425206995527137
+     ],
+     [
+      "este",
+      6.310094765659107
+     ],
+     [
+      "mes",
+      2.694536179453228
+     ]
+    ],
+    "neutral_words": [
+     [
+      "No",
+      4.275659678882844
+     ],
+     [
+      "tengo",
+      5.486046965313194
+     ],
+     [
+      "dinero",
+      4.007272031994883
+     ],
+     [
+      "este",
+      9.404935368372362
+     ],
+     [
+      "mes",
+      0.34770350670404604
+     ]
+    ],
+    "street_nw": 4,
+    "neutral_nw": 5
+   },
+   "region": "PR",
+   "explicit": false,
+   "plain": {
+    "street": -69.83398996127185,
+    "neutral": -48.82185468374747,
+    "street_words": [
+     [
+      "Estoy",
+      25.491258614356507
+     ],
+     [
+      "pela'o",
+      25.42511627248585
+     ],
+     [
+      "este",
+      7.510178411305775
+     ],
+     [
+      "mes",
+      6.7469228252389915
+     ]
+    ],
+    "neutral_words": [
+     [
+      "No",
+      10.600958107437657
+     ],
+     [
+      "tengo",
+      20.136810427504663
+     ],
+     [
+      "dinero",
+      6.101664098659669
+     ],
+     [
+      "este",
+      10.119559090399443
+     ],
+     [
+      "mes",
+      0.3403943511214455
+     ]
+    ],
+    "street_nw": 4,
+    "neutral_nw": 5
+   },
+   "register": {
+    "street": -42.14528159706387,
+    "neutral": -30.35257024221937,
+    "street_words": [
+     [
+      "Estoy",
+      9.822821217302218
+     ],
+     [
+      "pela'o",
+      19.9757452369802
+     ],
+     [
+      "este",
+      6.388613339156171
+     ],
+     [
+      "mes",
+      3.4985030645137125
+     ]
+    ],
+    "neutral_words": [
+     [
+      "No",
+      7.518148312312454
+     ],
+     [
+      "tengo",
+      6.268098668603612
+     ],
+     [
+      "dinero",
+      4.310921773678942
+     ],
+     [
+      "este",
+      9.822862793028015
+     ],
+     [
+      "mes",
+      0.543207726182496
+     ]
+    ],
+    "street_nw": 4,
+    "neutral_nw": 5
+   }
+  },
+  {
+   "id": 25,
+   "street": "Qué chévere que viniste, mi pana.",
+   "neutral": {
+    "street": -47.9025093386391,
+    "neutral": -29.303820495106926,
+    "street_words": [
+     [
+      "Qué",
+      8.23203670830179
+     ],
+     [
+      "chévere",
+      10.488935765550545
+     ],
+     [
+      "que",
+      3.003565817886054
+     ],
+     [
+      "viniste",
+      7.191569893059009
+     ],
+     [
+      "mi",
+      4.702913718509947
+     ],
+     [
+      "pana",
+      10.79294387773821
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Qué",
+      8.23203670830179
+     ],
+     [
+      "bueno",
+      6.536311458654167
+     ],
+     [
+      "que",
+      0.4739258033547476
+     ],
+     [
+      "viniste",
+      6.879231895707186
+     ],
+     [
+      "amigo",
+      5.786618219399797
+     ]
+    ],
+    "street_nw": 6,
+    "neutral_nw": 5
+   },
+   "region": "PR",
+   "explicit": false,
+   "plain": {
+    "street": -73.59053046760921,
+    "neutral": -47.424322637639506,
+    "street_words": [
+     [
+      "Qué",
+      11.380446194138097
+     ],
+     [
+      "chévere",
+      24.33184545265035
+     ],
+     [
+      "que",
+      5.678686861144168
+     ],
+     [
+      "viniste",
+      11.052213505419001
+     ],
+     [
+      "mi",
+      3.5249292945515283
+     ],
+     [
+      "pana",
+      11.65448514045515
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Qué",
+      11.380446194138097
+     ],
+     [
+      "bueno",
+      14.048225408585509
+     ],
+     [
+      "que",
+      3.9203911170790064
+     ],
+     [
+      "viniste",
+      10.562399552214332
+     ],
+     [
+      "amigo",
+      4.653164365006566
+     ]
+    ],
+    "street_nw": 6,
+    "neutral_nw": 5
+   },
+   "register": {
+    "street": -44.9286697800359,
+    "neutral": -29.178762138942886,
+    "street_words": [
+     [
+      "Qué",
+      11.708874592524856
+     ],
+     [
+      "chévere",
+      9.863606627853267
+     ],
+     [
+      "que",
+      2.3480956527128223
+     ],
+     [
+      "viniste",
+      7.1703152282841165
+     ],
+     [
+      "mi",
+      5.051528865541538
+     ],
+     [
+      "pana",
+      5.818872119522423
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Qué",
+      11.708874592524856
+     ],
+     [
+      "bueno",
+      7.04534388236673
+     ],
+     [
+      "que",
+      0.22764468040047842
+     ],
+     [
+      "viniste",
+      4.274866402961084
+     ],
+     [
+      "amigo",
+      5.076182689504839
+     ]
+    ],
+    "street_nw": 6,
+    "neutral_nw": 5
+   }
+  },
+  {
+   "id": 26,
+   "street": "Ese man es más bacano que el putas.",
+   "neutral": {
+    "street": -60.55547439268353,
+    "neutral": -25.053386360044026,
+    "street_words": [
+     [
+      "Ese",
+      8.027409641934451
+     ],
+     [
+      "man",
+      7.033576013235578
+     ],
+     [
+      "es",
+      12.349491113151483
+     ],
+     [
+      "más",
+      3.156486479979563
+     ],
+     [
+      "bacano",
+      11.78325399686917
+     ],
+     [
+      "que",
+      0.4317182249396324
+     ],
+     [
+      "el",
+      0.3736831919869501
+     ],
+     [
+      "putas",
+      16.109792682725537
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Ese",
+      8.027409641934451
+     ],
+     [
+      "hombre",
+      2.951380731253156
+     ],
+     [
+      "es",
+      1.6729389292636985
+     ],
+     [
+      "muy",
+      2.544484777667032
+     ],
+     [
+      "buena",
+      7.028981877921886
+     ],
+     [
+      "persona",
+      1.5976104825006687
+     ]
+    ],
+    "street_nw": 8,
+    "neutral_nw": 6
+   },
+   "region": "CO",
+   "explicit": true,
+   "plain": {
+    "street": -77.25906809668197,
+    "neutral": -51.72864683238037,
+    "street_words": [
+     [
+      "Ese",
+      22.487858234415175
+     ],
+     [
+      "man",
+      8.365377454018182
+     ],
+     [
+      "es",
+      10.214351576883807
+     ],
+     [
+      "más",
+      4.99897259081566
+     ],
+     [
+      "bacano",
+      13.713347825232747
+     ],
+     [
+      "que",
+      0.3890933601913927
+     ],
+     [
+      "el",
+      1.218777180960146
+     ],
+     [
+      "putas",
+      13.546409416845682
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Ese",
+      22.487858234415175
+     ],
+     [
+      "hombre",
+      14.102760819649285
+     ],
+     [
+      "es",
+      1.9138115032081822
+     ],
+     [
+      "muy",
+      1.5249018326811312
+     ],
+     [
+      "buena",
+      6.174771057957374
+     ],
+     [
+      "persona",
+      2.8549484543809847
+     ]
+    ],
+    "street_nw": 8,
+    "neutral_nw": 6
+   },
+   "register": {
+    "street": -65.27390422778241,
+    "neutral": -31.930573230249944,
+    "street_words": [
+     [
+      "Ese",
+      12.63793331911538
+     ],
+     [
+      "man",
+      6.909032826944119
+     ],
+     [
+      "es",
+      12.904979431682587
+     ],
+     [
+      "más",
+      3.9652321191417665
+     ],
+     [
+      "bacano",
+      11.47999898319144
+     ],
+     [
+      "que",
+      0.9740063969443521
+     ],
+     [
+      "el",
+      0.3599083128049617
+     ],
+     [
+      "putas",
+      14.656837350419636
+     ]
+    ],
+    "neutral_words": [
+     [
+      "Ese",
+      12.63793331911538
+     ],
+     [
+      "hombre",
+      3.4349222236115997
+     ],
+     [
+      "es",
+      2.0861897590714076
+     ],
+     [
+      "muy",
+      3.159441388873959
+     ],
+     [
+      "buena",
+      6.384944265174081
+     ],
+     [
+      "persona",
+      2.782866229326739
+     ]
+    ],
+    "street_nw": 8,
+    "neutral_nw": 6
+   }
+  }
+ ],
+ "speed": {
+  "score_10w_plus_6_s": 1.8782672882080078,
+  "prompt_tok_per_s": 124.33135795052013,
+  "gen_tok_per_s": 15.36964824415229,
+  "gen_sample": " vivía un viejo barco llamado El Capitán. El Capitán era un hombre de gran sabiduría y una mente brillante. Su barco era tan antiguo que ya no tenía motor, pero aún",
+  "nextword_avg_s": 8.131868600845337
+ },
+ "nextword": [
+  {
+   "opening": "Ayer fui al mercado y compré",
+   "top": [
+    [
+     "un",
+     0.5874279404076899
+    ],
+    [
+     "una",
+     0.09229159857155282
+    ],
+    [
+     "unos",
+     0.057061913360277376
+    ],
+    [
+     "algo",
+     0.026253866285801217
+    ],
+    [
+     "algunos",
+     0.021424210252666182
+    ],
+    [
+     "dos",
+     0.02065369840756177
+    ],
+    [
+     "tres",
+     0.01697203658475052
+    ],
+    [
+     "unas",
+     0.016039264271699202
+    ],
+    [
+     "algunas",
+     0.011638002197369822
+    ],
+    [
+     "cinco",
+     0.0055949348049117885
+    ]
+   ],
+   "first_piece_space_mass": 0.933156842678074
+  },
+  {
+   "opening": "Cuando llegué a casa, mi madre",
+   "top": [
+    [
+     "me",
+     0.5672000974493177
+    ],
+    [
+     "ya",
+     0.08021879527260817
+    ],
+    [
+     "y",
+     0.06435122727895898
+    ],
+    [
+     "se",
+     0.04207500544037936
+    ],
+    [
+     "estaba",
+     0.03977722013375517
+    ],
+    [
+     "no",
+     0.02619107605218708
+    ],
+    [
+     "dijo",
+     0.023200438634283164
+    ],
+    [
+     "fue",
+     0.012499965624296724
+    ],
+    [
+     "lo",
+     0.006453109318122651
+    ],
+    [
+     "preparó",
+     0.005973385776421702
+    ]
+   ],
+   "first_piece_space_mass": 0.9736961731170134
+  },
+  {
+   "opening": "Me gusta mucho",
+   "top": [
+    [
+     "la",
+     0.20677033643495016
+    ],
+    [
+     "el",
+     0.20550611401613836
+    ],
+    [
+     "los",
+     0.10257999128128961
+    ],
+    [
+     "las",
+     0.042280973649570334
+    ],
+    [
+     "ir",
+     0.03268133580339391
+    ],
+    [
+     "ver",
+     0.022592695118872394
+    ],
+    [
+     "hacer",
+     0.022572859876339182
+    ],
+    [
+     "mi",
+     0.011284468039084776
+    ],
+    [
+     "comer",
+     0.010264492197819617
+    ],
+    [
+     "a",
+     0.009990837828330853
+    ]
+   ],
+   "first_piece_space_mass": 0.9580709799876118
+  },
+  {
+   "opening": "El perro corrió hacia la",
+   "top": [
+    [
+     "casa",
+     0.5759009814861439
+    ],
+    [
+     "izquierda",
+     0.06932077116671917
+    ],
+    [
+     "calle",
+     0.06451317332000117
+    ],
+    [
+     "puerta",
+     0.06403432028438617
+    ],
+    [
+     "montaña",
+     0.019681167055021043
+    ],
+    [
+     "derecha",
+     0.019100431288131978
+    ],
+    [
+     "ciudad",
+     0.013561749580463689
+    ],
+    [
+     "tierra",
+     0.01077282442807749
+    ],
+    [
+     "playa",
+     0.00737571032115572
+    ],
+    [
+     "habitación",
+     0.005538287612944277
+    ]
+   ],
+   "first_piece_space_mass": 0.995288308777367
+  },
+  {
+   "opening": "No puedo salir hoy porque",
+   "top": [
+    [
+     "tengo",
+     0.15919352833572967
+    ],
+    [
+     "mi",
+     0.11087114408533305
+    ],
+    [
+     "no",
+     0.09076413490600285
+    ],
+    [
+     "me",
+     0.06032500817922019
+    ],
+    [
+     "el",
+     0.04854336592300692
+    ],
+    [
+     "necesito",
+     0.03591272910159394
+    ],
+    [
+     "la",
+     0.02771286563108577
+    ],
+    [
+     "hay",
+     0.01841953098561919
+    ],
+    [
+     "está",
+     0.013214389028205837
+    ],
+    [
+     "estoy",
+     0.012103641720934026
+    ]
+   ],
+   "first_piece_space_mass": 0.7062109749426361
+  },
+  {
+   "opening": "Mi hermano siempre",
+   "top": [
+    [
+     "se",
+     0.11605192094865749
+    ],
+    [
+     "dice",
+     0.11022008639069937
+    ],
+    [
+     "me",
+     0.09713410037965521
+    ],
+    [
+     "está",
+     0.07997479971853545
+    ],
+    [
+     "quiere",
+     0.036448127500982204
+    ],
+    [
+     "le",
+     0.036138265312497315
+    ],
+    [
+     "tiene",
+     0.03424683360128627
+    ],
+    [
+     "es",
+     0.025922262504259674
+    ],
+    [
+     "ha",
+     0.023396105338260906
+    ],
+    [
+     "lo",
+     0.014591452821774278
+    ]
+   ],
+   "first_piece_space_mass": 0.8884467887109478
+  },
+  {
+   "opening": "Quiero que mañana",
+   "top": [
+    [
+     "me",
+     0.07635215550217891
+    ],
+    [
+     "a",
+     0.05923305340877666
+    ],
+    [
+     "por",
+     0.03834060986875034
+    ],
+    [
+     "sea",
+     0.03682895219192474
+    ],
+    [
+     "vaya",
+     0.03467771437792146
+    ],
+    [
+     "se",
+     0.02800401700157387
+    ],
+    [
+     "hagas",
+     0.018860760945139412
+    ],
+    [
+     "salga",
+     0.01298610381777789
+    ],
+    [
+     "al",
+     0.012555302791454555
+    ],
+    [
+     "mi",
+     0.012275631901933846
+    ]
+   ],
+   "first_piece_space_mass": 0.7456860730866028
+  },
+  {
+   "opening": "La niña abrió la puerta y",
+   "top": [
+    [
+     "vio",
+     0.16965799937821682
+    ],
+    [
+     "se",
+     0.16453606294410453
+    ],
+    [
+     "entró",
+     0.14535793956363538
+    ],
+    [
+     "dijo",
+     0.07068652649528324
+    ],
+    [
+     "al",
+     0.035333177435450044
+    ],
+    [
+     "salió",
+     0.02188701768311572
+    ],
+    [
+     "vió",
+     0.020271246026464355
+    ],
+    [
+     "encontró",
+     0.019532939136319948
+    ],
+    [
+     "fue",
+     0.018719559564458102
+    ],
+    [
+     "el",
+     0.016732644089649296
+    ]
+   ],
+   "first_piece_space_mass": 0.9415908517294918
+  },
+  {
+   "opening": "Esta noche vamos a",
+   "top": [
+    [
+     "ver",
+     0.18832861313635477
+    ],
+    [
+     "cenar",
+     0.09925612544376106
+    ],
+    [
+     "comer",
+     0.09151798455766769
+    ],
+    [
+     "ir",
+     0.056468161291792114
+    ],
+    [
+     "hacer",
+     0.05403167513011164
+    ],
+    [
+     "celebrar",
+     0.044036251407407516
+    ],
+    [
+     "salir",
+     0.02683746644054414
+    ],
+    [
+     "la",
+     0.02279998632250527
+    ],
+    [
+     "visitar",
+     0.01679224108745955
+    ],
+    [
+     "jugar",
+     0.016711394051709145
+    ]
+   ],
+   "first_piece_space_mass": 0.9824136358434781
+  },
+  {
+   "opening": "En la playa hacía mucho",
+   "top": [
+    [
+     "calor",
+     0.653633883685187
+    ],
+    [
+     "frío",
+     0.27684984862413625
+    ],
+    [
+     "viento",
+     0.012904749543595318
+    ],
+    [
+     "sol",
+     0.011988731697454824
+    ],
+    [
+     "tiempo",
+     0.010577208496334763
+    ],
+    [
+     "más",
+     0.008971586929172921
+    ],
+    [
+     "frio",
+     0.006645105791076554
+    ],
+    [
+     "ruido",
+     0.004788081091718779
+    ],
+    [
+     "el",
+     0.002385884509330737
+    ],
+    [
+     "mucho",
+     0.002176921385598422
+    ]
+   ],
+   "first_piece_space_mass": 0.9996089672251107
+  },
+  {
+   "opening": "Mano, vamo' a janguear con el",
+   "top": [
+    [
+     "coche",
+     0.03167705109924106
+    ],
+    [
+     "vino",
+     0.014271104695063253
+    ],
+    [
+     "grupo",
+     0.01238629114235638
+    ],
+    [
+     "equipo",
+     0.01156685206548596
+    ],
+    [
+     "sol",
+     0.011272853781190187
+    ],
+    [
+     "gato",
+     0.008542281838201283
+    ],
+    [
+     "perro",
+     0.00716576345114982
+    ],
+    [
+     "chico",
+     0.007121270472234585
+    ],
+    [
+     "agua",
+     0.006305252555236414
+    ],
+    [
+     "bote",
+     0.0062957112225602106
+    ]
+   ],
+   "first_piece_space_mass": 0.9541627156786848
+  },
+  {
+   "opening": "Esa vaina 'tá",
+   "top": [
+    [
+     "en",
+     0.05092785480114245
+    ],
+    [
+     "muy",
+     0.04965973601660255
+    ],
+    [
+     "de",
+     0.03980796065828978
+    ],
+    [
+     "más",
+     0.02179428982799665
+    ],
+    [
+     "a",
+     0.019310865498388
+    ],
+    [
+     "mía",
+     0.014849807587788172
+    ],
+    [
+     "aquí",
+     0.014581078390859465
+    ],
+    [
+     "bien",
+     0.014425523399136896
+    ],
+    [
+     "que",
+     0.013209909120007258
+    ],
+    [
+     "un",
+     0.011282199171897886
+    ]
+   ],
+   "first_piece_space_mass": 0.92146990609574
+  },
+  {
+   "opening": "¿Qué es la que",
+   "top": [
+    [
+     "se",
+     0.16610240263218223
+    ],
+    [
+     "es",
+     0.1632391577829874
+    ],
+    [
+     "la",
+     0.026116631134896266
+    ],
+    [
+     "el",
+     0.011871883873064476
+    ],
+    [
+     "sí",
+     0.008779143808705113
+    ],
+    [
+     "significa",
+     0.0084935719795353
+    ],
+    [
+     "te",
+     0.005705414559152636
+    ],
+    [
+     "está",
+     0.005622327741485627
+    ],
+    [
+     "más",
+     0.005219113619271108
+    ],
+    [
+     "no",
+     0.005147067168188053
+    ]
+   ],
+   "first_piece_space_mass": 0.5673554056766997
+  },
+  {
+   "opening": "Tengo que terminar esto para",
+   "top": [
+    [
+     "no",
+     0.3552670264520922
+    ],
+    [
+     "que",
+     0.21932927568494795
+    ],
+    [
+     "poder",
+     0.16633984778251298
+    ],
+    [
+     "empezar",
+     0.023426208782320625
+    ],
+    [
+     "el",
+     0.01796313334235339
+    ],
+    [
+     "ayudar",
+     0.014150156398672991
+    ],
+    [
+     "la",
+     0.012483692848846567
+    ],
+    [
+     "evitar",
+     0.011596158814638312
+    ],
+    [
+     "hacer",
+     0.008832855450373387
+    ],
+    [
+     "ir",
+     0.008424818880923715
+    ]
+   ],
+   "first_piece_space_mass": 0.9869103703658196
+  },
+  {
+   "opening": "Había una vez un",
+   "top": [
+    [
+     "hombre",
+     0.19281648898208723
+    ],
+    [
+     "rey",
+     0.04131273089006908
+    ],
+    [
+     "viejo",
+     0.032689995525613975
+    ],
+    [
+     "personaje",
+     0.02575603291959842
+    ],
+    [
+     "grupo",
+     0.022353036644855544
+    ],
+    [
+     "joven",
+     0.01998369734551479
+    ],
+    [
+     "muchacho",
+     0.018884001999083057
+    ],
+    [
+     "anciano",
+     0.017684038478422832
+    ],
+    [
+     "pequeño",
+     0.015877979656116
+    ],
+    [
+     "barco",
+     0.01521681760388932
+    ]
+   ],
+   "first_piece_space_mass": 0.9882749078894508
+  }
+ ]
+}

@@ -1,0 +1,93 @@
+{"id": 1, "rule": "ser_estar", "correct": "Mi hermano está enfermo hoy.", "incorrect": "Mi hermano es enfermo hoy."}
+{"id": 2, "rule": "ser_estar", "correct": "Madrid está en España.", "incorrect": "Madrid es en España."}
+{"id": 3, "rule": "ser_estar", "correct": "Yo soy profesora de historia.", "incorrect": "Yo estoy profesora de historia."}
+{"id": 4, "rule": "ser_estar", "correct": "Estamos muy cansados después del viaje.", "incorrect": "Somos muy cansados después del viaje."}
+{"id": 5, "rule": "ser_estar", "correct": "La fiesta es en mi casa esta noche.", "incorrect": "La fiesta está en mi casa esta noche."}
+{"id": 6, "rule": "ser_estar", "correct": "Hoy es lunes.", "incorrect": "Hoy está lunes."}
+{"id": 7, "rule": "ser_estar", "correct": "Mi madre es de Colombia.", "incorrect": "Mi madre está de Colombia."}
+{"id": 8, "rule": "ser_estar", "correct": "El café está muy caliente ahora.", "incorrect": "El café es muy caliente ahora."}
+{"id": 9, "rule": "ser_estar", "correct": "¿Dónde están las llaves?", "incorrect": "¿Dónde son las llaves?"}
+{"id": 10, "rule": "ser_estar", "correct": "Son las tres de la tarde.", "incorrect": "Están las tres de la tarde."}
+{"id": 11, "rule": "por_para", "correct": "Gracias por tu ayuda.", "incorrect": "Gracias para tu ayuda."}
+{"id": 12, "rule": "por_para", "correct": "Caminamos por la playa toda la tarde.", "incorrect": "Caminamos para la playa toda la tarde."}
+{"id": 13, "rule": "por_para", "correct": "Te llamo por teléfono esta noche.", "incorrect": "Te llamo para teléfono esta noche."}
+{"id": 14, "rule": "por_para", "correct": "Necesito el informe para el lunes.", "incorrect": "Necesito el informe por el lunes."}
+{"id": 15, "rule": "por_para", "correct": "Voy al mercado para comprar pan.", "incorrect": "Voy al mercado por comprar pan."}
+{"id": 16, "rule": "por_para", "correct": "Trabajo por la mañana.", "incorrect": "Trabajo para la mañana."}
+{"id": 17, "rule": "por_para", "correct": "Lo hice por primera vez.", "incorrect": "Lo hice para primera vez."}
+{"id": 18, "rule": "por_para", "correct": "Por favor, cierra la puerta.", "incorrect": "Para favor, cierra la puerta."}
+{"id": 19, "rule": "por_para", "correct": "Tengo que terminar esto para mañana.", "incorrect": "Tengo que terminar esto por mañana."}
+{"id": 20, "rule": "por_para", "correct": "Lo mandé por correo.", "incorrect": "Lo mandé para correo."}
+{"id": 21, "rule": "gender", "correct": "La casa blanca es grande.", "incorrect": "La casa blanco es grande."}
+{"id": 22, "rule": "gender", "correct": "El problema es difícil.", "incorrect": "La problema es difícil."}
+{"id": 23, "rule": "gender", "correct": "Tengo una mano fría.", "incorrect": "Tengo un mano fría."}
+{"id": 24, "rule": "gender", "correct": "Las flores son bonitas.", "incorrect": "Las flores son bonitos."}
+{"id": 25, "rule": "gender", "correct": "Mi hermana es alta.", "incorrect": "Mi hermana es alto."}
+{"id": 26, "rule": "gender", "correct": "El agua está fría.", "incorrect": "El agua está frío."}
+{"id": 27, "rule": "gender", "correct": "Compré una camisa nueva.", "incorrect": "Compré una camisa nuevo."}
+{"id": 28, "rule": "gender", "correct": "El mapa está en la mesa.", "incorrect": "La mapa está en la mesa."}
+{"id": 29, "rule": "gender", "correct": "Es una ciudad muy antigua.", "incorrect": "Es una ciudad muy antiguo."}
+{"id": 30, "rule": "gender", "correct": "Los días son largos en verano.", "incorrect": "Las días son largos en verano."}
+{"id": 31, "rule": "number", "correct": "Los niños juegan en el parque.", "incorrect": "Los niños juega en el parque."}
+{"id": 32, "rule": "number", "correct": "Mis amigos son simpáticos.", "incorrect": "Mis amigos son simpático."}
+{"id": 33, "rule": "number", "correct": "Las casas son caras.", "incorrect": "Las casas son cara."}
+{"id": 34, "rule": "number", "correct": "Nosotros vivimos en Madrid.", "incorrect": "Nosotros vive en Madrid."}
+{"id": 35, "rule": "number", "correct": "Tengo dos perros negros.", "incorrect": "Tengo dos perro negros."}
+{"id": 36, "rule": "number", "correct": "Ellos quieren comer ahora.", "incorrect": "Ellos quiere comer ahora."}
+{"id": 37, "rule": "number", "correct": "Los libros están en la mesa.", "incorrect": "Los libros está en la mesa."}
+{"id": 38, "rule": "number", "correct": "Esas mujeres trabajan mucho.", "incorrect": "Esas mujeres trabaja mucho."}
+{"id": 39, "rule": "number", "correct": "Me gustan las manzanas.", "incorrect": "Me gusta las manzanas."}
+{"id": 40, "rule": "number", "correct": "Hay muchas personas aquí.", "incorrect": "Hay muchas persona aquí."}
+{"id": 41, "rule": "preterite_imperfect", "correct": "Cuando era niño, vivía en Cuba.", "incorrect": "Cuando fui niño, vivía en Cuba."}
+{"id": 42, "rule": "preterite_imperfect", "correct": "De niña, siempre jugaba en la calle.", "incorrect": "De niña, siempre jugué en la calle."}
+{"id": 43, "rule": "preterite_imperfect", "correct": "Mientras yo cocinaba, sonó el teléfono.", "incorrect": "Mientras yo cociné, sonó el teléfono."}
+{"id": 44, "rule": "preterite_imperfect", "correct": "El año pasado viajé a México una vez.", "incorrect": "El año pasado viajaba a México una vez."}
+{"id": 45, "rule": "preterite_imperfect", "correct": "Eran las diez cuando salimos.", "incorrect": "Fueron las diez cuando salimos."}
+{"id": 46, "rule": "preterite_imperfect", "correct": "Ella tenía el pelo largo cuando la conocí.", "incorrect": "Ella tuvo el pelo largo cuando la conocí."}
+{"id": 47, "rule": "preterite_imperfect", "correct": "Nací en 1990.", "incorrect": "Nacía en 1990."}
+{"id": 48, "rule": "preterite_imperfect", "correct": "Hace dos años terminé la universidad.", "incorrect": "Hace dos años terminaba la universidad."}
+{"id": 49, "rule": "preterite_imperfect", "correct": "¿Qué hora era cuando llegaste?", "incorrect": "¿Qué hora fue cuando llegaste?"}
+{"id": 50, "rule": "preterite_imperfect", "correct": "Ayer de repente empezó a llover.", "incorrect": "Ayer de repente empezaba a llover."}
+{"id": 51, "rule": "subjunctive_wish", "correct": "Quiero que vengas a mi fiesta.", "incorrect": "Quiero que vienes a mi fiesta."}
+{"id": 52, "rule": "subjunctive_wish", "correct": "Espero que tengas un buen día.", "incorrect": "Espero que tienes un buen día."}
+{"id": 53, "rule": "subjunctive_wish", "correct": "Ojalá que llueva mañana.", "incorrect": "Ojalá que llueve mañana."}
+{"id": 54, "rule": "subjunctive_wish", "correct": "Mis padres quieren que estudie medicina.", "incorrect": "Mis padres quieren que estudio medicina."}
+{"id": 55, "rule": "subjunctive_wish", "correct": "Prefiero que me llames por la noche.", "incorrect": "Prefiero que me llamas por la noche."}
+{"id": 56, "rule": "subjunctive_wish", "correct": "Deseo que seas muy feliz.", "incorrect": "Deseo que eres muy feliz."}
+{"id": 57, "rule": "subjunctive_wish", "correct": "Ella quiere que yo cocine hoy.", "incorrect": "Ella quiere que yo cocino hoy."}
+{"id": 58, "rule": "subjunctive_wish", "correct": "Espero que puedas venir.", "incorrect": "Espero que puedes venir."}
+{"id": 59, "rule": "subjunctive_wish", "correct": "Ojalá tengamos suerte.", "incorrect": "Ojalá tenemos suerte."}
+{"id": 60, "rule": "subjunctive_wish", "correct": "Queremos que nos digas la verdad.", "incorrect": "Queremos que nos dices la verdad."}
+{"id": 61, "rule": "personal_a", "correct": "Veo a mi madre todos los días.", "incorrect": "Veo mi madre todos los días."}
+{"id": 62, "rule": "personal_a", "correct": "Conozco a tu hermano.", "incorrect": "Conozco tu hermano."}
+{"id": 63, "rule": "personal_a", "correct": "Llamé a Juan ayer.", "incorrect": "Llamé Juan ayer."}
+{"id": 64, "rule": "personal_a", "correct": "Busco a mi hijo.", "incorrect": "Busco mi hijo."}
+{"id": 65, "rule": "personal_a", "correct": "Ayudamos a los vecinos.", "incorrect": "Ayudamos los vecinos."}
+{"id": 66, "rule": "personal_a", "correct": "¿Viste a María en la fiesta?", "incorrect": "¿Viste María en la fiesta?"}
+{"id": 67, "rule": "personal_a", "correct": "Quiero mucho a mis abuelos.", "incorrect": "Quiero mucho mis abuelos."}
+{"id": 68, "rule": "personal_a", "correct": "Escuché a la profesora con atención.", "incorrect": "Escuché la profesora con atención."}
+{"id": 69, "rule": "personal_a", "correct": "Visitamos a nuestros primos en Ponce.", "incorrect": "Visitamos nuestros primos en Ponce."}
+{"id": 70, "rule": "personal_a", "correct": "No conozco a nadie aquí.", "incorrect": "No conozco nadie aquí."}
+{"id": 71, "rule": "personal_a", "correct": "Compré un coche nuevo.", "incorrect": "Compré a un coche nuevo."}
+{"id": 72, "rule": "personal_a", "correct": "Leo el periódico cada día.", "incorrect": "Leo al periódico cada día."}
+{"id": 73, "rule": "articles", "correct": "Me gusta el café.", "incorrect": "Me gusta café."}
+{"id": 74, "rule": "articles", "correct": "La vida es bella.", "incorrect": "Vida es bella."}
+{"id": 75, "rule": "articles", "correct": "El español es fácil.", "incorrect": "Español es fácil."}
+{"id": 76, "rule": "articles", "correct": "Voy al cine los sábados.", "incorrect": "Voy a cine los sábados."}
+{"id": 77, "rule": "articles", "correct": "Me lavo las manos.", "incorrect": "Me lavo mis manos."}
+{"id": 78, "rule": "articles", "correct": "Llegamos a las ocho.", "incorrect": "Llegamos a ocho."}
+{"id": 79, "rule": "articles", "correct": "Los perros son leales.", "incorrect": "Perros son leales."}
+{"id": 80, "rule": "articles", "correct": "Hablé con el señor García.", "incorrect": "Hablé con señor García."}
+{"id": 81, "rule": "articles", "correct": "Me duele la cabeza.", "incorrect": "Me duele mi cabeza."}
+{"id": 82, "rule": "articles", "correct": "Quiero otro café.", "incorrect": "Quiero un otro café."}
+{"id": 83, "rule": "pronoun_placement", "correct": "Lo compré ayer.", "incorrect": "Compré lo ayer."}
+{"id": 84, "rule": "pronoun_placement", "correct": "Quiero verte mañana.", "incorrect": "Quiero te ver mañana."}
+{"id": 85, "rule": "pronoun_placement", "correct": "Te lo digo ahora.", "incorrect": "Lo te digo ahora."}
+{"id": 86, "rule": "pronoun_placement", "correct": "No lo hagas.", "incorrect": "No hazlo."}
+{"id": 87, "rule": "pronoun_placement", "correct": "Se lo di a mi hermana.", "incorrect": "Le lo di a mi hermana."}
+{"id": 88, "rule": "pronoun_placement", "correct": "Estoy leyéndolo ahora.", "incorrect": "Estoy lo leyendo ahora."}
+{"id": 89, "rule": "pronoun_placement", "correct": "Me llamó anoche.", "incorrect": "Llamó me anoche."}
+{"id": 90, "rule": "pronoun_placement", "correct": "Hazlo ahora.", "incorrect": "Lo haz ahora."}
+{"id": 91, "rule": "pronoun_placement", "correct": "Nos vemos mañana.", "incorrect": "Vemos nos mañana."}
+{"id": 92, "rule": "pronoun_placement", "correct": "La invité a cenar.", "incorrect": "Invité la a cenar."}
+{"id": 93, "rule": "pronoun_placement", "correct": "¿Puedes ayudarme?", "incorrect": "¿Puedes me ayudar?"}

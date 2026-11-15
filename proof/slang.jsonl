@@ -1,0 +1,26 @@
+{"id": 1, "street": "¿Qué es la que hay, mano?", "neutral": "¿Qué está pasando, amigo?", "region": "PR", "explicit": false}
+{"id": 2, "street": "Vamo' a janguear con el corillo esta noche.", "neutral": "Vamos a salir con los amigos esta noche.", "region": "PR", "explicit": false}
+{"id": 3, "street": "Esa vaina 'tá brutal.", "neutral": "Esa cosa está increíble.", "region": "PR", "explicit": false}
+{"id": 4, "street": "¿Pa' qué tú quieres eso?", "neutral": "¿Para qué quieres eso?", "region": "PR", "explicit": false}
+{"id": 5, "street": "Ese pana mío es bien chévere.", "neutral": "Ese amigo mío es muy agradable.", "region": "PR", "explicit": false}
+{"id": 6, "street": "Estoy janguiando en la playa con mis panas.", "neutral": "Estoy pasando el rato en la playa con mis amigos.", "region": "PR", "explicit": false}
+{"id": 7, "street": "Dímelo, loco, ¿qué lo que?", "neutral": "Dime, amigo, ¿qué tal?", "region": "DR", "explicit": false}
+{"id": 8, "street": "Ese carro 'tá to' jevi.", "neutral": "Ese coche está muy bonito.", "region": "PR", "explicit": false}
+{"id": 9, "street": "No me jodas con esa vaina.", "neutral": "No me molestes con eso.", "region": "PR", "explicit": true}
+{"id": 10, "street": "Tengo un chin de hambre.", "neutral": "Tengo un poco de hambre.", "region": "DR", "explicit": false}
+{"id": 11, "street": "Ahorita vengo, voy pa' la tienda.", "neutral": "Vengo en un momento, voy a la tienda.", "region": "PR", "explicit": false}
+{"id": 12, "street": "El corillo está esperando afuera.", "neutral": "El grupo de amigos está esperando afuera.", "region": "PR", "explicit": false}
+{"id": 13, "street": "Mi pana, eso 'tá cabrón.", "neutral": "Amigo, eso está increíble.", "region": "PR", "explicit": true}
+{"id": 14, "street": "¿Qué volá, asere?", "neutral": "¿Qué tal, amigo?", "region": "CU", "explicit": false}
+{"id": 15, "street": "Eso 'tá en candela.", "neutral": "Eso está muy mal.", "region": "CU", "explicit": false}
+{"id": 16, "street": "Me voy pa' casa, que 'toy cansao.", "neutral": "Me voy a casa, porque estoy cansado.", "region": "PR", "explicit": false}
+{"id": 17, "street": "Parcero, ¿qué más pues?", "neutral": "Amigo, ¿cómo estás?", "region": "CO", "explicit": false}
+{"id": 18, "street": "Esa fiesta estuvo bacana.", "neutral": "Esa fiesta estuvo genial.", "region": "CO", "explicit": false}
+{"id": 19, "street": "No tengo chavos pa' salir hoy.", "neutral": "No tengo dinero para salir hoy.", "region": "PR", "explicit": false}
+{"id": 20, "street": "Deja la bobería y vamo' ya.", "neutral": "Deja las tonterías y vámonos ya.", "region": "PR", "explicit": false}
+{"id": 21, "street": "Ese tipo es un tíguere.", "neutral": "Ese hombre es muy astuto.", "region": "DR", "explicit": false}
+{"id": 22, "street": "Bregamos con eso mañana.", "neutral": "Nos ocupamos de eso mañana.", "region": "PR", "explicit": false}
+{"id": 23, "street": "¡Wepa! Ganamos el juego.", "neutral": "¡Qué bien! Ganamos el partido.", "region": "PR", "explicit": false}
+{"id": 24, "street": "Estoy pela'o este mes.", "neutral": "No tengo dinero este mes.", "region": "PR", "explicit": false}
+{"id": 25, "street": "Qué chévere que viniste, mi pana.", "neutral": "Qué bueno que viniste, amigo.", "region": "PR", "explicit": false}
+{"id": 26, "street": "Ese man es más bacano que el putas.", "neutral": "Ese hombre es muy buena persona.", "region": "CO", "explicit": true}

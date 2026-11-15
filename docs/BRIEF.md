@@ -129,5 +129,13 @@ app code in this step.
 - The proof test above.
 - Singer pitch cannot be read from Apple Music audio; pitch can only be shown for
   the learner's own voice.
+- On-device scoring of a given text: llama.rn (checked 0.13.0-rc.11, 2026-11-12)
+  returns top-N token probabilities only for tokens it generates
+  (`n_probs`; set `post_sampling_probs: false` for raw softmax). It has no call that
+  returns log-probabilities for the tokens of a supplied text. The device adapter
+  for `LanguageModel.scoreContinuation` therefore needs one of: forced decoding of
+  the text with raw probabilities (a token outside the top N gets only an upper
+  bound), or a small native method that evaluates a text and returns per-token
+  log-probabilities. Decide this before the app build.
 - Name: no app-store collisions were found for Cliffword, and cliffword.com and
   cliffword.app were unregistered on 2026-11-15. Trademarks are unchecked.

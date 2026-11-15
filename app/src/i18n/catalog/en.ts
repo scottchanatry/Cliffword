@@ -1,0 +1,231 @@
+/**
+ * App catalog for English speakers: every interface string the app shows, keyed by id.
+ *
+ * Lookup order (src/i18n/translator.ts): the pair pack's ui strings first (pair.ui from
+ * @cliffword/engine, so a pair can reword anything), then this catalog for the learner's
+ * native language, then English, then the key itself (with a warning in development).
+ *
+ * Placeholders are written {name}. Plural entries end in .one / .other (CLDR categories)
+ * and are read with plural(key, count), which also fills {count}.
+ *
+ * Spoken commands (command.*.say) are what the learner says in the target language; they
+ * are Spanish here because the only pair is en-es. Another target language overrides them
+ * in its pair.ui.
+ */
+export const en = {
+  // App and navigation
+  'app.name': 'Cliffword',
+  'tab.story': 'Story',
+  'tab.music': 'Music',
+  'menu.profile': 'Profile',
+  'menu.settings': 'Settings',
+  'menu.open': 'Open profile and settings',
+  'common.close': 'Close',
+  'common.back': 'Back',
+  'common.continue': 'Continue',
+  'common.cancel': 'Cancel',
+  'common.done': 'Done',
+  'common.retry': 'Try again',
+  'common.on': 'On',
+  'common.off': 'Off',
+  'language.en': 'English',
+  'language.es': 'Spanish',
+
+  // Story header and progress
+  'story.meta': 'Chapter {n} · {title} · spoken {time}',
+  'story.chapter': 'Chapter {n} · {title}',
+  'story.spoken': 'Spoken {time}',
+  'stats.spokenTodayClock': 'Spoken today {time}',
+  'stats.minutesSpoken': 'Minutes spoken',
+  'time.clock': '{m}:{ss}',
+  'stats.landed': '{n} of {m} landed',
+  'text.show': 'Show text',
+  'text.hide': 'Hide text',
+
+  // The cliff
+  'cliff.title': 'Say what comes next',
+  'cliff.subtitle': 'Any natural answer scores. One to three words, out loud.',
+  'cliff.gap': 'Gap: the story stops here',
+  'action.holdToSpeak': 'Hold to speak',
+  'action.holdToSpeak.hint': 'Press and hold while you say your answer, then let go.',
+  'action.typeInstead': 'Type instead',
+  'action.hearAgain': 'Hear it again',
+  'action.skip': 'Skip',
+  'action.sayAgain': 'Say it again',
+  'action.showAnswer': 'Show me the answer',
+  'hold.title': 'Hold anywhere and say it',
+  'hold.subtitle': 'What comes next? Any natural answer counts.',
+  'hold.wholeLine': 'Hold anywhere, say the whole line',
+  'hold.matchPace': 'Match the speaker’s pace.',
+  'hold.singAgain': 'Hold anywhere and sing it again',
+  'hold.musicWaits': 'The music waits for you.',
+  'hold.listening': 'Listening…',
+
+  // Spoken commands: the target-language words to say, and their meaning
+  'commands.orJustSay': 'Or just say',
+  'command.again.say': 'Otra vez',
+  'command.again.gloss': 'again',
+  'command.slower.say': 'Más despacio',
+  'command.slower.gloss': 'slower',
+  'command.dontKnow.say': 'No sé',
+  'command.dontKnow.gloss': 'skip',
+  'command.next.say': 'Siguiente',
+  'command.next.gloss': 'next',
+  'command.done.say': 'Listo',
+  'command.done.gloss': 'done',
+  'command.meaning.say': '¿Qué significa?',
+  'command.meaning.gloss': 'meaning',
+
+  // Tiles, glosses and heat
+  'tile.legend': 'Every tile is a word you heard. Tap one to hear it again. Hold one to see it.',
+  'tile.hidden': 'Hidden word. Tap to hear it, hold to see it.',
+  'gloss.line': '{word} · {gloss} · new for you',
+  'heat.expected': 'expected',
+  'heat.surprising': 'surprising',
+
+  // Where the answer landed
+  'landing.chance': 'About {n} times in 100, this is what comes next.',
+  'landing.alsoNatural': '{word} is just as natural.',
+
+  // Self-repair
+  'repair.asksYou': '{name} asks you',
+  'repair.youSaid': 'You said',
+  'repair.surprised.one': 'One word surprised me',
+  'repair.surprised.other': '{count} words surprised me',
+  'repair.tryAgain': 'Say it again and try a different word. You get the answer after this try.',
+  'upNext.label': 'Up next',
+  'upNext.retell': 'Retell this scene aloud in 60 seconds, then 45, then 30.',
+
+  // Timed retell
+  'retell.header': 'Retell · round {round} of {rounds}',
+  'retell.leftInLane': 'left in this lane',
+  'retell.roundLabel': 'Round {round} · {seconds} seconds',
+  'retell.pauses.one': '{count} pause',
+  'retell.pauses.other': '{count} pauses',
+  'retell.wordsPerMinute': 'words a minute',
+  'retell.keepTalking': 'Keep talking. Say {command} when you finish.',
+  'retell.finishRound': 'Finish this round',
+  'retell.lanesHint': 'Each round the lane gets shorter. Tiles are your words. Holes are your pauses.',
+
+  // Story tab before the first story
+  'story.empty.title': 'Your first story starts here',
+  'story.empty.body': 'It stops mid-sentence. You say what comes next.',
+
+  // Music
+  'music.title': 'Your music',
+  'music.appleMusic': 'Apple Music',
+  'music.appleMusic.connected': 'Connected · your library plays here',
+  'music.appleMusic.disconnected': 'Play songs from your library',
+  'music.spotify': 'Spotify',
+  'music.spotify.hint': 'Share any song to Cliffword',
+  'music.lyrics': 'Lyrics',
+  'music.lyrics.hint': 'Paste them for any song',
+  'music.fromLibrary': 'From your library',
+  'music.empty': 'No songs yet. Connect Apple Music or paste lyrics to start.',
+  'music.slangToLearn': 'Slang I want to learn',
+  'music.explicit.title': 'Explicit lyrics',
+  'music.explicit.onHint': 'On: nothing is skipped',
+  'music.explicit.offHint': 'Off: explicit lines are skipped',
+  'music.explicit.pill': 'Explicit · on',
+  'music.singIt': 'Sing it',
+  'music.singNextWord': 'Sing the next word',
+  'music.showOptions': 'Stuck? Show three options',
+  'music.lineOf': '{artist} · line {n} of {m}',
+  'music.waits': '{time} · the music waits for you',
+  'music.playingIn': '{time} · playing in Apple Music',
+  'music.trackStopped': 'The track stopped. Sing the line back.',
+  'action.connect': 'Connect',
+  'action.manage': 'Manage',
+  'action.showMe': 'Show me',
+  'action.paste': 'Paste',
+  'action.turnOn': 'Turn on',
+  'action.turnOff': 'Turn off',
+  'action.play': 'Play',
+  'action.pause': 'Pause',
+  'region.pill.PR': 'Puerto Rico',
+  'region.pill.DO': 'Dominican Republic',
+  'region.pill.CU': 'Cuba',
+  'region.pill.CO': 'Colombia',
+
+  // Registers
+  'register.title': 'Same idea, two ways to say it',
+  'register.neutral.label': 'Neutral · works anywhere',
+  'register.street.label': 'Street · {region}, with friends',
+  'register.sayStreet': 'Say it street',
+  'register.sayNeutral': 'Say it neutral',
+  'register.advice': 'Street fits friends, parties and music. Keep neutral for work and people you just met.',
+  'register.teachMe': 'Teach me to speak',
+  'register.caribbeanStreet': 'Caribbean street',
+
+  // Profile and settings
+  'profile.title': 'Profile',
+  'profile.minutesToday': 'Spoken today',
+  'profile.wordsKnown.one': '{count} word you understand',
+  'profile.wordsKnown.other': '{count} words you understand',
+  'settings.title': 'Settings',
+  'settings.text': 'Story text',
+  'settings.text.hint': 'Words fade to tiles once you know them by ear. You can still show or hide all text.',
+  'settings.text.auto': 'Fades as you learn',
+  'settings.text.text': 'Always shown',
+  'settings.text.tiles': 'Always hidden',
+  'settings.speechRate': 'Speech speed',
+  'settings.explicit': 'Explicit lyrics',
+  'settings.regions': 'Slang regions',
+  'settings.model': 'Language model',
+  'settings.model.hint': 'Runs on this phone. Size: {size}.',
+  'settings.nativeLanguage': 'I speak',
+  'settings.targetLanguage': 'I’m learning',
+  'settings.resetProgress': 'Reset progress',
+  'settings.about': 'About Cliffword',
+  'settings.version': 'Version {version}',
+
+  // Onboarding
+  'onboarding.title': 'Learn {language} by saying what comes next.',
+  'onboarding.body': 'A story stops mid-sentence. You finish it out loud. Any natural answer counts.',
+  'onboarding.placement': 'The first story gets harder until you stall. That is your level. There is no test.',
+  'onboarding.brandNew': 'I’m brand new',
+  'onboarding.knowSome': 'I know some {language}',
+
+  // Permissions
+  'permission.microphone.title': 'Answer out loud',
+  'permission.microphone.body': 'Cliffword listens only while you hold to speak.',
+  'permission.microphone.denied': 'Microphone access is off. Turn it on in Settings, or type your answers instead.',
+  'permission.speech.title': 'Speech recognition',
+  'permission.speech.body': 'Cliffword turns what you say into text so it can score your answer.',
+  'permission.appleMusic.title': 'Apple Music',
+  'permission.appleMusic.body': 'Allow access to play songs from your library and pause them at a line.',
+  'permission.allow': 'Allow',
+  'permission.notNow': 'Not now',
+  'permission.openSettings': 'Open Settings',
+
+  // Startup
+  'boot.loading': 'Getting your story ready…',
+  'boot.error.title': 'Cliffword could not start',
+  'boot.error.body': 'Your saved progress could not be opened. Try again.',
+  'boot.error.tooNew': 'Your progress was saved by a newer version of Cliffword. Update the app to continue.',
+
+  // Errors
+  'error.generic': 'Something went wrong.',
+  'error.notFound': 'This screen does not exist.',
+  'error.goToStory': 'Go to the story',
+  'error.didNotHear': 'I didn’t catch that. Hold and try again.',
+  'error.speechUnavailable': 'Speech recognition is not available on this device. You can type instead.',
+  'error.modelLoad': 'The language model could not start.',
+  'error.network': 'No connection. Check your network and try again.',
+  'error.storage': 'Not enough space on this phone. {size} needed.',
+
+  // Model download
+  'model.download.title': 'Download the language model',
+  'model.download.body': 'Cliffword runs a small language model on this phone, so stories work offline. It needs {size}.',
+  'model.download.start': 'Download ({size})',
+  'model.download.wifiOnly': 'Download on Wi-Fi only',
+  'model.download.progress': 'Downloading… {percent}%',
+  'model.download.paused': 'Paused',
+  'model.download.resume': 'Resume',
+  'model.download.cancel': 'Cancel download',
+  'model.download.verifying': 'Checking the file…',
+  'model.download.done': 'Ready. The model is on your phone.',
+  'model.download.failed': 'The download stopped: {reason}',
+} as const satisfies Record<string, string>;
+
+export type CatalogKey = keyof typeof en;

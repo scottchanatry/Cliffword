@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Ink: say what comes next</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Newsreader:wght@400;600&display=swap">
+<style>
+body{margin:0}
+a{color:#16181D}a:hover{color:#000}
+</style>
+</helmet>
+<div style="width: 390px; height: 844px; box-sizing: border-box; padding: 28px 24px 24px; display: flex; flex-direction: column; gap: 18px; background: #F3F4F1; color: #16181D; font-family: Inter, system-ui, sans-serif">
+<div style="display: flex; justify-content: space-between; align-items: center">
+<span style="font-family: Newsreader, serif; font-size: 22px; font-weight: 600">Cliffword</span>
+<button style="height: 44px; padding: 0 14px; border: 1px solid #C9CCC4; border-radius: 999px; background: none; color: #16181D; font: 500 14px Inter, system-ui, sans-serif">Hide text</button>
+</div>
+<div style="font-size: 12px; font-weight: 600; letter-spacing: 0.08em; color: #5B616B">CHAPTER 3 · EL MERCADO · SPOKEN 4:12</div>
+<p style="margin: 0; font-family: Newsreader, serif; font-size: 24px; line-height: 1.5">Marta llegó tarde al mercado. Buscó al señor de las frutas, pero su <span style="border-bottom: 2px dotted #B4530A">puesto</span> estaba cerrado. Entonces vio una nota en la puerta y empezó a <span style="display: inline-flex; gap: 6px; align-items: center; padding: 0 14px; height: 30px; border-radius: 8px; background: #16181D; vertical-align: middle"><span style="width: 6px; height: 6px; border-radius: 50%; background: #F3F4F1"></span><span style="width: 6px; height: 6px; border-radius: 50%; background: #F3F4F1"></span><span style="width: 6px; height: 6px; border-radius: 50%; background: #F3F4F1"></span></span></p>
+<div style="align-self: flex-start; font-size: 14px; padding: 8px 12px; border-radius: 10px; background: #FFE9C7; color: #16181D"><strong>puesto</strong> · stall · new for you</div>
+<div style="flex-grow: 1"></div>
+<div style="display: flex; flex-direction: column; gap: 12px; padding: 20px; border-radius: 20px; background: #FFFFFF">
+<div style="font-size: 19px; font-weight: 600">Say what comes next</div>
+<div style="font-size: 15px; line-height: 1.4; color: #5B616B">Any natural answer scores. One to three words, out loud.</div>
+<button style="display: flex; align-items: center; justify-content: center; gap: 10px; height: 56px; border: 0; border-radius: 16px; background: #16181D; color: #FFFFFF; font: 600 17px Inter, system-ui, sans-serif">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"></rect><path d="M5 11a7 7 0 0 0 14 0M12 18v3"></path></svg>
+Hold to speak</button>
+<div style="display: flex; justify-content: space-between">
+<button style="height: 44px; padding: 0 8px; border: 0; background: none; color: #16181D; font: 500 15px Inter, system-ui, sans-serif">Type instead</button>
+<button style="height: 44px; padding: 0 8px; border: 0; background: none; color: #16181D; font: 500 15px Inter, system-ui, sans-serif">Hear it again</button>
+<button style="height: 44px; padding: 0 8px; border: 0; background: none; color: #5B616B; font: 500 15px Inter, system-ui, sans-serif">Skip</button>
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+renderVals() { return {}; }
+}
+</script>
+</body>
+</html>

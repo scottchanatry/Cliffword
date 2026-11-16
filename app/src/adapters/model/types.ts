@@ -148,4 +148,9 @@ export interface ModelManager {
   delete(): Promise<void>;
   /** Called with the new snapshot on every change. */
   onChange(listener: (state: ModelFileState) => void): Unsubscribe;
+  /**
+   * Free bytes on the volume the model goes to, or null when unknown. Optional: onboarding and
+   * settings show it before the download when the manager can measure it.
+   */
+  freeBytes?(): Promise<number | null>;
 }

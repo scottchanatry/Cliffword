@@ -229,6 +229,11 @@ export class ExpoModelManager implements ModelManager {
     return this.listeners.add(listener);
   }
 
+  /** Free bytes on the volume (the measure the download's space check uses), or null. */
+  freeBytes(): Promise<number | null> {
+    return this.measureFree().catch(() => null);
+  }
+
   /** Resolves once the startup check has run (the state then reflects the files on disk). */
   whenStarted(): Promise<void> {
     return this.startup;

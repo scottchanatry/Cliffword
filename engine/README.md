@@ -291,7 +291,10 @@ CLIFFWORD_MODEL_URL=http://127.0.0.1:8765 npx vitest run test/real-engine.test.t
 The server handles one request at a time; run one real-model suite at a time. On the
 real model (2026-11-15): judge 64/93 errors asserted (57 with the exact fix), 0 false
 asserts and 2 false hints on the correct sentences, 2 asserts on the 26 street
-sentences, none on slang. Top-N forced decoding loses too much (top-10: 4 asserts), so
+sentences, none on slang. After the correction coverage round (2026-11-16): 74/93
+asserted (70 with the exact fix), 0 false asserts and 1 false hint, 0 street asserts; on
+83 held-out pairs written before the round 64 asserted with the exact fix (was 43), 0
+false asserts (was 1); `test/real-coverage.test.ts` checks the held-out sets. Top-N forced decoding loses too much (top-10: 4 asserts), so
 the device needs a native method that scores a supplied text; keep top-50 only as a
 fallback.
 

@@ -20,6 +20,11 @@ describe('SettingsRepo', () => {
       startLevel: 'brandNew',
       speechRateBias: 0,
       nativeAnswersAllowed: true,
+      onboardingStep: 'welcome',
+      voiceId: null,
+      modelDeclined: false,
+      allowNetworkRecognition: false,
+      progressResetPending: false,
     };
     expect(await storage.settings.getAll()).toEqual(expected);
     expect(DEFAULT_SETTINGS).toEqual(expected);
@@ -78,6 +83,21 @@ describe('SettingsRepo', () => {
       value: 'true',
       updated_at: 1234,
     });
+  });
+
+  it('checks the onboarding, voice and recognition settings', async () => {
+    await storage.settings.update({ onboardingStep: 'voice', voiceId: 'com.apple.voice.es-MX.Paulina', modelDeclined: true });
+    expect(await storage.settings.getAll()).toMatchObject({ onboardingStep: 'voice', voiceId: 'com.apple.voice.es-MX.Paulina', modelDeclined: true });
+    await storage.settings.set('voiceId', null);
+    expect(await storage.settings.get('voiceId')).toBeNull();
+    await storage.settings.update({ allowNetworkRecognition: true, progressResetPending: true });
+    expect(await storage.settings.getAll()).toMatchObject({ allowNetworkRecognition: true, progressResetPending: true });
+    await expect(storage.settings.set('onboardingStep', 'tour' as never)).rejects.toBeInstanceOf(InvalidSettingError);
+    await expect(storage.settings.set('voiceId', '   ')).rejects.toBeInstanceOf(InvalidSettingError);
+    await expect(storage.settings.set('modelDeclined', 'yes' as never)).rejects.toBeInstanceOf(InvalidSettingError);
+    // A damaged stored value reads as the default.
+    await storage.db.run("UPDATE settings SET value = '\"later\"' WHERE key = 'onboardingStep'");
+    expect(await storage.settings.get('onboardingStep')).toBe('welcome');
   });
 
   it('resets one setting or all of them', async () => {

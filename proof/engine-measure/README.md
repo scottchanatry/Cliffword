@@ -8,7 +8,18 @@ against Qwen3-1.7B Q4_K_M served by `proof/model_server.py` (see
   timing and the top-N bounded runs. Run with `npx tsx proof/engine-measure/measure.ts` from
   `engine/` with `CLIFFWORD_MODEL_URL=http://127.0.0.1:8765`.
 - `analyze.py`: turns `results/*.json` into the tables in `proof/ENGINE_REAL_MODEL.md`.
-- `results/`: the raw results of the run reported there (2026-11-15).
+- `coverage.ts`: correction coverage on the proof pairs and street sentences and on the
+  held-out sets (`proof/pairs_holdout.jsonl`, `proof/slang_holdout.jsonl`, and the blind
+  `proof/pairs_holdout2.jsonl`, `proof/slang_holdout2.jsonl`): verdicts, exact-fix rate,
+  fix generated, right rule, false asserts and hints, street asserts, variants on slang
+  words and slang words shaded. From `engine/`:
+  `CLIFFWORD_MODEL_URL=http://127.0.0.1:8765 npx vite-node ../proof/engine-measure/coverage.ts -- <label> [sets] [--offline]`.
+  Writes `results/coverage-<label>.json`.
+- `summarize.py`: prints the tables of one or more `coverage-<label>.json` files
+  (`python3 summarize.py before after`), as in the "Correction coverage and slang data"
+  section of `proof/ENGINE_REAL_MODEL.md`.
+- `results/`: the raw results of the runs reported there (2026-11-15; coverage-*.json
+  2026-11-16).
 
 Story generation at every level (2026-11-16, see the dated section of
 `proof/ENGINE_REAL_MODEL.md`). Run from `engine/` with

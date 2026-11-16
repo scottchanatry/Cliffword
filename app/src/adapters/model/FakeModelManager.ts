@@ -26,6 +26,8 @@ export interface FakeModelManagerOptions {
   mode?: 'instant' | 'manual';
   /** Default `memory://models/<fileName>`. */
   filePath?: string;
+  /** What freeBytes() reports. Default null (unknown). */
+  freeBytes?: number | null;
 }
 
 const tick = () => Promise.resolve();
@@ -36,6 +38,8 @@ export class FakeModelManager implements ModelManager {
   /** Test inspection: how many downloads were started (resumes included). */
   downloadsStarted = 0;
 
+  /** What freeBytes() reports; a test may change it. */
+  freeSpace: number | null;
   private readonly mode: 'instant' | 'manual';
   private state: ModelFileState;
   private running: Promise<ModelFileStatus> | null = null;
@@ -46,6 +50,7 @@ export class FakeModelManager implements ModelManager {
     this.descriptor = opts.descriptor ?? DEFAULT_MODEL;
     this.filePath = opts.filePath ?? `memory://models/${this.descriptor.fileName}`;
     this.mode = opts.mode ?? 'instant';
+    this.freeSpace = opts.freeBytes ?? null;
     const ready = (opts.initial ?? 'ready') === 'ready';
     this.state = {
       status: ready ? 'ready' : 'absent',
@@ -68,6 +73,10 @@ export class FakeModelManager implements ModelManager {
 
   onChange(listener: (state: ModelFileState) => void): Unsubscribe {
     return this.listeners.add(listener);
+  }
+
+  async freeBytes(): Promise<number | null> {
+    return this.freeSpace;
   }
 
   startDownload(): Promise<ModelFileStatus> {

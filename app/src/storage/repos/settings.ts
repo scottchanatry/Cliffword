@@ -20,6 +20,16 @@ export const TEXT_MODES: readonly TextMode[] = ['auto', 'text', 'tiles'];
 export type StartLevel = 'brandNew' | 'placement';
 export const START_LEVELS: readonly StartLevel[] = ['brandNew', 'placement'];
 
+/**
+ * Where onboarding stopped (app/onboarding): stored after each step, so a killed app resumes
+ * there. 'done' once onboarding finished (onboarded is then true).
+ */
+export type OnboardingStep = 'welcome' | 'model' | 'voice' | 'slang' | 'done';
+export const ONBOARDING_STEPS: readonly OnboardingStep[] = ['welcome', 'model', 'voice', 'slang', 'done'];
+
+/** Longest stored voice id (platform voice identifiers are short; anything longer is junk). */
+const MAX_VOICE_ID = 256;
+
 export interface AppSettings {
   /** Correction register: neutral Spanish or street (slang is never marked). */
   register: Register;
@@ -38,6 +48,22 @@ export interface AppSettings {
   speechRateBias: number;
   /** The learner may answer in their native language and gets the target phrase to repeat. */
   nativeAnswersAllowed: boolean;
+  /** The onboarding step to resume at. */
+  onboardingStep: OnboardingStep;
+  /** SpeechOut voice id chosen in onboarding or settings; null: the app picks by region. */
+  voiceId: string | null;
+  /** The learner chose "Not now" for the model download (the app runs in canned mode). */
+  modelDeclined: boolean;
+  /**
+   * Speech recognition may use the platform's server when the device cannot recognize the
+   * language on the device. Off by default: "on-device recognition only".
+   */
+  allowNetworkRecognition: boolean;
+  /**
+   * "Reset progress" was confirmed: onboarding's start choice clears the learner, sessions,
+   * stories and minutes spoken (src/features/profile/progress.ts), then finishes onboarding.
+   */
+  progressResetPending: boolean;
 }
 
 export type SettingKey = keyof AppSettings;
@@ -53,6 +79,11 @@ export const DEFAULT_SETTINGS: Readonly<AppSettings> = Object.freeze({
   startLevel: 'brandNew',
   speechRateBias: 0,
   nativeAnswersAllowed: true,
+  onboardingStep: 'welcome',
+  voiceId: null,
+  modelDeclined: false,
+  allowNetworkRecognition: false,
+  progressResetPending: false,
 } satisfies AppSettings);
 
 export const SPEECH_RATE_BIAS_LIMIT = 0.5;
@@ -80,6 +111,11 @@ const NORMALIZE: { [K in SettingKey]: Normalizer<K> } = {
   speechRateBias: (v) =>
     typeof v === 'number' && Number.isFinite(v) ? Math.max(-SPEECH_RATE_BIAS_LIMIT, Math.min(SPEECH_RATE_BIAS_LIMIT, v)) : undefined,
   nativeAnswersAllowed: (v) => (isBool(v) ? v : undefined),
+  onboardingStep: (v) => (ONBOARDING_STEPS.includes(v as OnboardingStep) ? (v as OnboardingStep) : undefined),
+  voiceId: (v) => (v === null || (typeof v === 'string' && v.trim().length > 0 && v.length <= MAX_VOICE_ID) ? v : undefined),
+  modelDeclined: (v) => (isBool(v) ? v : undefined),
+  allowNetworkRecognition: (v) => (isBool(v) ? v : undefined),
+  progressResetPending: (v) => (isBool(v) ? v : undefined),
 };
 
 const KEYS = Object.keys(DEFAULT_SETTINGS) as SettingKey[];

@@ -1,0 +1,1928 @@
+{
+ "meta": {
+  "date": "2026-11-16T01:20:31.546Z",
+  "mode": "before",
+  "steps": 4,
+  "seedBase": 1,
+  "cpus": 4,
+  "loadavg": [
+   3.45,
+   7.09,
+   8.19
+  ],
+  "server": "http://127.0.0.1:8771"
+ },
+ "summary": {
+  "brandNew": {
+   "runs": 4,
+   "inBand": 0,
+   "ownInBand": 0,
+   "targetUse": 0.5,
+   "distinct": 4,
+   "noSentence": 0,
+   "chosenFailingNewRejects": 2,
+   "rejects": {
+    "empty": 5,
+    "repeat": 13
+   },
+   "meanSeconds": 38.5,
+   "medianSeconds": 53.29,
+   "maxSeconds": 57.11,
+   "meanGenerateCalls": 2,
+   "meanScoreCalls": 0,
+   "meanPromptTokens": 204,
+   "meanDecodeTokens": 111
+  },
+  "early": {
+   "runs": 4,
+   "inBand": 0.25,
+   "ownInBand": 0,
+   "targetUse": 0,
+   "distinct": 3,
+   "noSentence": 1,
+   "chosenFailingNewRejects": 1,
+   "rejects": {
+    "empty": 13,
+    "repeat": 5
+   },
+   "meanSeconds": 17.1,
+   "medianSeconds": 17.9,
+   "maxSeconds": 29.01,
+   "meanGenerateCalls": 1.75,
+   "meanScoreCalls": 0,
+   "meanPromptTokens": 164,
+   "meanDecodeTokens": 70
+  },
+  "reader": {
+   "runs": 4,
+   "inBand": 0.75,
+   "ownInBand": 0.25,
+   "targetUse": 0,
+   "distinct": 3,
+   "noSentence": 1,
+   "chosenFailingNewRejects": 2,
+   "rejects": {
+    "empty": 5,
+    "repeat": 7,
+    "prompt_leak": 2
+   },
+   "meanSeconds": 12.3,
+   "medianSeconds": 12.11,
+   "maxSeconds": 22.76,
+   "meanGenerateCalls": 1.25,
+   "meanScoreCalls": 0,
+   "meanPromptTokens": 141,
+   "meanDecodeTokens": 104
+  },
+  "advanced": {
+   "runs": 4,
+   "inBand": 1,
+   "ownInBand": 1,
+   "targetUse": 0,
+   "distinct": 4,
+   "noSentence": 0,
+   "chosenFailingNewRejects": 0,
+   "rejects": {
+    "empty": 8,
+    "repeat": 3
+   },
+   "meanSeconds": 7.3,
+   "medianSeconds": 8.14,
+   "maxSeconds": 9.11,
+   "meanGenerateCalls": 1,
+   "meanScoreCalls": 0,
+   "meanPromptTokens": 137,
+   "meanDecodeTokens": 69
+  },
+  "heritage": {
+   "runs": 4,
+   "inBand": 1,
+   "ownInBand": 0.75,
+   "targetUse": 0.5,
+   "distinct": 4,
+   "noSentence": 0,
+   "chosenFailingNewRejects": 1,
+   "rejects": {
+    "empty": 2,
+    "repeat": 4,
+    "prompt_leak": 1
+   },
+   "meanSeconds": 9.1,
+   "medianSeconds": 9.12,
+   "maxSeconds": 9.51,
+   "meanGenerateCalls": 1,
+   "meanScoreCalls": 0,
+   "meanPromptTokens": 113,
+   "meanDecodeTokens": 90
+  }
+ },
+ "rows": [
+  {
+   "profile": "brandNew",
+   "step": 0,
+   "seed": 1,
+   "vocab": 225,
+   "sentenceWords": {
+    "min": 4.245181026308491,
+    "max": 8.628715499984592
+   },
+   "targets": [
+    "es:el"
+   ],
+   "sentence": "El.",
+   "inBand": false,
+   "ownInBand": false,
+   "ownShare": 1,
+   "targetUsed": true,
+   "newRejects": [
+    "no_verb",
+    "too_short"
+   ],
+   "rejects": {
+    "empty": 1,
+    "repeat": 2
+   },
+   "candidates": 8,
+   "accepted": 5,
+   "retried": true,
+   "generateCalls": 2,
+   "scoreCalls": 0,
+   "seconds": 18.8,
+   "promptTokens": 213,
+   "decodeTokens": 87,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El.",
+     "accepted": true,
+     "inBand": false,
+     "share": 1,
+     "rejected": [],
+     "targets": [
+      "es:el"
+     ]
+    },
+    {
+     "text": "El restaurante es muy grande.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.127,
+     "rejected": [],
+     "targets": [
+      "es:el"
+     ]
+    },
+    {
+     "text": "La comida en el restaurante es buena.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.102,
+     "rejected": [],
+     "targets": [
+      "es:el"
+     ]
+    },
+    {
+     "text": "La casa de los sueños.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "targets": [
+      "es:el"
+     ]
+    },
+    {
+     "text": "El avión se estrella en el mar.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "targets": [
+      "es:el"
+     ]
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    },
+    {
+     "text": "La música es fantástica.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.334,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:el"
+     ]
+    },
+    {
+     "text": "La música es fantástica.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.334,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:el"
+     ]
+    }
+   ],
+   "prompts": [
+    "Escribe la siguiente oración de esta historia.\nUna sola oración, de 9 palabras como máximo.\nUsa la palabra el.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nMarta toca la guitarra y el piano. La música es fantástica. Es un momento perfecto. Después, Marta va a un restaurante con su familia.\n\nSiguiente oración:",
+    "Escribe una oración muy corta y fácil que siga la historia.\nUna sola oración, de 9 palabras como máximo.\nUsa la palabra el.\nUsa solo palabras muy comunes.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nMarta toca la guitarra y el piano. La música es fantástica. Es un momento perfecto. Después, Marta va a un restaurante con su familia.\n\nSiguiente oración:"
+   ]
+  },
+  {
+   "profile": "brandNew",
+   "step": 1,
+   "seed": 1001,
+   "vocab": 225,
+   "sentenceWords": {
+    "min": 4.245181026308491,
+    "max": 8.628715499984592
+   },
+   "targets": [
+    "es:de"
+   ],
+   "sentence": "La familia de Marta va a un restaurante.",
+   "inBand": false,
+   "ownInBand": false,
+   "ownShare": 0.168,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {
+    "repeat": 3
+   },
+   "candidates": 8,
+   "accepted": 5,
+   "retried": true,
+   "generateCalls": 2,
+   "scoreCalls": 0,
+   "seconds": 57.11,
+   "promptTokens": 195,
+   "decodeTokens": 123,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "La familia de Marta va a un restaurante.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.168,
+     "rejected": [],
+     "targets": [
+      "es:de"
+     ]
+    },
+    {
+     "text": "La familia va a un restaurante.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.168,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "La comida es deliciosa.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.127,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "La comida es muy deliciosa.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.102,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "La gente se pone barba y barba.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "El.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "La música es fantástica.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.251,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Escribe la siguiente oración de esta historia.\nUna sola oración, de 9 palabras como máximo.\nUsa la palabra de.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nLa música es fantástica. Es un momento perfecto. Después, Marta va a un restaurante con su familia. El.\n\nSiguiente oración:",
+    "Escribe una oración muy corta y fácil que siga la historia.\nUna sola oración, de 9 palabras como máximo.\nUsa la palabra de.\nUsa solo palabras muy comunes.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nLa música es fantástica. Es un momento perfecto. Después, Marta va a un restaurante con su familia. El.\n\nSiguiente oración:"
+   ]
+  },
+  {
+   "profile": "brandNew",
+   "step": 2,
+   "seed": 2001,
+   "vocab": 225,
+   "sentenceWords": {
+    "min": 4.245181026308491,
+    "max": 8.628715499984592
+   },
+   "targets": [
+    "es:que"
+   ],
+   "sentence": "Era un momento perfecto.",
+   "inBand": false,
+   "ownInBand": false,
+   "ownShare": 0.251,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "repeat": 5,
+    "empty": 1
+   },
+   "candidates": 8,
+   "accepted": 2,
+   "retried": true,
+   "generateCalls": 2,
+   "scoreCalls": 0,
+   "seconds": 53.29,
+   "promptTokens": 203,
+   "decodeTokens": 133,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "Era un momento perfecto.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.251,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "La familia de Marta va a un restaurante con su familia.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.151,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "La familia de Marta va a un restaurante.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.144,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    },
+    {
+     "text": "Es un momento perfecto.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.251,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "La familia de Marta va a un restaurante.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.144,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "Es un momento perfecto.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.251,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Escribe la siguiente oración de esta historia.\nUna sola oración, de 9 palabras como máximo.\nUsa la palabra que.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nEs un momento perfecto. Después, Marta va a un restaurante con su familia. El. La familia de Marta va a un restaurante.\n\nSiguiente oración:",
+    "Escribe una oración muy corta y fácil que siga la historia.\nUna sola oración, de 9 palabras como máximo.\nUsa la palabra que.\nUsa solo palabras muy comunes.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nEs un momento perfecto. Después, Marta va a un restaurante con su familia. El. La familia de Marta va a un restaurante.\n\nSiguiente oración:"
+   ]
+  },
+  {
+   "profile": "brandNew",
+   "step": 3,
+   "seed": 3001,
+   "vocab": 225,
+   "sentenceWords": {
+    "min": 4.245181026308491,
+    "max": 8.628715499984592
+   },
+   "targets": [
+    "es:y"
+   ],
+   "sentence": "La.",
+   "inBand": false,
+   "ownInBand": false,
+   "ownShare": 0.002,
+   "targetUsed": false,
+   "newRejects": [
+    "no_verb",
+    "too_short"
+   ],
+   "rejects": {
+    "empty": 3,
+    "repeat": 3
+   },
+   "candidates": 8,
+   "accepted": 2,
+   "retried": true,
+   "generateCalls": 2,
+   "scoreCalls": 0,
+   "seconds": 24.85,
+   "promptTokens": 205,
+   "decodeTokens": 101,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "La.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "¿Cuántas palabras tiene?",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    },
+    {
+     "text": "El.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "El.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.002,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    },
+    {
+     "text": "La familia de Marta va a un restaurante.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.144,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Escribe la siguiente oración de esta historia.\nUna sola oración, de 9 palabras como máximo.\nUsa la palabra y.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nDespués, Marta va a un restaurante con su familia. El. La familia de Marta va a un restaurante. Era un momento perfecto.\n\nSiguiente oración:",
+    "Escribe una oración muy corta y fácil que siga la historia.\nUna sola oración, de 9 palabras como máximo.\nUsa la palabra y.\nUsa solo palabras muy comunes.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nDespués, Marta va a un restaurante con su familia. El. La familia de Marta va a un restaurante. Era un momento perfecto.\n\nSiguiente oración:"
+   ]
+  },
+  {
+   "profile": "early",
+   "step": 0,
+   "seed": 1,
+   "vocab": 503,
+   "sentenceWords": {
+    "min": 5.153623904784062,
+    "max": 10.546539354544134
+   },
+   "targets": [
+    "es:viejo"
+   ],
+   "sentence": "Ella _.",
+   "inBand": true,
+   "ownInBand": false,
+   "ownShare": 0.97,
+   "targetUsed": false,
+   "newRejects": [
+    "placeholder",
+    "no_verb",
+    "too_short"
+   ],
+   "rejects": {
+    "empty": 2
+   },
+   "candidates": 4,
+   "accepted": 2,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 0,
+   "seconds": 8.07,
+   "promptTokens": 87,
+   "decodeTokens": 24,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "Ella _.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "La muchacha a un mercado con su hermano.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.665,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Escribe la siguiente oración de esta historia.\nUna sola oración, de 11 palabras como máximo.\nUsa la palabra viejo.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nMarta vive en una casa pequeña. Hoy ella va al mercado con su hermano.\n\nSiguiente oración:"
+   ]
+  },
+  {
+   "profile": "early",
+   "step": 1,
+   "seed": 1001,
+   "vocab": 503,
+   "sentenceWords": {
+    "min": 5.153623904784062,
+    "max": 10.546539354544134
+   },
+   "targets": [
+    "es:claro"
+   ],
+   "sentence": null,
+   "inBand": false,
+   "ownInBand": false,
+   "ownShare": null,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "empty": 8
+   },
+   "candidates": 8,
+   "accepted": 0,
+   "retried": true,
+   "generateCalls": 2,
+   "scoreCalls": 0,
+   "seconds": 13.47,
+   "promptTokens": 185,
+   "decodeTokens": 16,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Escribe la siguiente oración de esta historia.\nUna sola oración, de 11 palabras como máximo.\nUsa la palabra claro.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nMarta vive en una casa pequeña. Hoy ella va al mercado con su hermano. Ella _.\n\nSiguiente oración:",
+    "Escribe una oración muy corta y fácil que siga la historia.\nUna sola oración, de 11 palabras como máximo.\nUsa la palabra claro.\nUsa solo palabras muy comunes.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nMarta vive en una casa pequeña. Hoy ella va al mercado con su hermano. Ella _.\n\nSiguiente oración:"
+   ]
+  },
+  {
+   "profile": "early",
+   "step": 2,
+   "seed": 2001,
+   "vocab": 503,
+   "sentenceWords": {
+    "min": 5.153623904784062,
+    "max": 10.546539354544134
+   },
+   "targets": [
+    "es:nacional"
+   ],
+   "sentence": "Marta compra todo lo que necesita.",
+   "inBand": false,
+   "ownInBand": false,
+   "ownShare": 0.774,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "empty": 1
+   },
+   "candidates": 8,
+   "accepted": 7,
+   "retried": true,
+   "generateCalls": 2,
+   "scoreCalls": 0,
+   "seconds": 29.01,
+   "promptTokens": 185,
+   "decodeTokens": 150,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "Marta compra todo lo que necesita.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.645,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El mercado tiene mucha comida.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.64,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "Marta y su hermano van al mercado y _.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.663,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "Marta va al mercado con su hermano.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.619,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "Ella compra frutas y verduras.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.51,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El barco se mueve en el mar y se aleja de la costa.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.624,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "Marta compra frutas y verduras.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.295,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Escribe la siguiente oración de esta historia.\nUna sola oración, de 11 palabras como máximo.\nUsa la palabra nacional.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nMarta vive en una casa pequeña. Hoy ella va al mercado con su hermano. Ella _.\n\nSiguiente oración:",
+    "Escribe una oración muy corta y fácil que siga la historia.\nUna sola oración, de 11 palabras como máximo.\nUsa la palabra nacional.\nUsa solo palabras muy comunes.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nMarta vive en una casa pequeña. Hoy ella va al mercado con su hermano. Ella _.\n\nSiguiente oración:"
+   ]
+  },
+  {
+   "profile": "early",
+   "step": 3,
+   "seed": 3001,
+   "vocab": 503,
+   "sentenceWords": {
+    "min": 5.153623904784062,
+    "max": 10.546539354544134
+   },
+   "targets": [
+    "es:único"
+   ],
+   "sentence": "La semana pasada, Marta y su hermano fueron al mercado.",
+   "inBand": false,
+   "ownInBand": false,
+   "ownShare": 0.759,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "repeat": 5,
+    "empty": 2
+   },
+   "candidates": 8,
+   "accepted": 1,
+   "retried": true,
+   "generateCalls": 2,
+   "scoreCalls": 0,
+   "seconds": 17.9,
+   "promptTokens": 199,
+   "decodeTokens": 90,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "La semana pasada, Marta y su hermano fueron al mercado.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.759,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "Marta compra todo lo que necesita.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.645,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    },
+    {
+     "text": "Ella _.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "Marta compra todo lo que necesita.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.645,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "Marta compra todo lo que necesita.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.645,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "Marta compra todo lo que necesita.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.645,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Escribe la siguiente oración de esta historia.\nUna sola oración, de 11 palabras como máximo.\nUsa la palabra único.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nMarta vive en una casa pequeña. Hoy ella va al mercado con su hermano. Ella _. Marta compra todo lo que necesita.\n\nSiguiente oración:",
+    "Escribe una oración muy corta y fácil que siga la historia.\nUna sola oración, de 11 palabras como máximo.\nUsa la palabra único.\nUsa solo palabras muy comunes.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nMarta vive en una casa pequeña. Hoy ella va al mercado con su hermano. Ella _. Marta compra todo lo que necesita.\n\nSiguiente oración:"
+   ]
+  },
+  {
+   "profile": "reader",
+   "step": 0,
+   "seed": 1,
+   "vocab": 1703,
+   "sentenceWords": {
+    "min": 7.192046941072609,
+    "max": 14.84987687559773
+   },
+   "targets": [
+    "es:conque"
+   ],
+   "sentence": "El señor de las frutas...",
+   "inBand": true,
+   "ownInBand": false,
+   "ownShare": 0.97,
+   "targetUsed": false,
+   "newRejects": [
+    "placeholder",
+    "no_verb"
+   ],
+   "rejects": {
+    "empty": 1
+   },
+   "candidates": 4,
+   "accepted": 3,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 0,
+   "seconds": 12.11,
+   "promptTokens": 91,
+   "decodeTokens": 69,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El señor de las frutas...",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "Marta se _ al señor de las frutas, pero su puesto estaba cerrado.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.889,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "Marta se _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.486,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Escribe la siguiente oración de esta historia.\nUna sola oración, de 15 palabras como máximo.\nUsa la palabra conque.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nMarta llegó tarde al mercado. Buscó al señor de las frutas, pero su puesto estaba cerrado.\n\nSiguiente oración:"
+   ]
+  },
+  {
+   "profile": "reader",
+   "step": 1,
+   "seed": 1001,
+   "vocab": 1703,
+   "sentenceWords": {
+    "min": 7.192046941072609,
+    "max": 14.84987687559773
+   },
+   "targets": [
+    "es:caramba"
+   ],
+   "sentence": "El señor de las frutas se puso muy rojo.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "empty": 3
+   },
+   "candidates": 4,
+   "accepted": 1,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 0,
+   "seconds": 4.81,
+   "promptTokens": 99,
+   "decodeTokens": 45,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El señor de las frutas se puso muy rojo.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Escribe la siguiente oración de esta historia.\nUna sola oración, de 15 palabras como máximo.\nUsa la palabra caramba.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nMarta llegó tarde al mercado. Buscó al señor de las frutas, pero su puesto estaba cerrado. El señor de las frutas...\n\nSiguiente oración:"
+   ]
+  },
+  {
+   "profile": "reader",
+   "step": 2,
+   "seed": 2001,
+   "vocab": 1703,
+   "sentenceWords": {
+    "min": 7.192046941072609,
+    "max": 14.84987687559773
+   },
+   "targets": [
+    "es:guau"
+   ],
+   "sentence": "Aunque el señor de las frutas se puso rojo, no se iría de la tienda sin...",
+   "inBand": true,
+   "ownInBand": false,
+   "ownShare": 0.97,
+   "targetUsed": false,
+   "newRejects": [
+    "placeholder"
+   ],
+   "rejects": {
+    "repeat": 2
+   },
+   "candidates": 4,
+   "accepted": 2,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 0,
+   "seconds": 9.59,
+   "promptTokens": 111,
+   "decodeTokens": 73,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "Aunque el señor de las frutas se puso rojo, no se iría de la tienda sin...",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "La niña...",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El señor de las frutas...",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "El señor de las frutas se puso muy rojo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Escribe la siguiente oración de esta historia.\nUna sola oración, de 15 palabras como máximo.\nUsa la palabra guau.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nMarta llegó tarde al mercado. Buscó al señor de las frutas, pero su puesto estaba cerrado. El señor de las frutas... El señor de las frutas se puso muy rojo.\n\nSiguiente oración:"
+   ]
+  },
+  {
+   "profile": "reader",
+   "step": 3,
+   "seed": 3001,
+   "vocab": 1703,
+   "sentenceWords": {
+    "min": 7.192046941072609,
+    "max": 14.84987687559773
+   },
+   "targets": [
+    "es:uf"
+   ],
+   "sentence": null,
+   "inBand": false,
+   "ownInBand": false,
+   "ownShare": null,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "prompt_leak": 2,
+    "repeat": 5,
+    "empty": 1
+   },
+   "candidates": 8,
+   "accepted": 0,
+   "retried": true,
+   "generateCalls": 2,
+   "scoreCalls": 0,
+   "seconds": 22.76,
+   "promptTokens": 261,
+   "decodeTokens": 227,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "Una sola oración, de 15 palabras como máximo.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.693,
+     "rejected": [
+      "prompt_leak"
+     ],
+     "targets": []
+    },
+    {
+     "text": "El señor de las frutas...",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "El señor de las frutas...",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    },
+    {
+     "text": "El señor de las frutas se puso muy rojo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "El señor de las frutas se puso muy rojo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "El señor de las frutas se puso muy rojo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "¿Puedes ayudarme a escribir una oración que siga la historia?",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.873,
+     "rejected": [
+      "prompt_leak"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Escribe la siguiente oración de esta historia.\nUna sola oración, de 15 palabras como máximo.\nUsa la palabra uf.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nBuscó al señor de las frutas, pero su puesto estaba cerrado. El señor de las frutas... El señor de las frutas se puso muy rojo. Aunque el señor de las frutas se puso rojo, no se iría de la tienda sin...\n\nSiguiente oración:",
+    "Escribe una oración muy corta y fácil que siga la historia.\nUna sola oración, de 15 palabras como máximo.\nUsa la palabra uf.\nUsa solo palabras muy comunes.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nBuscó al señor de las frutas, pero su puesto estaba cerrado. El señor de las frutas... El señor de las frutas se puso muy rojo. Aunque el señor de las frutas se puso rojo, no se iría de la tienda sin...\n\nSiguiente oración:"
+   ]
+  },
+  {
+   "profile": "advanced",
+   "step": 0,
+   "seed": 1,
+   "vocab": 1734,
+   "sentenceWords": {
+    "min": 7.225170306717943,
+    "max": 14.919803980848991
+   },
+   "targets": [
+    "es:violento"
+   ],
+   "sentence": "El señor de las frutas era un hombre de cuarenta años, alto y de ropa negra.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "empty": 3
+   },
+   "candidates": 4,
+   "accepted": 1,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 0,
+   "seconds": 6.79,
+   "promptTokens": 111,
+   "decodeTokens": 62,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El señor de las frutas era un hombre de cuarenta años, alto y de ropa negra.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Escribe la siguiente oración de esta historia.\nUna sola oración, de 15 palabras como máximo.\nUsa la palabra violento.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nMarta llegó tarde al mercado. Buscó al señor de las frutas, pero su puesto estaba cerrado. Entonces vio una nota en la puerta y empezó a leerla en voz alta.\n\nSiguiente oración:"
+   ]
+  },
+  {
+   "profile": "advanced",
+   "step": 1,
+   "seed": 1001,
+   "vocab": 1734,
+   "sentenceWords": {
+    "min": 7.225170306717943,
+    "max": 14.919803980848991
+   },
+   "targets": [
+    "es:sólido"
+   ],
+   "sentence": "La niña se acercó a la puerta y empezó a leer la nota.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "empty": 2
+   },
+   "candidates": 4,
+   "accepted": 2,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 0,
+   "seconds": 5.29,
+   "promptTokens": 135,
+   "decodeTokens": 48,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "La niña se acercó a la puerta y empezó a leer la nota.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El señor de las frutas se puso la ropa negra y se acercó a Marta.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Escribe la siguiente oración de esta historia.\nUna sola oración, de 15 palabras como máximo.\nUsa la palabra sólido.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nMarta llegó tarde al mercado. Buscó al señor de las frutas, pero su puesto estaba cerrado. Entonces vio una nota en la puerta y empezó a leerla en voz alta. El señor de las frutas era un hombre de cuarenta años, alto y de ropa negra.\n\nSiguiente oración:"
+   ]
+  },
+  {
+   "profile": "advanced",
+   "step": 2,
+   "seed": 2001,
+   "vocab": 1734,
+   "sentenceWords": {
+    "min": 7.225170306717943,
+    "max": 14.919803980848991
+   },
+   "targets": [
+    "es:romántico"
+   ],
+   "sentence": "El señor de las frutas se puso de pie y se acercó a la niña, mostrando un libro.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "empty": 2,
+    "repeat": 1
+   },
+   "candidates": 4,
+   "accepted": 1,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 0,
+   "seconds": 9.11,
+   "promptTokens": 147,
+   "decodeTokens": 82,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El señor de las frutas se puso de pie y se acercó a la niña, mostrando un libro.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    },
+    {
+     "text": "La niña se acercó a la puerta y empezó a leer la nota.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Escribe la siguiente oración de esta historia.\nUna sola oración, de 15 palabras como máximo.\nUsa la palabra romántico.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nBuscó al señor de las frutas, pero su puesto estaba cerrado. Entonces vio una nota en la puerta y empezó a leerla en voz alta. El señor de las frutas era un hombre de cuarenta años, alto y de ropa negra. La niña se acercó a la puerta y empezó a leer la nota.\n\nSiguiente oración:"
+   ]
+  },
+  {
+   "profile": "advanced",
+   "step": 3,
+   "seed": 3001,
+   "vocab": 1734,
+   "sentenceWords": {
+    "min": 7.225170306717943,
+    "max": 14.919803980848991
+   },
+   "targets": [
+    "es:probable"
+   ],
+   "sentence": "Señor de las frutas se acercó a la niña y le mostró un libro.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "repeat": 2,
+    "empty": 1
+   },
+   "candidates": 4,
+   "accepted": 1,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 0,
+   "seconds": 8.14,
+   "promptTokens": 155,
+   "decodeTokens": 83,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "Señor de las frutas se acercó a la niña y le mostró un libro.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El señor de las frutas se puso de pie y se acercó a la niña, mostrando un libro.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "El señor de las frutas se puso de pie y se acercó a la niña, mostrando un libro.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Escribe la siguiente oración de esta historia.\nUna sola oración, de 15 palabras como máximo.\nUsa la palabra probable.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nEntonces vio una nota en la puerta y empezó a leerla en voz alta. El señor de las frutas era un hombre de cuarenta años, alto y de ropa negra. La niña se acercó a la puerta y empezó a leer la nota. El señor de las frutas se puso de pie y se acercó a la niña, mostrando un libro.\n\nSiguiente oración:"
+   ]
+  },
+  {
+   "profile": "heritage",
+   "step": 0,
+   "seed": 1,
+   "vocab": 1724,
+   "sentenceWords": {
+    "min": 7.21399794760401,
+    "max": 14.896217889386243
+   },
+   "targets": [
+    "es:violento"
+   ],
+   "sentence": "El cocinero de la abuela era un hombre muy amable.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.968,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "empty": 1
+   },
+   "candidates": 4,
+   "accepted": 3,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 0,
+   "seconds": 9.11,
+   "promptTokens": 93,
+   "decodeTokens": 88,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El cocinero de la abuela era un hombre muy amable.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.968,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El perro de mi abuela se comió el pan de los invitados.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.968,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El perro de mi abuela se movió con mucha fuerza, y el aire se llenó de polvo.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.913,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Escribe la siguiente oración de esta historia.\nUna sola oración, de 15 palabras como máximo.\nUsa la palabra violento.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nMi abuela siempre cocinaba los domingos. Toda la familia llegaba temprano a su casa.\n\nSiguiente oración:"
+   ]
+  },
+  {
+   "profile": "heritage",
+   "step": 1,
+   "seed": 1001,
+   "vocab": 1724,
+   "sentenceWords": {
+    "min": 7.21399794760401,
+    "max": 14.896217889386243
+   },
+   "targets": [
+    "es:sólido"
+   ],
+   "sentence": "La abuela cocinaba un plato sólido y rico el domingo.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {
+    "repeat": 1
+   },
+   "candidates": 4,
+   "accepted": 3,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 0,
+   "seconds": 8.52,
+   "promptTokens": 109,
+   "decodeTokens": 92,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "La abuela cocinaba un plato sólido y rico el domingo.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:sólido"
+     ]
+    },
+    {
+     "text": "La abuela preparaba un plato especial para la comida de los domingos.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El cocinero de la abuela tenía una casa muy grande.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.968,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El cocinero de la abuela era un hombre muy amable.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.968,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Escribe la siguiente oración de esta historia.\nUna sola oración, de 15 palabras como máximo.\nUsa la palabra sólido.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nMi abuela siempre cocinaba los domingos. Toda la familia llegaba temprano a su casa. El cocinero de la abuela era un hombre muy amable.\n\nSiguiente oración:"
+   ]
+  },
+  {
+   "profile": "heritage",
+   "step": 2,
+   "seed": 2001,
+   "vocab": 1724,
+   "sentenceWords": {
+    "min": 7.21399794760401,
+    "max": 14.896217889386243
+   },
+   "targets": [
+    "es:romántico"
+   ],
+   "sentence": "El romántico del día es el que...",
+   "inBand": true,
+   "ownInBand": false,
+   "ownShare": 0.97,
+   "targetUsed": true,
+   "newRejects": [
+    "placeholder"
+   ],
+   "rejects": {
+    "repeat": 1,
+    "empty": 1
+   },
+   "candidates": 4,
+   "accepted": 2,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 0,
+   "seconds": 9.12,
+   "promptTokens": 126,
+   "decodeTokens": 85,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El romántico del día es el que...",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:romántico"
+     ]
+    },
+    {
+     "text": "La abuela siempre cocinaba los domingos.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El cocinero de la abuela era un hombre muy amable.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.968,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Escribe la siguiente oración de esta historia.\nUna sola oración, de 15 palabras como máximo.\nUsa la palabra romántico.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nMi abuela siempre cocinaba los domingos. Toda la familia llegaba temprano a su casa. El cocinero de la abuela era un hombre muy amable. La abuela cocinaba un plato sólido y rico el domingo.\n\nSiguiente oración:"
+   ]
+  },
+  {
+   "profile": "heritage",
+   "step": 3,
+   "seed": 3001,
+   "vocab": 1724,
+   "sentenceWords": {
+    "min": 7.21399794760401,
+    "max": 14.896217889386243
+   },
+   "targets": [
+    "es:probable"
+   ],
+   "sentence": "¿Habla el romántico del día?",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.962,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "prompt_leak": 1,
+    "repeat": 2
+   },
+   "candidates": 4,
+   "accepted": 1,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 0,
+   "seconds": 9.51,
+   "promptTokens": 122,
+   "decodeTokens": 94,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "¿Habla el romántico del día?",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.962,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "¿Puedes ayudarme a escribir una oración que hable sobre lo que se menciona en la historia?",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.907,
+     "rejected": [
+      "prompt_leak"
+     ],
+     "targets": []
+    },
+    {
+     "text": "El cocinero de la abuela era un hombre muy amable.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.968,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "El romántico del día es el que...",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.964,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Escribe la siguiente oración de esta historia.\nUna sola oración, de 15 palabras como máximo.\nUsa la palabra probable.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nToda la familia llegaba temprano a su casa. El cocinero de la abuela era un hombre muy amable. La abuela cocinaba un plato sólido y rico el domingo. El romántico del día es el que...\n\nSiguiente oración:"
+   ]
+  }
+ ]
+}

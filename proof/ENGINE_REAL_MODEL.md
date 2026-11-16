@@ -460,3 +460,178 @@ measurement settles what the brief left open:
    here) dominates cliffs. Reuse the alternatives that `cliffPositions` found when
    scoring an answer at the same cliff (open issue 7), and keep the native `nextTokens`
    cheap (a partial sort of one logit row).
+
+## Correction coverage and slang data (2026-11-16)
+
+Same model (Qwen3-1.7B Q4_K_M), served by its own `proof/model_server.py` with 2 threads
+while another model server and other agents' jobs shared the 4 cores (load average 2 to
+10), so timings here are upper bounds. Scripts: `proof/engine-measure/coverage.ts` (runs
+`judgeSentence`, and in street register also `scoreWords` with `slangExemption`, on every
+set; `--offline` lists variants only) and `summarize.py`; raw results in
+`proof/engine-measure/results/coverage-before.json`, `coverage-after.json` and
+`coverage-after-street.json` (the tuning runs are `coverage-tune1.json` and
+`coverage-tune2.json`). Acceptance tests: `engine/test/real-coverage.test.ts` (held-out
+sets) and the updated thresholds in `engine/test/real-engine.test.ts`.
+
+### Overfitting guard
+
+- **Held-out sets written before any change:** `proof/pairs_holdout.jsonl` (83 new minimal
+  pairs, 6 to 9 per family: the nine proof families plus subject_verb, contraction and
+  body_article) and `proof/slang_holdout.jsonl` (27 correct street sentences: 7 PR, 7 DO,
+  7 CU, 6 CO, 4 explicit). Both were measured before and after.
+- **Tuned on the 93 proof pairs and the 26 proof street sentences only.**
+- **What the held-out sets did influence, stated plainly:** the held-out fix-generated
+  counts were looked at once (offline) half-way, and three changes answer held-out
+  failures, each with a matching case in the proof sets: a determiner is re-inflected only
+  before its noun phrase (held-out false assert "Las compré en el mercado." -> "La compré",
+  +7.0, number rule; proof: "La invité a cenar." got "El invité"), no agreement change next
+  to a slang word ("una jeepeta" -> "un jeepeta", +5.3 in street register), and ser/estar
+  looks through determiners before a slang predicate ("estuvo una chimba"; proof: "es un
+  tíguere").
+- **So a second, blind held-out set** (`proof/pairs_holdout2.jsonl`, 36 pairs, 3 per
+  family; `proof/slang_holdout2.jsonl`, 10 street sentences) was written after the code and
+  run once, at the end, with no change after it. Its numbers are the cleanest estimate.
+
+### Results
+
+| set | asserted (exact fix) | flagged with the exact fix | fix generated | right rule | false asserts | false hints |
+|---|---|---|---|---|---|---|
+| 93 proof pairs (tuning) | 64 (57) -> **74 (70)** | 67 -> **83** | 76 -> **92** | 73 -> **86** | 0 -> **0** | 2 -> **1** |
+| 83 held-out pairs | 50 (43) -> **67 (64)** | 46 -> **69** | 51 -> **76** | 48 -> **70** | 1 -> **0** | 3 -> **3** |
+| 36 blind held-out pairs (after only) | **32 (31)** | **33** | **36** | **34** | **0** | **0** |
+
+An assert with an equally correct sentence that is not the listed one counts as wrong
+above: proof 3 ("Te quiero ver mañana.", "Lo estoy leyendo ahora.", "¿Me puedes
+ayudar?"), held-out 1 ("Voy a comprarlo mañana." for "Lo voy a comprarlo mañana."), blind
+1 ("Lo quiero comprar."). The asserts with a wrong fix: proof 1 ("Tengo que terminar esto
+por mañana." -> "por la mañana", +4.5), held-out 2 ("Visité el médico ayer." ->
+"Visitaba el médico ayer.", +6.7, aspect over the personal a at +3.7; "Vi la ayer en el
+parque." -> "Vi ayer en el parque.", +7.0, article delete), blind 0.
+
+Per family (before -> after):
+
+| proof family | n | asserted, exact fix | flagged, exact fix | fix generated | right rule | false asserts / hints |
+|---|---|---|---|---|---|---|
+| ser_estar | 10 | 7 -> 7 | 9 -> 9 | 10 -> 10 | 9 -> 9 | 0/1 -> 0/1 |
+| por_para | 10 | 8 -> 8 | 8 -> 8 | 10 -> 10 | 8 -> 8 | 0/1 -> 0/0 |
+| gender | 10 | 8 -> 8 | 10 -> 10 | 10 -> 10 | 10 -> 10 | 0/0 -> 0/0 |
+| number | 10 | 4 -> 8 | 4 -> 9 | 4 -> 10 | 6 -> 9 | 0/0 -> 0/0 |
+| preterite_imperfect | 10 | 7 -> 7 | 10 -> 10 | 10 -> 10 | 10 -> 10 | 0/0 -> 0/0 |
+| subjunctive_wish | 10 | 7 -> 7 | 8 -> 9 | 9 -> 10 | 8 -> 9 | 0/0 -> 0/0 |
+| personal_a | 12 | 7 -> 10 | 8 -> 11 | 9 -> 12 | 8 -> 11 | 0/0 -> 0/0 |
+| articles | 10 | 3 -> 8 | 3 -> 9 | 3 -> 9 | 4 -> 9 | 0/0 -> 0/0 |
+| pronoun_placement | 11 | 6 -> 7 | 7 -> 8 | 11 -> 11 | 10 -> 11 | 0/0 -> 0/0 |
+| **all** | 93 | **57 -> 70** | **67 -> 83** | **76 -> 92** | **73 -> 86** | **0/2 -> 0/1** |
+
+| held-out family | n | asserted, exact fix | flagged, exact fix | fix generated | right rule | false asserts / hints |
+|---|---|---|---|---|---|---|
+| ser_estar | 7 | 5 -> 5 | 5 -> 5 | 7 -> 7 | 5 -> 5 | 0/0 -> 0/0 |
+| por_para | 6 | 6 -> 6 | 6 -> 6 | 6 -> 6 | 6 -> 6 | 0/0 -> 0/0 |
+| gender | 6 | 5 -> 5 | 6 -> 6 | 6 -> 6 | 6 -> 6 | 0/0 -> 0/0 |
+| number | 6 | 5 -> 5 | 5 -> 5 | 5 -> 5 | 5 -> 5 | 0/0 -> 0/0 |
+| subject_verb | 7 | 0 -> 5 | 0 -> 5 | 0 -> 6 | 0 -> 5 | 0/0 -> 0/0 |
+| preterite_imperfect | 6 | 5 -> 5 | 5 -> 5 | 5 -> 5 | 5 -> 5 | 0/0 -> 0/0 |
+| subjunctive_wish | 6 | 5 -> 5 | 6 -> 6 | 6 -> 6 | 6 -> 6 | 0/0 -> 0/0 |
+| personal_a | 9 | 5 -> 7 | 5 -> 7 | 5 -> 8 | 5 -> 7 | 0/2 -> 0/2 |
+| articles | 7 | 2 -> 6 | 2 -> 6 | 3 -> 7 | 2 -> 6 | 0/1 -> 0/1 |
+| contraction | 7 | 0 -> 6 | 0 -> 7 | 0 -> 7 | 2 -> 7 | 0/0 -> 0/0 |
+| body_article | 7 | 0 -> 4 | 0 -> 4 | 0 -> 4 | 0 -> 4 | 0/0 -> 0/0 |
+| pronoun_placement | 9 | 5 -> 5 | 6 -> 7 | 8 -> 9 | 6 -> 8 | 1/0 -> 0/0 |
+| **all** | 83 | **43 -> 64** | **46 -> 69** | **51 -> 76** | **48 -> 70** | **1/3 -> 0/3** |
+
+The three held-out false hints (unchanged, all below 3 nats): "Busco las llaves." ->
+"Busco llaves." (2.9), "Visité al médico ayer." -> "Visitaba" (2.9), "Mi hermana es
+enfermera." -> "es una enfermera" (1.1). The remaining proof false hint is the proof's own
+wrong-way pair ("La fiesta es en mi casa" -> "está", 1.3).
+
+**Street register** (street prefix naming the slang, `register: 'street'`; a slang word is
+a word of a slang form found as a run of words, or an inflected form of a single-word
+entry of the sentence's regions):
+
+| street set | asserts | hints | variants on a slang word | slang words shaded |
+|---|---|---|---|---|
+| 26 proof sentences (tuning) | 2 -> **0** | 1 -> 1 | 0 -> 0 | 0 -> 0 (40 -> 52 slang words recognized) |
+| 27 held-out sentences | 5 -> **0** (1 before the determiner change) | 2 -> 0 | 0 -> 0 | 0 -> 0 |
+| 10 blind held-out sentences | **0** | 0 | 0 | 0 |
+
+The held-out street asserts before: four ser/estar before a slang predicate ("estuvo
+brutal" -> "fue brutal" +5.3, "estuvo jevi" +3.9, "estuvo bárbara" +3.8, "estuvo una
+chimba" +6.8) and one gender change of the determiner of a slang noun ("una jeepeta" ->
+"un jeepeta", +5.3). Before the round the generator also proposed changes to the
+determiner of other slang nouns ("la guagua" -> "el guagua", "una chimba" -> "un chimba");
+it proposes none now. (The before run counted touches with the old word-level exemption,
+which also marked the common words of phrase entries; recounted with slang words as above,
+no variant edited a slang word before or after.) The proof street asserts before: "estuvo bacana" -> "fue bacana"
+(+5.7) and "que el putas" -> "que putas" (+3.5). The one hint left is "Me voy pa' casa" ->
+"pa' la casa" (1.6).
+
+**Cost:** fewer variants per judgement, because variants that break an agreement or turn a
+pronoun into an article are no longer made: median 5 -> 3 on the proof pairs (mean 5.0 ->
+2.9, max 13 -> 11), 5 -> 3 on the held-out pairs; none dropped by the 16-variant cap. Median
+judgement time 0.70 s -> 0.42 s on this shared machine.
+
+### What changed
+
+Rules are data in `engine/src/lang/es/rules.ts` (29 rules, was 22); the generator in
+`engine/src/corrections/variants.ts` gained only language-neutral rule kinds and fields
+(`engine/src/lang/types.ts`):
+
+- **Subject-verb agreement** (`AgreeRule`, new kind `agree`): the verb takes the person
+  and number of a noun or subject pronoun right before it, through no, object pronouns and
+  adverbs, not after a preposition, a verb or y/o/ni, and not from a noun of time ("Los
+  lunes trabajo"); gustar-type verbs agree with the noun after them. Street tolerant like
+  number agreement.
+- **Agreement that holds is never broken** (`InflectRule.keepAgreement`), and a
+  determiner changes only before its noun phrase (`InflectRule.nextPosFor`): "Esas mujeres
+  trabaja" no longer becomes "Esa mujeres trabaja", "Las compré" keeps its pronoun.
+- **Contractions** (`ContractRule`, new kind `contract`): "a el" -> "al", "de el" -> "del"
+  (not before a name); inserts are written contracted ("Voy a cine" -> "al cine", "Veo el
+  niño" -> "al niño"); the personal-a delete takes "a" out of "al" (`DeleteRule.fromContractions`:
+  "Leo al periódico" -> "el periódico").
+- **Articles:** a definite article before a sentence-opening noun with the capital moved
+  (`InsertRule.sentenceStart`: "Vida es bella" -> "La vida es bella"), "las" before a
+  clock hour after a/desde/hasta/entre, and no article delete before a preposition or
+  conjunction ("Invité la a cenar" now asserts "La invité a cenar", +5.7, instead of
+  "Invité a cenar", +14.4).
+- **Possessive to article with body parts and clothes** (a swap with `beforeLemmas`,
+  `afterPos`, `cueWords`, `agreeNext`): "Me lavo mis manos" -> "las manos".
+- **Personal a** across an adverb (`InsertRule.afterThroughPos`) and before nadie/alguien.
+- **Pronouns:** neuter "lo" is never an article before a noun
+  (`MoveRule.homographNotBeforePos`: "Compro lo mañana" -> "Lo compro mañana"); a
+  participle after haber hands its pronouns to haber (`MoveRule.viaAuxiliary`: "He lo
+  visto", "Ha visto lo" -> "Lo he visto"); a doubled pronoun loses either copy
+  (`MoveRule.doubledWithin`: "Lo estoy leyéndolo" -> "Estoy leyéndolo" / "Lo estoy leyendo").
+- **Mood:** the Spanish pack reads a noun/verb homograph after que, si, cuando... as the
+  verb, so "que estudio" gets "que estudie".
+- **Slang:** ser/estar skips a slang predicate through adverbs and determiners
+  (`SwapRule.notBeforeSlang`); inflected slang (bacana, panas, bregamos) is protected in
+  corrections and exempt from heat through its lemma; heat also exempts entries of other
+  packs that list the region (vaina for PR). Register packs: PR "qué es la que hay",
+  janguiar, cabrona, bellaquear, chingar, mamabicho; DO "un chin" (phrase), güevo, totito;
+  CU cojones, templar, bollo, singao; CO man, putas (as in "el putas"), hijueputa,
+  malparido, güevón; shared pela'o, joder, jodío, mierda, culo, puta. Every vulgar entry is
+  explicit; none is on the slur list.
+- **Explanations** (en-es): `es.verb_agreement`, `es.contraction`, `es.body_article`,
+  `es.pronoun_double`.
+
+### Open issues
+
+1. **Lexicon gaps cost held-out fixes:** cortar, cepillar, mudar(se), extrañar, ladrar,
+   fascinar, sobrar, apetecer and chaqueta are not in the lexicon, so "Me corté mi pelo",
+   "Me cepillo mis dientes", "Los perros ladra", "Extraño mucho mi abuela" get no variant.
+   The body-part and gustar lists hold lexicon lemmas only.
+2. **A participle used as an adjective** ("Las ventanas están abierta") is a verb form to
+   the analyzer, so the number rule does not see it.
+3. **Wrong-fix asserts on incorrect sentences:** the article delete before an adverb ("Vi
+   la ayer" -> "Vi ayer", +7.0), an aspect variant over the personal a ("Visité el médico"
+   -> "Visitaba el médico", +6.7), "por mañana" -> "por la mañana" (+4.5, a meaning
+   change). The tie rule does not catch them (margins more than 1 nat apart).
+4. **Model-limited pairs** (the fix is generated, the model barely prefers it or not at
+   all): "Ellos quiere comer" (0.6), "Deseo que eres" (0.7), "Visitamos nuestros primos"
+   (-0.4), "Hoy la sopa es fría" (0.2), "El concierto está a las nueve" (-0.2).
+5. "Español es fácil" gets no article: español is read as an adjective at the sentence
+   start.
+6. `slangExemption` sees one segment at a time, so every word of a phrase entry is exempt
+   from heat wherever it appears in that region's street text ("qué es la que hay" exempts
+   que, la, es, hay); corrections match phrases as runs. A text-aware exemption would fix
+   it.

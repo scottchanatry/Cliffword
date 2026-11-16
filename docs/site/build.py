@@ -50,8 +50,8 @@ def page(title: str, body: str, description: str) -> str:
 </head>
 <body>
 <main>
-<header><a href="{BASE}">Cliffword</a></header>
-<nav><a href="{BASE}">About</a><a href="{BASE}/support">Support</a><a href="{BASE}/privacy">Privacy</a></nav>
+<header><a href="{BASE}/">Cliffword</a></header>
+<nav><a href="{BASE}/">About</a><a href="{BASE}/support/">Support</a><a href="{BASE}/privacy/">Privacy</a></nav>
 {body}
 <footer>Cliffword is made by Scott Chanatry. Contact: <a href="mailto:{EMAIL}">{EMAIL}</a></footer>
 </main>
@@ -77,7 +77,7 @@ and you say what comes next, out loud. Any natural answer counts.</p>
 <div class="card">
 <h2 style="margin-top:0">Private by design</h2>
 <p>The language model and speech recognition run on your phone. No account, no ads, no analytics,
-nothing uploaded. Read the <a href="{BASE}/privacy">privacy policy</a>.</p>
+nothing uploaded. Read the <a href="{BASE}/privacy/">privacy policy</a>.</p>
 </div>
 <p class="muted">Coming to the App Store and Google Play.</p>
 """

@@ -261,12 +261,13 @@ The pages live on your site, scottchanatry.com. Ready-to-upload HTML is in `docs
 
 | Upload this file | To this URL |
 |---|---|
-| `docs/site/cliffword/index.html` | https://scottchanatry.com/cliffword (marketing) |
-| `docs/site/cliffword/privacy/index.html` | https://scottchanatry.com/cliffword/privacy |
-| `docs/site/cliffword/support/index.html` | https://scottchanatry.com/cliffword/support |
+| `docs/site/cliffword/index.html` | https://scottchanatry.com/cliffword/ (marketing) |
+| `docs/site/cliffword/privacy/index.html` | https://scottchanatry.com/cliffword/privacy/ |
+| `docs/site/cliffword/support/index.html` | https://scottchanatry.com/cliffword/support/ |
 
-1. Upload the three files so each URL above opens its page (most hosts serve `index.html` for a
-   folder URL).
+1. Done on 2026-11-16: the pages are in the `scottchanatry/scottchanatry.com` repo under
+   `cliffword/` and live (Porkbun publishes every push to `main`). To update them, rebuild and
+   copy `docs/site/cliffword/` into that repo's `cliffword/` folder and push.
 2. Enter the URLs and hello@scottchanatry.com in App Store Connect (App Information: Privacy
    Policy URL; version page: Support URL, Marketing URL) and in the Play Console (App content:
    Privacy policy; Store settings: website and email).

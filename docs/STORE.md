@@ -44,9 +44,9 @@ owner's instruction to finish without further questions).
 
 | Item | Value |
 |---|---|
-| Privacy policy URL | https://scottchanatry.com/cliffword/privacy |
-| Support URL | https://scottchanatry.com/cliffword/support |
-| Marketing URL | https://scottchanatry.com/cliffword |
+| Privacy policy URL | https://scottchanatry.com/cliffword/privacy/ |
+| Support URL | https://scottchanatry.com/cliffword/support/ |
+| Marketing URL | https://scottchanatry.com/cliffword/ |
 | Contact email | hello@scottchanatry.com |
 
 ## Not in the app yet (needed before review)
@@ -75,7 +75,7 @@ owner's instruction to finish without further questions).
 | Primary category | Education |
 | Secondary category | Music |
 | Content rights | "Does your app contain, show, or access third-party content?" Yes: it plays the user's Apple Music library through MusicKit and shows lyrics and texts the user pastes. It ships no third-party songs or lyrics. The model is Apache-2.0 and the fonts are OFL-1.1, with notices on the in-app licenses screen. |
-| Privacy Policy URL | https://scottchanatry.com/cliffword/privacy (where `docs/PRIVACY.md` is hosted, see RELEASE.md) |
+| Privacy Policy URL | https://scottchanatry.com/cliffword/privacy/ (where `docs/PRIVACY.md` is hosted, see RELEASE.md) |
 | Copyright | `2026 Scott Chanatry` (the field takes the year and the owner's name; no URL) |
 | Price | Free (tier 0), no in-app purchases |
 | Age rating | See "Age rating" |
@@ -136,8 +136,8 @@ Slang notes and lyrics include explicit words, and they are shown by default. Tu
 The language model needs about 1.1 GB of storage, plus some free space while it downloads. Works best on iPhone 12 or newer.
 ```
 
-**Support URL:** https://scottchanatry.com/cliffword/support (a page with a contact email; it can be the same site as the
-privacy policy). **Marketing URL** (optional): https://scottchanatry.com/cliffword.
+**Support URL:** https://scottchanatry.com/cliffword/support/ (a page with a contact email; it can be the same site as the
+privacy policy). **Marketing URL** (optional): https://scottchanatry.com/cliffword/.
 
 **What's New:** not shown for the first version.
 
@@ -357,8 +357,8 @@ and place the shots on a canvas of an accepted size without stretching them.
 | Category | Education |
 | Tags | Language learning (pick the closest tags the console offers) |
 | Contact email | hello@scottchanatry.com (required, shown publicly) |
-| Website | https://scottchanatry.com/cliffword/support (optional) |
-| Privacy policy | https://scottchanatry.com/cliffword/privacy |
+| Website | https://scottchanatry.com/cliffword/support/ (optional) |
+| Privacy policy | https://scottchanatry.com/cliffword/privacy/ |
 
 **Full description** (under 4,000 characters; it says what Android does differently: no Apple
 Music):
@@ -409,7 +409,7 @@ Needs a 64-bit (arm64) phone and about 1.1 GB of storage for the language model,
 
 | Declaration | Answer | Reason |
 |---|---|---|
-| Privacy policy | https://scottchanatry.com/cliffword/privacy | |
+| Privacy policy | https://scottchanatry.com/cliffword/privacy/ | |
 | App access | All functionality is available without special access | No login. Apple Music is iOS only and not part of the Android app. |
 | Ads | No, my app does not contain ads | |
 | Advertising ID | No | `com.google.android.gms.permission.AD_ID` is in `blockedPermissions` |

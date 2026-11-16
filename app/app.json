@@ -61,7 +61,7 @@
         "foregroundImage": "./assets/adaptive-icon-foreground.png",
         "backgroundImage": "./assets/adaptive-icon-background.png",
         "monochromeImage": "./assets/adaptive-icon-monochrome.png",
-        "backgroundColor": "#F3F4F1"
+        "backgroundColor": "#16181D"
       },
       "permissions": [
         "RECORD_AUDIO"
@@ -249,6 +249,14 @@
           "properties": {
             "reactNativeArchitectures": "arm64-v8a",
             "rnllamaVariants": "rnllama,rnllama_v8_2_dotprod,rnllama_v8_2_dotprod_i8mm"
+          }
+        }
+      ],
+      [
+        "expo-build-properties",
+        {
+          "ios": {
+            "deploymentTarget": "17.0"
           }
         }
       ]

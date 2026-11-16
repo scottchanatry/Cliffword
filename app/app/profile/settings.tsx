@@ -1,5 +1,7 @@
 import { useCallback } from 'react';
 import { useRouter } from 'expo-router';
+import { externalLinkUrl } from '../../src/config/links';
+import { openUrl } from '../../src/config/openUrl';
 import { usePairPack } from '../../src/engine/PacksProvider';
 import { SettingsView } from '../../src/features/profile/SettingsView';
 import { useModelFile } from '../../src/features/profile/useModelFile';
@@ -52,6 +54,7 @@ export default function SettingsScreen() {
       build={build}
       onVersionTap={onVersionTap}
       onOpenLicenses={() => router.push('/profile/licenses')}
+      onOpenLink={(link) => openUrl(externalLinkUrl(link))}
       onBack={() => router.back()}
     />
   );

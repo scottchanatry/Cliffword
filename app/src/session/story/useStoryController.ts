@@ -13,6 +13,8 @@
  * - The controller is registered with the app state (trackSession) while it lives: a reset of
  *   progress disposes it without a write, clears the data and advances progressEpoch, and a new
  *   controller then starts the first story afresh.
+ * - The controller gets the device's locales (expo-localization) for recognition and the voice,
+ *   and expo-linking's openURL with the app version and platform for "Report this sentence".
  * - `actions` is the live controller's (stable for its life); before it exists, actions that
  *   do nothing (there is no screen to act on yet).
  */
@@ -20,7 +22,10 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 import { AppState as NativeAppState } from 'react-native';
 import type { LearnerModel } from '@cliffword/engine';
 import { useAppState } from '../../appState/AppStateProvider';
+import { appVersion, platformLabel } from '../../config/appInfo';
+import { openUrl } from '../../config/openUrl';
 import { useServices } from '../../services/ServicesProvider';
+import { deviceLocales } from '../common/deviceLocales';
 import type { StoryActions, StoryViewModel } from '../contract';
 import { createStoryController, initialStoryViewModel, type StoryControllerHandle } from './createStoryController';
 import { toEngineTextMode } from './settings';
@@ -64,6 +69,9 @@ export function useStoryController(): UseStoryController {
       speechIn: services.speechIn,
       haptics: services.haptics,
       clock: services.clock,
+      deviceLocales: deviceLocales(),
+      openUrl,
+      appInfo: { ...appVersion(), platform: platformLabel() },
       updateSettings: (patch) => latest.current.updateSettings(patch),
       onLearnerReplaced: (next) => {
         adopted.add(next);

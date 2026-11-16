@@ -8,11 +8,13 @@ import { fireEvent, screen, within } from '@testing-library/react-native';
 import { State } from 'react-native-gesture-handler';
 import { createGestureController, fireGestureHandler, getByGestureTestId } from 'react-native-gesture-handler/jest-utils';
 import { createDefaultPairPack } from '@cliffword/engine';
+import { REPORTABLE_KINDS } from '../../session/story/report';
 import { colors, heatColors, layout } from '../../theme';
 import { STORY_FIXTURE_NAMES, viewModel, type StoryFixtureName, type StoryFixtures } from './fixtures';
 import { laneLengths } from './RetellView';
 import { nextTextMode } from './StoryHeader';
-import { loadFixtures, renderStory } from './testing/storyTestKit';
+import { showsReportableSentence } from './StoryView';
+import { loadFixtures, mockStoryActions, renderStory } from './testing/storyTestKit';
 
 let fx: StoryFixtures;
 beforeAll(async () => {
@@ -479,6 +481,40 @@ describe('meaning sheet and notice', () => {
     await fireEvent.press(screen.getByTestId('story-notice'));
     expect(actions.dismissNotice).toHaveBeenCalledTimes(1);
     expect(screen.getByText('Speech recognition is not available on this device. You can type instead.')).toBeOnTheScreen();
+  });
+});
+
+describe('report this sentence', () => {
+  it.each(['main', 'b1', 'b2', 'a2', 'noSe', 'nativeReply', 'turn', 'repairAnswer'] as const)('%s offers it under the screen and calls the action', async (name) => {
+    const { actions } = await renderStory(fx[name]);
+    const link = screen.getByRole('button', { name: 'Report this sentence' });
+    expect(link.props.accessibilityHint).toBe('Opens your email app with this sentence, to tell us what is wrong with it');
+    await fireEvent.press(link);
+    expect(actions.reportSentence).toHaveBeenCalledTimes(1);
+  });
+
+  it.each(['upNext', 'retell', 'b3', 'register', 'placementDone', 'error', 'idle', 'loading'] as const)('%s has no sentence to report', async (name) => {
+    await renderStory(fx[name]);
+    expect(screen.queryByTestId('story-report')).toBeNull();
+  });
+
+  it('is absent when the controller does not offer it', async () => {
+    const { reportSentence: _unused, ...actions } = mockStoryActions();
+    await renderStory(fx.b1, actions as ReturnType<typeof mockStoryActions>);
+    expect(screen.queryByTestId('story-report')).toBeNull();
+  });
+
+  it('shows the thanks notice the controller publishes', async () => {
+    await renderStory({ ...fx.b1, notice: { key: 'story.notice.reported' } });
+    expect(screen.getByTestId('story-notice')).toHaveTextContent(/Thanks, sent to your email app\./);
+  });
+
+  it('asks about the same screens as the controller', () => {
+    const screens = STORY_FIXTURE_NAMES.map((n) => fx[n].screen).filter((s) => s !== null);
+    for (const s of screens) {
+      const withSentence = s.kind !== 'nativeReply' || s.sentence !== undefined;
+      expect({ kind: s.kind, shows: showsReportableSentence(s) }).toEqual({ kind: s.kind, shows: REPORTABLE_KINDS.has(s.kind) && withSentence });
+    }
   });
 });
 

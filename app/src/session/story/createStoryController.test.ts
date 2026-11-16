@@ -57,6 +57,8 @@ interface SetupOptions {
   pair?: PairPack;
   speechOut?: FakeSpeechOut;
   sessionOptions?: StoryControllerDeps['sessionOptions'];
+  openUrl?: StoryControllerDeps['openUrl'];
+  appInfo?: StoryControllerDeps['appInfo'];
   start?: boolean;
 }
 
@@ -90,6 +92,8 @@ async function setup(opts: SetupOptions = {}): Promise<Harness> {
       updateSettings: (patch) => storage.settings.update(patch),
       onError: (e) => errors.push(e),
       ...(opts.sessionOptions ? { sessionOptions: opts.sessionOptions } : {}),
+      ...(opts.openUrl ? { openUrl: opts.openUrl } : {}),
+      ...(opts.appInfo ? { appInfo: opts.appInfo } : {}),
     });
     live.push(c);
     return c;
@@ -623,6 +627,81 @@ describe('listening', () => {
     expect(h.vm().listen).toEqual({ phase: 'idle' });
     expect(h.vm().screen?.kind).toBe('cliff');
     expect(await h.storage.learner.countEvents()).toBe(0);
+  });
+});
+
+describe('report this sentence', () => {
+  const APP = { version: '1.0.0', build: '12', platform: 'ios 18.2' };
+
+  /** The decoded fields of a mailto: URL. */
+  function mail(url: string): { to: string; subject: string; body: string } {
+    const [to = '', query = ''] = url.replace(/^mailto:/, '').split('?');
+    const fields = new Map(query.split('&').map((pair) => [pair.split('=')[0], decodeURIComponent(pair.split('=')[1] ?? '')] as const));
+    return { to, subject: fields.get('subject') ?? '', body: fields.get('body') ?? '' };
+  }
+
+  it('opens a mail to the contact address with the sentence, canned or not, the version and the platform, then thanks', async () => {
+    const opened: string[] = [];
+    const h = await setup({ pair: marketPair(), openUrl: async (url) => void opened.push(url), appInfo: APP });
+    const cliff = as(h.vm().screen, 'cliff');
+    expect(cliff.meta.canned).toBe(true);
+    expect(h.controller.actions.reportSentence).toBeDefined();
+    h.controller.actions.reportSentence?.();
+    await h.controller.idle();
+    expect(opened).toHaveLength(1);
+    const m = mail(opened[0] ?? '');
+    expect(m.to).toBe('hello@scottchanatry.com');
+    expect(m.subject).toBe('Cliffword: report a sentence');
+    expect(m.body).toContain(`Sentence: ${cliff.sentence.text}`);
+    expect(m.body).toContain('Source: canned (a built-in starter sentence)');
+    expect(m.body).toContain('Screen: cliff, chapter 1');
+    expect(m.body).toContain('App version: 1.0.0 (build 12)');
+    expect(m.body).toContain('Platform: ios 18.2');
+    // Line breaks travel as CRLF, so every mail app shows the same lines.
+    expect(opened[0]).toContain('%0D%0A');
+    expect(h.vm().notice).toEqual({ key: 'story.notice.reported' });
+    // The session did not move, and no step was written for the report.
+    expect(h.vm().screen).toBe(cliff);
+  });
+
+  it('names a sentence the model wrote, and the line a character says on a turn', async () => {
+    const opened: string[] = [];
+    const h = await setup({ pair: marketPair(), model: 'ready', openUrl: async (url) => void opened.push(url), appInfo: { ...APP, build: null } });
+    expect(as(h.vm().screen, 'cliff').meta.canned).toBe(false);
+    h.controller.actions.reportSentence?.();
+    await h.controller.idle();
+    const body = mail(opened[0] ?? '').body;
+    expect(body).toContain('Source: written by the on-device model');
+    expect(body).toContain('App version: 1.0.0\r\n');
+
+    for (let i = 0; i < MARKET.sentences.length; i++) {
+      if (i > 0) await act(h, (c) => c.actions.next());
+      await speak(h, await expectedAnswer(h));
+    }
+    await act(h, (c) => c.actions.next());
+    expect(as(h.vm().screen, 'turn').prompt.line).toBe('¿Y tú? ¿Qué hiciste ayer?');
+    h.controller.actions.reportSentence?.();
+    await h.controller.idle();
+    expect(mail(opened[1] ?? '').body).toContain('Sentence: ¿Y tú? ¿Qué hiciste ayer?\r\nSource: written by the on-device model\r\nScreen: turn, chapter 1');
+  });
+
+  it('says where to write when no mail app opens it', async () => {
+    const h = await setup({ pair: marketPair(), openUrl: () => Promise.reject(new Error('no mail app')), appInfo: APP });
+    h.controller.actions.reportSentence?.();
+    await h.controller.idle();
+    expect(h.vm().notice).toEqual({ key: 'story.notice.reportFailed', params: { email: 'hello@scottchanatry.com' } });
+    expect(h.errors).toEqual([]);
+  });
+
+  it('is absent without a way to open mail, and reports nothing before the first screen', async () => {
+    const without = await setup({ pair: marketPair() });
+    expect(without.controller.actions.reportSentence).toBeUndefined();
+    const opened: string[] = [];
+    const h = await setup({ pair: marketPair(), openUrl: async (url) => void opened.push(url), start: false });
+    h.controller.actions.reportSentence?.();
+    await h.controller.idle();
+    expect(opened).toEqual([]);
+    expect(h.vm().notice).toBeNull();
   });
 });
 

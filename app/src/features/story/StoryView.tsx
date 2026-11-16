@@ -5,16 +5,21 @@
  * error, idle) and a null screen is a calm loading state.
  *
  * Around every screen: hold anywhere to speak (HoldAnywhere, the root gesture), the meaning
- * sheet, the "Type instead" sheet and the notice toast. Nothing here blocks commands while a
+ * sheet, the "Type instead" sheet and the notice toast. Under a screen that shows a story
+ * sentence, a quiet "Report this sentence" link when the controller offers reportSentence. Nothing here blocks commands while a
  * session call is in flight; the header shows a quiet spinner instead.
  */
 import { useCallback, useState, type ReactNode } from 'react';
 import { StyleSheet } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
+import type { StoryScreen } from '@cliffword/engine';
+import { CHROME_MAX_SCALE } from '../../components/words/fontScale';
 import { HoldAnywhere } from '../../components/voice/HoldAnywhere';
 import { useListenToggle } from '../../components/voice/useListenToggle';
+import { useI18n } from '../../i18n';
 import type { StoryActions, StoryViewModel } from '../../session/contract';
 import { colors, layout, spacing } from '../../theme';
+import { QuietLink } from '../../ui';
 import { CliffView } from './CliffView';
 import { LandingView } from './LandingView';
 import { MeaningSheet } from './MeaningSheet';
@@ -33,7 +38,27 @@ export interface StoryViewProps {
   actions: StoryActions;
 }
 
+/**
+ * The screens that show a story sentence (or a character's line) a learner can report; the
+ * controller's reportableSentence (src/session/story/report.ts) reads the same ones.
+ */
+export function showsReportableSentence(screen: StoryScreen | null): boolean {
+  switch (screen?.kind) {
+    case 'cliff':
+    case 'landing':
+    case 'noSe':
+    case 'turn':
+    case 'repair':
+      return true;
+    case 'nativeReply':
+      return screen.sentence !== undefined;
+    default:
+      return false;
+  }
+}
+
 export function StoryView({ vm, actions }: StoryViewProps) {
+  const { t } = useI18n();
   const [typing, setTyping] = useState(false);
   const toggleListen = useListenToggle(vm.listen, actions);
   const openTyping = useCallback(() => setTyping(true), []);
@@ -101,6 +126,17 @@ export function StoryView({ vm, actions }: StoryViewProps) {
         testID="story-scroll"
       >
         {body}
+        {actions.reportSentence && showsReportableSentence(screen) ? (
+          <QuietLink
+            role="button"
+            label={t('story.report')}
+            accessibilityHint={t('story.report.hint')}
+            onPress={actions.reportSentence}
+            maxFontSizeMultiplier={CHROME_MAX_SCALE}
+            style={styles.report}
+            testID="story-report"
+          />
+        ) : null}
       </ScrollView>
       <NoticeToast notice={vm.notice} onDismiss={actions.dismissNotice} />
       <MeaningSheet meaning={vm.meaning} onClose={actions.closeMeaning} />
@@ -112,6 +148,8 @@ export function StoryView({ vm, actions }: StoryViewProps) {
 const styles = StyleSheet.create({
   root: { backgroundColor: colors.ground },
   scroll: { flex: 1 },
+  // A footer: close under the screen's last control, quieter than the screen gap.
+  report: { marginTop: -spacing.md },
   content: {
     flexGrow: 1,
     gap: layout.screenGap,

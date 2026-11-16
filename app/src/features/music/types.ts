@@ -152,6 +152,11 @@ export interface MusicLibraryProps {
   showExplicit: boolean;
   /** Storage or the library is still loading. */
   loading: boolean;
+  /**
+   * Optional: the platform the Apple Music row speaks for (default Platform.OS). The gallery's
+   * c3-android fixture sets 'android', so a web preview shows the Android wording.
+   */
+  os?: string;
   onOpenSong: (id: string) => void;
   /** Add an Apple Music library song (stored, then its page asks for the lyrics). */
   onAddAppleSong: (id: string) => void;

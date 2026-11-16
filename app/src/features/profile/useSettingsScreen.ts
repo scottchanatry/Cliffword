@@ -5,7 +5,6 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { AppState as NativeAppState, Linking } from 'react-native';
-import Constants from 'expo-constants';
 import { useAppState } from '../../appState/AppStateProvider';
 import { useServices } from '../../services/ServicesProvider';
 import type { AppSettings } from '../../storage/repos/settings';
@@ -74,14 +73,8 @@ export function useSecretTaps(onUnlock: () => void, count = SECRET_TAPS, gapMs =
   }, [clock, count, gapMs, onUnlock]);
 }
 
-/** The app version from app.json and the native build number (null in development and on web). */
-export function appVersion(): { version: string; build: string | null } {
-  const version = Constants.expoConfig?.version ?? '';
-  const ios = Constants.platform?.ios?.buildNumber;
-  const android = Constants.platform?.android?.versionCode;
-  const build = ios ? String(ios) : typeof android === 'number' && android > 0 ? String(android) : null;
-  return { version, build };
-}
+/** The app version and native build (src/config/appInfo.ts). */
+export { appVersion } from '../../config/appInfo';
 
 /**
  * Settings' data actions. Reset progress is the app state's (AppState.resetProgress): it stops

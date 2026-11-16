@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import { CHROME_MAX_SCALE } from '../../components/words/fontScale';
+import { useI18n } from '../../i18n';
 import { borders, colors, layout, spacing } from '../../theme';
 import { InterfaceText, Text } from '../../ui';
 
@@ -10,16 +11,22 @@ export interface LinkRowProps {
   /** A short value on the right ("Version 1.0.0"). */
   value?: string;
   onPress: () => void;
+  /** Opens another app (the browser, the mail app): an outward arrow instead of the chevron. */
+  external?: boolean;
   divider?: boolean;
   testID?: string;
 }
 
-/** A row that opens another screen (Settings, Licenses): a link with a chevron. */
-export function LinkRow({ title, hint, value, onPress, divider, testID }: LinkRowProps) {
+/**
+ * A row that opens another screen (Settings, Licenses): a link with a chevron. An external row
+ * (the privacy policy, support, contact) opens another app and says so to screen readers.
+ */
+export function LinkRow({ title, hint, value, onPress, external = false, divider, testID }: LinkRowProps) {
+  const { t } = useI18n();
   return (
     <Pressable
       accessibilityRole="link"
-      accessibilityLabel={title}
+      accessibilityLabel={external ? t('link.external.a11y', { title }) : title}
       accessibilityHint={hint}
       onPress={onPress}
       testID={testID}
@@ -42,15 +49,16 @@ export function LinkRow({ title, hint, value, onPress, divider, testID }: LinkRo
       ) : null}
       <View style={styles.chevron} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
         <Text variant="cardTitle" tone="muted">
-          {CHEVRON}
+          {external ? OUTWARD : CHEVRON}
         </Text>
       </View>
     </Pressable>
   );
 }
 
-/** A glyph, not text: hidden from screen readers. */
+/** Glyphs, not text: hidden from screen readers. */
 const CHEVRON = '›';
+const OUTWARD = '↗';
 
 const styles = StyleSheet.create({
   row: { minHeight: layout.primaryHeight, flexDirection: 'row', alignItems: 'center', gap: spacing.md, paddingVertical: spacing.md },

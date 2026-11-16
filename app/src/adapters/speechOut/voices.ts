@@ -1,5 +1,13 @@
 import type { Voice } from './types';
 
+/**
+ * How long the installed-voice list may take. A platform that never reports voices (expo-speech
+ * on the web waits for 'voiceschanged', which a browser without speech voices never fires) gets
+ * an empty list after this, so nothing waiting for voices hangs. src/session/common re-exports it
+ * for the session's Speaker and the voice pickers.
+ */
+export const VOICE_LIST_TIMEOUT_MS = 1500;
+
 /** 'es_MX' and 'ES-mx' both become 'es-mx'. */
 export function normalizeLang(lang: string): string {
   return lang.trim().replace(/_/g, '-').toLowerCase();

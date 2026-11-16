@@ -37,6 +37,10 @@
  * cliff, each option is read in turn (speakingOption). The no-sé answer calls
  * session.played() once it has played. Listening stops speech.
  *
+ * Report this sentence (./report.ts): with deps.openUrl, reportSentence() writes the sentence
+ * on screen (model-written or canned), the app version and the platform into a mailto: to
+ * CONTACT_EMAIL and opens it; the notice then says it went to the mail app, or that none opened.
+ *
  * Hold to speak (src/session/common/hold.ts, shared with the Music tab): holdBegin checks the
  * permission, holdStart listens in the pack's locale (recognitionLocales; on the device unless
  * network recognition is allowed) with the screen's words, options and commands as hints,
@@ -65,7 +69,9 @@ import type { Unsubscribe } from '../../adapters/listeners';
 import type { ModelAdapter } from '../../adapters/model/types';
 import type { FinalTranscript, SpeechIn } from '../../adapters/speechIn/types';
 import type { SpeechOut } from '../../adapters/speechOut/types';
+import { CONTACT_EMAIL } from '../../config/links';
 import { tKey } from '../../i18n/tKey';
+import { createTranslator } from '../../i18n/translator';
 import type { ServicePacks } from '../../services/types';
 import { createId, type StorageClock } from '../../storage/clock';
 import type { AppSettings } from '../../storage/repos/settings';
@@ -77,6 +83,7 @@ import { SerialQueue } from '../common/queue';
 import { Speaker } from '../common/speaker';
 import { typedTranscript, utteranceOf } from '../common/utterance';
 import type { StoryActions, StoryController, StoryViewModel } from '../contract';
+import { reportableSentence, sentenceReportUrl, type ReportAppInfo } from './report';
 import { sameSessionSettings, sessionSettingsFor, startModeFor, toAppTextMode, toEngineTextMode } from './settings';
 import { cueForScreen, planCue, sentenceOf, storyHintWords, wordSpansOf, type CuePlan } from './speech';
 
@@ -103,6 +110,14 @@ export interface StoryControllerDeps {
   seed?: () => number;
   /** The device's locales (expo-localization), for the recognition locale. */
   deviceLocales?: readonly string[];
+  /**
+   * Opens a URL in another app (expo-linking's openURL; rejects when no app takes it). With it
+   * the controller offers "Report this sentence" (actions.reportSentence, a mailto: report to
+   * CONTACT_EMAIL); without it that action is absent.
+   */
+  openUrl?: (url: string) => Promise<unknown>;
+  /** The app version, build and platform a sentence report names. Default: unknown. */
+  appInfo?: ReportAppInfo;
   /** Engine session options (tests shorten chapters). */
   sessionOptions?: Partial<StorySessionOptions>;
   /** Unexpected failures (a step that threw, a write that failed). Default: console.warn. */
@@ -160,6 +175,9 @@ const NEXT_KINDS: ReadonlySet<ScreenKind> = new Set<ScreenKind>([
 
 const anyScreen: Guard = (screen) => screen !== null;
 
+/** A report without app details (tests, a host that did not pass them). */
+const UNKNOWN_APP: ReportAppInfo = { version: '', build: null, platform: '' };
+
 /** The prior a step asks to store: its own, or the finished placement's tracker. */
 function priorOf(step: StoryStep): PriorSpec | undefined {
   if (step.prior) return step.prior;
@@ -192,6 +210,8 @@ class StoryControllerImpl implements StoryControllerHandle {
   private chapter: number | null = null;
   /** The "voice could not play" notice is shown once (a device without voices fails every cue). */
   private speechOutNoticed = false;
+  /** The last sentence report on its way to the mail app (idle() waits for it). */
+  private reporting: Promise<void> = Promise.resolve();
 
   constructor(private readonly deps: StoryControllerDeps) {
     this.current = deps.learner;
@@ -261,6 +281,7 @@ class StoryControllerImpl implements StoryControllerHandle {
       dismissNotice: () => {
         if (this.vm.notice) this.set({ notice: null });
       },
+      ...(deps.openUrl ? { reportSentence: () => this.reportSentence() } : {}),
     };
   }
 
@@ -325,9 +346,10 @@ class StoryControllerImpl implements StoryControllerHandle {
     });
   }
 
-  /** Every queued call and what it set off (settled speech promises may queue session.played()). */
-  idle(): Promise<void> {
-    return this.queue.idle();
+  /** Every queued call and what it set off (settled speech promises may queue session.played()), and a report on its way. */
+  async idle(): Promise<void> {
+    await this.queue.idle();
+    await this.reporting;
   }
 
   // ---------------------------------------------------------------------------
@@ -570,6 +592,25 @@ class StoryControllerImpl implements StoryControllerHandle {
       const last = this.lastCue;
       await this.play(last && last.text === cue.text && last.what === cue.what ? last : cue);
     });
+  }
+
+  /**
+   * "Report this sentence": the sentence on screen into a mail to CONTACT_EMAIL, opened in the
+   * learner's mail app. Not a session call, so it does not wait behind a model step. A screen
+   * without a sentence (retell, up next, ...) reports nothing.
+   */
+  private reportSentence(): void {
+    const open = this.deps.openUrl;
+    const sentence = reportableSentence(this.vm.screen);
+    if (this.disposed || !open || !sentence) return;
+    const { pair } = this.deps.packs;
+    const { t } = createTranslator({ ui: pair.ui, native: pair.native });
+    const url = sentenceReportUrl(t, sentence, this.deps.appInfo ?? UNKNOWN_APP);
+    this.reporting = open(url).then(
+      () => this.set({ notice: { key: tKey('story.notice.reported') } }),
+      // No mail app took it (none set up, or the learner cancelled): say where to write instead.
+      () => this.set({ notice: { key: tKey('story.notice.reportFailed'), params: { email: CONTACT_EMAIL } } }),
+    );
   }
 
   private setTextMode(mode: TextMode): void {

@@ -9,8 +9,9 @@ Facts the answers rest on (checked in the code on 2026-11-16):
 
 - Bundle id and Android package `app.cliffword`; share extension `app.cliffword.share-extension`;
   App Group `group.app.cliffword`; EAS project `@greypebs/cliffword`.
-- iPhone only (`supportsTablet: false`), iOS 16.4 or later (the SDK 58 default). Android 7.0
-  (API 24) or later, target API 36, arm64-v8a only.
+- iPhone only (`supportsTablet: false`), iOS 17.0 or later (`expo-build-properties`
+  `ios.deploymentTarget`, decision 1; the SDK 58 default would be 16.4). Android 7.0 (API 24) or
+  later, target API 36, arm64-v8a only.
 - The language model (Qwen3-1.7B Q4_K_M, 1,107,409,472 bytes, Apache-2.0) is downloaded after
   install from a Hugging Face URL pinned to a commit, checked by size and SHA-256, kept out of
   backups, and run on the phone with llama.cpp (llama.rn).
@@ -36,8 +37,8 @@ owner's instruction to finish without further questions).
 | 3 | **Network recognition.** Opt-in switch for network speech recognition where on-device Spanish is missing. | **Keep, off by default** | See "App Privacy" for how the labels treat it. |
 | 4 | **EU trader status** (Digital Services Act). | **Not a trader** (owner). Answer "No" in App Store Connect; the app stays available in EU storefronts and no trader contact details are shown. | Without an answer the app cannot be offered in EU storefronts. |
 | 5 | **Android memory floor.** | **Exclude phones with less than 4 GB of RAM** in the Play Console device catalog (owner) | 3 GB phones may be killed while the model is loaded (DEVICE-CHECKLIST L4). |
-| 6 | **Generated sentences on Play.** In-app "Report this sentence" action. | **Add it** (opens an email to the contact address with the sentence) | See "AI-generated content" under Google Play. |
-| 7 | **Final icon.** | **Replace the placeholder** before screenshots | The store icon is hard to change after reviews and screenshots exist. |
+| 6 | **Generated sentences on Play.** In-app "Report this sentence" action. | **Add it** (opens an email to the contact address with the sentence). Done: a quiet link under every story screen with a sentence | See "AI-generated content" under Google Play. |
+| 7 | **Final icon.** | **Replace the placeholder** before screenshots. Done: `app/assets/brand/mark.svg` (word tiles on ink, the dashed amber gap) | The store icon is hard to change after reviews and screenshots exist. |
 | 8 | **State age-check laws** (Texas, Utah, Louisiana). | **No age check** (owner) | The owner's call; the age rating is set from the content (below). |
 
 ## Hosting and contact (owner)
@@ -49,15 +50,15 @@ owner's instruction to finish without further questions).
 | Marketing URL | https://scottchanatry.com/cliffword/ |
 | Contact email | hello@scottchanatry.com |
 
-## Not in the app yet (needed before review)
+## In the app and in `app/store/`
 
-- **Privacy policy link inside the app.** Guideline 5.1.1(i) asks for the link both in App Store
-  Connect and "within the app in an easily accessible manner". Settings has a privacy card but
-  no link. Add a "Privacy policy" row (opens the hosted URL) in Settings, About, once the URL
-  exists.
-- **Play graphics.** A 512 x 512 icon and a 1024 x 500 feature graphic (OUTLINE Stage 7,
-  `scripts/make-icons.js`).
-- **Screenshots** (plan below).
+- **Privacy policy link inside the app** (Guideline 5.1.1(i): "within the app in an easily
+  accessible manner"): Settings, About has "Privacy policy", "Support" and "Contact" rows
+  (`app/src/config/links.ts`), and the onboarding welcome screen has a "Privacy policy" footer
+  link. The links work once the pages are live.
+- **Play graphics:** `app/store/graphics/play-icon-512.png` and `play-feature-graphic.png`
+  (`npm run icons`).
+- **Screenshots:** `app/store/screenshots/` (`npm run screenshots`; see `app/store/README.md`).
 - **Store metadata files** under `app/store/metadata/` (OUTLINE Stage 7) are optional. The text
   below is the source until they exist.
 
@@ -327,18 +328,21 @@ phone, otherwise Apple scales the 6.9-inch set down.
 | 6.9-inch (iPhone with Dynamic Island, large) | 1320 x 2868, 1290 x 2796, 1260 x 2736 | iPhone 16 Pro Max, 15 Pro Max, 14 Pro Max, 15 Plus, 16 Plus |
 | 6.5-inch (iPhone with Face ID, large) | 1284 x 2778, 1242 x 2688 | iPhone 14 Plus, 13 Pro Max, 12 Pro Max, 11 Pro Max, 11, XS Max, XR |
 
-Plan: six screenshots, the same order on both stores, captured on a TestFlight build with
-made-up content only (the "Luna de Santurce" song by "Rayo K.", the "Sábado en el mercado" text,
-stories the app wrote). Never a real song, artist or album cover.
+The set in `app/store/screenshots/` (six screenshots, the same order on both stores, made-up
+content only: the "Luna de Santurce" song by "Rayo K.", the market story; never a real song,
+artist or album cover). They are the app's views rendered from the fixture gallery of a web
+preview export (`app/store/README.md`), at 1320 x 2868 (6.9-inch), 1284 x 2778 (6.5-inch) and
+1080 x 2160 (Play). Retake them on a TestFlight build instead if the review asks for
+device captures.
 
-| # | Screen | Shows | Caption idea |
+| # | File | Shows | Caption idea |
 |---|---|---|---|
-| 1 | Story, at a cliff | A sentence stopped mid-way, blank tiles, "Hold anywhere and say it" | Finish the sentence out loud |
-| 2 | Story, after an answer | The learner's sentence with unexpected words shaded, the rule-based correction | Any natural answer counts |
-| 3 | Story, tiles and text | Tiles sized by word length, some words as text | Hear it first, read it later |
-| 4 | Retell | The 60/45/30 lanes with pauses as holes | Retell it faster each round |
-| 5 | Music, song page | A lyric line at a cliff with slang notes, "the music waits for you" (manual mode, the made-up song) | Learn from songs and slang |
-| 6 | Profile | Minutes spoken | Count minutes spoken |
+| 1 | `1-story-cliff` | A sentence stopped mid-way, blank tiles, the dashed gap, "Hold anywhere and say it" | Finish the sentence out loud |
+| 2 | `2-landing` | Where the answer landed on the surprising-to-expected line, "just as natural" | Any natural answer counts |
+| 3 | `3-self-repair` | The learner's sentence with unexpected words shaded, "One word surprised me" | Fix it yourself first |
+| 4 | `4-music-library` | Apple Music, Spotify share-in and pasted lyrics; songs with their slang (Android: Apple Music "Not available on Android yet") | Learn from songs and slang |
+| 5 | `5-lyric-cliff` | A lyric line at its cliff, "SING IT", the music waiting (Android: no player, read and sing) | Sing the next word |
+| 6 | `6-profile` | Minutes spoken today, the week, words understood | Count minutes spoken |
 
 Captions are optional. Keep each claim true of the build (Guideline 2.3.3). Use a clean status
 bar if the phone allows it. If no phone of either size is at hand, capture on any recent iPhone
@@ -401,9 +405,9 @@ Needs a 64-bit (arm64) phone and about 1.1 GB of storage for the language model,
 
 | Asset | Requirement | Status |
 |---|---|---|
-| App icon | 512 x 512 PNG | to make (from the same artwork as `icon.png`) |
-| Feature graphic | 1024 x 500, JPEG or 24-bit PNG without alpha | to make |
-| Phone screenshots | 2 to 8; PNG or JPEG; 9:16 portrait recommended, at least 1080 x 1920 to be eligible for promotion; the long side at most twice the short side | capture on an Android phone. iPhone shots of 1320 x 2868 are too tall for Play (ratio 2.17). |
+| App icon | 512 x 512 PNG | `app/store/graphics/play-icon-512.png` (32-bit, from the same mark as `icon.png`) |
+| Feature graphic | 1024 x 500, JPEG or 24-bit PNG without alpha | `app/store/graphics/play-feature-graphic.png` |
+| Phone screenshots | 2 to 8; PNG or JPEG; 9:16 portrait recommended, at least 1080 x 1920 to be eligible for promotion; the long side at most twice the short side | `app/store/screenshots/android-phone/` (1080 x 2160, ratio 2.0). iPhone shots of 1320 x 2868 are too tall for Play (ratio 2.17). |
 
 ### App content declarations
 
@@ -498,8 +502,8 @@ unchanged, because the user sends the message from their own mail app.
 
 - [ ] Privacy policy hosted, and its URL in App Store Connect, the Play Console and the app
 - [ ] Support URL live with a contact email
-- [ ] Screenshots uploaded (6.9-inch; 6.5-inch if captured), Play icon, feature graphic, Play
-      screenshots
+- [ ] Screenshots uploaded (6.9-inch and 6.5-inch from `app/store/screenshots/`), Play icon,
+      feature graphic, Play screenshots
 - [ ] Age rating, App Privacy, export compliance, content rights answered in App Store Connect
 - [ ] IARC, Data safety, target audience, ads and app access done in the Play Console
 - [ ] `docs/DEVICE-CHECKLIST.md` run on the TestFlight build, with no open blocker

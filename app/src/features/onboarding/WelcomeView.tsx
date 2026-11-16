@@ -3,7 +3,7 @@ import { CliffGap } from '../../components/words/CliffGap';
 import { CHROME_MAX_SCALE, CONTENT_MAX_SCALE } from '../../components/words/fontScale';
 import { useI18n } from '../../i18n';
 import { spacing } from '../../theme';
-import { Button, ContentText, InterfaceText, Screen } from '../../ui';
+import { Button, ContentText, InterfaceText, QuietLink, Screen } from '../../ui';
 import { StepHeader } from './StepHeader';
 
 export interface WelcomeViewProps {
@@ -20,10 +20,12 @@ export interface WelcomeViewProps {
   onPlacement: () => void;
   /** "I'm brand new": placement skipped, cognates first. */
   onBrandNew: () => void;
+  /** The footer's "Privacy policy" link (opens the hosted policy in the browser). */
+  onOpenPrivacy?: () => void;
 }
 
 /** Welcome: what Cliffword does, and how to start (placement is the first story; no test). */
-export function WelcomeView({ language, sampleBefore, saving, failed, onPlacement, onBrandNew }: WelcomeViewProps) {
+export function WelcomeView({ language, sampleBefore, saving, failed, onPlacement, onBrandNew, onOpenPrivacy }: WelcomeViewProps) {
   const { t } = useI18n();
   return (
     <Screen scroll edges={['top', 'left', 'right', 'bottom']} contentStyle={styles.content} testID="onboarding-screen">
@@ -65,6 +67,9 @@ export function WelcomeView({ language, sampleBefore, saving, failed, onPlacemen
           {t('onboarding.brandNew.hint', { language })}
         </InterfaceText>
       </View>
+      {onOpenPrivacy ? (
+        <QuietLink label={t('onboarding.privacyPolicy')} onPress={onOpenPrivacy} maxFontSizeMultiplier={CHROME_MAX_SCALE} testID="welcome-privacy" />
+      ) : null}
     </Screen>
   );
 }

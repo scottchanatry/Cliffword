@@ -70,6 +70,7 @@ function PreviewBody({ name }: { name: AccountFixtureName }) {
           failed={false}
           onPlacement={none}
           onBrandNew={none}
+          onOpenPrivacy={none}
         />
       );
     }
@@ -152,6 +153,7 @@ function PreviewBody({ name }: { name: AccountFixtureName }) {
           build="12"
           onVersionTap={none}
           onOpenLicenses={none}
+          onOpenLink={noneAsync}
           onBack={none}
         />
       );

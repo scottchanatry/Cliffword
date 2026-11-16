@@ -19,7 +19,8 @@ npm run doctor         # expo-doctor
 npm run export:web     # expo export --platform web --output-dir dist-web (also export:ios, export:android)
 npm run web            # dev server for the web preview
 npm start              # dev server for a development build (expo-dev-client)
-npm run icons          # rebuild the placeholder icon, adaptive icon, splash and favicon
+npm run icons          # render the icon, adaptive icon, splash, favicon and Play graphics (Playwright)
+npm run screenshots    # export the web preview and capture the store screenshots (app/store/README.md)
 npm run patch:llama.rn # regenerate patches/llama.rn+*.patch after editing node_modules/llama.rn
 ```
 
@@ -70,14 +71,18 @@ falls back to `index.html` for unknown paths. `python -m http.server` has no fal
 | `src/engine/PacksProvider.tsx` | The active pair pack and `usePairPack()`. |
 | `src/i18n/` | `t(key, vars)`, `plural(key, count)`, `I18nProvider`, `useI18n`, `tKey`, `languageName`, `clockParts`, and the app catalog `catalog/en.ts`. |
 | `src/theme/` | Tokens, font family names, the type scale, and `useAppFonts` (with a `.web.ts` twin). |
-| `src/ui/` | The basic components: `Screen`, the `Text` variants, `Button`, `Card`, `Pill`. |
+| `src/ui/` | The basic components: `Screen`, the `Text` variants, `Button`, `Card`, `Pill`, `QuietLink` (a small underlined footer link with a 44 dp target). |
 | `src/features/<area>/` | Screen parts for each area: story, music, text, onboarding and profile. |
 | `src/components/` | Shared components: the profile button and tab icons; `words/` (the word flow, tiles, the cliff gap, gloss chip, heat sentence, understood line) and `voice/` (hold anywhere, the hold area and button, listening rings, command chips). See "Story views". |
 | `src/preview/` | The dev fixture gallery: `enabled.ts` (`PREVIEW_ENABLED`) and `Gallery.tsx` (one fixture by name, or the list of all), which `app/(dev)/preview/[screen].tsx` requires only in development builds and preview exports (see "Routes, controllers and views"). |
 | `src/testing/` | Test helpers, never imported by app code. `renderWithProviders(ui, { services? })` renders inside `AppProviders`. `renderWithAppState(ui, { services?, settings? })` also runs the real bootstrap and renders inside `AppStateProvider`. `recordEvents(speechIn)` records a SpeechIn's events. `FakeSpeechRecognitionModule` plays expo-speech-recognition's native module (also behind the jest mock). `FakeCliffwordMusic` plays the cliffword-music module; `fakeShareIntent` drives the expo-share-intent mock (`deliver({ text, webUrl })`). |
 | `__tests__/` | App-level tests. `routes/` runs every route through the real router and root layout; `flows/appFlows.test.tsx` walks the app end to end (first launch to the story, the Music tab, settings reaching the song page, reset progress, a restart). `engine.test.ts` checks that the engine runs in Jest. `importGraph.test.ts` checks what each platform's bundle can reach. Module tests sit next to their modules as `*.test.ts(x)`. |
 | `public/index.html` | The web page template. It paints the page in the ground color, so neither overscroll nor the first paint flashes white. |
-| `scripts/make-icons.js` | Builds the placeholder icon and splash PNGs with Node built-ins only. |
+| `src/config/` | `links.ts` (the privacy policy, support and marketing URLs and the contact email of docs/STORE.md, `mailtoUrl`, `externalLinkUrl`), `openUrl.ts` (expo-linking's openURL), `appInfo.ts` (`appVersion()`, `platformLabel()`). |
+| `assets/brand/` | `mark.svg`, the brand mark every icon is rendered from (word tiles on ink, the story stops at a dashed amber gap), and the generated `icon.svg`. |
+| `scripts/make-icons.js` | Renders `assets/icon.png` (1024, no alpha), the adaptive icon layers, the splash image, the favicon and the Play graphics in `store/graphics/` from `assets/brand/mark.svg` with Playwright's Chromium (`--preview <dir>` adds 29, 58 and 120 px checks). |
+| `scripts/store-screenshots.js` | Captures the store screenshots in `store/screenshots/` from a preview web export (see `store/README.md`). |
+| `store/` | Store graphics and screenshots, and how to regenerate them (`store/README.md`). |
 | `patches/` | patch-package patches, applied by `"postinstall": "patch-package"`. llama.rn's adds native text scoring (see "On-device model"). |
 | `native-tests/scoring/` | The Linux build and checks of the llama.rn scoring patch against `proof/model_server.py` (results in its README). |
 | `__mocks__/` | Jest manual mocks for native packages (llama.rn, expo-speech-recognition, expo-share-intent), used by every test. |
@@ -221,6 +226,17 @@ engine's screens are the view data.
   learner checkpoint are stored); unmount suspends and disposes.
 - **Prefetch.** The engine has no prefetch API yet; `prefetch()` in the controller is the marked
   hook point (landing and no-sé screens).
+- **Report this sentence** (`./report.ts`). With `deps.openUrl` (the hook passes expo-linking's
+  openURL, the app version and build from expo-constants and the platform), `reportSentence()`
+  opens a `mailto:` to `CONTACT_EMAIL` with the subject "Cliffword: report a sentence" and a body
+  with the sentence (on a turn or repair, the character's line), whether the model wrote it or it
+  is canned (`StoryMeta.canned`), the screen and chapter, the app version and the platform; the
+  notice then says "Thanks, sent to your email app." or, when no mail app opened, where to write.
+  It is not a session call and writes nothing. Without `openUrl` the action is absent.
+- **Device locales.** `useStoryController` and `useLyricController` pass the device's locales
+  (`deviceLocales()`, expo-localization's `getLocales()`) as `deps.deviceLocales`: after the
+  learner's slang regions, a phone set to a Spanish region adds that region's recognizer and
+  voice.
 
 ## Story views
 
@@ -258,6 +274,10 @@ Display text from the engine is a `UiText`, resolved with `t(key, params)`.
 - **State.** `busy` adds a quiet spinner to the header and blocks nothing; canned mode adds a
   note under the header; `meaning` opens `MeaningSheet`; `notice` shows a toast that dismisses
   itself after 6 s.
+- **Report this sentence.** On a screen that shows a story sentence (cliff, landing, noSe,
+  nativeReply with its sentence, turn, repair), a quiet underlined link under the screen
+  (`QuietLink`, 44 dp) calls `actions.reportSentence` when the controller offers it (docs/STORE.md
+  decision 6, Google Play's AI-generated content policy).
 - **Fixtures and the gallery.** `src/features/story/fixtures.ts` builds one view model per
   screen kind from real `StorySession` steps (canned mode, then the mock model for scoring) on
   the previews' market scene, plus hand-made ones for states that take long to reach.
@@ -425,7 +445,8 @@ views from `src/features/profile/accountFixtures.ts`.
   screen forwards to it (`resumeRoute`); Back uses the history, else the previous step's route.
   - *Welcome* (`index`): the starter story's first sentence up to its cliff with the ink gap
     (`locateAnswer` on the pack's segmenter), "Start the first story" (placement) and "I'm brand
-    new".
+    new", and a small "Privacy policy" footer link (`PRIVACY_URL`; nothing happens when no
+    browser takes it).
   - *Model* (`model`): `useModelFile()` follows `services.modelManager` and the adapter
     (`modelAvailability`): size, free space (`ModelManager.freeBytes?()`), the Wi-Fi note, progress
     and "Continue while it downloads" (the download goes on), "Not now" (`modelDeclined: true`),
@@ -456,7 +477,9 @@ views from `src/features/profile/accountFixtures.ts`.
   regions, explicit lyrics, Apple Music (`authorizationStatus()`, Connect, Manage), on-device
   recognition only (`allowNetworkRecognition`, off by default), the model card (status, size,
   free space, download, pause, delete after a confirmation, "Download again"), delete all lyrics
-  and texts, reset progress, privacy, about (version, build), licenses. Confirmations are a
+  and texts, reset progress, privacy, about (version, build, the privacy policy and support pages
+  and a mail to the contact address, each opened with expo-linking; when no app opens one, a
+  quiet line under the section says where it is), licenses. Confirmations are a
   bottom sheet (`ConfirmSheet`; `Alert` does nothing on the web).
   - *Delete all lyrics and texts* (`deleteLyricsAndTexts`): the `lyrics` and `texts` rows and the
     lyric and text sessions; songs stay, waiting for lyrics.
@@ -490,7 +513,9 @@ views from `src/features/profile/accountFixtures.ts`.
 - **Voice and recognition settings.** Both controllers speak with `settings.voiceId` when that
   voice is installed (else "Automatic", the same pick as `autoVoice`) and listen on the device
   unless `settings.allowNetworkRecognition`. The voice lists of onboarding and Settings use
-  `installedVoices` (bounded wait, an empty list when the platform never answers).
+  `installedVoices` (bounded wait, an empty list when the platform never answers). `ExpoSpeechOut`
+  bounds its own `voices()` by the same `VOICE_LIST_TIMEOUT_MS` (defined in
+  `src/adapters/speechOut/voices.ts`, re-exported from `src/session/common`) and answers `[]`.
 
 ## The engine as a dependency (monorepo approach)
 
@@ -697,8 +722,8 @@ Contract rules (each `types.ts` documents the full contract):
 ### Apple Music (MusicKit, iOS)
 
 `MusicKitPlayer` (`src/adapters/music/MusicKitPlayer.ts`) implements `MusicPlayer` over the
-local module `modules/cliffword-music` (Swift, Expo Modules API, iOS 16.4+, Swift 5 language
-mode). @lomray/react-native-apple-music 1.4.0 was evaluated and not used: it is a legacy bridge
+local module `modules/cliffword-music` (Swift, Expo Modules API; its podspec allows iOS 16.4,
+the app's deployment target is 17.0; Swift 5 language mode). @lomray/react-native-apple-music 1.4.0 was evaluated and not used: it is a legacy bridge
 module (`RCT_EXTERN_MODULE`, only the interop layer under the New Architecture), its own
 `postinstall` runs patch-package and fails without it, it sends the position once a second, its
 library listing has no search or order, and songs carry no explicit flag.
@@ -832,6 +857,10 @@ Newsreader (content), Inter (interface) and Anton (Music headings) come from
 - **Radii.** Cards 20, buttons 16, pills 999, tiles 7.
 - **Background.** The root background (`backgroundColor`, also through `expo-system-ui`) and
   the web page are the ground color.
+- **Icon.** `assets/brand/mark.svg`: an ink square with two rows of word tiles (grey for words
+  heard earlier, light for the last one) and the dashed amber gap with three dots, the cliff. No
+  text. The Android adaptive background is ink (`adaptiveIcon.backgroundColor` `#16181D`), the
+  splash shows the rounded icon on the ground color. `npm run icons` renders every size.
 
 ## Build and release config
 
@@ -839,6 +868,9 @@ Newsreader (content), Inter (interface) and Anton (Music headings) come from
   - Identity: name Cliffword, slug `cliffword`, owner `greypebs`, scheme `cliffword`, version
     1.0.0, `ios.bundleIdentifier` and `android.package` `app.cliffword`.
   - Display: portrait, light, no tablet.
+  - Minimum iOS: 17.0 (`expo-build-properties`, `ios.deploymentTarget`; the SDK 58 default is
+    16.4). iOS 17 needs an A12 or later, so the iPhone 8, 8 Plus and X, which cannot hold the
+    1.1 GB model, cannot install the app (docs/STORE.md decision 1).
   - Usage strings: microphone, speech recognition and Apple Music.
   - `ITSAppUsesNonExemptEncryption: false`.
   - Android permissions: `RECORD_AUDIO` plus a `blockedPermissions` list.
@@ -880,8 +912,14 @@ Newsreader (content), Inter (interface) and Anton (Music headings) come from
   which turn off React Native's `allowRTL`). Its defaults also keep the Android activity alive
   across a language change (`configChanges` `locale|layoutDirection`).
   `./plugins/withAndroidBuildTuning` writes Gradle properties: `reactNativeArchitectures`
-  `arm64-v8a` and `rnllamaVariants` (see "Native code and EAS").
+  `arm64-v8a` and `rnllamaVariants` (see "Native code and EAS"). `expo-build-properties` takes
+  `ios.deploymentTarget: "17.0"`.
 - **Checked in prebuild output** (SDK 58, `npx expo prebuild --no-install --clean` on a copy):
+  - **Deployment target:** `ios/Podfile.properties.json` has `"ios.deploymentTarget": "17.0"`
+    (the Podfile's `platform :ios` reads it) and the Cliffword target's Debug and Release
+    configurations have `IPHONEOS_DEPLOYMENT_TARGET = 17.0`. The project-level configurations
+    keep the template's 16.4, and the `CliffwordShare` extension, which sets none, inherits it;
+    an extension may target an older iOS than its app, and it only runs inside the 17.0 app.
   - **Info.plist:** the three usage strings, `ITSAppUsesNonExemptEncryption` false, the 8
     fonts in `UIAppFonts`, URL schemes `cliffword`, `app.cliffword` and `exp+cliffword` (dev
     client), `UIUserInterfaceStyle` Light, `RCTRootViewBackgroundColor` = `#F3F4F1`, iPhone
@@ -951,7 +989,7 @@ Run the native checks of this folder on a copy (see "Run, test, export"); never 
 | On-device-only speech on iOS | `patches/expo-speech-recognition+58.0.1.patch` (`ios/ExpoSpeechRecognitionModule.swift`): `supportsOnDeviceRecognition(locale?)`, and `start()` refuses instead of silently using Apple's servers when `requiresOnDeviceRecognition` is set and the locale has no on-device model | applies cleanly to the pristine file; not compiled (no Swift toolchain) |
 | Patch application | `"postinstall": "patch-package"`; llama.rn and expo-speech-recognition are pinned exactly (`0.13.0-rc.11`, `58.0.1`), since each patch fits one version | `npm ci` on a clean copy: both patches `✔`, the patched trees equal `node_modules`, every postinstall (llama.rn's native artifact download, @parcel/watcher) passes |
 | `modules/cliffword-native` | Swift `CliffwordNativeModule.swift` (streaming SHA-256 with CryptoKit on its own queue, `isExcludedFromBackup`, free space for important usage); Kotlin `CliffwordNativeModule.kt` and `FileSha256.kt`; `app.plugin.js` (Android backup rules for `files/models/`) | the Kotlin hash code compiled against expo-modules-core-shaped stubs (Kotlin 2.0.21) and matched `sha256sum` on the 1.1 GB model; the plugin's mods run in Jest |
-| `modules/cliffword-music` (iOS 16.4+) | `CliffwordMusicModule.swift`, `MusicController.swift`: MusicKit authorization, `MusicLibraryRequest`, `ApplicationMusicPlayer`, the line-end pause timer | autolinking resolves it; not compiled |
+| `modules/cliffword-music` (podspec iOS 16.4+, app 17.0) | `CliffwordMusicModule.swift`, `MusicController.swift`: MusicKit authorization, `MusicLibraryRequest`, `ApplicationMusicPlayer`, the line-end pause timer | autolinking resolves it; not compiled |
 | Config plugins | `llama.rn` (C++20, no OpenCL/Hexagon, production entitlements), `expo-speech-recognition` (usage strings, Google recognizer visibility), `expo-share-intent` (the `CliffwordShare` extension target, App Group, Android SEND filter), `expo-localization` (`supportsRTL: false`), `./modules/cliffword-native/app.plugin.js`, `./plugins/withAndroidBuildTuning` (arm64-v8a only and three llama.rn CPU variants, so the from-source llama.rn build fits the EAS time limit) | prebuild of a copy (see "Checked in prebuild output") |
 | Entitlements and capabilities | `com.apple.developer.kernel.increased-memory-limit` on every build (`ios.entitlements`); `extended-virtual-addressing` on production builds (llama.rn plugin); App Group `group.app.cliffword` on the app and the extension; the MusicKit app service on the `app.cliffword` App ID (no entitlement key) | prebuild output with and without `EAS_BUILD_PROFILE=production` |
 | Startup behavior that touches the OS | iOS audio session category `playback` at start (`createNativeSpeechIn`); the model adapter follows `AppState` on iOS (`createDeviceModel`); the model download uses expo-file-system's background `URLSession` | Jest with the fakes |
@@ -966,8 +1004,8 @@ without them the app links neither module (hashing falls back to `File#digest`, 
 - **iOS compile.** The patched `RNLlamaJSI.cpp` and `CliffwordScore.cpp` against
   `rnllama.xcframework` (framework headers `<rnllama/...>`, C++20); both local modules' Swift
   (Swift 5 mode against ExpoModulesCore 58); the patched `ExpoSpeechRecognitionModule.swift`;
-  the `CliffwordShare` extension target. `pod install` with `CliffwordMusic` at iOS 16.4 and the
-  `LLAMA_RN_CXX20` `post_install` block.
+  the `CliffwordShare` extension target. `pod install` with the platform at iOS 17.0
+  (`CliffwordMusic` declares 16.4) and the `LLAMA_RN_CXX20` `post_install` block.
 - **iOS signing.** EAS capability sync enables increased memory limit, extended virtual
   addressing (production), App Groups on both App IDs (`app.cliffword`,
   `app.cliffword.share-extension`) and MusicKit. The extension's `CFBundleVersion` follows the

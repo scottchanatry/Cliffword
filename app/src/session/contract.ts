@@ -116,6 +116,15 @@ export interface StoryActions extends CommonActions {
   setTextMode(mode: TextMode): void;
   /** Begin the register-switch task offered at the top of the frequency list. */
   startRegisterTask(): void;
+  /**
+   * Optional (added for the stores' AI-generated content rules, docs/STORE.md decision 6):
+   * "Report this sentence" on a screen that shows a story sentence (cliff, landing, noSe,
+   * nativeReply, turn, repair). It opens the learner's mail app with a report to the contact
+   * address (the sentence, model-written or canned, the app version and the platform), then
+   * publishes a notice: sent to the mail app, or no mail app opened. Absent: the views offer
+   * no report action.
+   */
+  reportSentence?(): void;
 }
 
 export interface StoryController {

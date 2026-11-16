@@ -8,6 +8,8 @@
  *   route to let go suspends and disposes it. Without the provider (text/[textId]) each mount
  *   has its own.
  * - It starts at once (restoring the stored session of that song or opening its song page).
+ * - It recognizes and speaks with the device's locales (expo-localization) after the learner's
+ *   slang regions.
  * - App settings changed elsewhere (library pills, profile) reach the session; app background
  *   suspends it (speech and listening stop, the session is stored).
  * - A learner swapped in from elsewhere (placement on the Story tab) builds a new controller on
@@ -22,6 +24,7 @@ import { AppState as NativeAppState } from 'react-native';
 import type { LearnerModel } from '@cliffword/engine';
 import { useAppState } from '../../appState/AppStateProvider';
 import { useServices } from '../../services/ServicesProvider';
+import { deviceLocales } from '../common/deviceLocales';
 import type { LyricActions, LyricViewModel } from '../contract';
 import { createLyricController, initialLyricViewModel, type LyricControllerDeps, type LyricControllerHandle } from './createLyricController';
 import type { LyricSourceState, LyricTarget } from './source';
@@ -154,6 +157,7 @@ export function useLyricController(target: LyricTarget | null, overrides: Partia
         haptics: services.haptics,
         clock: services.clock,
         music: services.music,
+        deviceLocales: deviceLocales(),
         updateSettings: (patch) => latest.current.appState.updateSettings(patch),
         onError:
           o.onError ??

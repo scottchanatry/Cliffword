@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 724 450" width="724" height="450">
+  <title>Cliffword</title>
+  <desc>The Cliffword mark: two rows of word tiles, and the story stops at the dashed amber gap. Drawn for the ink background (#16181D). scripts/make-icons.js renders every icon from this file; the colors can be overridden with the CSS variables --cw-old, --cw-new and --cw-gap.</desc>
+  <style>
+    .cw-old { fill: var(--cw-old, #C6CAC1); }
+    .cw-new { fill: var(--cw-new, #F3F4F1); }
+    .cw-gap { fill: none; stroke: var(--cw-gap, #F08A1D); stroke-width: 32; stroke-linecap: round; stroke-linejoin: round; }
+    .cw-dot { fill: var(--cw-gap, #F08A1D); }
+  </style>
+  <!-- Words heard earlier: lighter grey tiles. -->
+  <rect class="cw-old" x="0" y="0" width="430" height="190" rx="44"/>
+  <rect class="cw-old" x="480" y="0" width="244" height="190" rx="44"/>
+  <!-- The word just heard. -->
+  <rect class="cw-new" x="0" y="260" width="260" height="190" rx="44"/>
+  <!-- The cliff: a dashed tile (corners and the middle of each long side) with three dots. -->
+  <g class="cw-gap">
+    <path d="M326 326 V304 A28 28 0 0 1 354 276 H376"/>
+    <path d="M658 276 H680 A28 28 0 0 1 708 304 V326"/>
+    <path d="M708 384 V406 A28 28 0 0 1 680 434 H658"/>
+    <path d="M376 434 H354 A28 28 0 0 1 326 406 V384"/>
+    <path d="M461 276 H573"/>
+    <path d="M461 434 H573"/>
+  </g>
+  <circle class="cw-dot" cx="447" cy="355" r="25"/>
+  <circle class="cw-dot" cx="517" cy="355" r="25"/>
+  <circle class="cw-dot" cx="587" cy="355" r="25"/>
+</svg>

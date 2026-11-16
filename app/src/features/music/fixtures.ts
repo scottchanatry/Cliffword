@@ -77,6 +77,7 @@ export const MUSIC_FIXTURE_NAMES = [
   'c1-hint',
   'c1-free',
   'c1-listening',
+  'c1-manual',
   'a3-explicit-off',
   'a3-manual',
   'text-cliff',
@@ -181,6 +182,8 @@ export async function musicFixtures({ lang, pair, model }: MusicFixtureDeps): Pr
   // The canned cliff ("the line's last word") is the one the preview draws; the model is shown as loaded, as in C1.
   song.c1 = lyricViewModel(c1Cliff, { playback: WAITING, modelMode: 'model' });
   song['c1-listening'] = lyricViewModel(c1Cliff, { playback: WAITING, modelMode: 'model', listen: { phase: 'listening', level: 0.6, partial: 'jan' } });
+  // The same cliff without a player (pasted lyrics with no Apple Music track, and Android): the manual note.
+  song['c1-manual'] = lyricViewModel(c1Cliff, { playback: NO_PLAYER, modelMode: 'model' });
   const hint = session({ speaking: 0.45, register: 'neutral' });
   await hint.next(T0 + 1000);
   song['c1-hint'] = lyricViewModel(expectKind(await hint.next(T0 + 2000), 'cliff'), { playback: WAITING });
@@ -245,7 +248,7 @@ export async function musicFixtures({ lang, pair, model }: MusicFixtureDeps): Pr
   const library = libraryFixture();
   return {
     song,
-    library: { c3: library, 'c3-android': { ...library, appleMusic: 'unsupported', appleLibrary: [] } },
+    library: { c3: library, 'c3-android': { ...library, appleMusic: 'unsupported', appleLibrary: [], os: 'android' } },
     paste: pasteFixture(notes, lyrics.lines.map((l) => l.text), lyrics.removed.length),
     share: shareFixture(),
     time: timeFixture(lyrics.lines.map((l) => l.text)),

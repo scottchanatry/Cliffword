@@ -4,6 +4,7 @@ import type { Register } from '@cliffword/engine';
 import type { MusicAuthorization } from '../../adapters/music/types';
 import { formatBytes } from '../../adapters/model/modelFileMessages';
 import { CHROME_MAX_SCALE } from '../../components/words/fontScale';
+import { CONTACT_EMAIL, externalLinkUrl, type ExternalLink } from '../../config/links';
 import { tKey, useI18n, type CatalogKey } from '../../i18n';
 import type { AppSettings, TextMode } from '../../storage/repos/settings';
 import { colors, layout, spacing } from '../../theme';
@@ -58,6 +59,11 @@ export interface SettingsViewProps {
   /** Counted by the screen: seven taps open the hidden model self-test. */
   onVersionTap: () => void;
   onOpenLicenses: () => void;
+  /**
+   * Opens the privacy policy or the support page in the browser, or a mail to the contact
+   * address; rejects when no app took it (the screen then shows where to find it).
+   */
+  onOpenLink: (link: ExternalLink) => Promise<void>;
   onBack: () => void;
 }
 
@@ -77,7 +83,15 @@ export function SettingsView(props: SettingsViewProps) {
   const [busy, setBusy] = useState(false);
   const [deletedModel, setDeletedModel] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
+  const [linkNotice, setLinkNotice] = useState<string | null>(null);
   const size = formatBytes(model.descriptor.bytes, t);
+
+  const openLink = (link: ExternalLink) => {
+    setLinkNotice(null);
+    props.onOpenLink(link).catch(() => {
+      setLinkNotice(link === 'contact' ? t('settings.contact.failed', { email: CONTACT_EMAIL }) : t('settings.link.failed', { url: externalLinkUrl(link) }));
+    });
+  };
 
   const run = async (which: Confirm) => {
     setBusy(true);
@@ -226,8 +240,30 @@ export function SettingsView(props: SettingsViewProps) {
         </Pressable>
         <SettingsRow title={t('settings.nativeLanguage')} value={props.nativeName} divider />
         <SettingsRow title={t('settings.targetLanguage')} value={props.targetName} divider />
+        <LinkRow
+          title={t('settings.privacyPolicy')}
+          hint={t('settings.privacyPolicy.hint')}
+          onPress={() => openLink('privacy')}
+          external
+          divider
+          testID="settings-privacy-policy"
+        />
+        <LinkRow title={t('settings.support')} hint={t('settings.support.hint')} onPress={() => openLink('support')} external divider testID="settings-support" />
+        <LinkRow
+          title={t('settings.contact')}
+          hint={t('settings.contact.hint', { email: CONTACT_EMAIL })}
+          onPress={() => openLink('contact')}
+          external
+          divider
+          testID="settings-contact"
+        />
         <LinkRow title={t('licenses.title')} hint={t('licenses.hint')} onPress={props.onOpenLicenses} testID="open-licenses" />
       </Section>
+      {linkNotice ? (
+        <InterfaceText variant="caption" tone="muted" accessibilityLiveRegion="polite" maxFontSizeMultiplier={CHROME_MAX_SCALE} testID="settings-link-notice">
+          {linkNotice}
+        </InterfaceText>
+      ) : null}
 
       {confirm ? (
         <ConfirmSheet

@@ -7,6 +7,7 @@ import { VoiceQuality } from 'expo-speech';
 import { FakeClock } from '../clock/FakeClock';
 import { ExpoSpeechOut, type ExpoSpeechModule } from './ExpoSpeechOut';
 import { SpeechOutError, type WordBoundary } from './types';
+import { VOICE_LIST_TIMEOUT_MS } from './voices';
 
 class ScriptedSpeech implements ExpoSpeechModule {
   readonly spoken: { text: string; options: SpeechOptions }[] = [];
@@ -137,6 +138,35 @@ describe('ExpoSpeechOut', () => {
 
     module.getAvailableVoicesAsync = () => Promise.reject(new Error('unavailable'));
     expect(await speech.voices()).toEqual([]);
+  });
+
+  describe('a platform that never reports its voices', () => {
+    beforeEach(() => jest.useFakeTimers());
+    afterEach(() => jest.useRealTimers());
+
+    it('answers with no voices after VOICE_LIST_TIMEOUT_MS instead of hanging, and clears its timer', async () => {
+      const module = new ScriptedSpeech();
+      module.getAvailableVoicesAsync = () => new Promise<ExpoVoice[]>(() => undefined);
+      const speech = new ExpoSpeechOut(module);
+      let settled: unknown = 'pending';
+      void speech.voices('es').then((v) => (settled = v));
+      await jest.advanceTimersByTimeAsync(VOICE_LIST_TIMEOUT_MS - 1);
+      expect(settled).toBe('pending');
+      await jest.advanceTimersByTimeAsync(1);
+      expect(settled).toEqual([]);
+      expect(jest.getTimerCount()).toBe(0);
+    });
+
+    it('takes a list that comes in time, and leaves no timer behind', async () => {
+      const module = new ScriptedSpeech();
+      const voice: ExpoVoice = { identifier: 'es-mx-1', name: 'Paulina', language: 'es-MX', quality: VoiceQuality.Default };
+      module.getAvailableVoicesAsync = () => new Promise<ExpoVoice[]>((resolve) => setTimeout(() => resolve([voice]), 200));
+      const speech = new ExpoSpeechOut(module, undefined, 500);
+      const pending = speech.voices();
+      await jest.advanceTimersByTimeAsync(200);
+      await expect(pending).resolves.toEqual([{ id: 'es-mx-1', name: 'Paulina', lang: 'es-MX', quality: 'default' }]);
+      expect(jest.getTimerCount()).toBe(0);
+    });
   });
 
   it('uses expo-speech itself by default (mocked natively in Jest)', async () => {

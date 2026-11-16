@@ -1,12 +1,13 @@
 /**
  * Dev gallery of the story views: renders one fixture (src/features/story/fixtures.ts) by name
  * (src/preview/Gallery.tsx lists them all). The actions keep a little local state (text mode, meaning sheet,
- * notice, type instead) so the screens can be tried by hand; everything else does nothing.
+ * notice, type instead, the report's thanks) so the screens can be tried by hand; everything else does nothing.
  * Reached only through the guarded (dev) route.
  */
 import { useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { tKey } from '../../i18n';
 import type { StoryActions, StoryViewModel } from '../../session/contract';
 import { sharedMockModel } from '../../services/defaults';
 import { useServices } from '../../services/ServicesProvider';
@@ -56,6 +57,8 @@ function PreviewStory({ initial }: { initial: StoryViewModel }) {
       replay: none,
       setTextMode: (textMode) => setVm((v) => ({ ...v, textMode })),
       startRegisterTask: none,
+      // As the app offers it; the gallery shows the thanks notice instead of opening mail.
+      reportSentence: () => setVm((v) => ({ ...v, notice: { key: tKey('story.notice.reported') } })),
     };
   }, []);
   return <StoryView vm={vm} actions={actions} />;

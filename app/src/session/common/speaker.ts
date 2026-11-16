@@ -9,7 +9,7 @@
 import type { LanguagePack } from '@cliffword/engine';
 import { recognitionLocales } from '../../adapters/speechIn/locales';
 import type { SpeechOut, Voice, WordBoundary, WordSpan } from '../../adapters/speechOut/types';
-import { normalizeLang } from '../../adapters/speechOut/voices';
+import { normalizeLang, VOICE_LIST_TIMEOUT_MS } from '../../adapters/speechOut/voices';
 
 export interface VoiceChoice {
   lang: string;
@@ -25,11 +25,12 @@ export function wordSpansOf(pack: Pick<LanguagePack, 'segment'>, text: string): 
 }
 
 /**
- * How long the installed-voice list may take. A browser without speech voices never answers
- * (expo-speech on the web waits for 'voiceschanged'); after this the platform default voice for
- * the language is used, so a cue never blocks the session queue.
+ * How long the installed-voice list may take (defined with the speech-out adapter, which bounds
+ * its own voices() by it). A browser without speech voices never answers (expo-speech on the web
+ * waits for 'voiceschanged'); after this the platform default voice for the language is used, so
+ * a cue never blocks the session queue.
  */
-export const VOICE_LIST_TIMEOUT_MS = 1500;
+export { VOICE_LIST_TIMEOUT_MS };
 
 /** The voice list, or null when it did not come within VOICE_LIST_TIMEOUT_MS (the timer is always cleared). */
 async function voicesWithin(speechOut: SpeechOut, lang: string, ms: number): Promise<Voice[] | null> {

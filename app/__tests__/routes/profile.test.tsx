@@ -5,10 +5,11 @@
  * onboarding is not shown), and named 44 dp controls on every screen.
  */
 import path from 'path';
-import { StyleSheet } from 'react-native';
+import { Linking, StyleSheet } from 'react-native';
 import { fireEvent, renderRouter, screen, waitFor, within } from 'expo-router/testing-library';
 import { estimateVocabulary, frequencyLexemeKeys } from '@cliffword/engine';
 import { FakeMusicPlayer } from '../../src/adapters/music/FakeMusicPlayer';
+import { CONTACT_EMAIL, PRIVACY_URL, SUPPORT_URL } from '../../src/config/links';
 import { learnerPrior } from '../../src/learner/prior';
 import { setAppServices } from '../../src/services/appServices';
 import { defaultPacks, sharedMockModel } from '../../src/services/defaults';
@@ -267,6 +268,30 @@ describe('settings', () => {
     expectAccessibleControls();
     await fireEvent.press(screen.getByRole('button', { name: 'Read the Apache License 2.0 of Qwen3-1.7B' }));
     expect(screen.getByTestId('license-qwen3-text')).toHaveTextContent(/TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION/);
+  });
+
+  it('About opens the privacy policy, support and a mail to the contact address; one no app opens says where it is', async () => {
+    const services = install(createTestServices());
+    await onboarded(services);
+    const open = jest.mocked(Linking.openURL);
+    open.mockClear();
+    await openSettings();
+    await fireEvent.press(screen.getByRole('link', { name: 'Privacy policy, opens in another app' }));
+    expect(open).toHaveBeenLastCalledWith(PRIVACY_URL);
+    await fireEvent.press(screen.getByRole('link', { name: 'Support, opens in another app' }));
+    expect(open).toHaveBeenLastCalledWith(SUPPORT_URL);
+    expect(screen.getByTestId('settings-contact')).toHaveTextContent(new RegExp(`Email ${CONTACT_EMAIL}`));
+    await fireEvent.press(screen.getByRole('link', { name: 'Contact, opens in another app' }));
+    expect(open).toHaveBeenLastCalledWith(`mailto:${CONTACT_EMAIL}`);
+    expect(screen.queryByTestId('settings-link-notice')).toBeNull();
+
+    open.mockRejectedValueOnce(new Error('no mail app'));
+    await fireEvent.press(screen.getByRole('link', { name: 'Contact, opens in another app' }));
+    expect(await screen.findByTestId('settings-link-notice')).toHaveTextContent(`No email app opened. You can write to ${CONTACT_EMAIL}`);
+    open.mockRejectedValueOnce(new Error('no browser'));
+    await fireEvent.press(screen.getByRole('link', { name: 'Support, opens in another app' }));
+    await waitFor(() => expect(screen.getByTestId('settings-link-notice')).toHaveTextContent(`That page could not be opened. It is at ${SUPPORT_URL}`));
+    expectAccessibleControls();
   });
 
   it('opens the hidden self-test after seven taps on the version, and runs it on the mock model', async () => {

@@ -41,7 +41,7 @@ export function appleMusicRow(
 export function MusicLibraryView(props: MusicLibraryProps) {
   const { t, plural } = useI18n();
   const [howTo, setHowTo] = useState(false);
-  const apple = appleMusicRow(t, props.appleMusic);
+  const apple = appleMusicRow(t, props.appleMusic, props.os);
   const showSpotify = () => {
     setHowTo(true);
     props.onShowSpotifyHowTo();

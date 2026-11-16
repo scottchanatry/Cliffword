@@ -15,3 +15,4 @@ export type { StepWrite } from './persist';
 export { typedTranscript, utteranceOf } from './utterance';
 export type { SessionUtterance } from './utterance';
 export { MAX_HINTS, listenOptionsFor, withCommandHints } from './listen';
+export { deviceLocales } from './deviceLocales';

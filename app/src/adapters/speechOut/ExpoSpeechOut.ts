@@ -6,11 +6,13 @@
  * one) and settles each promise exactly once. After stop(), late callbacks from the platform
  * for the stopped utterance (web reports a cancel as an error, iOS as onStopped) are ignored.
  * Word boundaries arrive as character offsets and are mapped to the utterance's word spans.
+ * voices() is bounded by VOICE_LIST_TIMEOUT_MS: a platform that never reports its voices (a
+ * browser without speech voices) gets an empty list instead of a promise that never settles.
  */
 import * as ExpoSpeech from 'expo-speech';
 import type { Clock } from '../clock/types';
 import { systemClock } from '../clock/systemClock';
-import { filterVoices } from './voices';
+import { filterVoices, VOICE_LIST_TIMEOUT_MS } from './voices';
 import { spanIndexAt, wordSpans } from './wordSpans';
 import { SpeechOutError, type SpeakOptions, type SpeakResult, type SpeechOut, type Voice } from './types';
 
@@ -38,6 +40,8 @@ export class ExpoSpeechOut implements SpeechOut {
   constructor(
     private readonly speech: ExpoSpeechModule = ExpoSpeech,
     private readonly clock: Clock = systemClock,
+    /** How long voices() waits for the platform's list before it answers with none. */
+    private readonly voiceListTimeoutMs: number = VOICE_LIST_TIMEOUT_MS,
   ) {}
 
   get isSpeaking(): boolean {
@@ -105,11 +109,17 @@ export class ExpoSpeechOut implements SpeechOut {
   }
 
   async voices(lang?: string): Promise<Voice[]> {
-    let list: ExpoSpeech.Voice[] | undefined;
+    let list: ExpoSpeech.Voice[] | null | undefined;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const late = new Promise<null>((resolve) => {
+      timer = setTimeout(() => resolve(null), this.voiceListTimeoutMs);
+    });
     try {
-      list = await this.speech.getAvailableVoicesAsync();
+      list = await Promise.race([this.speech.getAvailableVoicesAsync(), late]);
     } catch {
       return [];
+    } finally {
+      clearTimeout(timer);
     }
     if (!Array.isArray(list)) return [];
     return filterVoices(

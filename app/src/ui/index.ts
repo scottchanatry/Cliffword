@@ -8,3 +8,5 @@ export { Screen } from './Screen';
 export type { ScreenProps } from './Screen';
 export { ContentText, InterfaceText, MusicHeading, Text } from './Text';
 export type { TextProps, TextTone } from './Text';
+export { QuietLink } from './QuietLink';
+export type { QuietLinkProps } from './QuietLink';

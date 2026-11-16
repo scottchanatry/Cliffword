@@ -4,10 +4,11 @@
  * microphone with typed practice; and a relaunch that resumes at the stored step.
  */
 import path from 'path';
-import { StyleSheet } from 'react-native';
+import { Linking, StyleSheet } from 'react-native';
 import { act, fireEvent, renderRouter, screen, waitFor, within } from 'expo-router/testing-library';
 import { FakeModelManager } from '../../src/adapters/model/FakeModelManager';
 import { FakeSpeechIn } from '../../src/adapters/speechIn/FakeSpeechIn';
+import { PRIVACY_URL } from '../../src/config/links';
 import { setAppServices } from '../../src/services/appServices';
 import { defaultPacks, sharedMockModel } from '../../src/services/defaults';
 import { createTestServices } from '../../src/services/testServices';
@@ -159,6 +160,20 @@ describe('onboarding', () => {
     expect(await screen.findByTestId('story-screen')).toBeOnTheScreen();
     const storage = await services.storage.open();
     expect(await storage.settings.getAll()).toMatchObject({ onboarded: true, startLevel: 'placement', modelDeclined: false });
+  });
+
+  it('the welcome footer links the privacy policy, and a link no browser takes changes nothing', async () => {
+    install(createTestServices());
+    const open = jest.mocked(Linking.openURL);
+    open.mockClear();
+    await renderRouter(APP_DIR, { initialUrl: '/onboarding' });
+    await fireEvent.press(await screen.findByRole('link', { name: 'Privacy policy' }));
+    expect(open).toHaveBeenCalledWith(PRIVACY_URL);
+    open.mockRejectedValueOnce(new Error('no browser'));
+    await fireEvent.press(screen.getByRole('link', { name: 'Privacy policy' }));
+    expect(open).toHaveBeenCalledTimes(2);
+    expect(screen.getByTestId('onboarding-screen')).toBeOnTheScreen();
+    expect(screen).toHavePathname('/onboarding');
   });
 
   it('"Not now" declines the download; the story runs and Settings offers the download', async () => {

@@ -11,7 +11,7 @@ import { renderWithProviders } from '../../../testing/renderWithProviders';
 import { storyFixtures, type StoryFixtures } from '../fixtures';
 import { StoryView } from '../StoryView';
 
-export type MockStoryActions = { [K in keyof StoryActions]: jest.Mock };
+export type MockStoryActions = { [K in keyof StoryActions]-?: jest.Mock };
 
 export function mockStoryActions(): MockStoryActions {
   const names: (keyof StoryActions)[] = [
@@ -31,6 +31,7 @@ export function mockStoryActions(): MockStoryActions {
     'replay',
     'setTextMode',
     'startRegisterTask',
+    'reportSentence',
   ];
   return Object.fromEntries(names.map((n) => [n, jest.fn()])) as MockStoryActions;
 }

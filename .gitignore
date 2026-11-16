@@ -3,3 +3,6 @@ node_modules/
 .DS_Store
 models/
 __pycache__/
+
+# Node compile cache (created when an agent sets TMPDIR to a relative path)
+node-compile-cache/

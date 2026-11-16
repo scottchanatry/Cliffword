@@ -99,7 +99,8 @@ export interface NextSentenceTuning {
  * - n 5, retryN 4: with 5 candidates at least one landed in the band in most steps for
  *   every simulated learner; the safe round rescues most of the rest.
  * - temperature 0.9: at 0.8 the beginner prompts repeated one sentence in up to 6 of 12
- *   candidates; 0.9 keeps the min-p filter's quality with more distinct candidates.
+ *   candidates; a little more temperature spreads them, and llama.cpp's min-p filter
+ *   (applied before the temperature) keeps out the unlikely tokens. Judgement.
  * - stop at the first sentence end (". ", "? ", "! " or a line break): about 10 to 14
  *   tokens per candidate instead of the 24 to 36 of a full maxTokens run.
  * - tokensPerWord 2: Qwen3 uses about 1.6 tokens per Spanish word, punctuation included;

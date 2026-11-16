@@ -509,6 +509,14 @@ fallback.
   delete rules that left pronouns and slang alone, wordless utterances, pack fillers,
   interface keys, the starter in the default pair pack, script-aware joins, public
   exports, session determinism and restore under odd input.
+- Story generation: `src/story/select.test.ts` (every reject code, the band-first
+  ranking, novelty, continuity, familiar words, the natural term), `src/story/prompt.test.ts`
+  (the continuation prompt per pack, with and without story data), `src/story/next.test.ts`
+  (target and safe rounds, natural scoring, reject counts), `src/story/neutral.test.ts`
+  (no Spanish in story/), `src/session/handover.test.ts` (the hand-over rule, the bridge,
+  no stall or early repeat with or without a model) and `src/session/prefetch.test.ts`
+  (same story with and without prefetch, snapshot / restore, learner and model changes,
+  serialized model calls).
 - `test/language-neutral.test.ts`: a toy Japanese pack (Intl.Segmenter words, and a
   dictionary segmenter) through scoreWords, generateVariants, judgeSentence,
   matchCommand, alignTranscript and StorySession steps with the mock model; no space is

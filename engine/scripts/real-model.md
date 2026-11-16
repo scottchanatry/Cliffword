@@ -105,7 +105,10 @@ them from `src/model/`.
   40, then top-p 0.95, then min-p 0.05, then the temperature. The request can override
   `topK`, `topP` and `minP`. Generation stops at a stop string (which is cut off), at an
   end-of-generation token, or after `maxTokens`.
-- **KV cache**: the cache of the longest prefix shared with the previous request is reused.
+- **KV cache**: the cache of the longest prefix shared with the previous request is reused,
+  for `/generate` prompts too (since 2026-11-16: story generation sends a target round and
+  a safe round that differ only in the last line; the texts are identical with or without
+  the reuse, checked on Qwen3-1.7B).
   Every evaluation covers at least two tokens. In this llama.cpp build, evaluating one
   token at a time moved single-token logprobs by up to 0.28 nats, and the total of a
   22-token sentence by 0.52 nats. Batches of 2, 3, 4, 5 or 8 tokens gave results

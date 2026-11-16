@@ -57,12 +57,13 @@ falls back to `index.html` for unknown paths. `python -m http.server` has no fal
 
 | Path | What |
 |---|---|
-| `app/` | The expo-router routes; in the repo the router root is `app/app/`. Put only routes here (never tests or helpers). `_layout.tsx` sets up fonts, the splash, the gesture root, `AppProviders`, `AppBootstrap` and the root stack with the onboarding guard. `(tabs)/_layout.tsx` has the Story and Music tabs and the header with the wordmark and the profile corner button. The other routes are `(tabs)/index.tsx` (Story), `(tabs)/music.tsx`, `profile.tsx` (modal), `onboarding.tsx` and `+not-found.tsx`. `+native-intent.tsx` is not a route: it sends the iOS share-extension deep link to the Music tab. |
+| `app/` | The expo-router routes; in the repo the router root is `app/app/`. Put only routes here (never tests or helpers). `_layout.tsx` sets up fonts, the splash, the gesture root, `AppProviders`, `AppBootstrap` and the root stack with the onboarding guard. `(tabs)/_layout.tsx` has the Story and Music tabs and the header with the wordmark and the profile corner button. The other routes are `(tabs)/index.tsx` (Story), the Music stack `(tabs)/music/` (`index` library, `[songId]` song page, `registers`, `time`, and the `paste` and `share` sheets; see "Music controller"), `text/` (`paste`, `[textId]`: brought text), `profile.tsx` (modal), `onboarding.tsx` and `+not-found.tsx`. `+native-intent.tsx` is not a route: it sends the iOS share-extension deep link to the Music tab. |
 | `src/providers/AppProviders.tsx` | The providers that need no startup work: services, packs, i18n. Tests render through it. |
 | `src/bootstrap/` | Startup. `bootstrap(services)` opens storage, reads the settings and restores the learner. `AppBootstrap` shows the loading and error states around it. |
 | `src/appState/` | `AppStateProvider` and the hooks `useAppState()`, `useSettings()` and `useLearner()`. They hold the opened storage, the settings and the learner (`replaceLearner` swaps in a model the story session rebuilt with a new prior). |
 | `src/learner/prior.ts` | `learnerPrior(packs, startLevel, stored?)` and `priorSpecFor`: the learner model's prior as the engine's `PriorSpec`, rebuilt at every start (from the spec stored with the learner snapshot once placement has run). |
-| `src/session/` | `contract.ts`, the seam between controllers and views; `story/`, the Story tab's controller (see "Story controller"). |
+| `src/session/` | `contract.ts`, the seam between controllers and views; `story/`, the Story tab's controller (see "Story controller"); `lyric/`, the Music tab's controller for a song or a brought text, and `common/`, the hold, voice, queue and step-write plumbing both controllers share (see "Music controller"). |
+| `src/music/` | The Music tab's data: pasted lyrics (parse, preview, store), the library rows' song summary (region, slang amount, monogram), shared songs, and the hooks behind the library, paste, share, time-it and text-paste routes. |
 | `src/services/` | The service container (see "Services and adapters"). |
 | `src/adapters/` | Device adapters, one folder per capability. Each folder has a documented `types.ts` contract, fakes and web fallbacks; `listeners.ts` is shared. |
 | `src/storage/` | SQLite storage: drivers, migrations and repositories. See `src/storage/README.md`. |
@@ -211,6 +212,77 @@ Display text from the engine is a `UiText`, resolved with `t(key, params)`.
   `src/features/story/testing/storyTestKit.tsx` helpers (`mockStoryActions`, `loadFixtures`,
   `renderStory`) are test-only.
 
+## Music controller
+
+The Music tab is a stack (`app/(tabs)/music/`): the library (`index`, C3), a song page
+(`[songId]`: the session's screen, A3 / C1 / B4 and the rest; `?mode=cliff|echo`), the two
+registers (`registers?songId=`, C2), "time it while you listen" (`time?songId=`) and the `paste`
+(`?songId=`) and `share` (`?id=`) sheets. Brought text is `app/text/` (`paste`, `[textId]`),
+outside the tabs, with its own header and back button. Routes are thin: the data comes from
+hooks in `src/music/` and `src/session/lyric/`, the views from `src/features/music/` (props in
+`src/features/music/types.ts`).
+
+- **Controller.** `createLyricController(deps)` (`src/session/lyric/`) implements
+  `LyricController` of `src/session/contract.ts` over the engine's `LyricSession` for one target,
+  `{ kind: 'song', songId }` or `{ kind: 'text', textId }`; the engine's `LyricScreen`s are the
+  view data. `useLyricController(target)` builds it from `useServices()` and the app state.
+  Inside the Music stack (`LyricControllersProvider` in its layout) the routes of one song share
+  one controller, so the time-it page's taps and the song page act on the same session; the last
+  route to let go suspends and disposes it. `getSource()` says loading, missing, a song that
+  needs lyrics (the page asks for them), or ready (title, artist, genre, linked to Apple Music).
+- **Session.** One stored `LyricSession` per song (`sessions` row `lyric:<songId>`) and per
+  text (`text:<textId>`), kind `lyric`, version `LYRIC_SESSION_FORMAT`, never `active` (every
+  song resumes its own). It is restored when its lyrics are the song's current lyrics, else a new
+  one opens on the song page; pasting the lyrics again reloads open controllers. Session settings
+  come from the app settings (register, regions, explicit lyrics; `sessionSettingsFor`); the
+  song page's register toggle and explicit pill store them back. Opening or restoring a song
+  plays nothing.
+- **One queue, one write.** As on the Story tab: every session call runs through one serial
+  queue (`busy` while async steps run; actions checked when called and when their turn comes);
+  each step writes its learner events (`storage.learner.record`, the session runs with
+  `applyEvents: false`), the session snapshot and the credited speaking time in one transaction
+  (`persistStep`). Spoken answers credit minutes spoken; typed answers and tapped options do not.
+- **Sound.** Manual mode (no Apple Music, a song not linked to it, or lines without times): the
+  voice reads each step's cue (the line up to the gap, then the options of an options cliff; the
+  no-sé answer, then `played()`). Timed mode (an Apple Music library song, access granted, LRC
+  or tapped line times): next, a tapped line, "otra vez" and play run the track up to the cliff
+  and pause there with `MusicPlayer.pauseAt(LinePlay.pauseAtMs)`; when the pause is at the line
+  start (no word marks), the voice then reads the line up to the gap. A track paused just before
+  the next target resumes from there (the song runs on line by line); otherwise it seeks back to
+  the previous line's start. Playback starts or resumes only on a learner's action (App Review
+  4.5.2). Holding pauses the track before the microphone opens and every spoken cue pauses it
+  first, so nothing records or talks over the song; the sing-back (`startEcho`) pauses, then
+  replays the line on the track when it is timed. `markLine` stores tapped starts in the
+  session (LinePlay mode `tapped`).
+- **Hold to speak** works exactly as on the Story tab, through `src/session/common/` (below); a
+  recognized "siguiente" or "otra vez" acts like its chip.
+- **Brought text.** The same session over `{ kind: 'text' }`; with the model loaded the
+  controller also scores `surpriseMap` once per register for the reader's shading
+  (`vm.surprise`). Without the model it runs canned (cliffs on the last word or a slang span).
+- **Library.** `useMusicLibrary()` reads stored songs (most recently opened first) with
+  `songSummary` (`src/music/songSummary.ts`: the region with the most slang, the amount per sung
+  word, every register pack), brought texts, unconfirmed shares (`services.share`), Apple Music
+  access (`'unsupported'` on Android and web; asked only on Connect; Manage opens Settings) and
+  the library songs not stored yet, again on every focus.
+- **Paste.** `parseLyrics` (plain text or LRC) as the learner types, with a preview (lines,
+  timed lines, lines left out, slang and explicit counts, first lines); Save stores a manual song
+  (or the given one) and the raw text (`lyrics`; reads parse the raw text again, so a better
+  parser applies to old songs), then opens the song page.
+- **Share.** A pending share becomes a draft (`parseSpotifyShare`; editable title and artist; a
+  Spotify link that is not a track says so); Confirm stores a `spotify_share` song (one per
+  track) or a manual one, clears the share and asks for the lyrics.
+- **Shared plumbing (`src/session/common/`).** `SerialQueue`, `HoldToSpeak`, `Speaker` (voice
+  pick by region, one utterance at a time, word spans from the pack), `persistStep`,
+  `utteranceOf` and `listenOptionsFor` are the Story controller's own plumbing lifted out
+  unchanged in behaviour. The lyric controller uses them; the story controller can switch to
+  them without behaviour changes.
+- **Tests.** `src/session/lyric/createLyricController.test.ts` (paste to read with slang notes,
+  line to cliff to spoken result, options, no sé, echo alignment, registers, explicit off,
+  region filter, restore, re-pasted lyrics, manual mode, timed and word-mark pauses with
+  `FakeMusicPlayer` on the `FakeClock`, hold pauses the track, tapped timing, brought text with
+  surprise shading and minutes spoken), `src/music/music.test.ts` and
+  `__tests__/routes/music.test.tsx` (the routes end to end).
+
 ## The engine as a dependency (monorepo approach)
 
 The repo has no root package and no workspaces. `engine/` and `app/` are separate npm projects.
@@ -307,8 +379,8 @@ and, in tests, deterministic (`test-1`, `test-2`, ...).
 
 Also faked or fixed for now:
 
-- **Placeholder buttons.** The cliff card's buttons and the Music source buttons have no
-  actions yet.
+- **Placeholder buttons.** The cliff card's buttons have no actions yet. (The Music source
+  buttons work: see "Music controller".)
 - **Native fonts.** They are embedded by the expo-font plugin and have only been checked
   against the generated projects, not yet on a device.
 
@@ -521,9 +593,10 @@ Sharing a Spotify track link or a `Song - Artist` text from another app opens Cl
   a named progress bar. Hold to speak has a translated hint, because it works by long press, and
   an activate action that toggles listening for screen readers. Story tiles are buttons named
   "Word n" (see "Story views").
-- **Checked in the route tests.** For the onboarding, Story, Music, profile and not-found
-  screens, every button, toggle button and link must have an accessible name and a target of at
-  least 44 dp. Tab bar buttons are exempt because they fill the 60 dp bar.
+- **Checked in the route tests.** For the onboarding, Story, Music (library, paste, share,
+  song page at a cliff, registers, time it, a song without lyrics), brought text (paste, reader),
+  profile and not-found screens, every button, toggle button and link must have an accessible
+  name and a target of at least 44 dp. Tab bar buttons are exempt because they fill the 60 dp bar.
 
 ## Fonts
 
@@ -591,6 +664,13 @@ Newsreader (content), Inter (interface) and Anton (Music headings) come from
   (`extra.eas.build.experimental.ios.appExtensions`, with its App Group entitlement) when the
   config is evaluated, so app.json does not repeat it (a second entry for the same target makes
   the plugin fail). The local `modules/cliffword-music` needs no plugin entry.
+  `expo-localization` takes `supportsRTL: false`: the interface is English only and the content
+  is Spanish, so the layout never mirrors on a phone set to an RTL language (Android
+  `supportsRtl="false"` and the module's `ExpoLocalization_supportsRTL` flag on both platforms,
+  which turn off React Native's `allowRTL`). Its defaults also keep the Android activity alive
+  across a language change (`configChanges` `locale|layoutDirection`).
+  `./plugins/withAndroidBuildTuning` writes Gradle properties: `reactNativeArchitectures`
+  `arm64-v8a` and `rnllamaVariants` (see "Native code and EAS").
 - **Checked in prebuild output** (SDK 58, `npx expo prebuild --no-install --clean` on a copy):
   - **Info.plist:** the three usage strings, `ITSAppUsesNonExemptEncryption` false, the 8
     fonts in `UIAppFonts`, URL schemes `cliffword`, `app.cliffword` and `exp+cliffword` (dev
@@ -628,6 +708,16 @@ Newsreader (content), Inter (interface) and Anton (Music headings) come from
     `AppGroupIdentifier`.
   - **Share intent (Android):** the main activity has `launchMode="singleTask"` and an
     `android.intent.action.SEND` filter for `text/plain` (category `DEFAULT`).
+  - **Localization:** `android:supportsRtl="false"`, `ExpoLocalization_supportsRTL` false in
+    `strings.xml` and in Info.plist; `configChanges` ends in `locale|layoutDirection`.
+  - **Gradle properties:** `reactNativeArchitectures=arm64-v8a` and
+    `rnllamaVariants=rnllama,rnllama_v8_2_dotprod,rnllama_v8_2_dotprod_i8mm`.
+  - **Expo modules provider** (`npx expo-modules-autolinking generate-modules-provider -p apple
+    --target-platform ios`): registers `CliffwordMusicModule`, `CliffwordNativeModule`,
+    `ExpoSpeechRecognitionModule`, `ExpoShareIntentModule`, `LocalizationModule`,
+    `FileSystemModule` and `KeepAwakeModule`, and `FileSystemBackgroundSessionHandler` (the
+    background download's app delegate subscriber). llama.rn is linked by React Native's own
+    autolinking (`react-native-config`), not as an Expo module.
 - **`eas.json`.**
   - `appVersionSource: "remote"`: build numbers live on EAS, and Android versionCode is already
     2 there.
@@ -635,3 +725,68 @@ Newsreader (content), Inter (interface) and Anton (Music headings) come from
     (internal, Android APK), `preview-simulator`, and `production` (auto-increment, Android app
     bundle).
 - **Native folders.** `ios/` and `android/` are generated by prebuild and ignored by git.
+
+## Native code and EAS
+
+Everything below is native code or native configuration that only an EAS build compiles. The
+JavaScript around it is tested in Jest with fakes; the Linux checks are listed with each item.
+Run the native checks of this folder on a copy (see "Run, test, export"); never commit
+`ios/` or `android/`.
+
+### Every native change
+
+| What | Where | Checked here |
+|---|---|---|
+| llama.rn text scoring | `patches/llama.rn+0.13.0-rc.11.patch`: new `cpp/jsi/CliffwordScore.{h,cpp}` (llama.cpp C API only), host functions `llamaCliffwordScoreText` and `llamaCliffwordNextTokens` in one marked block of `cpp/jsi/RNLlamaJSI.cpp`, `android/src/main/CMakeLists.txt` compiles the new file (the iOS podspec already takes `cpp/jsi/**`), and the JS wrapper and typings in `src/` and `lib/` (`scoreText`, `nextTokens`, `isTextScoringAvailable`) | built against llama.rn's vendored llama.cpp on Linux and compared with `proof/model_server.py` (`native-tests/scoring/`); `-fsyntax-only` with g++ and clang++ for the Android and iOS flag sets |
+| On-device-only speech on iOS | `patches/expo-speech-recognition+58.0.1.patch` (`ios/ExpoSpeechRecognitionModule.swift`): `supportsOnDeviceRecognition(locale?)`, and `start()` refuses instead of silently using Apple's servers when `requiresOnDeviceRecognition` is set and the locale has no on-device model | applies cleanly to the pristine file; not compiled (no Swift toolchain) |
+| Patch application | `"postinstall": "patch-package"`; llama.rn and expo-speech-recognition are pinned exactly (`0.13.0-rc.11`, `58.0.1`), since each patch fits one version | `npm ci` on a clean copy: both patches `✔`, the patched trees equal `node_modules`, every postinstall (llama.rn's native artifact download, @parcel/watcher) passes |
+| `modules/cliffword-native` | Swift `CliffwordNativeModule.swift` (streaming SHA-256 with CryptoKit on its own queue, `isExcludedFromBackup`, free space for important usage); Kotlin `CliffwordNativeModule.kt` and `FileSha256.kt`; `app.plugin.js` (Android backup rules for `files/models/`) | the Kotlin hash code compiled against expo-modules-core-shaped stubs (Kotlin 2.0.21) and matched `sha256sum` on the 1.1 GB model; the plugin's mods run in Jest |
+| `modules/cliffword-music` (iOS 16.4+) | `CliffwordMusicModule.swift`, `MusicController.swift`: MusicKit authorization, `MusicLibraryRequest`, `ApplicationMusicPlayer`, the line-end pause timer | autolinking resolves it; not compiled |
+| Config plugins | `llama.rn` (C++20, no OpenCL/Hexagon, production entitlements), `expo-speech-recognition` (usage strings, Google recognizer visibility), `expo-share-intent` (the `CliffwordShare` extension target, App Group, Android SEND filter), `expo-localization` (`supportsRTL: false`), `./modules/cliffword-native/app.plugin.js`, `./plugins/withAndroidBuildTuning` (arm64-v8a only and three llama.rn CPU variants, so the from-source llama.rn build fits the EAS time limit) | prebuild of a copy (see "Checked in prebuild output") |
+| Entitlements and capabilities | `com.apple.developer.kernel.increased-memory-limit` on every build (`ios.entitlements`); `extended-virtual-addressing` on production builds (llama.rn plugin); App Group `group.app.cliffword` on the app and the extension; the MusicKit app service on the `app.cliffword` App ID (no entitlement key) | prebuild output with and without `EAS_BUILD_PROFILE=production` |
+| Startup behavior that touches the OS | iOS audio session category `playback` at start (`createNativeSpeechIn`); the model adapter follows `AppState` on iOS (`createDeviceModel`); the model download uses expo-file-system's background `URLSession` | Jest with the fakes |
+
+The local modules' native folders (`modules/cliffword-native/ios`, `modules/cliffword-native/android`,
+`modules/cliffword-music/ios`) are tracked in git and must stay so: EAS builds from git, and
+without them the app links neither module (hashing falls back to `File#digest`, Apple Music to
+`UnsupportedMusicPlayer`). `.gitignore` ignores only the generated `/ios` and `/android`.
+
+### What an EAS build must confirm
+
+- **iOS compile.** The patched `RNLlamaJSI.cpp` and `CliffwordScore.cpp` against
+  `rnllama.xcframework` (framework headers `<rnllama/...>`, C++20); both local modules' Swift
+  (Swift 5 mode against ExpoModulesCore 58); the patched `ExpoSpeechRecognitionModule.swift`;
+  the `CliffwordShare` extension target. `pod install` with `CliffwordMusic` at iOS 16.4 and the
+  `LLAMA_RN_CXX20` `post_install` block.
+- **iOS signing.** EAS capability sync enables increased memory limit, extended virtual
+  addressing (production), App Groups on both App IDs (`app.cliffword`,
+  `app.cliffword.share-extension`) and MusicKit. The extension's `CFBundleVersion` follows the
+  app's under `appVersionSource: "remote"` (prebuild writes `CURRENT_PROJECT_VERSION` from
+  `ios.buildNumber`; a mismatch is an App Store Connect warning).
+- **Android compile.** llama.rn builds llama.cpp from source (`rnllamaBuildFromSource=true` in
+  its own `gradle.properties`), including `CliffwordScore.cpp`, for arm64-v8a and the three
+  variants of `rnllamaVariants`, within the build time limit. `CliffwordNativeModule.kt` against
+  the real expo-modules-core 58 with React Native 0.88's Kotlin.
+- **On a development build (device).**
+  - After the model loads, `services.model.info.scoring` is `'native'`. `'forced-decoding'`
+    means the JSI functions were not installed.
+  - Scores match the Linux numbers within Metal/NEON rounding; `scoreContinuation`, then
+    `generate`, then the same `scoreContinuation` give the same scores (llama.rn's prompt cache
+    is handed over correctly). Memory stays near 1.2 GB with one context; load and call times
+    are acceptable.
+  - Leaving the app during a story does not fail model calls (they wait), and a model file
+    verified while in the background is loaded on return.
+  - Text to speech is audible with the Ring/Silent switch on silent, before and after a hold,
+    from the speaker; no microphone prompt before the first hold; recognition works right after
+    text to speech; AirPods keep A2DP output.
+  - The download continues while the app is suspended (iOS background session), resumes after
+    a pause, and Android resumes with a Range request after a kill; the file is excluded from
+    iCloud backup (iOS) and Auto Backup (Android).
+  - On-device speech: `supportsOnDeviceRecognition('es-US' | 'es-MX' | 'es-ES')` on iOS; a
+    locale without an on-device model gives `on-device-unavailable`; the Android 13+ language
+    pack download.
+  - Sharing a Spotify link from another app opens the Music tab with the item (iOS share
+    extension and Android SEND).
+  - Apple Music: authorization, library listing, playback and `pauseAt` within 100 ms.
+  - Android loads one of the built llama.rn variants (`androidLib` in the context); a phone
+    without dotprod falls back to the generic `rnllama`.

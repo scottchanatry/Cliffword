@@ -1,7 +1,8 @@
 # Storage
 
 Everything the app keeps on the device, in SQLite: settings, the learner model (event log and
-snapshots), sessions, stories, songs and lyrics, minutes spoken, model files and the share inbox.
+snapshots), sessions, stories, songs and lyrics, brought texts, minutes spoken, model files and
+the share inbox.
 
 ```ts
 import { openStorage, StorageProvider, useStorage } from '../storage';
@@ -85,6 +86,7 @@ model file statuses) have no CHECK constraints; repositories validate them.
 | 1 | `settings` (key, JSON value, updated_at); `learner_events` (append-only: id, at, type, key, JSON payload; indexes on key and at); `learner_snapshots` (id, at, version, json, through_event_id); `sessions` (id, kind, updated_at, version, JSON snapshot, active; one active per kind); `stories` (id, title, created_at); `story_sentences` (story_id, idx, text, json) |
 | 2 | `songs` (id, source, external_id, title, artist, artwork_url, added_at; unique source + external_id); `lyrics` (song_id, raw_text, parsed JSON, updated_at; on device only); `spoken_time` (local day YYYY-MM-DD, ms); `model_files` (id, path, bytes, sha256, status, updated_at); `share_inbox` (id, received_at, url, text, handled) |
 | 3 | `learner_snapshots.prior` (JSON PriorSpec of the engine; NULL on older rows) |
+| 4 | `texts` (id, title, raw_text, created_at, last_opened_at: brought texts, on device only); `songs.genre`, `songs.last_opened_at` |
 
 Times are ms since the epoch. Booleans are 0/1. JSON columns that fail to parse read as a
 fallback (null, or the setting's default), never as a crash.
@@ -97,11 +99,12 @@ fallback (null, or the setting's default), never as a crash.
 | `learner` | `appendEvents(events)`, `record(learner, events)`, `eventsSince(afterId?, limit?)`, `eventsForKey(key)`, `countEvents()`, `saveSnapshot(learner, at, { keep, prior })` (keeps 3 by default; `prior` is the engine's PriorSpec, kept from the newest row when omitted), `latestPrior()`, `latestSnapshot()`, `loadLearner({ prior, params?, evidence? })`. |
 | `sessions` | `save({ id?, kind, version, snapshot, active? })` (active by default; deactivates the others of its kind), `get(id)`, `active(kind)`, `list({ kind?, limit? })`, `deactivate(id)`, `remove(id)`. |
 | `stories` | `create`, `get`, `list` (newest first), `rename`, `remove` (with sentences), `appendSentence(storyId, text, data)`, `putSentence(storyId, idx, text, data)`, `sentences(storyId)`, `truncate(storyId, fromIdx)`. |
-| `songs` | `upsert({ source, externalId?, title, artist?, artworkUrl? })` (one row per source + external id; manual songs have none), `get`, `findByExternal`, `list`, `remove` (with lyrics). |
+| `songs` | `upsert({ source, externalId?, title, artist?, artworkUrl?, genre? })` (one row per source + external id; manual songs have none; a known genre is kept when a later upsert has none), `get`, `findByExternal`, `list` (newest first), `recent()` (most recently opened or added first), `rename(id, { title?, artist? })`, `markOpened(id, at?)`, `remove` (with lyrics). A song's lyric session is the `sessions` row `lyric:<songId>`. |
 | `lyrics` | `put(songId, rawText, parsed)`, `get(songId)`, `remove(songId)`. Never synced or exported. |
 | `spokenTime` | `addUtterance(ms, at)` (to the local day of `at`), `today(now)`, `day(key)`, `total()`, `range(from, to)`, `streak(now, minMs?)` (consecutive days ending today, or yesterday while today is still empty). |
 | `modelFiles` | `upsert`, `get`, `list`, `setStatus(id, status, { bytes?, sha256?, at? })`, `remove`. Statuses: missing, downloading, verifying, ready, failed. `ExpoModelManager` writes the row of each model it downloads. A `ready` row with the descriptor's size and SHA-256, whose `updated_at` is not before the file's mtime, lets startup skip hashing the file again. |
 | `shareInbox` | `add({ url?, text? })` (an identical unhandled item is stored once), `get`, `pending()`, `markHandled(id)`, `purgeHandled(before)`. |
+| `texts` | `add({ title, rawText })` (blank text refused), `get`, `list()` (most recently opened or added first), `markOpened(id, at?)`, `remove`. Never synced or exported. Its lyric session is the `sessions` row `text:<textId>`. |
 
 Every method that records a time takes an explicit one or uses the injected `StorageClock`
 (`createStorage(db, clock)`), and ids come from the same clock, so tests are deterministic.

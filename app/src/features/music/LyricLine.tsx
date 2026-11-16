@@ -3,7 +3,7 @@ import { Text as Span, StyleSheet, View, type StyleProp, type ViewStyle } from '
 import { CHROME_MAX_SCALE, CONTENT_MAX_SCALE } from '../../components/words/fontScale';
 import { tileWidth } from '../../components/words/tileWidth';
 import { useI18n } from '../../i18n';
-import { colors, radii, spacing, typography } from '../../theme';
+import { colors, heatColors, radii, spacing, typography } from '../../theme';
 import type { LineWord } from './lyricWords';
 
 /**
@@ -24,6 +24,10 @@ export interface LyricLineProps {
   underlineSlang?: boolean;
   /** Drawn after the last word, on the same line when it fits (the cliff gap). */
   after?: ReactNode;
+  /** Words lit in live orange (the answer on a result). */
+  highlight?: (index: number) => boolean;
+  /** Surprise shading per word index (0 expected .. 3 most surprising), as the reader of a brought text draws it. */
+  heat?: ReadonlyMap<number, 0 | 1 | 2 | 3>;
   style?: StyleProp<ViewStyle>;
   testID?: string;
 }
@@ -41,7 +45,18 @@ const LOOK = {
  * underlined with the dotted accent line at the engine's character spans; a masked word
  * (explicit lyrics off) is a blank chip named "Hidden word". Words wrap as a paragraph.
  */
-export function LyricLine({ words, look = 'ink', muted = false, onInk = false, underlineSlang = look === 'ink', after, style, testID = 'lyric-line' }: LyricLineProps) {
+export function LyricLine({
+  words,
+  look = 'ink',
+  muted = false,
+  onInk = false,
+  underlineSlang = look === 'ink',
+  after,
+  highlight,
+  heat,
+  style,
+  testID = 'lyric-line',
+}: LyricLineProps) {
   const color = onInk ? colors.onInk : muted || look === 'musicPrev' ? colors.muted : colors.ink;
   const text = [LOOK[look], { color }];
   const scale = look === 'card' ? CHROME_MAX_SCALE : CONTENT_MAX_SCALE;
@@ -53,7 +68,14 @@ export function LyricLine({ words, look = 'ink', muted = false, onInk = false, u
         ) : (
           <Span key={w.index} style={text} maxFontSizeMultiplier={scale} testID={`${testID}-word-${w.index}`}>
             {w.lead}
-            <Span style={underlineSlang && w.slang ? styles.slang : undefined} testID={underlineSlang && w.slang ? `${testID}-slang-${w.index}` : undefined}>
+            <Span
+              style={[
+                underlineSlang && w.slang ? styles.slang : null,
+                heatColors[heat?.get(w.index) ?? 0] ? { backgroundColor: heatColors[heat?.get(w.index) ?? 0] ?? undefined } : null,
+                highlight?.(w.index) ? styles.lit : null,
+              ]}
+              testID={underlineSlang && w.slang ? `${testID}-slang-${w.index}` : highlight?.(w.index) ? `${testID}-lit-${w.index}` : undefined}
+            >
               {w.text}
             </Span>
             {w.trail}
@@ -98,6 +120,7 @@ const styles = StyleSheet.create({
     textDecorationStyle: 'dotted',
     textDecorationColor: colors.accentText,
   },
+  lit: { backgroundColor: colors.live, color: colors.ink },
   maskedCell: { flexDirection: 'row', alignItems: 'center' },
   masked: {
     flexDirection: 'row',

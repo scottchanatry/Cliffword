@@ -158,6 +158,14 @@ as in the engine's mock and `model_server.py`.
   - the context is released once that call settles.
 - **Overtaken load.** A `load()` overtaken by `unload()` rejects with `ModelLoadCancelledError`
   and releases what it loaded.
+- **One context.** A `load()` that overtakes a running one waits until the older `initLlama` has
+  finished and its context is released before it calls `initLlama` itself, so two 1.2 GB
+  contexts never exist together.
+- **Background (iOS).** `setInBackground(true)` (wired to `AppState` by `createDeviceModel` on
+  iOS only) holds a `load()` and every call that has not started until `setInBackground(false)`:
+  iOS refuses Metal work from a background app, and its background memory limit is far lower.
+  A call already running finishes or fails. `unload()` and `load()` still reject waiting calls at
+  once.
 - **Failed load.** The status becomes `'error'` and `lastError` says why. `keepModelLoaded` does
   not retry on its own; `retry()` loads again, and so does the next verified file.
 
@@ -171,6 +179,7 @@ as in the engine's mock and `model_server.py`.
   - the load settings, the lifecycle and the `ModelNotReadyError` contract;
   - native scoring and the fallback, compared with `TopNBoundedModel`, with its upper bounds;
   - generation, serialization, and unload during a call;
+  - one context at a time, and calls and loads held while the app is in the background;
   - the engine's `runLanguageModelContract`, for both scoring paths. The vitest suite runs in Jest
     through a small shim.
 - `keepModelLoaded.test.ts` and `createDeviceModel.test.ts`: the auto-loader, the availability

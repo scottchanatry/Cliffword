@@ -59,6 +59,8 @@ function RootStack() {
       <Stack.Protected guard={settings.onboarded} redirectTo="/onboarding">
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="profile" options={{ presentation: 'modal' }} />
+        {/* Brought text (articles, transcripts): app/text/_layout.tsx. */}
+        <Stack.Screen name="text" />
       </Stack.Protected>
       <Stack.Protected guard={!settings.onboarded} redirectTo="/">
         <Stack.Screen name="onboarding" options={{ gestureEnabled: false }} />

@@ -114,7 +114,7 @@ describe('first run', () => {
 });
 
 describe('returning learner', () => {
-  it('opens on the Story tab with the header, both tabs and the cliff card', async () => {
+  it('opens on the Story tab with the header, both tabs and the first cliff of the story', async () => {
     await onboarded();
     await renderRouter(APP_DIR, { initialUrl: '/' });
     expect(await screen.findByTestId('story-screen')).toBeOnTheScreen();
@@ -122,9 +122,8 @@ describe('returning learner', () => {
     expect(screen.getByText('Cliffword')).toBeOnTheScreen();
     expect(screen.getByTestId('tab-story')).toBeOnTheScreen();
     expect(screen.getByTestId('tab-music')).toBeOnTheScreen();
-    expect(screen.getByText('Say what comes next')).toBeOnTheScreen();
-    expect(screen.getByRole('button', { name: 'Hold to speak' })).toBeOnTheScreen();
-    expect(screen.getByText('puesto · stall · new for you')).toBeOnTheScreen();
+    // The story controller's first screen (see story.test.tsx): the starter's first cliff.
+    expect(await screen.findByTestId('cliff-options')).toBeOnTheScreen();
     expectAccessibleControls();
   });
 
@@ -135,13 +134,19 @@ describe('returning learner', () => {
     expect(screen.queryByTestId('onboarding-screen')).toBeNull();
   });
 
-  it('hides the story text as tiles and shows it again', async () => {
-    await onboarded();
+  it('hides the story text as tiles and shows it again, and keeps the choice', async () => {
+    const storage = await onboarded();
     await renderRouter(APP_DIR, { initialUrl: '/' });
-    await fireEvent.press(await screen.findByRole('button', { name: 'Hide text' }));
-    expect(screen.getByTestId('story-tiles')).toBeOnTheScreen();
-    await fireEvent.press(screen.getByRole('button', { name: 'Show text' }));
-    expect(screen.getByTestId('story-text')).toBeOnTheScreen();
+    await screen.findByTestId('cliff-options');
+    const label = () => screen.getByTestId('text-mode').props.accessibilityLabel as string;
+    const before = label();
+    await fireEvent.press(screen.getByTestId('text-mode'));
+    await waitFor(() => expect(label()).not.toBe(before));
+    expect(await storage.settings.get('textMode')).toBe('tiles');
+    const tiles = label();
+    await fireEvent.press(screen.getByTestId('text-mode'));
+    await waitFor(() => expect(label()).not.toBe(tiles));
+    expect(await storage.settings.get('textMode')).not.toBe('tiles');
   });
 
   it('switches to the Music tab, which shows the stored regions', async () => {

@@ -45,7 +45,8 @@ import { cliffPositions } from '../scoring/cliff';
 import { scoringContext, slangExemption, slangIn } from '../scoring/context';
 import { scoreWords } from '../scoring/wordScores';
 import { chooseTargets } from '../story/targets';
-import { generateNextSentence } from '../story/next';
+import { generateNextSentence, type NextSentenceTuning } from '../story/next';
+import type { Pos } from '../lang/types';
 import { pickCliff, rankCliffPositions, type CliffPickOptions } from '../story/cliffPick';
 import { matchCommand, type CommandOptions } from '../speaking/commands';
 import { alignTranscript } from '../speaking/align';
@@ -95,6 +96,8 @@ import {
   seedFor,
 } from './common';
 import { DEFAULT_VIEW_OPTIONS, buildSentenceView, sentenceWords, type SentenceWord, type ViewOptions } from './view';
+import { DEFAULT_HANDOVER_OPTIONS, bridgeFamiliar, handoverStage, type HandoverOptions, type StoryStage } from './handover';
+import { ModelGate } from './prefetch';
 import {
   STORY_SESSION_FORMAT,
   type AdvancedTask,
@@ -157,6 +160,10 @@ export interface StorySessionOptions {
   repair: Partial<RepairOptions>;
   command: Partial<CommandOptions>;
   cliffPick: Partial<CliffPickOptions>;
+  /** Zero knowledge to generated story: the starter, the bridge, free generation (session/handover.ts). */
+  handover: Partial<HandoverOptions>;
+  /** Next-sentence generation tuning (story/next.ts DEFAULT_NEXT_SENTENCE_TUNING). */
+  generation: Partial<NextSentenceTuning>;
 }
 
 /**
@@ -208,6 +215,8 @@ export const DEFAULT_STORY_SESSION_OPTIONS: Readonly<StorySessionOptions> = {
   repair: {},
   command: {},
   cliffPick: {},
+  handover: {},
+  generation: {},
 };
 
 type Phase = 'idle' | 'cliff' | 'landing' | 'noSe' | 'native' | 'turn' | 'repair' | 'upNext' | 'retell' | 'register' | 'placementDone';
@@ -289,6 +298,8 @@ export interface StoryState {
   starterUsed: number[];
   starterCursor: number;
   probesUsed: number[];
+  /** Target lexemes generated sentences introduced, most recent last (the bridge vocabulary). */
+  introduced: string[];
   recentTargets: string[][];
   outcomes: number[];
   replays: number[];
@@ -303,6 +314,16 @@ export interface StoryState {
   promptIndex: number;
   spokenMs: number;
   screen: StoryScreen;
+}
+
+/** What StorySession.prefetch prepared. */
+export interface PrefetchInfo {
+  /** True when the prepared step shows a new sentence (a cliff screen). */
+  prepared: boolean;
+  /** Model calls the prefetch made (answers kept for next()). */
+  modelCalls: number;
+  /** Kind of the screen next() would show, or null when nothing was prepared. */
+  next: StoryScreen['kind'] | null;
 }
 
 export interface StorySessionSnapshot {
@@ -340,12 +361,28 @@ export class StorySession {
   private readonly applyEvents: boolean;
   private busy = false;
   private lemmaCache: { lemma: string; key: string; pos: string | null; rank: number }[] | null = null;
+  /** Every model call of this session goes through the gate (one at a time; prefetched answers replayed). */
+  private gate: ModelGate | null = null;
+  private prefetching: Promise<PrefetchInfo> | null = null;
 
-  private constructor(deps: SessionDeps, state: StoryState, opts: { applyEvents?: boolean; options?: Partial<StorySessionOptions> }) {
+  private constructor(
+    deps: SessionDeps,
+    state: StoryState,
+    opts: { applyEvents?: boolean; options?: Partial<StorySessionOptions>; gated?: boolean },
+  ) {
     this.deps = { ...deps };
     this.state = state;
+    // Snapshots from before the bridge have no introduced list.
+    if (!Array.isArray(this.state.introduced)) this.state.introduced = [];
     this.o = mergeOptions(opts.options);
     this.applyEvents = opts.applyEvents !== false;
+    if (opts.gated !== false) this.useModel(deps.model);
+  }
+
+  /** Route the model through a fresh gate (null: canned mode). */
+  private useModel(model: LanguageModel | null): void {
+    this.gate = model ? new ModelGate(model) : null;
+    this.deps = { ...this.deps, model: this.gate ? this.gate.replay() : null };
   }
 
   /**
@@ -372,6 +409,7 @@ export class StorySession {
       starterUsed: [],
       starterCursor: 0,
       probesUsed: [],
+      introduced: [],
       recentTargets: [],
       outcomes: [],
       replays: [],
@@ -430,9 +468,69 @@ export class StorySession {
     return plain(this.state.prior);
   }
 
-  /** Switch between canned mode (null) and a model; takes effect at the next sentence. */
+  /** Switch between canned mode (null) and a model; takes effect at the next sentence. Drops a prefetch. */
   setModel(model: LanguageModel | null): void {
-    this.deps = { ...this.deps, model };
+    this.useModel(model);
+  }
+
+  /**
+   * The stage the next story sentence would come from at time `at`: the pair's starter,
+   * generation on the bridge vocabulary, or free generation (session/handover.ts).
+   */
+  stageAt(at: number): StoryStage {
+    return this.stage(at);
+  }
+
+  /** Model calls so far: made, answered from a prefetch, made by prefetches. */
+  get modelStats(): { calls: number; replayed: number; prefetched: number } {
+    const g = this.gate;
+    return { calls: g?.calls ?? 0, replayed: g?.replayed ?? 0, prefetched: g?.recordedCalls ?? 0 };
+  }
+
+  /**
+   * Prepare the next step while the learner is still on the current screen (the landing
+   * or no-sé screen): run what next(at) would do on a copy of the session and keep every
+   * model answer, so that next() replays them instead of waiting for the model.
+   *
+   * - Determinism: next() recomputes everything (targets, settings, prompts, cliffs) from
+   *   the learner and the time it is given, and only reuses answers to identical model
+   *   requests, which a deterministic model gives again. The same seed gives the same
+   *   story whether or not prefetch ran.
+   * - Learner changes in between (an answer, a tap, a reveal on the landing screen) that
+   *   change the choice make different requests, which go to the model: nothing stale is
+   *   ever shown. Changes that do not change the requests reuse the answers.
+   * - snapshot() never holds prefetched answers and restore() starts without them; next()
+   *   after a restore makes the requests itself and shows the same sentence.
+   * - setModel() drops the answers. A second prefetch replaces the first; next() waits for
+   *   a running prefetch. Model calls of the prefetch and of other steps never overlap.
+   * Does nothing while a step runs or without a model (canned steps are instant).
+   */
+  async prefetch(at: number): Promise<PrefetchInfo> {
+    const gate = this.gate;
+    if (!gate) return { prepared: false, modelCalls: 0, next: null };
+    if (this.prefetching) return this.prefetching;
+    if (this.busy) return { prepared: false, modelCalls: 0, next: null };
+    gate.clear();
+    const ghost = new StorySession({ ...this.deps, model: gate.record() }, plain(this.state), {
+      applyEvents: false,
+      options: this.o,
+      gated: false,
+    });
+    ghost.lemmaCache = this.lemmaCache;
+    const before = gate.recordedCalls;
+    const run = (async (): Promise<PrefetchInfo> => {
+      try {
+        const step = await ghost.advance(at);
+        return { prepared: step.screen.kind === 'cliff', modelCalls: gate.recordedCalls - before, next: step.screen.kind };
+      } catch {
+        // A failed prefetch only costs the replay: next() asks the model itself.
+        return { prepared: false, modelCalls: gate.recordedCalls - before, next: null };
+      } finally {
+        this.prefetching = null;
+      }
+    })();
+    this.prefetching = run;
+    return run;
   }
 
   // -------------------------------------------------------------------------
@@ -441,7 +539,14 @@ export class StorySession {
 
   /** Move on: the next sentence, the next activity, or the next chapter (see the module comment). */
   async next(at: number): Promise<StoryStep> {
-    return this.run(async () => this.advance(at));
+    return this.run(async () => {
+      if (this.prefetching) await this.prefetching;
+      try {
+        return await this.advance(at);
+      } finally {
+        this.gate?.clear();
+      }
+    });
   }
 
   /**
@@ -781,14 +886,16 @@ export class StorySession {
     if (this.placementActive()) {
       cur = await this.probeSentence(at);
       if (!cur) return this.finishPlacement(at, events, news);
-    } else if (this.useStarter()) {
+    } else if (this.useStarter(at)) {
       cur = await this.starterSentence(at, false);
     } else if (this.deps.model) {
       cur = await this.modelSentence(this.deps.model, at);
-      if (!cur) cur = await this.starterSentence(at, true);
-    } else {
-      cur = await this.starterSentence(at, true);
     }
+    // Never stall, never loop early: unused starter sentences, then unused ladder
+    // sentences, then (only then) the starter again, least recently used first.
+    if (!cur && !this.placementActive()) cur = await this.starterSentence(at, false);
+    if (!cur && !this.placementActive()) cur = await this.unusedProbeSentence(at);
+    if (!cur && !this.placementActive()) cur = await this.starterSentence(at, true);
     if (!cur && this.deps.model && !this.placementActive()) cur = await this.modelSentence(this.deps.model, at);
     if (!cur) cur = await this.lastResortSentence(at);
     if (!cur) {
@@ -809,14 +916,45 @@ export class StorySession {
     return this.step(events, extra);
   }
 
-  /** Zero knowledge: a brand-new learner, or a learner with no evidence at all, starts with the starter story. */
-  private useStarter(): boolean {
-    const st = this.starter;
-    if (!st || this.state.starterUsed.length >= st.sentences.length) return false;
+  /** Zero knowledge: a brand-new learner, or a learner with no evidence at all. */
+  private zeroStart(): boolean {
     if (this.state.startMode === 'brand_new') return true;
     const known = this.deps.learner.knownKeys();
     for (const _ of known) return false;
     return true;
+  }
+
+  /** The hand-over stage of the next story sentence (session/handover.ts). */
+  private stage(at: number): StoryStage {
+    return handoverStage({
+      pack: this.deps.pack,
+      pair: this.deps.pair,
+      learner: this.deps.learner,
+      now: at,
+      starterUsed: this.state.starterUsed.length,
+      zeroStart: this.zeroStart(),
+      hasModel: this.deps.model !== null,
+      options: this.o.handover,
+    });
+  }
+
+  /** The starter story plays first at zero knowledge, and in canned mode while it has unused sentences. */
+  private useStarter(at: number): boolean {
+    const st = this.starter;
+    if (!st || this.state.starterUsed.length >= st.sentences.length) return false;
+    return this.stage(at) === 'starter';
+  }
+
+  /** The next unused sentence of the placement ladder (canned mode after the starter). */
+  private async unusedProbeSentence(at: number): Promise<CurrentSentence | null> {
+    const probes = this.starter?.probes ?? [];
+    for (let i = 0; i < probes.length; i++) {
+      if (this.state.probesUsed.includes(i)) continue;
+      this.state.probesUsed.push(i);
+      const cur = await this.cannedSentence(probes[i] as StarterSentence, 'probe', i, at);
+      if (cur) return cur;
+    }
+    return null;
   }
 
   private storyText(): string {
@@ -924,6 +1062,15 @@ export class StorySession {
     return this.lemmaCache;
   }
 
+  /** True when the lexeme's first analysis has one of these parts of speech. */
+  private lemmaPos(key: string, pos: ReadonlySet<Pos>): boolean {
+    const prefix = `${this.deps.pack.code}:`;
+    const lex = lexemeOf(key);
+    if (!lex.startsWith(prefix)) return false;
+    const p = this.deps.pack.analyze(this.deps.pack.normalize(lex.slice(prefix.length)))[0]?.pos;
+    return p !== undefined && pos.has(p);
+  }
+
   /** Distractor candidates: recognizable words (best understood first), never words of the current sentence. */
   private distractorPool(at: number, words: readonly SentenceWord[]): string[] {
     const inSentence = new Set(words.map((w) => w.key));
@@ -946,27 +1093,47 @@ export class StorySession {
   private async modelSentence(model: LanguageModel, at: number, forced?: { key: string; rank: number }): Promise<CurrentSentence | null> {
     const pack = this.deps.pack;
     const settings = this.state.settings;
-    const params = this.params(at);
+    const vocab = estimateVocabulary(this.deps.learner, at, this.frequencyKeys());
+    const params = deriveParams({ vocab, recent: this.recentStats() });
+    // The bridge (session/handover.ts): the starter's words, cognates and introduced words count as known.
+    const bridge = !forced && this.stage(at) === 'bridge';
+    const familiar = bridge ? bridgeFamiliar(pack, this.deps.pair, this.state.introduced) : [];
     let targets: string[];
     if (forced) targets = [forced.key];
     else {
       const extra = settings.register === 'street' ? this.slangKeys() : [];
+      const handover = { ...DEFAULT_HANDOVER_OPTIONS, ...this.o.handover };
+      const targetPos = new Set<Pos>(handover.bridgeTargetPos);
       const chosen = chooseTargets({
         learner: this.deps.learner,
         now: at,
         frequencyKeys: this.frequencyKeys(),
         extra,
-        exclude: this.state.recentTargets.flat(),
+        exclude: [...this.state.recentTargets.flat(), ...familiar],
+        ...(bridge ? { accept: (key: string) => this.lemmaPos(key, targetPos) } : {}),
         options: { count: params.newWordsPerSentence >= this.o.twoTargetsFrom ? 2 : 1 },
       });
       this.state.frontier = chosen.some((c) => c.reason === 'new' || c.reason === 'extra') ? 'open' : 'exhausted';
       targets = chosen.map((c) => c.key);
     }
     const story = this.state.story.slice(-this.o.contextSentences);
+    const character = this.starter?.character;
     const next = await generateNextSentence(
       model,
       { pack, learner: this.deps.learner, pair: this.deps.pair },
-      { story, targets, params, now: at, seed: this.nextSeed(), register: settings.register, ...(settings.regions[0] ? { region: settings.regions[0] } : {}) },
+      {
+        story,
+        targets,
+        params,
+        now: at,
+        seed: this.nextSeed(),
+        register: settings.register,
+        ...(settings.regions[0] ? { region: settings.regions[0] } : {}),
+        ...(character ? { names: [character] } : {}),
+        vocab,
+        ...(familiar.length ? { familiar } : {}),
+        tuning: { contextSentences: this.o.contextSentences, ...this.o.generation },
+      },
     );
     let tries = 0;
     for (const cand of next.ranked) {
@@ -977,7 +1144,12 @@ export class StorySession {
       const cur = await this.cutCliff(model, cand.text, words, joinSentences(story), forced ? [forced.key] : cand.targetsHit, targets, params, at, forced);
       if (cur === 'no_position') continue;
       tries += 1;
-      if (cur) return cur;
+      if (cur) {
+        const keep = Math.max(0, Math.floor({ ...DEFAULT_HANDOVER_OPTIONS, ...this.o.handover }.introducedKeep));
+        const introduced = this.state.introduced.filter((k) => !cand.targetsHit.includes(k));
+        this.state.introduced = [...introduced, ...cand.targetsHit].slice(-keep);
+        return cur;
+      }
     }
     return null;
   }

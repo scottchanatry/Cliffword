@@ -192,4 +192,32 @@ describe('LearnerRepo', () => {
       expect(knowledge(loaded.learner, T0 + 2 * HOUR)).toEqual(knowledge(live, T0 + 2 * HOUR));
     });
   });
+  describe('the prior with the snapshot (v3)', () => {
+    const placement = new PlacementTracker().snapshot();
+
+    it('has no prior before one is stored', async () => {
+      expect(await storage.learner.latestPrior()).toBeNull();
+      await storage.learner.saveSnapshot(new LearnerModel({ prior }), T0);
+      expect(await storage.learner.latestPrior()).toBeNull();
+    });
+
+    it('stores the PriorSpec with a snapshot and keeps it on later checkpoints', async () => {
+      const live = new LearnerModel({ prior });
+      await storage.learner.saveSnapshot(live, T0, { prior: { kind: 'brandNew' } });
+      expect(await storage.learner.latestPrior()).toEqual({ kind: 'brandNew' });
+      await storage.learner.saveSnapshot(live, T0 + 1, { prior: { kind: 'placement', placement } });
+      // More checkpoints than are kept: the prior travels with the newest row.
+      for (let i = 0; i < 4; i++) await storage.learner.saveSnapshot(live, T0 + 2 + i);
+      expect(await storage.learner.latestPrior()).toEqual({ kind: 'placement', placement });
+      const rows = await storage.db.all<{ prior: string | null }>('SELECT prior FROM learner_snapshots ORDER BY id');
+      expect(rows).toHaveLength(3);
+      expect(rows.every((r) => r.prior !== null)).toBe(true);
+    });
+
+    it('reads a damaged prior as none', async () => {
+      const info = await storage.learner.saveSnapshot(new LearnerModel({ prior }), T0, { prior: { kind: 'brandNew' } });
+      await storage.db.run('UPDATE learner_snapshots SET prior = ? WHERE id = ?', ['{"kind":"oracle"}', info.id]);
+      expect(await storage.learner.latestPrior()).toBeNull();
+    });
+  });
 });

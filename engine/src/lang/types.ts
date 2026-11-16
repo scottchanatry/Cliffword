@@ -66,7 +66,9 @@ export type CorrectionRule =
   | InflectRule
   | InsertRule
   | DeleteRule
-  | MoveRule;
+  | MoveRule
+  | AgreeRule
+  | ContractRule;
 
 interface RuleBase {
   id: string;
@@ -101,6 +103,39 @@ export interface SwapRule extends RuleBase {
    * le/les -> se must not also propose se -> le.
    */
   fromWords?: string[];
+  /**
+   * Optional context condition: the word is swapped only when the next word (only spaces
+   * in between) has one of these lemmas (its analysis chosen in context). Spanish: a
+   * possessive becomes the article before a body part ("Me lavo mis manos").
+   */
+  beforeLemmas?: string[];
+  /**
+   * Optional context condition: the word is swapped only when the previous word (only
+   * spaces in between) has one of these parts of speech (chosen in context).
+   */
+  afterPos?: Pos[];
+  /**
+   * Optional context condition: the word is swapped only when one of these words
+   * (normalized) occurs earlier in its sentence, as InflectRule.cueWords. Spanish: the
+   * body-part article needs a reflexive or indirect pronoun ("Me lavo las manos").
+   */
+  cueWords?: string[];
+  /**
+   * Optional: a replacement is proposed only when it agrees in gender and number with
+   * the next word (only the replacement's determiner readings count, as for inserts).
+   * Spanish: mis -> los before "dientes", las before "manos".
+   */
+  agreeNext?: boolean;
+  /**
+   * Optional: the word is not swapped when the next word, looking through words whose
+   * chosen part of speech is in slangThroughPos, is a protected slang word (the slang
+   * protection of the active register). The model cannot score a slang predicate, so it
+   * cannot choose the verb before it either: Spanish ser/estar asserted "Esa fiesta fue
+   * bacana" for the correct "estuvo bacana" (proof/ENGINE_REAL_MODEL.md).
+   */
+  notBeforeSlang?: boolean;
+  /** See notBeforeSlang: parts of speech looked through ("estuvo bien bacana"). */
+  slangThroughPos?: Pos[];
 }
 
 /**
@@ -121,6 +156,89 @@ export interface InflectRule extends RuleBase {
    */
   cueWords?: string[];
   cueFor?: string[];
+  /**
+   * Optional: never break an agreement that holds. A variant is dropped when the word
+   * agreed in `feature` with an adjacent word (only spaces in between) whose chosen part
+   * of speech is in this list, and the new form would not. Spanish number and gender: a
+   * determiner changes only to agree with its noun ("Esa mujeres" -> "Esas"), never away
+   * from it ("Esas mujeres" -> "Esa mujeres" was asserted on the real model). A word
+   * carrying no value, or with readings of both values ("lunes"), agrees with any. A word
+   * next to a protected slang word of these parts of speech (or of none) is not changed at
+   * all: the slang word's gender and number come from its neutral equivalent ("la
+   * guagua", "una chimba").
+   */
+  keepAgreement?: Pos[];
+  /**
+   * Optional, per part of speech of the word's reading: the parts of speech the next word
+   * (chosen in context; only spaces in between) must have for that reading to be
+   * re-inflected. No next word means no change; an unknown next word (most likely a noun
+   * outside the lexicon) allows it. Spanish: a determiner changes only before a word of
+   * its noun phrase; "Las" in "Las compré" is the object pronoun, and the number rule
+   * asserted "La compré" on the real model.
+   */
+  nextPosFor?: Partial<Record<Pos, Pos[]>>;
+}
+
+/**
+ * Make a word agree with the word that controls it: re-inflect the target (a finite verb)
+ * with the controller's values of `features` (the person and number of its subject) when
+ * no reading of the target already has them. Example (Spanish subject-verb agreement):
+ * "Los niños juega" -> "juegan", "Nosotros vive" -> "vivimos"; with side 'after' and
+ * gustar-type lemmas, "Me gusta las manzanas" -> "gustan".
+ *
+ * Finding the controller, from the target outwards on `side` (only spaces between
+ * words; punctuation stops the search): words with a form in throughWords or an analysis
+ * in throughPos are skipped (no, object pronouns, adverbs); on side 'before', words with
+ * an analysis in phrasePos (postnominal adjectives) are skipped too. The next word must
+ * be a controller: its chosen part of speech in controllerPos, or its form in
+ * controllerWords, and its lemma not in notControllerLemmas. On side 'after', words with
+ * an analysis in phrasePos (determiners) are skipped before the controller.
+ *
+ * The controller does not count when it is not the subject: on side 'before', when the
+ * word before its phrase (skipping phrasePos words) has a chosen part of speech in
+ * notAfterPos ("de los niños", "veo los niños") or a form in notAfterWords (a
+ * coordinated subject: "mi madre y mi padre"); on side 'after', when the word after it
+ * has a form in notBeforeWords ("el café y el té").
+ */
+export interface AgreeRule extends RuleBase {
+  kind: 'agree';
+  /** Parts of speech of the target. */
+  pos: Pos[];
+  /** Target forms, as MoveRule.anchorForms ('fin': any finite form). Any form when omitted. */
+  forms?: string[];
+  /** Optional: only targets with these lemmas (Spanish side 'after': gustar, encantar...). */
+  lemmas?: string[];
+  /** Optional: the target must directly follow one of these words (normalized): "me gusta". */
+  afterWords?: string[];
+  /** Features copied from the controller (person, number). */
+  features: FeatureName[];
+  /** Values for features the controller does not carry: a noun is third person. */
+  defaults?: Features;
+  /** Which side of the target the controller stands on. */
+  side: 'before' | 'after';
+  throughWords?: string[];
+  throughPos?: Pos[];
+  phrasePos?: Pos[];
+  controllerPos?: Pos[];
+  controllerWords?: string[];
+  notControllerLemmas?: string[];
+  notAfterPos?: Pos[];
+  notAfterWords?: string[];
+  notBeforeWords?: string[];
+}
+
+/**
+ * Words that join with the next word into one (Spanish a + el = al, de + el = del),
+ * written [first, second, joined] and normalized. The rule proposes the joined form for
+ * two adjacent words that should have joined ("Voy a el cine" -> "al cine"), unless the
+ * second word is capitalized away from a sentence start (a name: "a El Salvador"). The
+ * variant generator also applies the contractions of every contract rule of the pack to
+ * inserts (inserting "el" after "a" gives "al", the personal a before "el" gives "al"),
+ * and to deletes whose rule sets fromContractions ("Leo al periódico" -> "el periódico").
+ */
+export interface ContractRule extends RuleBase {
+  kind: 'contract';
+  contractions: (readonly [string, string, string])[];
 }
 
 /**
@@ -132,7 +250,8 @@ export interface InflectRule extends RuleBase {
  * analysis in afterPos OR a normalized form in afterWords. When neither is given, the
  * word may also be inserted at the start of a sentence. A rule inserts one word; a
  * language with several candidate words (articles) lists one rule per word under the
- * same explainKey. Contractions (Spanish a + el = al) are not produced.
+ * same explainKey. An insert next to its contraction partner is written contracted
+ * (ContractRule: inserting "el" after "a" gives "al").
  * Example: personal "a" before a person noun or proper noun after a verb.
  *
  * Parts of speech and lemmas are those of the analysis chosen for each word in context
@@ -153,13 +272,26 @@ export interface InsertRule extends RuleBase {
   afterWords?: string[];
   /** Never insert directly after these words (normalized): "al" and "del" hold an article. */
   notAfterWords?: string[];
-  /** Never insert directly before these words (normalized): "a" + "el" must be "al". */
+  /** Never insert directly before these words (normalized). */
   notBeforeWords?: string[];
   /**
    * Words (normalized) before which the gender and number agreement check is skipped:
    * "el agua", "un hacha" (feminine nouns that start with a stressed a).
    */
   agreementExceptions?: string[];
+  /**
+   * Optional: also insert at the start of a sentence (the inserted word takes the
+   * capital), although afterPos or afterWords restrict the left neighbour elsewhere.
+   * Spanish: a generic subject takes the definite article ("Vida es bella" -> "La vida es
+   * bella").
+   */
+  sentenceStart?: boolean;
+  /**
+   * Optional: words with an analysis in these parts of speech may stand between the left
+   * neighbour that afterPos or afterWords require and the insert ("Quiero mucho [a] mis
+   * abuelos": the verb, then the adverb).
+   */
+  afterThroughPos?: Pos[];
 }
 
 /** Delete any of these words. Example: an unneeded article or personal "a". */
@@ -183,6 +315,11 @@ export interface DeleteRule extends RuleBase {
    * an article before "que" or "de" stands for a noun ("la que hay", "la de mi madre").
    */
   notBeforeWords?: string[];
+  /**
+   * Optional: also delete the word from a contraction that holds it (ContractRule), leaving
+   * the other part. Spanish personal a: "Leo al periódico" -> "Leo el periódico".
+   */
+  fromContractions?: boolean;
 }
 
 /**
@@ -266,6 +403,32 @@ export interface MoveRule extends RuleBase {
   notBeforePos?: Pos[];
   /** See homographs (normalized). Spanish: que, de, más... ("lo que", "la de", "lo más"). */
   notBeforeWords?: string[];
+  /**
+   * Optional, per homograph (normalized): the parts of speech that keep it the other
+   * word, replacing notBeforePos for that homograph and tested against every analysis of
+   * the next word, not only the chosen one. Spanish neuter "lo" is an article only before
+   * an adjective, determiner, numeral or pronoun ("lo bueno", "lo mío", "lo contrario"),
+   * never before a noun, so "Compro lo mañana" moves while "lo contrario" stays.
+   */
+  homographNotBeforePos?: Readonly<Record<string, readonly Pos[]>>;
+  /**
+   * Optional: lemmas of an auxiliary that takes over this rule's anchor. When the word
+   * before the anchor (skipping a cluster of `words`; only spaces in between) has one of
+   * these lemmas, no position next to the anchor is allowed, whatever its other readings
+   * say, and a cluster after the anchor moves to the rule's positions relative to the
+   * auxiliary. Spanish: a past participle after haber takes no pronoun ("He lo visto",
+   * "Ha visto lo" -> "Lo he visto"); the anchor matches when any of its readings has the
+   * rule's form (visto is also a present form of vestir).
+   */
+  viaAuxiliary?: string[];
+  /**
+   * Optional: a word of `words` standing before an anchor and also attached to a word of
+   * the same verb chain (one of the next `doubledWithin` words after the anchor, only
+   * spaces in between) gets two variants: one without the separate copy, one without the
+   * attached copy (Spanish "Lo estoy leyéndolo" -> "Estoy leyéndolo" / "Lo estoy
+   * leyendo"). 0 or omitted: off.
+   */
+  doubledWithin?: number;
 }
 
 export type Formality = 'street' | 'casual' | 'vulgar';
@@ -430,4 +593,18 @@ export interface LanguagePack {
    * (Spanish -ado ~ -ao: cansado ~ cansao). None when omitted.
    */
   readonly streetEndings?: readonly (readonly [string, string])[];
+  /**
+   * Optional: abbreviations (normalized, without the dot) after which a period does not
+   * end a sentence (Spanish "sr", "dra"). The story module splits generated and story
+   * text with them; none when omitted.
+   */
+  readonly abbreviations?: readonly string[];
+  /**
+   * Optional: story-generation data (prompt wording, level names, examples, region names,
+   * leak patterns, meta words, labels), see lang/storyData.ts. Without it the story
+   * module builds a bare continuation prompt and applies no language-specific cleaning.
+   */
+  readonly story?: import('./storyData').StoryLanguageData;
 }
+
+export type { StoryExample, StoryInstructionText, StoryLanguageData, StoryPromptText } from './storyData';

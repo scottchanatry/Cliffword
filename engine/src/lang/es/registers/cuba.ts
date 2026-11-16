@@ -52,5 +52,9 @@ export const CU_REGISTER: RegisterPack = {
     vulgar('pinga', 'pene', 'penis; as an exclamation: damn!', { pos: 'NOUN' }),
     vulgar('singar', 'tener sexo', 'to have sex'),
     vulgar('comemierda', 'idiota', 'jerk, idiot; snob', { pos: 'NOUN' }),
+    vulgar('cojones', 'testículos', 'balls; as an exclamation: damn!; "de cojones": awesome', { pos: 'NOUN' }),
+    vulgar('templar', 'tener sexo', 'to have sex', { pos: 'VERB' }),
+    vulgar('bollo', 'vagina', 'pussy', { pos: 'NOUN' }),
+    vulgar('singao', 'desgraciado', 'bastard, jerk (from "singado")', { pos: 'NOUN' }),
   ],
 };

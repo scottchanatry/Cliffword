@@ -23,9 +23,24 @@ import {
   SE_LO_RULE,
   SPANISH_CLITICS,
   ARTICLE_DELETE_RULE,
+  ARTICLE_HOUR_RULE,
   ARTICLE_INSERT_RULES,
+  AGREEMENT_NEIGHBOUR_POS,
+  BODY_ARTICLE_RULE,
+  BODY_PARTS,
+  CONTRACTION_RULE,
+  COORDINATORS,
+  GUSTAR_VERBS,
+  HOUR_NUMBERS,
+  INDIRECT_PRONOUNS,
   MOOD_RULE,
+  NEUTER_LO_FOLLOWER_POS,
   PERSON_NOUNS,
+  PERSON_PRONOUNS,
+  SUBJECT_PRONOUNS,
+  TIME_NOUNS,
+  VERB_AGREEMENT_GUSTAR_RULE,
+  VERB_AGREEMENT_RULE,
   STRESSED_A_FEMININES,
   SUBJUNCTIVE_CUES,
   SER_ESTAR_NONFINITE,
@@ -63,6 +78,10 @@ function formsOf(rule: CorrectionRule): string[] {
       return [];
     case 'move':
       return [...rule.words];
+    case 'agree':
+      return [...(rule.throughWords ?? []), ...(rule.controllerWords ?? []), ...(rule.afterWords ?? [])];
+    case 'contract':
+      return [...new Set(rule.contractions.flat())];
   }
 }
 
@@ -73,8 +92,9 @@ describe('SPANISH_RULES: shape', () => {
     const used = new Set(SPANISH_RULES.map((r) => r.explainKey));
     for (const k of SPANISH_EXPLAIN_KEYS) expect(used.has(k), k).toBe(true);
     expect([...SPANISH_EXPLAIN_KEYS].sort()).toEqual([
-      'es.article', 'es.aspect', 'es.gender', 'es.mood', 'es.negative_command', 'es.number', 'es.personal_a',
-      'es.por_para', 'es.pronoun_order', 'es.pronoun_placement', 'es.se_lo', 'es.ser_estar',
+      'es.article', 'es.aspect', 'es.body_article', 'es.contraction', 'es.gender', 'es.mood', 'es.negative_command',
+      'es.number', 'es.personal_a', 'es.por_para', 'es.pronoun_double', 'es.pronoun_order', 'es.pronoun_placement',
+      'es.se_lo', 'es.ser_estar', 'es.verb_agreement',
     ]);
   });
 
@@ -100,7 +120,7 @@ describe('SPANISH_RULES: shape', () => {
   });
 
   it('keeps swap groups aligned: every group of a rule has the same length (at least 2)', () => {
-    expect(swaps.length).toBe(3);
+    expect(swaps.length).toBe(4);
     for (const r of swaps) {
       const len = r.groups[0]?.length ?? 0;
       expect(len).toBeGreaterThanOrEqual(2);
@@ -108,13 +128,13 @@ describe('SPANISH_RULES: shape', () => {
     }
   });
 
-  it('marks only number agreement as street tolerant (Caribbean final -s)', () => {
+  it('marks only number agreement (nouns and verbs) as street tolerant (Caribbean final -s)', () => {
     const tolerant = SPANISH_RULES.filter((r) => r.streetTolerant).map((r) => r.id);
-    expect(tolerant).toEqual(['es.number']);
+    expect(tolerant).toEqual(['es.number', 'es.verb_agreement.subject', 'es.verb_agreement.gustar']);
   });
 
   it('orders kinds as swaps, inflections, then inserts and deletes', () => {
-    const rank = { swap: 0, move: 0, inflect: 1, insert: 2, delete: 2 } as const;
+    const rank = { swap: 0, move: 0, contract: 0, inflect: 1, agree: 1, insert: 2, delete: 2 } as const;
     const ranks = SPANISH_RULES.map((r) => rank[r.kind]);
     expect([...ranks].sort((a, b) => a - b)).toEqual(ranks);
   });
@@ -226,11 +246,15 @@ describe('SPANISH_RULES: inflections, inserts, deletes', () => {
     expect(byId('es.personal_a.delete')).toMatchObject({ kind: 'delete', words: ['a'], explainKey: 'es.personal_a' });
   });
 
-  it('extends personal a to person nouns through determiners, never before "el" (alg-2, lng-2)', () => {
+  it('extends personal a to person nouns through determiners, nadie and alguien, contracting before "el" (alg-2, lng-2)', () => {
     const rule = byId('es.personal_a.insert') as InsertRule;
-    expect(rule.beforeLemmas).toEqual([...PERSON_NOUNS]);
+    expect(rule.beforeLemmas).toEqual([...PERSON_NOUNS, ...PERSON_PRONOUNS]);
+    expect(PERSON_PRONOUNS).toEqual(['nadie', 'alguien']);
     expect(rule.throughPos).toEqual(['DET']);
-    expect(rule.notBeforeWords).toEqual(['el']);
+    expect(rule.afterThroughPos).toEqual(['ADV']);
+    // "a" + "el" is written "al" by the contraction rule, so "el" is no longer excluded.
+    expect(rule.notBeforeWords).toBeUndefined();
+    expect((byId('es.personal_a.delete') as DeleteRule).fromContractions).toBe(true);
     // Every person noun is a noun lemma of the lexicon, so the chosen analysis can match it.
     for (const lemma of PERSON_NOUNS) expect(lexiconRows(lemma).some((r) => r[1] === 'NOUN'), lemma).toBe(true);
   });
@@ -252,17 +276,53 @@ describe('SPANISH_RULES: inflections, inserts, deletes', () => {
     expect(STRESSED_A_FEMININES).toEqual(expect.arrayContaining(['agua', 'alma', 'hambre', 'área']));
   });
 
-  it('defines article inserts for el/la/los/las/un/una and one delete for all six', () => {
+  it('defines article inserts for el/la/los/las/un/una, the hour article, and one delete for all six', () => {
     expect([...SPANISH_ARTICLES]).toEqual(['el', 'la', 'los', 'las', 'un', 'una']);
     expect(ARTICLE_INSERT_RULES.map((r) => r.word)).toEqual([...SPANISH_ARTICLES]);
     for (const r of ARTICLE_INSERT_RULES) {
       expect(r.explainKey).toBe('es.article');
       expect(r.beforePos).toEqual(['NOUN']);
       expect(r.afterPos).toEqual(['VERB', 'ADP']);
+      // Only the definite articles open a sentence ("La vida es bella").
+      expect(r.sentenceStart === true, r.word).toBe(['el', 'la', 'los', 'las'].includes(r.word));
     }
+    expect(ARTICLE_HOUR_RULE).toMatchObject({ word: 'las', beforeLemmas: [...HOUR_NUMBERS], afterWords: ['a', 'desde', 'hasta', 'entre'] });
+    expect(ARTICLE_HOUR_RULE.beforePos).toBeUndefined();
     expect(ARTICLE_DELETE_RULE.words).toEqual([...SPANISH_ARTICLES]);
-    expect(inserts.length).toBe(1 + SPANISH_ARTICLES.length);
+    expect(ARTICLE_DELETE_RULE.fromContractions).toBeUndefined();
+    expect(inserts.length).toBe(1 + SPANISH_ARTICLES.length + 1);
     expect(deletes.map((d) => d.id)).toEqual(['es.personal_a.delete', 'es.article.delete']);
+  });
+
+  it('defines the contraction, agreement and body-article rules as data', () => {
+    expect(CONTRACTION_RULE).toMatchObject({ kind: 'contract', explainKey: 'es.contraction', contractions: [['a', 'el', 'al'], ['de', 'el', 'del']] });
+    expect(VERB_AGREEMENT_RULE).toMatchObject({
+      kind: 'agree',
+      explainKey: 'es.verb_agreement',
+      side: 'before',
+      features: ['person', 'number'],
+      defaults: { person: '3' },
+      controllerPos: ['NOUN'],
+      controllerWords: [...SUBJECT_PRONOUNS],
+      notControllerLemmas: [...TIME_NOUNS],
+      notAfterPos: ['ADP', 'VERB', 'AUX'],
+      notAfterWords: [...COORDINATORS],
+    });
+    expect(VERB_AGREEMENT_GUSTAR_RULE).toMatchObject({
+      kind: 'agree',
+      side: 'after',
+      features: ['number'],
+      lemmas: [...GUSTAR_VERBS],
+      afterWords: [...INDIRECT_PRONOUNS],
+      notBeforeWords: [...COORDINATORS],
+    });
+    expect(BODY_ARTICLE_RULE).toMatchObject({ kind: 'swap', explainKey: 'es.body_article', beforeLemmas: [...BODY_PARTS], afterPos: ['VERB'], agreeNext: true });
+    // Every lemma the rules name is a lemma of the lexicon, so the chosen analysis can match it.
+    for (const lemma of [...BODY_PARTS, ...TIME_NOUNS]) expect(lexiconRows(lemma).some((r) => r[1] === 'NOUN'), lemma).toBe(true);
+    for (const lemma of GUSTAR_VERBS) expect(lexiconRows(lemma).some((r) => r[1] === 'VERB'), lemma).toBe(true);
+    expect(SER_ESTAR_RULE).toMatchObject({ notBeforeSlang: true, slangThroughPos: ['ADV'] });
+    expect(byId('es.gender')).toMatchObject({ keepAgreement: [...AGREEMENT_NEIGHBOUR_POS] });
+    expect(byId('es.number')).toMatchObject({ keepAgreement: [...AGREEMENT_NEIGHBOUR_POS] });
   });
 });
 
@@ -283,9 +343,12 @@ describe('SPANISH_RULES: object pronouns (data)', () => {
       expect(r.homographs, r.id).toEqual([...CLITIC_HOMOGRAPHS]);
       expect(r.notBeforePos, r.id).toEqual([...ARTICLE_FOLLOWER_POS]);
       expect(r.notBeforeWords, r.id).toEqual([...ARTICLE_FOLLOWER_WORDS]);
+      expect(r.homographNotBeforePos, r.id).toEqual({ lo: [...NEUTER_LO_FOLLOWER_POS] });
       for (const h of r.homographs ?? []) expect(r.words).toContain(h);
-      expect(['es.pronoun_placement', 'es.negative_command', 'es.pronoun_order']).toContain(r.explainKey);
+      expect(['es.pronoun_placement', 'es.negative_command', 'es.pronoun_order', 'es.pronoun_double']).toContain(r.explainKey);
     }
+    expect(byId('es.pronoun_placement.participle')).toMatchObject({ anchorForms: ['part'], positions: ['before'], viaAuxiliary: ['haber'] });
+    expect(byId('es.pronoun_double')).toMatchObject({ positions: [], doubledWithin: 2 });
     const byRuleId = (id: string) => byId(id) as MoveRule;
     expect(byRuleId('es.pronoun_placement.finite')).toMatchObject({ anchorForms: ['fin'], positions: ['before'] });
     expect(byRuleId('es.pronoun_placement.nonfinite')).toMatchObject({ anchorForms: ['inf', 'ger'], positions: ['attach'] });

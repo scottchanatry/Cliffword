@@ -1,13 +1,14 @@
 /**
  * In-memory ShareInbox: the fake for tests and the inbox on web. receive() plays the share
- * sheet (and is what a native share bridge would call).
+ * sheet. Like ExpoShareInbox, a repeat of a pending item (same url and text) returns the pending
+ * item and notifies nobody.
  */
 import type { Clock } from '../clock/types';
 import { systemClock } from '../clock/systemClock';
 import { Listeners, type Unsubscribe } from '../listeners';
-import type { ShareInbox, SharedItem } from './types';
+import type { ShareInbox, ShareInput, ShareReceiver, SharedItem } from './types';
 
-export class MemoryShareInbox implements ShareInbox {
+export class MemoryShareInbox implements ShareInbox, ShareReceiver {
   private items: SharedItem[] = [];
   private seq = 0;
   private readonly listeners = new Listeners<SharedItem>();
@@ -27,10 +28,12 @@ export class MemoryShareInbox implements ShareInbox {
   }
 
   /** Adds a shared item and notifies listeners. Blank input (no url, no text) is ignored: null. */
-  receive(input: { url?: string; text?: string }): SharedItem | null {
+  receive(input: ShareInput): SharedItem | null {
     const url = input.url?.trim() || undefined;
     const text = input.text?.trim() || undefined;
     if (!url && !text) return null;
+    const repeat = this.items.find((item) => item.url === url && item.text === text);
+    if (repeat) return repeat;
     this.seq += 1;
     const receivedAt = this.clock.now();
     const item: SharedItem = { id: `share-${receivedAt}-${this.seq}`, receivedAt, ...(url ? { url } : {}), ...(text ? { text } : {}) };

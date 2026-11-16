@@ -1,6 +1,6 @@
-import { cognateLexemeKeys, frequencyLexemeKeys } from '@cliffword/engine';
+import { PlacementTracker, cognateLexemeKeys, frequencyLexemeKeys, rankOfFromPack } from '@cliffword/engine';
 import { defaultPacks } from '../services/defaults';
-import { learnerPrior } from './prior';
+import { learnerPrior, priorSpecFor } from './prior';
 
 describe('learnerPrior', () => {
   const packs = defaultPacks();
@@ -35,5 +35,26 @@ describe('learnerPrior', () => {
     const a = learnerPrior(packs, 'placement');
     const b = learnerPrior(packs, 'placement');
     for (const key of [cognate, frequent, rare]) expect(a(key, 'meaning')).toBe(b(key, 'meaning'));
+  });
+
+  it('uses the placement stored with the learner snapshot, only for the placement start level', () => {
+    const tracker = new PlacementTracker();
+    for (let i = 0; i < 6; i++) tracker.record(`es:probe${i}`, 2 ** (i + 3), false);
+    const stored = { kind: 'placement' as const, placement: tracker.snapshot() };
+    expect(priorSpecFor('placement', stored)).toBe(stored);
+    expect(priorSpecFor('brandNew', stored)).toEqual({ kind: 'brandNew' });
+    expect(priorSpecFor('placement', { kind: 'brandNew' }).kind).toBe('placement');
+    const placed = learnerPrior(packs, 'placement', stored);
+    const fresh = learnerPrior(packs, 'placement');
+    const expected = PlacementTracker.restore(stored.placement).prior(rankOfFromPack(packs.lang), cognateLexemeKeys(packs.pair));
+    expect(placed(frequent, 'meaning')).toBe(expected(frequent, 'meaning'));
+    // Every probe missed: the stored placement knows less than the fresh estimate.
+    expect(placed(frequent, 'meaning')).toBeLessThan(fresh(frequent, 'meaning'));
+  });
+
+  it('builds the fresh placement prior as the engine does (buildPrior over a new tracker)', () => {
+    const prior = learnerPrior(packs, 'placement');
+    const engine = new PlacementTracker().prior(rankOfFromPack(packs.lang), cognateLexemeKeys(packs.pair));
+    for (const key of [cognate, frequent, rare]) expect(prior(key, 'meaning')).toBe(engine(key, 'meaning'));
   });
 });

@@ -12,8 +12,10 @@
  * pack.attachClitic and pack.splitClitics.
  */
 import type {
+  AgreeRule,
   Analysis,
   CliticSplit,
+  ContractRule,
   CorrectionRule,
   DeleteRule,
   Features,
@@ -147,7 +149,11 @@ interface Candidate {
 export const KIND_PRIORITY: Readonly<Record<CorrectionRule['kind'], number>> = {
   swap: 0,
   move: 0,
+  // A contraction left apart ("a el") is almost never right, and the rule fires only there.
+  contract: 0,
   inflect: 1,
+  // Agreement changes one word, like an inflection, and only where a controller disagrees.
+  agree: 1,
   insert: 2,
   delete: 2,
 };
@@ -232,6 +238,12 @@ export interface SlangIndex {
    * SlangEntry.alsoStandard: standard words too (guapo, bajo, dale; "de una", "qué más").
    */
   alsoStandard: Set<string>;
+  /**
+   * Lemmas and norms of single-word entries, for their inflected forms (bacana of bacano,
+   * panas of pana, bregamos of bregar): true when every entry with that key is
+   * alsoStandard (neutral register then leaves the word to the rules).
+   */
+  lemmas: Map<string, boolean>;
 }
 
 const slangCache = new WeakMap<LanguagePack, { registers: readonly RegisterPack[]; index: SlangIndex }>();
@@ -248,6 +260,7 @@ export function slangIndex(pack: LanguagePack): SlangIndex {
   const single = new Set<string>();
   const phrases: string[][] = [];
   const alsoStandard = new Set<string>();
+  const lemmas = new Map<string, boolean>();
   for (const reg of pack.registers) {
     for (const e of reg.entries) {
       const words = pack
@@ -265,9 +278,10 @@ export function slangIndex(pack: LanguagePack): SlangIndex {
         single.add(f);
         if (e.alsoStandard) alsoStandard.add(f);
       }
+      for (const key of new Set([e.lemma, e.norm])) lemmas.set(key, (lemmas.get(key) ?? true) && e.alsoStandard === true);
     }
   }
-  const index = { single, phrases, alsoStandard };
+  const index = { single, phrases, alsoStandard, lemmas };
   slangCache.set(pack, { registers: pack.registers, index });
   return index;
 }
@@ -344,7 +358,12 @@ function collectWords(
     words.map((w) => w.norm),
     o.register,
   );
-  for (const w of words) w.protected = prot.has(w.index);
+  // Inflected slang (bacana, panas, bregamos) is protected through its chosen lemma.
+  const lemmas = slangIndex(pack).lemmas;
+  for (const w of words) {
+    const std = w.chosen ? lemmas.get(w.chosen.lemma) : undefined;
+    w.protected = prot.has(w.index) || (std !== undefined && !(std && o.register === 'neutral'));
+  }
   return words;
 }
 
@@ -436,7 +455,12 @@ function makeVariant(
  * of every group that contains it, with the word's capitalization. With rule.fromWords
  * only those words are replaced; with rule.beforeWords the next word, and with
  * rule.afterWords the previous word (only spaces in between), must have one of the
- * listed norms.
+ * listed norms; with rule.beforeLemmas the next word's chosen lemma, and with
+ * rule.afterPos the previous word's chosen part of speech, must be listed; with
+ * rule.cueWords a cue must occur earlier in the sentence. With rule.agreeNext a form is
+ * proposed only when it agrees with the next word in gender and number; with
+ * rule.notBeforeSlang nothing is swapped right before a protected slang word (looking
+ * through rule.slangThroughPos words).
  */
 function swapVariants(
   pack: LanguagePack,
@@ -444,6 +468,7 @@ function swapVariants(
   segments: readonly Segment[],
   words: readonly Word[],
   rule: SwapRule,
+  analyze: (norm: string) => Analysis[],
 ): Variant[] {
   const alternatives = new Map<string, string[]>();
   for (const group of rule.groups) {
@@ -460,19 +485,30 @@ function swapVariants(
   const from = norms(rule.fromWords);
   const before = norms(rule.beforeWords);
   const after = norms(rule.afterWords);
+  const cues = norms(rule.cueWords);
+  const beforeLemmas = rule.beforeLemmas ? new Set(rule.beforeLemmas) : undefined;
+  const slangThrough = new Set(rule.slangThroughPos ?? []);
   const out: Variant[] = [];
   for (const w of words) {
     if (w.protected) continue;
     if (from && !from.has(w.norm)) continue;
-    if (before) {
-      const next = adjacentNextWord(segments, words, w.index);
-      if (!next || !before.has(next.norm)) continue;
-    }
-    if (after) {
-      const prev = adjacentPrevWord(segments, words, w.index);
-      if (!prev || !after.has(prev.norm)) continue;
+    const next = adjacentNextWord(segments, words, w.index);
+    const prev = adjacentPrevWord(segments, words, w.index);
+    if (before && (!next || !before.has(next.norm))) continue;
+    if (after && (!prev || !after.has(prev.norm))) continue;
+    if (beforeLemmas && !(next?.chosen && beforeLemmas.has(next.chosen.lemma))) continue;
+    if (rule.afterPos && !(prev?.pos !== undefined && rule.afterPos.includes(prev.pos))) continue;
+    if (cues && !words.some((x) => x.sentence === w.sentence && x.index < w.index && cues.has(x.norm))) continue;
+    if (rule.notBeforeSlang) {
+      let x = next;
+      while (x && !x.protected && x.pos !== undefined && slangThrough.has(x.pos)) x = adjacentNextWord(segments, words, x.index);
+      if (x?.protected) continue;
     }
     for (const form of alternatives.get(w.norm) ?? []) {
+      if (rule.agreeNext && next) {
+        const nextAnalyses = next.chosen ? [next.chosen] : analyze(next.norm);
+        if (!agrees(analyze(pack.normalize(form)), nextAnalyses)) continue;
+      }
       out.push(makeVariant(text, rule, w.seg.start, w.seg.end, replaceCore(w.seg.text, form), w.index));
     }
   }
@@ -487,22 +523,43 @@ function swapVariants(
  * prepositions (casa/casar, para/parar) make no variants. With rule.cueWords, a value in
  * rule.cueFor (every value without it) is changed only when a cue word occurs earlier in
  * the sentence. Forms the pack cannot produce, or that normalize to the word itself
- * (invariant adjectives such as "grande"), are skipped.
+ * (invariant adjectives such as "grande"), are skipped. With rule.keepAgreement, a value
+ * that would break an agreement holding with an adjacent word is skipped
+ * (InflectRule.keepAgreement); with rule.nextPosFor, a reading changes only before a next
+ * word of the listed parts of speech.
  */
-function inflectVariants(pack: LanguagePack, text: string, words: readonly Word[], rule: InflectRule): Variant[] {
+function inflectVariants(
+  pack: LanguagePack,
+  text: string,
+  segments: readonly Segment[],
+  words: readonly Word[],
+  rule: InflectRule,
+): Variant[] {
   const out: Variant[] = [];
   const cues = rule.cueWords ? new Set(rule.cueWords.map((c) => pack.normalize(c))) : undefined;
+  const keep = rule.keepAgreement ? new Set(rule.keepAgreement) : undefined;
   for (const w of words) {
     if (w.protected) continue;
     const cued = () => words.some((x) => x.sentence === w.sentence && x.index < w.index && cues?.has(x.norm));
+    const adjacent = keep
+      ? [adjacentPrevWord(segments, words, w.index), adjacentNextWord(segments, words, w.index)].filter((n): n is Word => n !== undefined)
+      : [];
+    // Agreement with a slang word cannot be checked: its gender and number come from its
+    // neutral equivalent (la guagua, una chimba), so the word next to it is left alone.
+    if (adjacent.some((n) => n.protected && (n.pos === undefined || keep?.has(n.pos)))) continue;
+    const neighbours = adjacent.filter((n) => n.pos !== undefined && keep?.has(n.pos) === true);
+    const next = rule.nextPosFor ? adjacentNextWord(segments, words, w.index) : undefined;
     const seen = new Set<string>();
     for (const a of w.readings) {
       if (!rule.pos.includes(a.pos)) continue;
+      const needNext = rule.nextPosFor?.[a.pos];
+      if (needNext && (!next || (next.pos !== undefined && !needNext.includes(next.pos)))) continue;
       const current = a.features[rule.feature];
       if (current === undefined || !rule.values.includes(current)) continue;
       if (cues && (rule.cueFor === undefined || rule.cueFor.includes(current)) && !cued()) continue;
       for (const value of rule.values) {
         if (value === current) continue;
+        if (neighbours.some((n) => fitsValue(n, rule.feature, current) && !fitsValue(n, rule.feature, value))) continue;
         const form = pack.inflect(a.lemma, { ...a.features, [rule.feature]: value });
         if (!form) continue;
         const norm = pack.normalize(form);
@@ -510,6 +567,144 @@ function inflectVariants(pack: LanguagePack, text: string, words: readonly Word[
         seen.add(norm);
         out.push(makeVariant(text, rule, w.seg.start, w.seg.end, replaceCore(w.seg.text, form), w.index));
       }
+    }
+  }
+  return out;
+}
+
+/**
+ * True when some reading of `w` (its chosen lexeme) carries `value` for `feature`, or
+ * carries no value for it: a word without the feature, or with readings of both values
+ * ("lunes" is singular and plural), agrees with any value.
+ */
+function fitsValue(w: Word, feature: keyof Features, value: string): boolean {
+  const readings = w.readings.length ? w.readings : w.chosen ? [w.chosen] : [];
+  if (readings.length === 0) return true;
+  return readings.some((r) => r.features[feature] === undefined || r.features[feature] === value);
+}
+
+/**
+ * Agree: re-inflect a target (AgreeRule.pos, forms, lemmas, afterWords) with the person
+ * and number of its controller (see AgreeRule for how the controller is found and when
+ * it does not count). No variant when some reading of the target already agrees with
+ * some reading of the controller, when the controller carries none of the features, or
+ * when the pack cannot produce the form.
+ */
+function agreeVariants(
+  pack: LanguagePack,
+  text: string,
+  segments: readonly Segment[],
+  words: readonly Word[],
+  rule: AgreeRule,
+): Variant[] {
+  const norms = (list: readonly string[] | undefined) => new Set((list ?? []).map((w) => pack.normalize(w)));
+  const through = norms(rule.throughWords);
+  const ctrlWords = norms(rule.controllerWords);
+  const notAfterWords = norms(rule.notAfterWords);
+  const notBeforeWords = norms(rule.notBeforeWords);
+  const afterWords = rule.afterWords ? norms(rule.afterWords) : undefined;
+  const throughPos = new Set(rule.throughPos ?? []);
+  const phrasePos = new Set(rule.phrasePos ?? []);
+  const ctrlPos = new Set(rule.controllerPos ?? []);
+  const notCtrl = new Set(rule.notControllerLemmas ?? []);
+  const notAfterPos = new Set(rule.notAfterPos ?? []);
+  const defaults: Features = rule.defaults ?? {};
+  const step = (x: Word, side: 'before' | 'after') =>
+    side === 'before' ? adjacentPrevWord(segments, words, x.index) : adjacentNextWord(segments, words, x.index);
+  const isController = (x: Word) =>
+    !x.protected &&
+    (ctrlWords.has(x.norm) || (x.pos !== undefined && ctrlPos.has(x.pos))) &&
+    !(x.chosen && notCtrl.has(x.chosen.lemma));
+  const hasPos = (x: Word, set: ReadonlySet<Pos>) => x.analyses.some((a) => set.has(a.pos));
+  const formOk = (a: Analysis) => !rule.forms || rule.forms.includes(anchorFormOf(a) ?? '');
+  const valuesOf = (a: Analysis) => rule.features.map((f) => a.features[f] ?? defaults[f]);
+  const out: Variant[] = [];
+  for (const w of words) {
+    if (w.protected) continue;
+    const targets = w.readings.filter(
+      (a) => rule.pos.includes(a.pos) && formOk(a) && (!rule.lemmas || rule.lemmas.includes(a.lemma)),
+    );
+    if (targets.length === 0) continue;
+    if (afterWords) {
+      const p = adjacentPrevWord(segments, words, w.index);
+      if (!p || !afterWords.has(p.norm)) continue;
+    }
+    // Walk out from the target to the controller.
+    let x = step(w, rule.side);
+    let ctrl: Word | undefined;
+    while (x && !x.protected) {
+      if (isController(x)) {
+        ctrl = x;
+        break;
+      }
+      if (through.has(x.norm) || hasPos(x, throughPos) || hasPos(x, phrasePos)) x = step(x, rule.side);
+      else break;
+    }
+    if (!ctrl) continue;
+    if (rule.side === 'before') {
+      let b = step(ctrl, 'before');
+      while (b && !b.protected && hasPos(b, phrasePos) && !isController(b)) b = step(b, 'before');
+      if (b && ((b.pos !== undefined && notAfterPos.has(b.pos)) || notAfterWords.has(b.norm))) continue;
+    } else {
+      const a = step(ctrl, 'after');
+      if (a && notBeforeWords.has(a.norm)) continue;
+    }
+    const ctrlReadings = ctrl.readings.length ? ctrl.readings : ctrl.chosen ? [ctrl.chosen] : [];
+    if (ctrlReadings.length === 0) continue;
+    const wanted = ctrlReadings.map(valuesOf);
+    const matches = (t: Analysis, vals: readonly (string | undefined)[]) =>
+      rule.features.every((f, i) => vals[i] === undefined || t.features[f] === vals[i]);
+    if (targets.some((t) => wanted.some((vals) => matches(t, vals)))) continue;
+    const vals = valuesOf(ctrl.chosen ?? (ctrlReadings[0] as Analysis));
+    if (vals.every((v) => v === undefined)) continue;
+    const t = (w.chosen && targets.includes(w.chosen) ? w.chosen : targets[0]) as Analysis;
+    const features: Features = { ...t.features };
+    rule.features.forEach((f, i) => {
+      const v = vals[i];
+      if (v !== undefined) features[f] = v;
+    });
+    const form = pack.inflect(t.lemma, features);
+    if (!form || pack.normalize(form) === w.norm) continue;
+    out.push(makeVariant(text, rule, w.seg.start, w.seg.end, replaceCore(w.seg.text, form), w.index));
+  }
+  return out;
+}
+
+/** The contractions of every contract rule of the pack, normalized: [first, second, joined]. */
+function contractionsOf(pack: LanguagePack): (readonly [string, string, string])[] {
+  const out: (readonly [string, string, string])[] = [];
+  for (const r of pack.rules) {
+    if (r.kind !== 'contract') continue;
+    for (const [a, b, j] of r.contractions) out.push([pack.normalize(a), pack.normalize(b), pack.normalize(j)] as const);
+  }
+  return out;
+}
+
+/**
+ * Contract: two adjacent unprotected words that form a contraction are joined ("a el" ->
+ * "al"), with the first word's capitalization, unless the second is capitalized away from
+ * a sentence start (a name: "a El Salvador"). The edit spans both words.
+ */
+function contractVariants(
+  pack: LanguagePack,
+  text: string,
+  segments: readonly Segment[],
+  words: readonly Word[],
+  rule: ContractRule,
+): Variant[] {
+  const out: Variant[] = [];
+  const list = rule.contractions.map(([a, b, j]) => [pack.normalize(a), pack.normalize(b), j] as const);
+  for (const w of words) {
+    if (w.protected) continue;
+    const next = adjacentNextWord(segments, words, w.index);
+    if (!next || next.protected) continue;
+    if (startsUpper(next.seg.text) && !isAllCaps(next.seg.text) && !atSentenceStart(segments, next.segIndex)) continue;
+    for (const [a, b, joined] of list) {
+      if (w.norm !== a || next.norm !== b) continue;
+      const trail = EDGE_TRAIL_RE.exec(next.seg.text)?.[0] ?? '';
+      const lead = EDGE_LEAD_RE.exec(w.seg.text)?.[0] ?? '';
+      const core = w.seg.text.slice(lead.length, w.seg.text.length - (EDGE_TRAIL_RE.exec(w.seg.text)?.[0].length ?? 0));
+      out.push(makeVariant(text, rule, w.seg.start, next.seg.end, lead + matchCase(core || w.seg.text, joined) + trail, w.index));
     }
   }
   return out;
@@ -548,7 +743,10 @@ function agrees(insertedAll: readonly Analysis[], next: readonly Analysis[]): bo
  * after rule.notAfterWords or before rule.notBeforeWords. The inserted word must agree in
  * gender and number with the next word (opts.agreeInserted), except before
  * rule.agreementExceptions. At a sentence start the inserted word takes the capital and
- * the next word is lowercased unless it is a proper noun.
+ * the next word is lowercased unless it is a proper noun. With rule.sentenceStart the
+ * insert may also open a sentence; with rule.afterThroughPos the required left neighbour
+ * may stand before a run of such words. An inserted word that forms a contraction with
+ * the word before or after it is written contracted (ContractRule): "a" + "el" -> "al".
  */
 function insertVariants(
   pack: LanguagePack,
@@ -567,7 +765,11 @@ function insertVariants(
   const notAfter = norms(rule.notAfterWords);
   const notBefore = norms(rule.notBeforeWords);
   const exceptions = norms(rule.agreementExceptions);
+  const contractions = contractionsOf(pack);
+  const afterThrough = new Set(rule.afterThroughPos ?? []);
   const needsPrev = rule.afterPos !== undefined || afterWords !== undefined;
+  const leftOk = (x: Word) =>
+    (rule.afterPos !== undefined && x.pos !== undefined && rule.afterPos.includes(x.pos)) || (afterWords ? afterWords.has(x.norm) : false);
   const anyWord = rule.beforePos === undefined && rule.beforeLemmas === undefined;
   const matches = (x: Word) =>
     anyWord ||
@@ -585,13 +787,30 @@ function insertVariants(
     const prev = adjacentPrevWord(segments, words, i);
     if (prev && (prev.norm === insNorm || notAfter?.has(prev.norm))) continue;
     if (needsPrev) {
-      if (!prev) continue;
-      const byPos = rule.afterPos !== undefined && prev.pos !== undefined && rule.afterPos.includes(prev.pos);
-      const byWord = afterWords ? afterWords.has(prev.norm) : false;
-      if (!byPos && !byWord) continue;
+      if (!prev) {
+        if (!(rule.sentenceStart && atSentenceStart(segments, w.segIndex))) continue;
+      } else if (!leftOk(prev)) {
+        let x: Word | undefined = prev;
+        while (x && !x.protected && !leftOk(x) && x.analyses.some((a) => afterThrough.has(a.pos))) {
+          x = adjacentPrevWord(segments, words, x.index);
+        }
+        if (!x || x === prev || !leftOk(x)) continue;
+      }
     }
     const analyses = w.chosen ? [w.chosen] : analyze(w.norm);
     if (opts.agreeInserted && !exceptions?.has(w.norm) && !agrees(insAnalyses, analyses)) continue;
+
+    // Contracted with the word after it ("a" + "el" -> "al") or before it ("a" + "el").
+    const withNext = contractions.find(([a, b]) => a === insNorm && b === w.norm);
+    if (withNext) {
+      out.push(makeVariant(text, rule, w.seg.start, w.seg.end, replaceCore(w.seg.text, withNext[2]), w.index));
+      continue;
+    }
+    const withPrev = prev && !prev.protected ? contractions.find(([a, b]) => a === prev.norm && b === insNorm) : undefined;
+    if (withPrev && prev) {
+      out.push(makeVariant(text, rule, prev.seg.start, prev.seg.end, replaceCore(prev.seg.text, withPrev[2]), w.index));
+      continue;
+    }
 
     const sep = insertSeparator(segments, w.segIndex);
     const isProper = w.pos === 'PROPN' || analyze(w.norm).some((a) => a.pos === 'PROPN');
@@ -612,7 +831,9 @@ function insertVariants(
  * Delete: remove each unprotected word whose norm is in rule.words, together with the
  * whitespace in front of it (or after it, when nothing but punctuation precedes it). If
  * the deleted word opened the sentence with a capital, the next word takes the capital,
- * unless the next word is a protected slang word, which is never changed.
+ * unless the next word is a protected slang word, which is never changed. With
+ * rule.fromContractions, a contraction holding one of rule.words loses that part ("al"
+ * -> "el"), under the same next-word conditions.
  */
 function deleteVariants(
   pack: LanguagePack,
@@ -623,14 +844,27 @@ function deleteVariants(
 ): Variant[] {
   const targets = new Set(rule.words.map((w) => pack.normalize(w)));
   const notBeforeWords = new Set((rule.notBeforeWords ?? []).map((w) => pack.normalize(w)));
+  // Contraction -> what is left when the rule's word comes out of it.
+  const leftOver = new Map<string, string>();
+  if (rule.fromContractions) {
+    for (const [a, b, j] of contractionsOf(pack)) {
+      if (targets.has(a)) leftOver.set(j, b);
+      else if (targets.has(b)) leftOver.set(j, a);
+    }
+  }
   const out: Variant[] = [];
   for (let i = 0; i < words.length; i++) {
     const w = words[i] as Word;
-    if (w.protected || !targets.has(w.norm)) continue;
+    const rest = leftOver.get(w.norm);
+    if (w.protected || (!targets.has(w.norm) && rest === undefined)) continue;
     const next = adjacentNextWord(segments, words, i);
     // The word belongs to a slang phrase that follows it ("un chin"), or the next word
     // shows it is not the word the rule deletes (a pronoun before a verb, "la que").
     if (next && (next.protected || notBeforeWords.has(next.norm) || (next.pos !== undefined && rule.notBeforePos?.includes(next.pos)))) continue;
+    if (rest !== undefined) {
+      out.push(makeVariant(text, rule, w.seg.start, w.seg.end, replaceCore(w.seg.text, rest), w.index));
+      continue;
+    }
     const before = segments[w.segIndex - 1];
     const after = segments[w.segIndex + 1];
     let start = w.seg.start;
@@ -684,6 +918,10 @@ interface MoveSets {
   notBeforeWords: Set<string>;
   afterWords: Set<string> | undefined;
   notAfterWords: Set<string> | undefined;
+  /** MoveRule.homographNotBeforePos, by normalized homograph. */
+  homographPos: Map<string, Set<Pos>>;
+  /** MoveRule.viaAuxiliary lemmas, or undefined. */
+  auxLemmas: Set<string> | undefined;
 }
 
 const moveSetsCache = new WeakMap<MoveRule, { pack: LanguagePack; sets: MoveSets }>();
@@ -700,6 +938,10 @@ function moveSets(pack: LanguagePack, rule: MoveRule): MoveSets {
     notBeforeWords: norm(rule.notBeforeWords),
     afterWords: rule.afterWords ? norm(rule.afterWords) : undefined,
     notAfterWords: rule.notAfterWords ? norm(rule.notAfterWords) : undefined,
+    homographPos: new Map(
+      Object.entries(rule.homographNotBeforePos ?? {}).map(([w, list]) => [pack.normalize(w), new Set(list)] as const),
+    ),
+    auxLemmas: rule.viaAuxiliary ? new Set(rule.viaAuxiliary) : undefined,
   };
   moveSetsCache.set(rule, { pack, sets });
   return sets;
@@ -796,12 +1038,28 @@ function contextHolds(ctx: MoveContext, rule: MoveRule, anchor: Word): boolean {
 }
 
 /**
+ * The auxiliary that takes over `anchor` for a rule with viaAuxiliary: the word before the
+ * anchor (skipping a cluster of the rule's words) when its chosen lemma is listed and some
+ * reading of the anchor (any lexeme: visto is also a form of vestir) matches the rule.
+ */
+function auxFor(ctx: MoveContext, rule: MoveRule, anchor: Word): Word | undefined {
+  const sets = moveSets(ctx.pack, rule);
+  if (!sets.auxLemmas) return undefined;
+  const aux = wordBeforeAnchor(ctx, sets, anchor);
+  if (!aux || aux.protected || !aux.chosen || !sets.auxLemmas.has(aux.chosen.lemma)) return undefined;
+  return readingsOf(ctx, anchor).some((a) => anchorMatches(rule, a)) ? aux : undefined;
+}
+
+/**
  * True if clitics may stand at `position` next to `anchor` (see MoveRule): some active
  * rule whose context holds lists the position for some reading of the anchor; for
  * 'attach', also when the pack analyzes the whole word with an anchor part of speech
  * and no rule with an afterWords context that matches the chosen analysis forbids it.
+ * An anchor taken over by its auxiliary (MoveRule.viaAuxiliary) allows no position.
  */
 function allows(ctx: MoveContext, anchor: Word, position: MovePosition): boolean {
+  // An anchor taken over by its auxiliary (a participle after haber) allows nothing.
+  if (ctx.rules.some((r) => r.viaAuxiliary && auxFor(ctx, r, anchor))) return false;
   const readings = readingsOf(ctx, anchor);
   const active = ctx.rules.filter((r) => r.positions.length > 0 && contextHolds(ctx, r, anchor));
   if (active.some((r) => r.positions.includes(position) && readings.some((a) => anchorMatches(r, a)))) return true;
@@ -835,6 +1093,8 @@ function movable(ctx: MoveContext, sets: MoveSets, w: Word): boolean {
   if (sets.words.has(next.norm)) return true;
   if (sets.notBeforeWords.has(next.norm)) return false;
   if (next.pos === undefined) return false;
+  const own = sets.homographPos.get(w.norm);
+  if (own) return !next.analyses.some((a) => own.has(a.pos));
   return !sets.notBeforePos.has(next.pos);
 }
 
@@ -993,6 +1253,59 @@ function detachClitics(
   return makeVariant(ctx.text, rule, anchor.seg.start, anchor.seg.end, cased, anchor.index);
 }
 
+/**
+ * Variant that moves a cluster standing after an anchor taken over by its auxiliary to
+ * just before the auxiliary: "Ha visto lo" -> "Lo ha visto". The span runs from the
+ * auxiliary to the cluster's end.
+ */
+function moveBeforeAux(ctx: MoveContext, rule: MoveRule, cluster: readonly Word[], anchor: Word, aux: Word): Variant {
+  const c0 = cluster[0] as Word;
+  const c1 = cluster[cluster.length - 1] as Word;
+  const start = aux.seg.start;
+  const end = c1.seg.end;
+  const original = ctx.text.slice(start, end);
+  const atStartCap = startCap(ctx, aux) && !isAllCaps(original);
+  const middle = ctx.text.slice(aux.seg.start, anchor.seg.end);
+  const clusterText = ctx.text.slice(c0.seg.start, c1.seg.end);
+  const sep = ctx.text.slice(anchor.seg.end, c0.seg.start) || wordSeparator(ctx);
+  const replacement = (atStartCap ? lowercaseFirst(clusterText) : clusterText) + sep + (atStartCap ? lowercaseFirst(middle) : middle);
+  return makeVariant(ctx.text, rule, start, end, finishCase(original, replacement, atStartCap), c0.index);
+}
+
+/**
+ * Variants for a cluster directly before `anchor` whose words are also attached to the
+ * anchor or to one of the next rule.doubledWithin words (MoveRule.doubledWithin): one
+ * without the separate copies (the span runs from the cluster to the anchor), one
+ * without the attached copies (the span is the word that carries them).
+ */
+function doubledVariants(ctx: MoveContext, rule: MoveRule, cluster: readonly Word[], anchor: Word): Variant[] {
+  const out: Variant[] = [];
+  const within = rule.doubledWithin ?? 0;
+  let x: Word | undefined = anchor;
+  for (let k = 0; k <= within && x; k++) {
+    const split = x.protected ? undefined : splitOf(ctx, x);
+    const doubled = split ? new Set(cluster.map((w) => w.norm).filter((c) => split.clitics.includes(c))) : new Set<string>();
+    if (split && doubled.size > 0) {
+      const c0 = cluster[0] as Word;
+      const original = ctx.text.slice(c0.seg.start, anchor.seg.end);
+      const atStartCap = startCap(ctx, c0) && !isAllCaps(original);
+      const kept = cluster.filter((w) => !doubled.has(w.norm));
+      const gap = ctx.text.slice((cluster[cluster.length - 1] as Word).seg.end, anchor.seg.start) || wordSeparator(ctx);
+      const anchorText = anchor.seg.text;
+      const replacement = kept.length
+        ? kept.map((w) => pieceText(w, c0, atStartCap)).join(wordSeparator(ctx)) + gap + anchorText
+        : anchorText;
+      out.push(makeVariant(ctx.text, rule, c0.seg.start, anchor.seg.end, finishCase(original, replacement, atStartCap), c0.index));
+      const rest = split.clitics.filter((c) => !doubled.has(c));
+      const form = rest.length ? attachAll(ctx.pack, split.host, rest) : split.host;
+      if (form) out.push(makeVariant(ctx.text, rule, x.seg.start, x.seg.end, matchCase(x.seg.text, form), x.index));
+      break;
+    }
+    x = adjacentNextWord(ctx.segments, ctx.words, x.index);
+  }
+  return out;
+}
+
 /** Variant that puts a separate cluster's words in rule.order. */
 function reorderCluster(ctx: MoveContext, rule: MoveRule, cluster: readonly Word[], order: readonly number[]): Variant {
   const c0 = cluster[0] as Word;
@@ -1042,9 +1355,17 @@ function moveVariants(ctx: MoveContext, rule: MoveRule): Variant[] {
       const order = anchored && ranks ? reorder(ranks) : undefined;
       if (order) out.push(reorderCluster(ctx, rule, cluster, order));
     }
+    if (rule.doubledWithin && right) out.push(...doubledVariants(ctx, rule, cluster, right));
     if (rule.positions.length === 0) continue;
     const fine = (right !== undefined && allows(ctx, right, 'before')) || (left !== undefined && allows(ctx, left, 'after'));
     if (fine) continue;
+    if (rule.viaAuxiliary) {
+      // Only a cluster after the anchor moves here; one between the auxiliary and the
+      // anchor ("He lo visto") is moved by the rule that anchors on the auxiliary.
+      const aux = left ? auxFor(ctx, rule, left) : undefined;
+      if (left && aux && rule.positions.includes('before')) out.push(moveBeforeAux(ctx, rule, cluster, left, aux));
+      continue;
+    }
     // The cluster stands after its left anchor and before its right one.
     for (const [anchor, from] of [[left, 'after'], [right, 'before']] as const) {
       const reading = anchor && firingReading(ctx, rule, anchor);
@@ -1091,12 +1412,18 @@ function moveVariants(ctx: MoveContext, rule: MoveRule): Variant[] {
  * 2. Apply each rule of pack.rules, skipping rules marked streetTolerant when
  *    opts.register is "street". Swaps replace a word with the other members of its
  *    groups (in context, with beforeWords/afterWords); inflections re-inflect the chosen
- *    reading through pack.inflect; inserts and deletes add or remove one word; moves put
- *    out-of-place clitics before, after or onto their verb (pack.attachClitic,
- *    pack.splitClitics) and reorder clusters. Replaced words keep their capitalization;
- *    a move that changes the sentence's first word passes the capital on.
- * 3. Order candidates by a stable priority: rule kind (swap and move, then inflect, then
- *    insert and delete together), then the rule's position in pack.rules, then
+ *    reading through pack.inflect, never breaking an agreement that holds
+ *    (keepAgreement); agreement rules re-inflect a target with its controller's person
+ *    and number; inserts and deletes add or remove one word, written contracted next to a
+ *    contraction partner (contract rules, which also join "a el"); moves put out-of-place
+ *    clitics before, after or onto their verb (pack.attachClitic, pack.splitClitics),
+ *    hand a participle's clitics to its auxiliary, drop doubled clitics and reorder
+ *    clusters. Inflected slang words are protected through their chosen lemma. Replaced
+ *    words keep their capitalization; a move that changes the sentence's first word
+ *    passes the capital on.
+ * 3. Order candidates by a stable priority: rule kind (swap, move and contract, then
+ *    inflect and agree, then insert and delete together), then the rule's position in
+ *    pack.rules, then
  *    generation order (left to right through the sentence, then the order of forms in
  *    the rule).
  * 4. Drop variants identical to the original and keep only the first variant of each
@@ -1144,13 +1471,19 @@ export function generateVariantSet(
     let made: Variant[];
     switch (rule.kind) {
       case 'swap':
-        made = swapVariants(pack, text, segments, words, rule);
+        made = swapVariants(pack, text, segments, words, rule, analyze);
         break;
       case 'move':
         made = moveVariants(moveCtx, rule);
         break;
       case 'inflect':
-        made = inflectVariants(pack, text, words, rule);
+        made = inflectVariants(pack, text, segments, words, rule);
+        break;
+      case 'agree':
+        made = agreeVariants(pack, text, segments, words, rule);
+        break;
+      case 'contract':
+        made = contractVariants(pack, text, segments, words, rule);
         break;
       case 'insert':
         made = insertVariants(pack, text, segments, words, rule, analyze, o);

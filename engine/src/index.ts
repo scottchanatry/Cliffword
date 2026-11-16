@@ -44,10 +44,16 @@ export {
 export type { TargetChoice, TargetContext, TargetOptions, TargetReason } from './story/targets';
 export {
   DEFAULT_LEAK_PATTERNS,
+  DEFAULT_LIST_PATTERN,
+  DEFAULT_PLACEHOLDER_PATTERN,
   DEFAULT_SELECT_OPTIONS,
+  REJECT_CODES,
   analyzeWords,
+  countRejects,
   evaluateCandidate,
   knownShareOf,
+  packLeakPatterns,
+  rankEvaluations,
   resolveSelectOptions,
   selectSentence,
 } from './story/select';
@@ -55,6 +61,7 @@ export type {
   CandidateEvaluation,
   RejectCode,
   ScoreParts,
+  SelectCandidate,
   SelectContext,
   SelectOptions,
   Selection,
@@ -63,19 +70,36 @@ export type {
 export {
   DEFAULT_CONTEXT_SENTENCES,
   DEFAULT_EXTRACT_OPTIONS,
-  REGION_NAMES,
-  SPANISH_PROMPT_TEXT,
+  DEFAULT_STORY_PROMPT_OPTIONS,
+  MODEL_META_LABELS,
+  MODEL_META_PREAMBLE_WORDS,
   buildContinuationPrompt,
+  buildStoryPrompt,
+  extractOptionsFor,
   extractSentence,
+  lengthHintFor,
+  levelName,
   promptInstructionLines,
   storySentences,
+  tagFor,
 } from './story/prompt';
-export type { ExtractOptions, PromptOptions, PromptText } from './story/prompt';
+export type {
+  ExtractOptions,
+  PromptOptions,
+  PromptText,
+  StoryLine,
+  StoryPrompt,
+  StoryPromptInput,
+  StoryPromptOptions,
+} from './story/prompt';
 export {
   DEFAULT_NEXT_SENTENCE_TUNING,
   generateNextSentence,
+  knownLexemeCount,
   maxTokensFor,
+  storyNames,
   targetWordsFromKeys,
+  vocabularyFor,
 } from './story/next';
 export type {
   GenerationRound,
@@ -84,10 +108,28 @@ export type {
   NextSentenceOptions,
   NextSentenceResult,
   NextSentenceTuning,
+  VocabularyInput,
 } from './story/next';
 export { DEFAULT_CLIFF_PICK_OPTIONS, pickCliff, rankCliffPositions, resolveCliffPickOptions } from './story/cliffPick';
 export type { CliffCandidate, CliffExclusion, CliffPick, CliffPickContext, CliffPickOptions } from './story/cliffPick';
-export { DEFAULT_ABBREVIATIONS, splitSentences } from './story/text';
+export { NO_ABBREVIATIONS, splitSentences } from './story/text';
+// Spanish story data (LanguagePack.story, LanguagePack.abbreviations). SPANISH_PROMPT_TEXT,
+// REGION_NAMES and DEFAULT_ABBREVIATIONS were defaults inside story/ before the data moved
+// into the pack; the old names stay as aliases of the Spanish data.
+export {
+  SPANISH_ABBREVIATIONS,
+  SPANISH_ABBREVIATIONS as DEFAULT_ABBREVIATIONS,
+  SPANISH_LEAK_PATTERNS,
+  SPANISH_META_WORDS,
+  SPANISH_PREAMBLE_WORDS,
+  SPANISH_PROMPT_TEXT,
+  SPANISH_REGION_NAMES,
+  SPANISH_REGION_NAMES as REGION_NAMES,
+  SPANISH_STORY_DATA,
+  SPANISH_STORY_EXAMPLES,
+  SPANISH_STORY_LABELS,
+  SPANISH_STORY_PROMPT_TEXT,
+} from './lang/es/story';
 
 // Gaps
 export {

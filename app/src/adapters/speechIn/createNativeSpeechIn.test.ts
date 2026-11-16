@@ -6,12 +6,12 @@ import { ExpoSpeechRecognitionModule } from 'expo-speech-recognition';
 import { FakeClock } from '../clock/FakeClock';
 import type { FakeSpeechRecognitionModule } from '../../testing/FakeSpeechRecognitionModule';
 import { createNativeSpeechIn, loadSpeechRecognitionModule } from './createNativeSpeechIn';
-import { ExpoSpeechIn } from './ExpoSpeechIn';
+import { ExpoSpeechIn, IOS_STARTUP_AUDIO_SESSION } from './ExpoSpeechIn';
 
 const mod = ExpoSpeechRecognitionModule as unknown as FakeSpeechRecognitionModule;
 
 describe('createNativeSpeechIn', () => {
-  it('builds ExpoSpeechIn over the module, with no native call until a session starts', async () => {
+  it('builds ExpoSpeechIn over the module, with no recognition call or listener until a session starts', async () => {
     const before = mod.startCalls.length;
     const speechIn = createNativeSpeechIn('ios', new FakeClock());
     expect(speechIn).toBeInstanceOf(ExpoSpeechIn);
@@ -21,6 +21,15 @@ describe('createNativeSpeechIn', () => {
     expect(mod.startCalls).toHaveLength(before + 1);
     expect(mod.listenerCount('result')).toBeGreaterThan(0);
     speechIn.abort();
+  });
+
+  it('sets the iOS audio session to playback once at start (text to speech not muted by the silent switch)', () => {
+    const before = mod.categoryCalls.length;
+    createNativeSpeechIn('ios', new FakeClock());
+    expect(mod.categoryCalls.slice(before)).toEqual([IOS_STARTUP_AUDIO_SESSION]);
+    expect(IOS_STARTUP_AUDIO_SESSION).toEqual({ category: 'playback', categoryOptions: [], mode: 'default' });
+    createNativeSpeechIn('android', new FakeClock());
+    expect(mod.categoryCalls).toHaveLength(before + 1);
   });
 
   it('falls back to typed answers when the binary lacks the native module', () => {

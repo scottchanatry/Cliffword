@@ -43,7 +43,10 @@ export type { AnswerSpan, Distractor, LandingOptions, OptionChoiceOptions, Outco
 export { DEFAULT_VIEW_OPTIONS, buildSentenceView, sentenceWords } from './view';
 export type { SentenceWord, ViewContext, ViewOptions, ViewState } from './view';
 export { DEFAULT_STORY_SESSION_OPTIONS, StorySession } from './story';
-export type { StorySessionCreate, StorySessionOptions, StorySessionSnapshot, StoryState } from './story';
+export type { PrefetchInfo, StorySessionCreate, StorySessionOptions, StorySessionSnapshot, StoryState } from './story';
+export { DEFAULT_HANDOVER_OPTIONS, bridgeFamiliar, handoverStage, starterLimit } from './handover';
+export type { HandoverInput, HandoverOptions, StoryStage } from './handover';
+export { ModelGate } from './prefetch';
 export { DEFAULT_LYRIC_SESSION_OPTIONS, LyricSession } from './lyric';
 export type { LyricSessionCreate, LyricSessionOptions, LyricSessionSnapshot, LyricState } from './lyric';
 export { SESSION_UI_KEYS } from './uiKeys';

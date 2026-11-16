@@ -1,0 +1,18 @@
+export { answerSpan, inSpan } from './answerSpan';
+export type { WordSpan } from './answerSpan';
+export { CliffGap } from './CliffGap';
+export type { CliffGapProps } from './CliffGap';
+export { CHROME_MAX_SCALE, CONTENT_MAX_SCALE } from './fontScale';
+export { firstSense, GlossChip } from './GlossChip';
+export type { GlossChipProps } from './GlossChip';
+export { HeatLegend, HeatSentence } from './HeatSentence';
+export type { HeatSentenceProps } from './HeatSentence';
+export { templateParts, TemplateText } from './TemplateText';
+export type { TemplateTextProps } from './TemplateText';
+export { TextWord } from './TextWord';
+export { tileWidth } from './tileWidth';
+export { UnderstoodLine } from './UnderstoodLine';
+export { flowLook, WordFlow } from './WordFlow';
+export type { FlowLook, WordFlowProps } from './WordFlow';
+export { FutureTile, MaskedWord, StaticTile, TextChip, TILE_HOLD_MS, TILE_TAP_MAX_MS, WordTile } from './WordTile';
+export type { TileShade, WordTileProps } from './WordTile';

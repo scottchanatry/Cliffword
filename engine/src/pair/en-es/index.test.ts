@@ -7,6 +7,7 @@ import { COGNATES, createEnEsPairPack, DEFAULT_EN_ES_OPTIONS, EXPLANATION_KEYS, 
 const RULE_EXPLAIN_KEYS = [
   'es.ser_estar', 'es.por_para', 'es.gender', 'es.number', 'es.aspect', 'es.mood', 'es.personal_a', 'es.article',
   'es.pronoun_placement', 'es.negative_command', 'es.pronoun_order', 'es.se_lo',
+  'es.verb_agreement', 'es.contraction', 'es.body_article', 'es.pronoun_double',
 ];
 
 const STUB_REGISTERS: RegisterPack[] = [

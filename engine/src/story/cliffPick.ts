@@ -200,7 +200,7 @@ const fmt = (x: number) => (Math.round(x * 1000) / 1000).toString();
  */
 export function rankCliffPositions(positions: readonly CliffPosition[], ctx: CliffPickContext): CliffCandidate[] {
   const o = resolveCliffPickOptions(ctx.options);
-  const lay = layout(ctx.text, ctx.pack, o.abbreviations);
+  const lay = layout(ctx.text, ctx.pack, o.abbreviations ?? ctx.pack.abbreviations);
   const choices = new Map(chooseAnalysesInText(ctx.pack, lay.segments, lay.starts).map((c) => [c.segIndex, c]));
   const targets = new Set(ctx.targets.map(lexemeOf));
   const excludedPos = new Set(o.excludePos);
@@ -267,7 +267,7 @@ export function pickCliff(positions: readonly CliffPosition[], ctx: CliffPickCon
     .sort((a, b) => b.score - a.score || b.prob - a.prob || b.wordIndex - a.wordIndex);
   const best = ranked[0];
   if (!best) return null;
-  const lay = layout(ctx.text, ctx.pack, o.abbreviations);
+  const lay = layout(ctx.text, ctx.pack, o.abbreviations ?? ctx.pack.abbreviations);
   const idx = locate(best.position, lay);
   if (idx === undefined) return null;
   // The rest of the span obeys the same exclusions as its first word: no names, no numbers.

@@ -32,3 +32,5 @@ export { MODEL_FILE_STATUSES, ModelFileRepo } from './repos/modelFiles';
 export type { ModelFile, ModelFileInput, ModelFileStatus } from './repos/modelFiles';
 export { ShareInboxRepo } from './repos/shareInbox';
 export type { SharedItem } from './repos/shareInbox';
+export { TextRepo } from './repos/texts';
+export type { BroughtText, BroughtTextInput } from './repos/texts';

@@ -20,6 +20,7 @@ import { describe, expect, it } from 'vitest';
 import {
   LearnerModel,
   PlacementTracker,
+  StorySession,
   chooseTargets,
   cliffRungFor,
   cognateLexemeKeys,
@@ -319,7 +320,7 @@ describe('simulated learners: always a next step at zero knowledge', () => {
     for (const key of COGNATES.slice(0, 50)) expect(cliffRungFor(learner, key, NOW)).toBe('options');
   });
 
-  it('gets a generated next sentence from the model', async () => {
+  it('asks the model for candidates once, or twice with the safe round', async () => {
     const params = paramsFor(learner);
     const targets = chooseTargets({ learner, now: NOW, frequencyKeys: LIST_KEYS, options: { count: 1 } });
     const res = await generateNextSentence(
@@ -327,9 +328,24 @@ describe('simulated learners: always a next step at zero knowledge', () => {
       { pack, learner, pair },
       { story: ['Marta llegó tarde al mercado.'], targets: targets.map((t) => t.key), params, now: NOW, seed: 11 },
     );
-    expect(res.sentence).not.toBeNull();
-    expect(res.diagnostics.modelCalls).toBeGreaterThanOrEqual(1);
-    expect(res.diagnostics.modelCalls).toBeLessThanOrEqual(2);
+    // The n-gram mock writes fragments that may all be rejected (no verb, too short); the
+    // session below is what guarantees a next step.
+    expect(res.diagnostics.generateCalls).toBeGreaterThanOrEqual(1);
+    expect(res.diagnostics.generateCalls).toBeLessThanOrEqual(2);
+  });
+
+  it('a session always shows a next sentence: the starter, then generation or unused canned sentences, no early repeat', async () => {
+    const s = StorySession.create({ model: createMockModel(), pack, pair, learner: new LearnerModel(), now: NOW, seed: 5, startMode: 'brand_new' });
+    const shown: string[] = [];
+    let t = NOW;
+    for (let i = 0; i < 60 && shown.length < 20; i++) {
+      const step = await s.next((t += 1000));
+      expect(step.screen.kind).not.toBe('error');
+      if (step.screen.kind === 'cliff') shown.push(step.screen.sentence.text);
+    }
+    expect(shown.length).toBe(20);
+    expect(shown.slice(0, 8)).toEqual((pair.starter?.sentences ?? []).map((x) => x.text));
+    expect(new Set(shown).size).toBe(shown.length);
   });
 });
 

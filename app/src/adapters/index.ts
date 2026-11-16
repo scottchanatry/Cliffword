@@ -8,8 +8,8 @@
  * | Model file | ModelManager | ExpoModelManager (expo-file-system download + SHA-256, via createModelManager) | FakeModelManager (ready) | FakeModelManager | — |
  * | Text to speech | SpeechOut | ExpoSpeechOut | ExpoSpeechOut (speechSynthesis) | FakeSpeechOut | — |
  * | Recognition | SpeechIn | ExpoSpeechIn (expo-speech-recognition, on-device) | BrowserSpeechIn or TypedSpeechIn | FakeSpeechIn | — |
- * | Apple Music | MusicPlayer | UnsupportedMusicPlayer | UnsupportedMusicPlayer | FakeMusicPlayer | MusicKit adapter (iOS) |
- * | Share-in | ShareInbox | MemoryShareInbox | MemoryShareInbox | MemoryShareInbox | expo-share-intent inbox |
+ * | Apple Music | MusicPlayer | MusicKitPlayer on iOS (modules/cliffword-music, via createNativeMusicPlayer); Android: UnsupportedMusicPlayer | UnsupportedMusicPlayer | FakeMusicPlayer | — |
+ * | Share-in | ShareInbox | ExpoShareInbox (share_inbox table, via createNativeShareInbox) fed by ShareIntentBridge | MemoryShareInbox | MemoryShareInbox | — |
  * | Haptics | Haptics | ExpoHapticsAdapter | ExpoHapticsAdapter | FakeHaptics | — |
  * | Time | Clock | systemClock | systemClock | FakeClock | — |
  */

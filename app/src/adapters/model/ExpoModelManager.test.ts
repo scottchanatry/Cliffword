@@ -171,6 +171,30 @@ describe('ExpoModelManager: download', () => {
     expect(fakeFs.operations()).toHaveLength(2);
   });
 
+  it('cancel gives up waiting for a lost pause and cancels the task', async () => {
+    const { manager } = await setup();
+    const { done } = await start(manager);
+    const op = fakeFs.lastDownload();
+    op.progress(1000);
+    fakeFs.losePauses(true);
+    jest.useFakeTimers();
+    try {
+      const cancelling = manager.cancel();
+      await expect(done).resolves.toBe('absent');
+      await jest.advanceTimersByTimeAsync(5000);
+      await cancelling;
+    } finally {
+      jest.useRealTimers();
+    }
+    expect(op.task.state).toBe('cancelled');
+    expect(manager.snapshot()).toMatchObject({ status: 'absent', progress: { bytesWritten: 1000 } });
+    // Android keeps what reached the file, so the next start still resumes.
+    const { done: again } = await start(manager);
+    expect(fakeFs.lastDownload()).toMatchObject({ kind: 'resume', offset: 1000 });
+    fakeFs.lastDownload().complete();
+    await expect(again).resolves.toBe('ready');
+  });
+
   it('cancel saves the iOS resume data and the next start resumes from it', async () => {
     fakeFs.reset({ platform: 'ios' });
     fakeFs.serve(MODEL.url, CONTENT);

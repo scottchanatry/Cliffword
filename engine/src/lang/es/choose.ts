@@ -11,6 +11,9 @@
  *   -a);
  * - after a pronoun, a name, or no/ya/nunca/también/tampoco/siempre, a finite verb
  *   (ella vino, me pregunta, Marta vino, no trabajo);
+ * - after a conjunction that opens a clause (que, si, cuando, porque, aunque, ojalá,
+ *   mientras), a finite verb: "quieren que estudio medicina" is the verb, so the mood rule
+ *   can offer "estudie";
  * - at a sentence start, a finite verb over a bare noun or adjective (Vivo en Madrid,
  *   Trabajo en casa): Spanish drops subject pronouns, while a noun usually takes a
  *   determiner.
@@ -20,6 +23,9 @@ import type { Analysis, AnalysisContext } from '../types';
 
 /** Adverbs after which a noun/verb homograph is read as the verb. */
 export const VERB_CUE_ADVERBS: readonly string[] = ['no', 'ya', 'nunca', 'también', 'tampoco', 'siempre'];
+
+/** Conjunctions that open a clause, after which a noun/verb homograph is read as the verb. */
+export const VERB_CUE_CONJUNCTIONS: readonly string[] = ['que', 'si', 'cuando', 'porque', 'aunque', 'ojalá', 'mientras'];
 
 function isFinite(a: Analysis): boolean {
   return (a.pos === 'VERB' || a.pos === 'AUX') && (a.features.mood !== undefined || a.features.form === 'fin');
@@ -44,7 +50,12 @@ export function chooseSpanishAnalysis(analyses: readonly Analysis[], context: An
       return find((a) => a.pos === 'NOUN') ?? find((a) => a.pos === 'ADJ') ?? first;
     }
     if (prev.lemma === 'haber' && (prev.pos === 'AUX' || prev.pos === 'VERB')) return find(isCompoundParticiple) ?? first;
-    if (prev.pos === 'PRON' || prev.pos === 'PROPN' || (prev.pos === 'ADV' && VERB_CUE_ADVERBS.includes(prev.lemma))) {
+    if (
+      prev.pos === 'PRON' ||
+      prev.pos === 'PROPN' ||
+      (prev.pos === 'ADV' && VERB_CUE_ADVERBS.includes(prev.lemma)) ||
+      (prev.pos === 'CONJ' && VERB_CUE_CONJUNCTIONS.includes(prev.lemma))
+    ) {
       return find(isFinite) ?? first;
     }
     return first;

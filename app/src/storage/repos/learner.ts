@@ -10,6 +10,11 @@
  * and queues its insert in the same step too. The database runs calls in order (see
  * sql/serialized.ts), so a snapshot's `through_event_id` always matches the events it contains.
  * Events are applied and logged in `applyAll` order (stable by `at`).
+ *
+ * The prior: LearnerModel snapshots do not include the prior function, so a snapshot row can
+ * carry the engine's PriorSpec that rebuilds it (`saveSnapshot(..., { prior })`, schema v3). A
+ * snapshot saved without one keeps the prior of the row before it, so checkpoints never lose a
+ * placement prior. `latestPrior()` reads it back for startup (src/learner/prior.ts).
  */
 import {
   LearnerModel,
@@ -18,6 +23,7 @@ import {
   type LearnerParamsInput,
   type LearnerSnapshot,
   type PriorFn,
+  type PriorSpec,
 } from '@cliffword/engine';
 import { fromJson } from '../json';
 import type { SqlDatabase, SqlExecutor } from '../sql/types';
@@ -76,6 +82,27 @@ interface SnapshotRow {
   version: number;
   json: string;
   through_event_id: number;
+  /** JSON PriorSpec (v3); null on rows saved before any prior was stored. */
+  prior?: string | null;
+}
+
+export interface SaveSnapshotOptions {
+  /** Snapshots to keep (newest first); 0 keeps all. Default DEFAULT_SNAPSHOTS_KEPT. */
+  keep?: number;
+  /**
+   * The prior the model was built with, as the engine's PriorSpec. Omitted: the prior of the
+   * newest stored snapshot is kept, so a checkpoint never drops it.
+   */
+  prior?: PriorSpec;
+}
+
+/** A stored PriorSpec, or null when the JSON is missing or not one. */
+function readPrior(json: unknown): PriorSpec | null {
+  const spec = fromJson<{ kind?: unknown; placement?: unknown } | null>(json, null);
+  if (typeof spec !== 'object' || spec === null) return null;
+  if (spec.kind === 'default' || spec.kind === 'brandNew') return { kind: spec.kind };
+  if (spec.kind === 'placement' && typeof spec.placement === 'object' && spec.placement !== null) return spec as PriorSpec;
+  return null;
 }
 
 /** The same events LearnerModel.apply accepts; anything else is not logged. */
@@ -157,16 +184,18 @@ export class LearnerRepo {
 
   /**
    * Save the model's snapshot now; it covers every event logged before this call. Keeps the
-   * newest `keep` snapshots (0 keeps all).
+   * newest `keep` snapshots (0 keeps all). `prior` is stored with it (see the file header).
    */
-  saveSnapshot(learner: LearnerModel, at: number, opts: { keep?: number } = {}): Promise<SnapshotInfo> {
+  saveSnapshot(learner: LearnerModel, at: number, opts: SaveSnapshotOptions = {}): Promise<SnapshotInfo> {
     const snapshot = learner.snapshot();
     const keep = opts.keep ?? DEFAULT_SNAPSHOTS_KEPT;
+    const prior = opts.prior ? JSON.stringify(opts.prior) : null;
     return this.db.transaction(async (tx) => {
       const through = await lastEventId(tx);
       const result = await tx.run(
-        'INSERT INTO learner_snapshots (at, version, json, through_event_id) VALUES (?, ?, ?, ?)',
-        [at, snapshot.version, JSON.stringify(snapshot), through],
+        `INSERT INTO learner_snapshots (at, version, json, through_event_id, prior)
+         VALUES (?, ?, ?, ?, COALESCE(?, (SELECT prior FROM learner_snapshots ORDER BY id DESC LIMIT 1)))`,
+        [at, snapshot.version, JSON.stringify(snapshot), through, prior],
       );
       if (keep > 0) {
         await tx.run(
@@ -176,6 +205,12 @@ export class LearnerRepo {
       }
       return { id: result.lastInsertRowId, at, version: snapshot.version, throughEventId: through };
     });
+  }
+
+  /** The prior stored with the newest snapshot (PriorSpec), or null when none was stored. */
+  async latestPrior(): Promise<PriorSpec | null> {
+    const row = await this.db.get<{ prior: string | null }>('SELECT prior FROM learner_snapshots ORDER BY id DESC LIMIT 1');
+    return readPrior(row?.prior);
   }
 
   /** The newest snapshot whose JSON parses, or null. */

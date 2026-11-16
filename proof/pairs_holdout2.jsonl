@@ -1,0 +1,36 @@
+{"id": 201, "rule": "ser_estar", "correct": "Mi novia es muy inteligente.", "incorrect": "Mi novia está muy inteligente."}
+{"id": 202, "rule": "ser_estar", "correct": "Estamos en la oficina.", "incorrect": "Somos en la oficina."}
+{"id": 203, "rule": "ser_estar", "correct": "La tienda está cerrada.", "incorrect": "La tienda es cerrada."}
+{"id": 204, "rule": "por_para", "correct": "Gracias por venir.", "incorrect": "Gracias para venir."}
+{"id": 205, "rule": "por_para", "correct": "Trabajo para una empresa grande.", "incorrect": "Trabajo por una empresa grande."}
+{"id": 206, "rule": "por_para", "correct": "Voy a la playa por la tarde.", "incorrect": "Voy a la playa para la tarde."}
+{"id": 207, "rule": "gender", "correct": "La leche está fría.", "incorrect": "La leche está frío."}
+{"id": 208, "rule": "gender", "correct": "Es un día bonito.", "incorrect": "Es una día bonito."}
+{"id": 209, "rule": "gender", "correct": "Tengo una idea nueva.", "incorrect": "Tengo una idea nuevo."}
+{"id": 210, "rule": "number", "correct": "Los zapatos nuevos son cómodos.", "incorrect": "Los zapatos nuevo son cómodos."}
+{"id": 211, "rule": "number", "correct": "Mis primos son muy altos.", "incorrect": "Mis primos son muy alto."}
+{"id": 212, "rule": "number", "correct": "Hay tres sillas en la cocina.", "incorrect": "Hay tres silla en la cocina."}
+{"id": 213, "rule": "subject_verb", "correct": "Mis hermanos viven en Texas.", "incorrect": "Mis hermanos vive en Texas."}
+{"id": 214, "rule": "subject_verb", "correct": "Usted tiene razón.", "incorrect": "Usted tienes razón."}
+{"id": 215, "rule": "subject_verb", "correct": "Nos gustan las películas viejas.", "incorrect": "Nos gusta las películas viejas."}
+{"id": 216, "rule": "preterite_imperfect", "correct": "Ayer terminé el libro.", "incorrect": "Ayer terminaba el libro."}
+{"id": 217, "rule": "preterite_imperfect", "correct": "Mi abuela siempre cocinaba los domingos.", "incorrect": "Mi abuela siempre cocinó los domingos."}
+{"id": 218, "rule": "preterite_imperfect", "correct": "Anoche cenamos en un restaurante.", "incorrect": "Anoche cenábamos en un restaurante."}
+{"id": 219, "rule": "subjunctive_wish", "correct": "Quiero que llegues temprano.", "incorrect": "Quiero que llegas temprano."}
+{"id": 220, "rule": "subjunctive_wish", "correct": "Ojalá que tengas razón.", "incorrect": "Ojalá que tienes razón."}
+{"id": 221, "rule": "subjunctive_wish", "correct": "Te pido que me escuches.", "incorrect": "Te pido que me escuchas."}
+{"id": 222, "rule": "personal_a", "correct": "Ayudé a mi vecina con las bolsas.", "incorrect": "Ayudé mi vecina con las bolsas."}
+{"id": 223, "rule": "personal_a", "correct": "Vi a Carlos en el cine.", "incorrect": "Vi Carlos en el cine."}
+{"id": 224, "rule": "personal_a", "correct": "Compré una bicicleta.", "incorrect": "Compré a una bicicleta."}
+{"id": 225, "rule": "articles", "correct": "Me encanta el chocolate.", "incorrect": "Me encanta chocolate."}
+{"id": 226, "rule": "articles", "correct": "Los gatos duermen mucho.", "incorrect": "Gatos duermen mucho."}
+{"id": 227, "rule": "articles", "correct": "Mi padre es abogado.", "incorrect": "Mi padre es un abogado."}
+{"id": 228, "rule": "contraction", "correct": "Vamos al mercado mañana.", "incorrect": "Vamos a el mercado mañana."}
+{"id": 229, "rule": "contraction", "correct": "El hijo del profesor es simpático.", "incorrect": "El hijo de el profesor es simpático."}
+{"id": 230, "rule": "contraction", "correct": "Llegamos al aeropuerto tarde.", "incorrect": "Llegamos a aeropuerto tarde."}
+{"id": 231, "rule": "body_article", "correct": "Me lavé la cara.", "incorrect": "Me lavé mi cara."}
+{"id": 232, "rule": "body_article", "correct": "Le duele la espalda.", "incorrect": "Le duele su espalda."}
+{"id": 233, "rule": "body_article", "correct": "Nos quitamos los zapatos.", "incorrect": "Nos quitamos nuestros zapatos."}
+{"id": 234, "rule": "pronoun_placement", "correct": "Te llamo mañana.", "incorrect": "Llamo te mañana."}
+{"id": 235, "rule": "pronoun_placement", "correct": "Quiero comprarlo.", "incorrect": "Quiero lo comprar."}
+{"id": 236, "rule": "pronoun_placement", "correct": "Ya lo he terminado.", "incorrect": "Ya he lo terminado."}

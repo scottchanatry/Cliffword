@@ -73,17 +73,21 @@ const log = (...args: unknown[]): void => out.log('[real-engine]', ...args);
 const PAIRS: ProofPair[] = (raw17 as { pairs: ProofPair[] }).pairs;
 const SLANG: ProofSlang[] = (raw17 as unknown as { slang: ProofSlang[] }).slang;
 
-/** Proof rule tag -> the engine explanation keys that name the same rule. */
+/**
+ * Proof rule tag -> the engine explanation keys that name the same rule. The proof's
+ * "number" tag includes subject-verb agreement, and "articles" includes contractions and
+ * the body-part article.
+ */
 const FAMILY: Record<string, readonly string[]> = {
   ser_estar: ['es.ser_estar'],
   por_para: ['es.por_para'],
   gender: ['es.gender'],
-  number: ['es.number'],
+  number: ['es.number', 'es.verb_agreement'],
   preterite_imperfect: ['es.aspect'],
   subjunctive_wish: ['es.mood'],
   personal_a: ['es.personal_a'],
-  articles: ['es.article'],
-  pronoun_placement: ['es.pronoun_placement', 'es.pronoun_order', 'es.negative_command', 'es.se_lo'],
+  articles: ['es.article', 'es.contraction', 'es.body_article'],
+  pronoun_placement: ['es.pronoun_placement', 'es.pronoun_order', 'es.negative_command', 'es.se_lo', 'es.pronoun_double'],
 };
 
 /**
@@ -98,14 +102,21 @@ const ACCEPT = {
    * (DeleteRule.notBeforePos); re-measured 0 on 2026-11-15 (integration run).
    */
   maxFalseAsserts: 0,
-  /** Correct proof sentences given a hint: measured 2 (the proof's raw margins gave 1 at 1 nat). */
+  /**
+   * Correct proof sentences given a hint: measured 2 at first (the proof's raw margins
+   * gave 1 at 1 nat), 1 after the correction coverage round (2026-11-16).
+   */
   maxFalseHints: 3,
-  /** Incorrect sentences asserted with exactly the correct sentence as the fix: measured 57 of 93. */
-  minAssertedRightFix: 54,
-  /** Incorrect sentences flagged (assert or hint) with exactly the correct sentence: measured 67 of 93. */
-  minFlaggedRightFix: 63,
-  /** Flagged incorrect sentences whose explanation names the proof's rule: measured 73 of 93. */
-  minRightFamily: 69,
+  /**
+   * Incorrect sentences asserted with exactly the correct sentence as the fix: measured 57
+   * of 93 at first, 70 after the correction coverage round (agreement, contractions,
+   * articles, body parts, personal a, pronouns; 2026-11-16).
+   */
+  minAssertedRightFix: 66,
+  /** Incorrect sentences flagged (assert or hint) with exactly the correct sentence: measured 67, then 83 of 93. */
+  minFlaggedRightFix: 79,
+  /** Flagged incorrect sentences whose explanation names the proof's rule: measured 73, then 86 of 93. */
+  minRightFamily: 82,
   /** Incorrect sentences whose error word (or the next) reaches heat 2: measured 42 of 93. */
   minHeatHits: 38,
   /** Correct sentences with any word at heat 3: measured 3 of 93. */
@@ -116,9 +127,10 @@ const ACCEPT = {
    * chin", "que el putas") and one ser/estar ("estuvo bacana" -> "fue bacana"). With the
    * delete rules' next-word conditions (no delete before a slang word, before que/de, or
    * before a verb) re-measured 2: "que el putas" (putas is not in the slang packs) and the
-   * ser/estar one. Lower it as the rules are fixed.
+   * ser/estar one. After the correction coverage round (putas and man in the CO pack,
+   * ser/estar skipped before a slang predicate): 0 (2026-11-16).
    */
-  maxStreetAsserts: 2,
+  maxStreetAsserts: 0,
 } as const;
 
 /** Rules whose variants caused the measured false asserts (open issues in the doc). */

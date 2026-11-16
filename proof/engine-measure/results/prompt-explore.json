@@ -1,0 +1,897 @@
+{
+ "date": "2026-11-16T00:04:59.599Z",
+ "seeds": [
+  1
+ ],
+ "n": 4,
+ "summary": {
+  "brandNew": {
+   "F0": {
+    "inBand": 0,
+    "famBand": 0,
+    "target": 0,
+    "verb": 0.5,
+    "inLength": 0,
+    "distinct": 3,
+    "n": 4,
+    "msPerCall": 6466,
+    "promptChars": 384
+   },
+   "F1": {
+    "inBand": 0,
+    "famBand": 0,
+    "target": 0,
+    "verb": 1,
+    "inLength": 1,
+    "distinct": 3,
+    "n": 4,
+    "msPerCall": 3890,
+    "promptChars": 465
+   },
+   "F2": {
+    "inBand": 0,
+    "famBand": 0,
+    "target": 0,
+    "verb": 1,
+    "inLength": 0.75,
+    "distinct": 3,
+    "n": 4,
+    "msPerCall": 3553,
+    "promptChars": 466
+   },
+   "F3": {
+    "inBand": 0,
+    "famBand": 0,
+    "target": 0,
+    "verb": 1,
+    "inLength": 1,
+    "distinct": 2,
+    "n": 4,
+    "msPerCall": 2358,
+    "promptChars": 471
+   },
+   "F4": {
+    "inBand": 0,
+    "famBand": 0,
+    "target": 0,
+    "verb": 1,
+    "inLength": 1,
+    "distinct": 3,
+    "n": 4,
+    "msPerCall": 3986,
+    "promptChars": 217
+   },
+   "F5": {
+    "inBand": 0,
+    "famBand": 0,
+    "target": 0,
+    "verb": 1,
+    "inLength": 1,
+    "distinct": 4,
+    "n": 4,
+    "msPerCall": 5994,
+    "promptChars": 475
+   },
+   "F6": {
+    "inBand": 0,
+    "famBand": 0,
+    "target": 1,
+    "verb": 1,
+    "inLength": 0,
+    "distinct": 4,
+    "n": 4,
+    "msPerCall": 11244,
+    "promptChars": 487
+   }
+  },
+  "early": {
+   "F0": {
+    "inBand": 0.25,
+    "famBand": 0.25,
+    "target": 0,
+    "verb": 0,
+    "inLength": 0.25,
+    "distinct": 3,
+    "n": 4,
+    "msPerCall": 2271,
+    "promptChars": 323
+   },
+   "F1": {
+    "inBand": 0.5,
+    "famBand": 0.5,
+    "target": 0,
+    "verb": 1,
+    "inLength": 0.5,
+    "distinct": 4,
+    "n": 4,
+    "msPerCall": 3432,
+    "promptChars": 455
+   },
+   "F2": {
+    "inBand": 0.25,
+    "famBand": 0.25,
+    "target": 0.25,
+    "verb": 1,
+    "inLength": 1,
+    "distinct": 4,
+    "n": 4,
+    "msPerCall": 3994,
+    "promptChars": 456
+   },
+   "F3": {
+    "inBand": 0,
+    "famBand": 0,
+    "target": 0,
+    "verb": 1,
+    "inLength": 0.75,
+    "distinct": 4,
+    "n": 4,
+    "msPerCall": 4316,
+    "promptChars": 461
+   },
+   "F4": {
+    "inBand": 0,
+    "famBand": 0,
+    "target": 0,
+    "verb": 1,
+    "inLength": 1,
+    "distinct": 4,
+    "n": 4,
+    "msPerCall": 3936,
+    "promptChars": 155
+   },
+   "F5": {
+    "inBand": 0,
+    "famBand": 0,
+    "target": 0,
+    "verb": 1,
+    "inLength": 0.75,
+    "distinct": 4,
+    "n": 4,
+    "msPerCall": 3050,
+    "promptChars": 461
+   },
+   "F6": {
+    "inBand": 0,
+    "famBand": 0,
+    "target": 0.5,
+    "verb": 1,
+    "inLength": 0.5,
+    "distinct": 4,
+    "n": 4,
+    "msPerCall": 10242,
+    "promptChars": 477
+   }
+  }
+ },
+ "rows": [
+  {
+   "profile": "brandNew",
+   "format": "F0",
+   "prompt": "Escribe la siguiente oración de esta historia.\nUna sola oración, de 9 palabras como máximo.\nUsa la palabra que.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nMarta toca la guitarra y el piano. La música es fantástica. Es un momento perfecto. Después, Marta va a un restaurante con su familia.\n\nSiguiente oración:",
+   "inBand": 0,
+   "famBand": 0,
+   "target": 0,
+   "verb": 0.5,
+   "inLength": 0,
+   "distinct": 3,
+   "n": 4,
+   "msPerCall": 6466,
+   "promptChars": 384,
+   "evals": [
+    {
+     "text": "",
+     "raw": " ",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 0
+    },
+    {
+     "text": "La familia de Marta va a un restaurante con su hermano y sus padres.",
+     "raw": " La familia de Marta va a un restaurante con su hermano y sus padres. El restaurante tiene un buen",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 14
+    },
+    {
+     "text": "La familia de Marta va a un restaurante con su hermano, pero no tiene dinero.",
+     "raw": " La familia de Marta va a un restaurante con su hermano, pero no tiene dinero. ¿Qué hará Mart",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 15
+    },
+    {
+     "text": "",
+     "raw": " (La palabra que se va a escribir es \"palabra\")",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 0
+    }
+   ]
+  },
+  {
+   "profile": "brandNew",
+   "format": "F1",
+   "prompt": "Cuento corto en español fácil (nivel A1).\nPersonajes: Marta.\nPalabras conocidas: el, un, ser, y, en, de, muy, no, con, tener, su, para, artista, guitarra, importante, concierto, parque, piano, música, fantástico, momento, perfecto, restaurante, familia, casa, hotel, café, banana, chocolate, animal, teléfono.\nPalabra nueva: que.\n\nMarta toca la guitarra y el piano. La música es fantástica. Es un momento perfecto. Después, Marta va a un restaurante con su familia.",
+   "inBand": 0,
+   "famBand": 0,
+   "target": 0,
+   "verb": 1,
+   "inLength": 1,
+   "distinct": 3,
+   "n": 4,
+   "msPerCall": 3890,
+   "promptChars": 465,
+   "evals": [
+    {
+     "text": "El restaurante tiene un café con chocolate.",
+     "raw": " El restaurante tiene un café con chocolate",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 7
+    },
+    {
+     "text": "Ella tiene un teléfono.",
+     "raw": " Ella tiene un teléfono",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 4
+    },
+    {
+     "text": "Ella tiene un teléfono.",
+     "raw": " Ella tiene un teléfono",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 4
+    },
+    {
+     "text": "Allí, Marta tiene un chocolate y un café.",
+     "raw": " Allí, Marta tiene un chocolate y un café",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 8
+    }
+   ]
+  },
+  {
+   "profile": "brandNew",
+   "format": "F2",
+   "prompt": "Cuento corto en español fácil (nivel A1).\nPersonajes: Marta.\nPalabras conocidas: el, un, ser, y, en, de, muy, no, con, tener, su, para, artista, guitarra, importante, concierto, parque, piano, música, fantástico, momento, perfecto, restaurante, familia, casa, hotel, café, banana, chocolate, animal, teléfono.\nPalabra nueva: que.\n\nMarta toca la guitarra y el piano.\nLa música es fantástica.\nEs un momento perfecto.\nDespués, Marta va a un restaurante con su familia.\n",
+   "inBand": 0,
+   "famBand": 0,
+   "target": 0,
+   "verb": 1,
+   "inLength": 0.75,
+   "distinct": 3,
+   "n": 4,
+   "msPerCall": 3553,
+   "promptChars": 466,
+   "evals": [
+    {
+     "text": "Marta tiene una banana.",
+     "raw": "Marta tiene una banana.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 4
+    },
+    {
+     "text": "Marta tiene un teléfono.",
+     "raw": "Marta tiene un teléfono.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 4
+    },
+    {
+     "text": "Marta tiene un teléfono.",
+     "raw": "Marta tiene un teléfono.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 4
+    },
+    {
+     "text": "Ella le pide al mesero un chocolate y una banana.",
+     "raw": "Ella le pide al mesero un chocolate y una banana.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 10
+    }
+   ]
+  },
+  {
+   "profile": "brandNew",
+   "format": "F3",
+   "prompt": "Cuento corto en español fácil (nivel A1).\nPersonajes: Marta.\nPalabras conocidas: el, un, ser, y, en, de, muy, no, con, tener, su, para, artista, guitarra, importante, concierto, parque, piano, música, fantástico, momento, perfecto, restaurante, familia, casa, hotel, café, banana, chocolate, animal, teléfono.\nPalabra nueva: que.\n\nMarta toca la guitarra y el piano.\nLa música es fantástica.\nEs un momento perfecto.\nDespués, Marta va a un restaurante con su familia.\nMarta",
+   "inBand": 0,
+   "famBand": 0,
+   "target": 0,
+   "verb": 1,
+   "inLength": 1,
+   "distinct": 2,
+   "n": 4,
+   "msPerCall": 2358,
+   "promptChars": 471,
+   "evals": [
+    {
+     "text": "Marta tiene una banana.",
+     "raw": " tiene una banana.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 4
+    },
+    {
+     "text": "Marta tiene un teléfono.",
+     "raw": " tiene un teléfono.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 4
+    },
+    {
+     "text": "Marta tiene un teléfono.",
+     "raw": " tiene un teléfono.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 4
+    },
+    {
+     "text": "Marta tiene un teléfono.",
+     "raw": " tiene un teléfono.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 4
+    }
+   ]
+  },
+  {
+   "profile": "brandNew",
+   "format": "F4",
+   "prompt": "Cuento corto en español fácil (nivel A1).\nPersonajes: Marta.\nPalabra nueva: que.\n\nMarta toca la guitarra y el piano.\nLa música es fantástica.\nEs un momento perfecto.\nDespués, Marta va a un restaurante con su familia.\n",
+   "inBand": 0,
+   "famBand": 0,
+   "target": 0,
+   "verb": 1,
+   "inLength": 1,
+   "distinct": 3,
+   "n": 4,
+   "msPerCall": 3986,
+   "promptChars": 217,
+   "evals": [
+    {
+     "text": "Ellos comen muy bien.",
+     "raw": "Ellos comen muy bien.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 4
+    },
+    {
+     "text": "Marta va a un restaurante con su familia.",
+     "raw": "Marta va a un restaurante con su familia.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 8
+    },
+    {
+     "text": "Marta va a un restaurante con su familia.",
+     "raw": "Marta va a un restaurante con su familia.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 8
+    },
+    {
+     "text": "Ella lleva un vestido nuevo.",
+     "raw": "Ella lleva un vestido nuevo.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    }
+   ]
+  },
+  {
+   "profile": "brandNew",
+   "format": "F5",
+   "prompt": "Cuento corto en español fácil (nivel A1).\nPersonajes: Marta.\nPalabras conocidas: el, un, ser, y, en, de, muy, no, con, tener, su, para, artista, guitarra, importante, concierto, parque, piano, música, fantástico, momento, perfecto, restaurante, familia, casa, hotel, café, banana, chocolate, animal, teléfono.\nPalabra nueva: que.\n\n- Marta toca la guitarra y el piano.\n- La música es fantástica.\n- Es un momento perfecto.\n- Después, Marta va a un restaurante con su familia.\n-",
+   "inBand": 0,
+   "famBand": 0,
+   "target": 0,
+   "verb": 1,
+   "inLength": 1,
+   "distinct": 4,
+   "n": 4,
+   "msPerCall": 5994,
+   "promptChars": 475,
+   "evals": [
+    {
+     "text": "Ella toca el piano y la guitarra.",
+     "raw": " Ella toca el piano y la guitarra.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 7
+    },
+    {
+     "text": "El restaurante es muy bueno.",
+     "raw": " El restaurante es muy bueno.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "El restaurante es muy bonito.",
+     "raw": " El restaurante es muy bonito.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "A Marta le gusta el chocolate.",
+     "raw": " A Marta le gusta el chocolate.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 6
+    }
+   ]
+  },
+  {
+   "profile": "brandNew",
+   "format": "F6",
+   "prompt": "Cuento corto en español fácil (nivel A1).\nPersonajes: Marta.\nPalabras conocidas: el, un, ser, y, en, de, muy, no, con, tener, su, para, artista, guitarra, importante, concierto, parque, piano, música, fantástico, momento, perfecto, restaurante, familia, casa, hotel, café, banana, chocolate, animal, teléfono.\n\nMarta toca la guitarra y el piano.\nLa música es fantástica.\nEs un momento perfecto.\nDespués, Marta va a un restaurante con su familia.\n(Siguiente frase, con la palabra «que»:)\n",
+   "inBand": 0,
+   "famBand": 0,
+   "target": 1,
+   "verb": 1,
+   "inLength": 0,
+   "distinct": 4,
+   "n": 4,
+   "msPerCall": 11244,
+   "promptChars": 487,
+   "evals": [
+    {
+     "text": "Marta va al restaurante con su familia que tiene un excelente ambiente.",
+     "raw": "Marta va al restaurante con su familia que tiene un excelente ambiente.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 12
+    },
+    {
+     "text": "Marta va a un restaurante con su familia que es muy importante.",
+     "raw": "Marta va a un restaurante con su familia que es muy importante.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 12
+    },
+    {
+     "text": "Marta va a un restaurante con su familia que tiene un buen restaurante.",
+     "raw": "Marta va a un restaurante con su familia que tiene un buen restaurante.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 13
+    },
+    {
+     "text": "Aunque hay un animal que pide atención, no hay problema.",
+     "raw": "Aunque hay un animal que pide atención, no hay problema.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 10
+    }
+   ]
+  },
+  {
+   "profile": "early",
+   "format": "F0",
+   "prompt": "Escribe la siguiente oración de esta historia.\nUna sola oración, de 11 palabras como máximo.\nUsa la palabra viejo.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nMarta vive en una casa pequeña. Hoy ella va al mercado con su hermano.\n\nSiguiente oración:",
+   "inBand": 0.25,
+   "famBand": 0.25,
+   "target": 0,
+   "verb": 0,
+   "inLength": 0.25,
+   "distinct": 3,
+   "n": 4,
+   "msPerCall": 2271,
+   "promptChars": 323,
+   "evals": [
+    {
+     "text": "La muchacha a un mercado con su hermano.",
+     "raw": " La muchacha______ a un mercado con su hermano.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 8
+    },
+    {
+     "text": "",
+     "raw": " ",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 0
+    },
+    {
+     "text": "",
+     "raw": " ",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 0
+    },
+    {
+     "text": "Ella _.",
+     "raw": " Ella _______________.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": false,
+     "words": 1
+    }
+   ]
+  },
+  {
+   "profile": "early",
+   "format": "F1",
+   "prompt": "Cuento corto en español fácil (nivel A1).\nPersonajes: Marta.\nPalabras conocidas: ser, estar, tener, hacer, poder, decir, ir, ver, dar, vez, saber, mismo, año, querer, primero, grande, llegar, pasar, tiempo, día, deber, poner, cosa, hombre, parecer, parte, vida, quedar, creer, hablar, llevar, dejar, seguir, nuevo, encontrar, solo, mundo, llamar, venir, pensar.\nPalabra nueva: viejo.\n\nMarta vive en una casa pequeña. Hoy ella va al mercado con su hermano.",
+   "inBand": 0.5,
+   "famBand": 0.5,
+   "target": 0,
+   "verb": 1,
+   "inLength": 0.5,
+   "distinct": 4,
+   "n": 4,
+   "msPerCall": 3432,
+   "promptChars": 455,
+   "evals": [
+    {
+     "text": "Ella es muy grande.",
+     "raw": " Ella es muy grande",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 4
+    },
+    {
+     "text": "Ella quiere encontrar una cosa que puede hacer.",
+     "raw": " Ella quiere encontrar una cosa que puede hacer",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 8
+    },
+    {
+     "text": "Ella quiere comer algo.",
+     "raw": " Ella quiere comer algo",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 4
+    },
+    {
+     "text": "El mercado tiene muchos productos.",
+     "raw": " El mercado tiene muchos productos",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    }
+   ]
+  },
+  {
+   "profile": "early",
+   "format": "F2",
+   "prompt": "Cuento corto en español fácil (nivel A1).\nPersonajes: Marta.\nPalabras conocidas: ser, estar, tener, hacer, poder, decir, ir, ver, dar, vez, saber, mismo, año, querer, primero, grande, llegar, pasar, tiempo, día, deber, poner, cosa, hombre, parecer, parte, vida, quedar, creer, hablar, llevar, dejar, seguir, nuevo, encontrar, solo, mundo, llamar, venir, pensar.\nPalabra nueva: viejo.\n\nMarta vive en una casa pequeña.\nHoy ella va al mercado con su hermano.\n",
+   "inBand": 0.25,
+   "famBand": 0.25,
+   "target": 0.25,
+   "verb": 1,
+   "inLength": 1,
+   "distinct": 4,
+   "n": 4,
+   "msPerCall": 3994,
+   "promptChars": 456,
+   "evals": [
+    {
+     "text": "Marta tiene que ir al mercado.",
+     "raw": "Marta tiene que ir al mercado.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "Ella compra frutas y verduras.",
+     "raw": "Ella compra frutas y verduras.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "Ella se encuentra con un viejo.",
+     "raw": "Ella se encuentra con un viejo.",
+     "inBand": true,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "Ayer el hermano no pudo ir.",
+     "raw": "Ayer el hermano no pudo ir.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 6
+    }
+   ]
+  },
+  {
+   "profile": "early",
+   "format": "F3",
+   "prompt": "Cuento corto en español fácil (nivel A1).\nPersonajes: Marta.\nPalabras conocidas: ser, estar, tener, hacer, poder, decir, ir, ver, dar, vez, saber, mismo, año, querer, primero, grande, llegar, pasar, tiempo, día, deber, poner, cosa, hombre, parecer, parte, vida, quedar, creer, hablar, llevar, dejar, seguir, nuevo, encontrar, solo, mundo, llamar, venir, pensar.\nPalabra nueva: viejo.\n\nMarta vive en una casa pequeña.\nHoy ella va al mercado con su hermano.\nMarta",
+   "inBand": 0,
+   "famBand": 0,
+   "target": 0,
+   "verb": 1,
+   "inLength": 0.75,
+   "distinct": 4,
+   "n": 4,
+   "msPerCall": 4316,
+   "promptChars": 461,
+   "evals": [
+    {
+     "text": "Marta y su hermano van a comprar frutas y verduras.",
+     "raw": " y su hermano van a comprar frutas y verduras.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 10
+    },
+    {
+     "text": "Marta quiere comprar una camiseta.",
+     "raw": " quiere comprar una camiseta.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "Marta tiene un cuaderno.",
+     "raw": " tiene un cuaderno.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 4
+    },
+    {
+     "text": "Marta no tiene tiempo para hacer muchas cosas.",
+     "raw": " no tiene tiempo para hacer muchas cosas.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 8
+    }
+   ]
+  },
+  {
+   "profile": "early",
+   "format": "F4",
+   "prompt": "Cuento corto en español fácil (nivel A1).\nPersonajes: Marta.\nPalabra nueva: viejo.\n\nMarta vive en una casa pequeña.\nHoy ella va al mercado con su hermano.\n",
+   "inBand": 0,
+   "famBand": 0,
+   "target": 0,
+   "verb": 1,
+   "inLength": 1,
+   "distinct": 4,
+   "n": 4,
+   "msPerCall": 3936,
+   "promptChars": 155,
+   "evals": [
+    {
+     "text": "Marta y su hermano van al mercado.",
+     "raw": "Marta y su hermano van al mercado.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 7
+    },
+    {
+     "text": "El mercado es muy grande y tiene muchos alimentos.",
+     "raw": "El mercado es muy grande y tiene muchos alimentos.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 9
+    },
+    {
+     "text": "El mercado es grande y tiene mucha gente.",
+     "raw": "El mercado es grande y tiene mucha gente.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 8
+    },
+    {
+     "text": "Voy al mercado con mi hermano.",
+     "raw": "Voy al mercado con mi hermano.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 6
+    }
+   ]
+  },
+  {
+   "profile": "early",
+   "format": "F5",
+   "prompt": "Cuento corto en español fácil (nivel A1).\nPersonajes: Marta.\nPalabras conocidas: ser, estar, tener, hacer, poder, decir, ir, ver, dar, vez, saber, mismo, año, querer, primero, grande, llegar, pasar, tiempo, día, deber, poner, cosa, hombre, parecer, parte, vida, quedar, creer, hablar, llevar, dejar, seguir, nuevo, encontrar, solo, mundo, llamar, venir, pensar.\nPalabra nueva: viejo.\n\n- Marta vive en una casa pequeña.\n- Hoy ella va al mercado con su hermano.\n-",
+   "inBand": 0,
+   "famBand": 0,
+   "target": 0,
+   "verb": 1,
+   "inLength": 0.75,
+   "distinct": 4,
+   "n": 4,
+   "msPerCall": 3050,
+   "promptChars": 461,
+   "evals": [
+    {
+     "text": "Ella decide ir al mercado.",
+     "raw": " Ella decide ir al mercado.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "Ella tiene un perro.",
+     "raw": " Ella tiene un perro.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 4
+    },
+    {
+     "text": "Ella quiere ir a la playa.",
+     "raw": " Ella quiere ir a la playa.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "El mercado tiene muchos productos.",
+     "raw": " El mercado tiene muchos productos.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    }
+   ]
+  },
+  {
+   "profile": "early",
+   "format": "F6",
+   "prompt": "Cuento corto en español fácil (nivel A1).\nPersonajes: Marta.\nPalabras conocidas: ser, estar, tener, hacer, poder, decir, ir, ver, dar, vez, saber, mismo, año, querer, primero, grande, llegar, pasar, tiempo, día, deber, poner, cosa, hombre, parecer, parte, vida, quedar, creer, hablar, llevar, dejar, seguir, nuevo, encontrar, solo, mundo, llamar, venir, pensar.\n\nMarta vive en una casa pequeña.\nHoy ella va al mercado con su hermano.\n(Siguiente frase, con la palabra «viejo»:)\n",
+   "inBand": 0,
+   "famBand": 0,
+   "target": 0.5,
+   "verb": 1,
+   "inLength": 0.5,
+   "distinct": 4,
+   "n": 4,
+   "msPerCall": 10242,
+   "promptChars": 477,
+   "evals": [
+    {
+     "text": "Marta no sabe qué hacer, porque el viejo de su papá está en el mercado.",
+     "raw": "Marta no sabe qué hacer, porque el viejo de su papá está en el mercado.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 15
+    },
+    {
+     "text": "Marta está en el mercado, pero no ve a su hermano.",
+     "raw": "Marta está en el mercado, pero no ve a su hermano.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 11
+    },
+    {
+     "text": "Marta está el mercado.",
+     "raw": "Marta está (1) (palabra conocida) el mercado",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 4
+    },
+    {
+     "text": "El mercado está lleno de cosas viejas.",
+     "raw": "El mercado está lleno de cosas viejas.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 7
+    }
+   ]
+  }
+ ]
+}

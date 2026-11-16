@@ -26,6 +26,12 @@ export interface AppState {
    * value is invalid (InvalidSettingError) or the write fails.
    */
   updateSettings(patch: Partial<AppSettings>): Promise<AppSettings>;
+  /**
+   * Puts a learner model rebuilt elsewhere in place of `learner`: the story session replaces
+   * the model when placement sets a new prior (it stores that prior with a learner snapshot
+   * first), and every screen should then use the same object.
+   */
+  replaceLearner(learner: LearnerModel): void;
 }
 
 const AppStateContext = createContext<AppState | null>(null);
@@ -49,7 +55,7 @@ export function AppStateProvider({ boot, packs, children }: AppStateProviderProp
         const settings = await storage.settings.update(patch);
         let learner: LearnerModel | undefined;
         if (settings.startLevel !== learnerStart.current) {
-          const prior = learnerPrior(packs, settings.startLevel);
+          const prior = learnerPrior(packs, settings.startLevel, await storage.learner.latestPrior());
           learner = (await storage.learner.loadLearner({ prior })).learner;
           learnerStart.current = settings.startLevel;
         }
@@ -63,9 +69,13 @@ export function AppStateProvider({ boot, packs, children }: AppStateProviderProp
     [storage, packs],
   );
 
+  const replaceLearner = useCallback((learner: LearnerModel) => {
+    setState((prev) => (prev.learner === learner ? prev : { ...prev, learner }));
+  }, []);
+
   const value = useMemo<AppState>(
-    () => ({ storage, settings: state.settings, learner: state.learner, updateSettings }),
-    [storage, state, updateSettings],
+    () => ({ storage, settings: state.settings, learner: state.learner, updateSettings, replaceLearner }),
+    [storage, state, updateSettings, replaceLearner],
   );
 
   return (

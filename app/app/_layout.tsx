@@ -4,6 +4,7 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { ShareIntentBridge } from '../src/adapters/share/ShareIntentBridge';
 import { useSettings } from '../src/appState/AppStateProvider';
 import { AppBootstrap } from '../src/bootstrap/AppBootstrap';
 import { AppProviders } from '../src/providers/AppProviders';
@@ -18,7 +19,8 @@ const hideSplash = () => void SplashScreen.hideAsync().catch(() => undefined);
 
 /**
  * Fonts (web only; native embeds them), then AppProviders (services, packs, i18n), then
- * AppBootstrap (storage, settings, learner) holding the splash, then the root stack.
+ * ShareIntentBridge (items shared from other apps go to the share inbox; nothing on the web),
+ * then AppBootstrap (storage, settings, learner) holding the splash, then the root stack.
  */
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useAppFonts();
@@ -35,10 +37,12 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={styles.root}>
       <AppProviders>
-        <StatusBar style="dark" />
-        <AppBootstrap onSettled={onSettled}>
-          <RootStack />
-        </AppBootstrap>
+        <ShareIntentBridge>
+          <StatusBar style="dark" />
+          <AppBootstrap onSettled={onSettled}>
+            <RootStack />
+          </AppBootstrap>
+        </ShareIntentBridge>
       </AppProviders>
     </GestureHandlerRootView>
   );

@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { SPANISH_ABBREVIATIONS } from '../lang/es/story';
 import {
   capitalizeFirst,
   clamp01,
@@ -26,7 +27,9 @@ describe('splitSentences', () => {
   });
 
   it('does not split abbreviations, decimals or mid-sentence ellipses', () => {
-    expect(splitSentences('El Sr. García llegó. Luego se fue.')).toEqual(['El Sr. García llegó.', 'Luego se fue.']);
+    expect(splitSentences('El Sr. García llegó. Luego se fue.', SPANISH_ABBREVIATIONS)).toEqual(['El Sr. García llegó.', 'Luego se fue.']);
+    // No abbreviations by default: the list is the language pack's (LanguagePack.abbreviations).
+    expect(splitSentences('El Sr. García llegó.')).toEqual(['El Sr.', 'García llegó.']);
     expect(splitSentences('Cuesta 3.5 euros. Bien.')).toEqual(['Cuesta 3.5 euros.', 'Bien.']);
     expect(splitSentences('Marta... compró pan. Luego...')).toEqual(['Marta... compró pan.', 'Luego...']);
     expect(splitSentences('Marta... Luego volvió.')).toEqual(['Marta...', 'Luego volvió.']);
@@ -57,7 +60,7 @@ describe('segment flags', () => {
 
   it('does not end a sentence after an abbreviation', () => {
     const segs = pack.segment('Vio al Sr. García.');
-    const ends = sentenceEndFlags(segs);
+    const ends = sentenceEndFlags(segs, SPANISH_ABBREVIATIONS);
     expect(segs.filter((_, i) => ends[i]).map((s) => s.start)).toEqual(['Vio al Sr. García'.length]);
   });
 

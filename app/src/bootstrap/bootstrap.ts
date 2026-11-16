@@ -1,6 +1,7 @@
 /**
  * Startup, without React: open storage (migrated), read the settings, restore the learner model
- * (newest snapshot plus the events logged after it) with the prior the settings call for.
+ * (newest snapshot plus the events logged after it) with the prior the settings call for (or
+ * the one stored with the snapshot by placement; see src/learner/prior.ts).
  * AppBootstrap runs it once and shows a loading state until it resolves.
  */
 import type { LoadedLearner } from '../storage/repos/learner';
@@ -19,6 +20,8 @@ export interface BootResult {
 export async function bootstrap(services: Pick<Services, 'storage' | 'packs'>): Promise<BootResult> {
   const storage = await services.storage.open();
   const settings = await storage.settings.getAll();
-  const learner = await storage.learner.loadLearner({ prior: learnerPrior(services.packs, settings.startLevel) });
+  // The prior stored with the newest learner snapshot (placement's result), when it fits the start level.
+  const stored = await storage.learner.latestPrior();
+  const learner = await storage.learner.loadLearner({ prior: learnerPrior(services.packs, settings.startLevel, stored) });
   return { storage, settings, learner };
 }

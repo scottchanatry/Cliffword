@@ -120,6 +120,23 @@ describe('LlamaModelAdapter: lifecycle and ModelNotReadyError', () => {
     expect(statuses).toEqual(['loading', 'unloaded']);
     expect(runtime.contexts.every((c) => c.released)).toBe(true);
   });
+
+  it('never holds two contexts: a load that overtakes a running initLlama waits for it and its release', async () => {
+    const { runtime, adapter } = setup();
+    const release = runtime.holdCalls();
+    const first = adapter.load(MODEL_PATH);
+    await runtime.whenPending(1);
+    const second = adapter.load(MODEL_PATH);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    // The second initLlama waits while the first one runs (two 1.2 GB contexts would not fit).
+    expect(runtime.initCalls).toHaveLength(1);
+    release();
+    await expect(first).rejects.toBeInstanceOf(ModelLoadCancelledError);
+    await second;
+    expect(runtime.initCalls).toHaveLength(2);
+    expect(runtime.contexts.map((c) => c.released)).toEqual([true, false]);
+    expect(adapter.status).toBe('ready');
+  });
 });
 
 describe('LlamaModelAdapter: native scoring (patched llama.rn)', () => {
@@ -327,6 +344,48 @@ describe('LlamaModelAdapter: serialization and unload', () => {
     await expect(running).rejects.toBeInstanceOf(ModelNotReadyError);
     await unloading;
     expect(runtime.contexts[0]!.released).toBe(true);
+  });
+});
+
+describe('LlamaModelAdapter: app in the background (iOS refuses GPU work)', () => {
+  const tick = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+  it('holds calls that have not started while in the background and runs them, in order, on return', async () => {
+    const { runtime, adapter } = await loaded();
+    const before = runtime.calls.length;
+    adapter.setInBackground(true);
+    const order: string[] = [];
+    const a = adapter.scoreContinuation(PREFIX, 'El niño.').then(() => order.push('a'));
+    const b = adapter.nextTokens(PREFIX, 3).then(() => order.push('b'));
+    await tick();
+    expect(runtime.calls).toHaveLength(before);
+    adapter.setInBackground(false);
+    await Promise.all([a, b]);
+    expect(order).toEqual(['a', 'b']);
+  });
+
+  it('defers a load until the app is back', async () => {
+    const { runtime, adapter } = setup();
+    adapter.setInBackground(true);
+    const loading = adapter.load(MODEL_PATH);
+    await tick();
+    expect(adapter.status).toBe('loading');
+    expect(runtime.initCalls).toHaveLength(0);
+    adapter.setInBackground(false);
+    await loading;
+    expect(adapter.status).toBe('ready');
+  });
+
+  it('unload while calls wait in the background rejects them at once and releases the context', async () => {
+    const { runtime, adapter } = await loaded();
+    const before = runtime.calls.length;
+    adapter.setInBackground(true);
+    const waiting = adapter.scoreContinuation(PREFIX, 'Hola.');
+    await tick();
+    await adapter.unload();
+    await expect(waiting).rejects.toBeInstanceOf(ModelNotReadyError);
+    expect(runtime.contexts[0]!.released).toBe(true);
+    expect(runtime.calls).toHaveLength(before);
   });
 });
 

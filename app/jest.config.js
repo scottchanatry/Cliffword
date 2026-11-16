@@ -36,6 +36,8 @@ module.exports = {
   preset: 'jest-expo',
   rootDir: appRoot,
   setupFiles: ['<rootDir>/jest.setup.ts'],
+  // Reanimated 4 / Worklets: resolve their web files in Jest (with the worklets mock in jest.setup.ts).
+  resolver: require.resolve('react-native-reanimated/jest/resolver', { paths: [appRoot] }),
   testMatch: ['<rootDir>/__tests__/**/*.test.[jt]s?(x)', '<rootDir>/src/**/*.test.[jt]s?(x)'],
   testPathIgnorePatterns: ['/node_modules/', '<rootDir>/dist-', '<rootDir>/../engine/'],
   // Bare imports from ../engine files (Babel's @babel/runtime helpers) resolve from the app's

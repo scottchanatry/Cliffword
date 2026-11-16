@@ -6,7 +6,11 @@
  * - expo-speech-recognition is only in native bundles, required by createNativeSpeechIn.ts alone;
  * - llama.rn is only in native bundles, imported by createDeviceModel.ts alone;
  * - the model download (ExpoModelManager, fileHash, the cliffword-native module in app/modules) is
- *   only in native bundles, reached through createModelManager.ts (web: createModelManager.web.ts).
+ *   only in native bundles, reached through createModelManager.ts (web: createModelManager.web.ts);
+ * - expo-share-intent is only in native bundles, imported by ShareIntentBridge.tsx alone (web:
+ *   ShareIntentBridge.web.tsx), and the persistent share inbox comes through createNativeShareInbox;
+ * - the Apple Music module (app/modules/cliffword-music) is only in native bundles, imported by
+ *   createNativeMusicPlayer.ts alone (web: createNativeMusicPlayer.web.ts).
  * The export step of the verify chain bundles for real; this test catches a wrong import early.
  */
 import fs from 'fs';
@@ -84,6 +88,12 @@ const isTestOnly = (f: string) =>
   f.startsWith('src/testing/') || f.startsWith('src/storage/testing/') || f === 'src/services/testServices.ts';
 const packagesMatching = (packages: Map<string, string[]>, re: RegExp) => [...packages.keys()].filter((p) => re.test(p));
 
+/** The reached files that import `target` (app-relative) through a relative import on `platform`. */
+function importersOf(files: Set<string>, target: string, platform: Platform): string[] {
+  const absolute = path.join(APP_ROOT, target);
+  return rel(new Set([...files].filter((file) => specifiers(file).some((spec) => spec.startsWith('.') && resolveRelative(file, spec, platform) === absolute))));
+}
+
 describe.each(['ios', 'android'] as const)('%s bundle', (platform) => {
   const { files, packages } = reach(platform);
 
@@ -133,6 +143,37 @@ describe.each(['ios', 'android'] as const)('%s bundle', (platform) => {
     expect(packages.get('expo-keep-awake')).toEqual(expect.arrayContaining(['src/adapters/model/ExpoModelManager.ts']));
     expect(packages.get('expo')).toEqual(expect.arrayContaining(['modules/cliffword-native/index.ts']));
   });
+
+  it('reaches expo-share-intent only through ShareIntentBridge, and the persistent inbox through createNativeShareInbox', () => {
+    expect(packagesMatching(packages, /^expo-share-intent/)).toEqual(['expo-share-intent']);
+    expect(packages.get('expo-share-intent')).toEqual(['src/adapters/share/ShareIntentBridge.tsx']);
+    const list = rel(files);
+    expect(list).toEqual(
+      expect.arrayContaining([
+        'app/+native-intent.tsx',
+        'src/adapters/share/ShareIntentBridge.tsx',
+        'src/adapters/share/createNativeShareInbox.ts',
+        'src/adapters/share/ExpoShareInbox.ts',
+      ]),
+    );
+    expect(list).not.toContain('src/adapters/share/ShareIntentBridge.web.tsx');
+    expect(list).not.toContain('src/adapters/share/createNativeShareInbox.web.ts');
+  });
+
+  it('reaches the cliffword-music module only through createNativeMusicPlayer', () => {
+    const list = rel(files);
+    expect(list).toEqual(
+      expect.arrayContaining([
+        'src/adapters/music/createNativeMusicPlayer.ts',
+        'src/adapters/music/MusicKitPlayer.ts',
+        'modules/cliffword-music/index.ts',
+      ]),
+    );
+    expect(list).not.toContain('src/adapters/music/createNativeMusicPlayer.web.ts');
+    expect(list).not.toContain('modules/cliffword-music/index.web.ts');
+    expect(importersOf(files, 'modules/cliffword-music/index.ts', platform)).toEqual(['src/adapters/music/createNativeMusicPlayer.ts']);
+    expect(packages.get('expo')).toEqual(expect.arrayContaining(['modules/cliffword-music/index.ts']));
+  });
 });
 
 describe('web bundle', () => {
@@ -167,6 +208,24 @@ describe('web bundle', () => {
     for (const pkg of ['expo-file-system', 'expo-keep-awake']) {
       expect((packages.get(pkg) ?? []).filter((user) => user.startsWith('src/adapters/model/'))).toEqual([]);
     }
+  });
+
+  it('keeps expo-share-intent out (ShareIntentBridge.web.tsx and an in-memory inbox instead)', () => {
+    const list = rel(files);
+    expect(packagesMatching(packages, /^expo-share-intent/)).toEqual([]);
+    expect(list).toEqual(
+      expect.arrayContaining(['src/adapters/share/ShareIntentBridge.web.tsx', 'src/adapters/share/createNativeShareInbox.web.ts']),
+    );
+    expect(list).not.toContain('src/adapters/share/ShareIntentBridge.tsx');
+    expect(list).not.toContain('src/adapters/share/createNativeShareInbox.ts');
+  });
+
+  it('keeps the cliffword-music module out (createNativeMusicPlayer.web.ts instead)', () => {
+    const list = rel(files);
+    expect(list).toContain('src/adapters/music/createNativeMusicPlayer.web.ts');
+    expect(list).not.toContain('src/adapters/music/createNativeMusicPlayer.ts');
+    expect(list).not.toContain('src/adapters/music/MusicKitPlayer.ts');
+    expect(list.filter((f) => f.startsWith('modules/cliffword-music/'))).toEqual([]);
   });
 
   it('uses sql.js (in-memory preview storage) and not expo-sqlite', () => {

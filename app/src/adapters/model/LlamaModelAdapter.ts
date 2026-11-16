@@ -19,7 +19,10 @@
  * "Context is busy". They reject with ModelNotReadyError unless the status is 'ready'. unload()
  * (or a new load()) cancels: queued calls reject at once, a running completion is stopped, a
  * running call's result is dropped (it rejects with ModelNotReadyError), and the context is
- * released after it settles.
+ * released after it settles. Only one llama.rn context exists at a time: a load waits for an
+ * older load's initLlama (and the release of what it made) before it starts its own. While the
+ * app is in the background (setInBackground, wired to AppState on iOS) calls that have not
+ * started wait, since iOS refuses GPU work from background apps.
  */
 import type { GenerateOptions, TokenCandidate, TokenScore } from '@cliffword/engine';
 import { Listeners, type Unsubscribe } from '../listeners';
@@ -135,8 +138,13 @@ export class LlamaModelAdapter implements ModelAdapter {
   /** Bumped by every load() and unload(); a call or load from an older session is stale. */
   private session = 0;
   private tail: Promise<unknown> = Promise.resolve();
-  private active: { kind: CallKind; ctx: LlamaContextHandle } | null = null;
+  /** The last load's initLlama and setup; settles only after a cancelled load released its context. */
+  private loading: Promise<void> = Promise.resolve();
+  private active:{ kind: CallKind; ctx: LlamaContextHandle } | null = null;
   private readonly statusListeners = new Listeners<ModelStatus>();
+  /** setInBackground(true): calls that have not started wait (iOS may not run Metal then). */
+  private inBackground = false;
+  private wakeWaiters: (() => void)[] = [];
 
   constructor(opts: LlamaModelAdapterOptions) {
     this.runtime = opts.runtime;
@@ -162,6 +170,19 @@ export class LlamaModelAdapter implements ModelAdapter {
 
   onStatusChange(listener: (status: ModelStatus) => void): Unsubscribe {
     return this.statusListeners.add(listener);
+  }
+
+  /**
+   * The app went to the background (true) or came back (false). iOS does not let a background
+   * app submit GPU work, so a Metal decode started then fails: while in the background, calls
+   * that have not started yet wait (in order) and run when the app is back. A call already
+   * running is left to finish or fail; a load() waits too before it creates the context.
+   * unload() and load() still cancel waiting calls at once.
+   * createDeviceModel wires this to AppState on iOS.
+   */
+  setInBackground(background: boolean): void {
+    this.inBackground = background;
+    if (!background) this.wake();
   }
 
   /** The initLlama parameters load() uses (exported for tests and the README). */
@@ -194,9 +215,22 @@ export class LlamaModelAdapter implements ModelAdapter {
 
   async load(modelPath: string, opts: ModelLoadOptions = {}): Promise<void> {
     const session = ++this.session;
+    this.wake();
     this.setStatus('loading');
     await this.releaseContext();
+    // One context in memory at a time (the model alone is about 1.2 GB): an older load whose
+    // initLlama is still running finishes, and releases what it made, before this one starts.
+    await this.loading;
+    // Background (iOS): wait for the foreground. A background app has a far lower memory limit
+    // (1.2 GB more would get it killed) and may not run llama.cpp's Metal warmup.
+    await this.whileInBackground(() => session !== this.session);
     if (session !== this.session) throw new ModelLoadCancelledError();
+    const attempt = this.loadContext(session, modelPath, opts);
+    this.loading = attempt.then(noop, noop);
+    return attempt;
+  }
+
+  private async loadContext(session: number, modelPath: string, opts: ModelLoadOptions): Promise<void> {
     let ctx: LlamaContextHandle;
     try {
       ctx = await this.runtime.initLlama(this.initParams(modelPath, opts), this.onLoadProgress);
@@ -230,6 +264,7 @@ export class LlamaModelAdapter implements ModelAdapter {
 
   async unload(): Promise<void> {
     this.session++;
+    this.wake();
     this.setStatus('unloaded');
     await this.releaseContext();
   }
@@ -330,6 +365,7 @@ export class LlamaModelAdapter implements ModelAdapter {
     const session = this.session;
     const cancelled = () => session !== this.session;
     const run = async (): Promise<T> => {
+      await this.whileInBackground(cancelled);
       const ctx = this.ctx;
       if (cancelled() || !ctx || this.current !== 'ready') throw new ModelNotReadyError(this.current);
       this.active = { kind, ctx };
@@ -347,6 +383,18 @@ export class LlamaModelAdapter implements ModelAdapter {
     const p = this.tail.then(run, run);
     this.tail = p.then(noop, noop);
     return p;
+  }
+
+  private async whileInBackground(cancelled: () => boolean): Promise<void> {
+    while (this.inBackground && !cancelled()) {
+      await new Promise<void>((resolve) => this.wakeWaiters.push(resolve));
+    }
+  }
+
+  private wake(): void {
+    const waiters = this.wakeWaiters;
+    this.wakeWaiters = [];
+    for (const resolve of waiters) resolve();
   }
 
   private setStatus(status: ModelStatus): void {

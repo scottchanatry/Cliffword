@@ -9,9 +9,10 @@
  * and the model: LlamaModelAdapter over llama.rn (createDeviceModel), 'unloaded'
  * until keepModelLoaded() loads it from modelManager.filePath once the file is 'ready'; model
  * calls reject with ModelNotReadyError until then, and modelAvailability() tells the UI why.
- * Stand-ins until the native packages land in a later stage (each swap is one line here):
- * - music: UnsupportedMusicPlayer -> the MusicKit adapter on iOS; Android stays unsupported.
- * - share: MemoryShareInbox -> an expo-share-intent inbox.
+ * Music: MusicKitPlayer over modules/cliffword-music on iOS (createNativeMusicPlayer);
+ * UnsupportedMusicPlayer on Android and on an iOS binary without the module.
+ * Share-in: ExpoShareInbox (createNativeShareInbox) over the share_inbox table, fed by
+ * ShareIntentBridge (expo-share-intent) in the root layout.
  * Native-only imports for those adapters must stay out of the web bundle. Services.ts imports
  * this file on every platform, so import each native adapter through a module that has a
  * .web.ts twin (Metro platform extensions), e.g. createDeviceModel.ts + createDeviceModel.web.ts.
@@ -22,8 +23,8 @@ import { createDeviceModel } from '../adapters/model/createDeviceModel';
 import { createModelManager } from '../adapters/model/createModelManager';
 import { keepModelLoaded } from '../adapters/model/keepModelLoaded';
 import type { ModelAdapter } from '../adapters/model/types';
-import { UnsupportedMusicPlayer } from '../adapters/music/UnsupportedMusicPlayer';
-import { MemoryShareInbox } from '../adapters/share/MemoryShareInbox';
+import { createNativeMusicPlayer } from '../adapters/music/createNativeMusicPlayer';
+import { createNativeShareInbox } from '../adapters/share/createNativeShareInbox';
 import { createNativeSpeechIn } from '../adapters/speechIn/createNativeSpeechIn';
 import { ExpoSpeechOut } from '../adapters/speechOut/ExpoSpeechOut';
 import { openStorage, STORAGE_BACKEND } from '../storage/open';
@@ -53,8 +54,10 @@ export function createNativeServices(platform: 'ios' | 'android', overrides: Ser
     modelManager,
     speechOut: overrides.speechOut ?? new ExpoSpeechOut(undefined, clock),
     speechIn: overrides.speechIn ?? createNativeSpeechIn(platform, clock),
-    music: overrides.music ?? new UnsupportedMusicPlayer(),
-    share: overrides.share ?? new MemoryShareInbox(clock),
+    // Apple Music (web: createNativeMusicPlayer.web.ts, UnsupportedMusicPlayer).
+    music: overrides.music ?? createNativeMusicPlayer(platform, clock),
+    // Shared links and text, kept in share_inbox (web: createNativeShareInbox.web.ts, in memory).
+    share: overrides.share ?? createNativeShareInbox(storage, clock),
     haptics: overrides.haptics ?? new ExpoHapticsAdapter(),
     storage,
   };

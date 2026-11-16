@@ -13,6 +13,7 @@ import { TypedSpeechIn } from '../adapters/speechIn/TypedSpeechIn';
 import { ExpoSpeechOut } from '../adapters/speechOut/ExpoSpeechOut';
 import { FakeSpeechOut } from '../adapters/speechOut/FakeSpeechOut';
 import { getDefaultPairPack } from '../engine/PacksProvider';
+import { SCHEMA_VERSION } from '../storage/schema';
 import { getAppServices, setAppServices } from './appServices';
 import { defaultPacks } from './defaults';
 import { createServices, currentPlatform } from './Services';
@@ -176,7 +177,7 @@ describe('storage in the container', () => {
     const first = s.storage.open();
     expect(s.storage.open()).toBe(first);
     const storage = await first;
-    expect(await storage.db.get<{ user_version: number }>('PRAGMA user_version')).toEqual({ user_version: 2 });
+    expect(await storage.db.get<{ user_version: number }>('PRAGMA user_version')).toEqual({ user_version: SCHEMA_VERSION });
     s.clock.set(5000);
     const story = await storage.stories.create({ title: 'Cuento' });
     expect(story).toMatchObject({ id: 'test-1', createdAt: 5000 });

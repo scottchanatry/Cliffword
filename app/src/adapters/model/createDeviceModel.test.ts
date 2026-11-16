@@ -1,4 +1,5 @@
 import * as llama from 'llama.rn';
+import type { AppStateStatus } from 'react-native';
 import { createNativeServices } from '../../services/nativeServices';
 import type { FakeLlamaRuntime } from '../../testing/fakeLlamaRn';
 import { FakeModelManager } from './FakeModelManager';
@@ -27,6 +28,30 @@ describe('createDeviceModel', () => {
     expect(model.info).toMatchObject({ backend: 'llama.rn', scoring: 'native' });
     expect(fakeRuntime.initCalls[fakeRuntime.initCalls.length - 1]).toMatchObject({ model: 'file:///models/q.gguf', n_gpu_layers: 99 });
     await model.unload();
+  });
+
+  it('follows AppState on iOS: model calls wait while the app is in the background', async () => {
+    let listener: ((state: AppStateStatus) => void) | undefined;
+    const appState = {
+      currentState: 'active' as AppStateStatus,
+      addEventListener: jest.fn((_type: 'change', l: (state: AppStateStatus) => void) => {
+        listener = l;
+        return { remove: jest.fn() };
+      }),
+    };
+    const model = createDeviceModel({ platform: 'ios' }, appState) as LlamaModelAdapter;
+    await model.load('file:///models/q.gguf');
+    const before = fakeRuntime.calls.length;
+    listener?.('background');
+    const scoring = model.scoreContinuation('', 'Hola.');
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(fakeRuntime.calls.length).toBe(before);
+    listener?.('active');
+    expect((await scoring).length).toBeGreaterThan(0);
+    await model.unload();
+    // Android runs on the CPU: no AppState subscription.
+    createDeviceModel({ platform: 'android' }, appState);
+    expect(appState.addEventListener).toHaveBeenCalledTimes(1);
   });
 
   it('gives the ready mock on the web (createDeviceModel.web.ts)', () => {

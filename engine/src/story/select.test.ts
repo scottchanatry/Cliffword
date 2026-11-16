@@ -14,6 +14,7 @@ import {
 } from './select';
 import type { SelectContext } from './select';
 import { promptInstructionLines } from './prompt';
+import { SPANISH_PROMPT_TEXT } from '../lang/es/story';
 import { createStubPack, createStubPair, learnerKnowing, stubLearner, stubParams } from './testStubs';
 
 const pack = createStubPack();
@@ -123,10 +124,11 @@ describe('selectSentence: band and unknown words', () => {
   it('penalizes too-easy sentences less than too-hard ones', () => {
     const learner = learnerKnowing(KNOWN, 1);
     const easy = evaluateCandidate('Marta compró manzanas y naranjas.', 0, ctx({ learner }));
-    expect(easy.parts.band).toBeCloseTo(-DEFAULT_SELECT_OPTIONS.aboveBandWeight * 0.02, 6);
+    const gap = DEFAULT_SELECT_OPTIONS.outOfBandPenalty;
+    expect(easy.parts.band).toBeCloseTo(-(gap + DEFAULT_SELECT_OPTIONS.aboveBandWeight * 0.02), 6);
     const hardLearner = learnerKnowing(KNOWN, 0.94);
     const hard = evaluateCandidate('Marta compró manzanas y naranjas.', 0, ctx({ learner: hardLearner }));
-    expect(hard.parts.band).toBeCloseTo(-DEFAULT_SELECT_OPTIONS.belowBandWeight * 0.01, 6);
+    expect(hard.parts.band).toBeCloseTo(-(gap + DEFAULT_SELECT_OPTIONS.belowBandWeight * 0.01), 6);
   });
 });
 
@@ -211,7 +213,7 @@ describe('selectSentence: rejections', () => {
   });
 
   it('rejects candidates that echo the prompt instructions', () => {
-    const instructions = promptInstructionLines({ targets: ['pan'], maxWords: 8, register: 'neutral' });
+    const instructions = promptInstructionLines({ targets: ['pan'], maxWords: 8, register: 'neutral', text: SPANISH_PROMPT_TEXT });
     const text = 'Habla en español neutro con Marta.';
     expect(detectPromptLeak(text, pack, [], instructions, 3)).toBe(true);
     expect(detectPromptLeak(text, pack, [], instructions, 4)).toBe(true);
@@ -306,7 +308,7 @@ describe('selectSentence: determinism and reasons', () => {
   });
 
   it('handles an empty candidate list', () => {
-    expect(selectSentence([], ctx())).toEqual({ best: null, ranked: [] });
+    expect(selectSentence([], ctx())).toEqual({ best: null, ranked: [], rejectCounts: {} });
   });
 });
 
@@ -338,5 +340,139 @@ describe('select helpers', () => {
     const words = analyzeWords('Marta compró pan.', ctx({ learner }));
     expect(words.find((w) => w.norm === 'pan')?.pKnown).toBe(1);
     expect(words.find((w) => w.norm === 'compró')?.pKnown).toBe(0);
+  });
+});
+
+describe('selectSentence: rejects before selection', () => {
+  const reject = (text: string, raw?: string, over: Partial<SelectContext> = {}) =>
+    evaluateCandidate(raw === undefined ? text : { text, raw }, 0, ctx(over)).rejected;
+
+  it('rejects placeholders and blanks in the sentence or the raw completion', () => {
+    for (const text of ['El y de _______.', 'Marta compró ___ en el mercado.', 'Marta compró pan...', 'Marta compró […].', 'Marta compró <pan>.', 'Marta compró pan… y fruta.']) {
+      expect(reject(text), text).toContain('placeholder');
+    }
+    // The cleaner drops a bracketed tag, the raw completion still shows it.
+    expect(reject('Marta compró pan.', ' Marta compró pan [pan].')).toContain('placeholder');
+    expect(reject('Marta compró pan en el mercado.')).not.toContain('placeholder');
+  });
+
+  it('rejects lists and numbered steps', () => {
+    expect(reject('Marta compró pan.', '1. Marta compró pan.')).toContain('list');
+    expect(reject('Marta compró pan.', '- Marta compró pan.')).toContain('list');
+    expect(reject('Marta le dice: (1) ir al mercado.')).toContain('list');
+    expect(reject('Paso 1: Marta va al mercado.')).toContain('list');
+    expect(reject('El, que, lo, que, el.')).toContain('list');
+    expect(reject('Marta compró pan, leche y fruta.')).not.toContain('list');
+  });
+
+  it('rejects headings', () => {
+    expect(reject('El mercado.', 'El Mercado')).toContain('heading');
+    expect(reject('Marta compró pan.', '## Marta compró pan')).toContain('heading');
+    expect(reject('Marta compró pan.', 'Marta compró pan:')).toContain('heading');
+    expect(reject('Marta compró pan.', ' Marta compró pan.')).not.toContain('heading');
+  });
+
+  it('rejects a short bare quote, not a quoted sentence of normal length', () => {
+    expect(reject('Hola.', '"Hola."')).toContain('bare_quote');
+    expect(reject('Marta compró pan en el mercado.', '«Marta compró pan en el mercado.»')).not.toContain('bare_quote');
+  });
+
+  it('rejects meta talk with the pack meta words', () => {
+    expect(reject('Que es un tipo de pronombre.')).toContain('meta');
+    expect(reject('Marta compró pan en el mercado.')).not.toContain('meta');
+    const bare = { ...pack, story: undefined };
+    expect(reject('Que es un tipo de pronombre.', undefined, { pack: bare })).not.toContain('meta');
+  });
+
+  it('rejects a sentence without a verb unless the pack says its sentences need none', () => {
+    expect(reject('La casa de Marta.')).toContain('no_verb');
+    expect(reject('Marta compró pan.')).not.toContain('no_verb');
+    const noVerbPack = { ...pack, story: { ...pack.story!, requireVerb: false } };
+    expect(reject('La casa de Marta.', undefined, { pack: noVerbPack })).not.toContain('no_verb');
+    expect(evaluateCandidate('La casa de Marta.', 0, ctx({ options: { requireVerb: false } })).rejected).not.toContain('no_verb');
+  });
+
+  it('rejects another language: mostly words the pack does not know', () => {
+    expect(reject('Le chat mange la souris.')).toContain('foreign');
+    expect(reject('Marta compró bicicletas, zanahorias y berenjenas.')).not.toContain('foreign');
+  });
+
+  it('rejects sentences far outside the length range of the level', () => {
+    expect(reject('Compró.')).toContain('too_short');
+    expect(reject('Marta compró pan.')).not.toContain('too_short');
+    const long = `${Array.from({ length: 13 }, () => 'pan').join(' ')}.`;
+    expect(reject(long)).toContain('too_long');
+  });
+
+  it('rejects a near repeat contained in a recent sentence', () => {
+    const previous = ['Marta compró pan y manzanas en el mercado.'];
+    expect(reject('Marta compró pan y manzanas.', undefined, { previous })).toContain('repeat');
+    expect(reject('Marta volvió a casa con pan.', undefined, { previous })).not.toContain('repeat');
+  });
+
+  it('counts every reject reason over a selection', () => {
+    const sel = selectSentence(
+      [{ text: 'El y de _.', raw: 'El y de _.' }, { text: 'Hola.', raw: '"Hola."' }, 'Marta compró pan.', ''],
+      ctx(),
+    );
+    expect(sel.best?.text).toBe('Marta compró pan.');
+    expect(sel.rejectCounts.placeholder).toBe(1);
+    expect(sel.rejectCounts.bare_quote).toBe(1);
+    expect(sel.rejectCounts.empty).toBe(1);
+    expect(Object.values(sel.rejectCounts).reduce((a, b) => a + (b ?? 0), 0)).toBe(
+      sel.ranked.reduce((a, e) => a + e.rejected.length, 0),
+    );
+  });
+});
+
+describe('selectSentence: scoring beyond the band', () => {
+  it('puts any in-band candidate before an out-of-band one with a target', () => {
+    const learner = stubLearner({ ...Object.fromEntries(KNOWN.map((k) => [`es:${k}`, 0.97])), 'es:bicicleta': 0.1 }, 0.1);
+    const sel = selectSentence(['Marta compró bicicletas en el mercado.', 'Marta llegó tarde al mercado.'], ctx({ learner, targets: ['es:comprar'], previous: [] }));
+    expect(sel.best?.text).toBe('Marta llegó tarde al mercado.');
+  });
+
+  it('prefers the target, then novelty against recent sentences', () => {
+    const previous = ['Marta llegó tarde al mercado.'];
+    const sel = selectSentence(['Marta llegó tarde a casa.', 'Marta compró pan en la playa.'], ctx({ previous }));
+    expect(sel.best?.text).toBe('Marta compró pan en la playa.');
+    expect(sel.ranked[1]?.parts.novelty).toBeLessThan(sel.ranked[0]?.parts.novelty ?? 0);
+  });
+
+  it('rewards continuity and penalizes new names', () => {
+    const previous = ['Marta llegó tarde al mercado.'];
+    const e1 = evaluateCandidate('Marta compró pan.', 0, ctx({ previous, names: ['Marta'] }));
+    const e2 = evaluateCandidate('Entonces Rosa compró pan.', 0, ctx({ previous, names: ['Marta'] }));
+    expect(e1.namesUsed).toEqual(['marta']);
+    expect(e1.parts.continuity).toBe(DEFAULT_SELECT_OPTIONS.continuityBonus);
+    expect(e2.newNames).toEqual(['rosa']);
+    expect(e2.parts.continuity).toBeLessThan(0);
+  });
+
+  it('treats the story names as names at a sentence start', () => {
+    const learner = learnerKnowing(KNOWN, 0.97);
+    const unknownStart = evaluateCandidate('Rosa compró pan.', 0, ctx({ learner }));
+    expect(unknownStart.words[0]?.counted).toBe(true);
+    const named = evaluateCandidate('Rosa compró pan.', 0, ctx({ learner, names: ['Rosa'] }));
+    expect(named.words[0]?.pos).toBe('PROPN');
+    expect(named.words[0]?.counted).toBe(false);
+  });
+
+  it('counts familiar words (the bridge) as known', () => {
+    const learner = stubLearner({}, 0.01);
+    const plain = evaluateCandidate('Marta compró pan.', 0, ctx({ learner }));
+    expect(plain.inBand).toBe(false);
+    const bridge = evaluateCandidate('Marta compró pan.', 0, ctx({ learner, familiar: ['es:comprar', 'es:pan'] }));
+    expect(bridge.inBand).toBe(true);
+    expect(bridge.bandShare).toBeCloseTo(DEFAULT_SELECT_OPTIONS.familiarCredit, 9);
+  });
+
+  it('adds a clamped natural term when the caller scored the candidate', () => {
+    const o = DEFAULT_SELECT_OPTIONS;
+    const good = evaluateCandidate({ text: 'Marta compró pan.', natural: o.naturalBaseline + 1 }, 0, ctx());
+    expect(good.parts.natural).toBeCloseTo(o.naturalWeight, 9);
+    const awful = evaluateCandidate({ text: 'Marta compró pan.', natural: -100 }, 0, ctx());
+    expect(awful.parts.natural).toBe(-o.naturalClamp);
+    expect(evaluateCandidate('Marta compró pan.', 0, ctx()).natural).toBeNull();
   });
 });

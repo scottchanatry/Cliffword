@@ -43,6 +43,19 @@ describe('MemoryShareInbox', () => {
     expect(listener).not.toHaveBeenCalled();
   });
 
+  it('returns the pending item for a repeated share and notifies once', () => {
+    const inbox = new MemoryShareInbox();
+    const listener = jest.fn();
+    inbox.onShare(listener);
+    const first = inbox.receive({ url: 'https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC' });
+    const again = inbox.receive({ url: ' https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC', text: ' ' });
+    expect(again).toBe(first);
+    expect(inbox.pending()).toEqual([first]);
+    expect(listener).toHaveBeenCalledTimes(1);
+    inbox.clear(first?.id ?? '');
+    expect(inbox.receive({ url: 'https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC' })?.id).not.toBe(first?.id);
+  });
+
   it('returns a copy from pending()', () => {
     const inbox = new MemoryShareInbox();
     inbox.receive({ text: 'a - b' });

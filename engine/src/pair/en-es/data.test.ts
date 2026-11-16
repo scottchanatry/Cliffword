@@ -147,6 +147,7 @@ describe('EXPLANATIONS', () => {
     expect(EXPLANATION_KEYS).toEqual([
       'es.ser_estar', 'es.por_para', 'es.gender', 'es.number', 'es.aspect', 'es.mood', 'es.personal_a', 'es.article',
       'es.pronoun_placement', 'es.negative_command', 'es.pronoun_order', 'es.se_lo',
+      'es.verb_agreement', 'es.contraction', 'es.body_article', 'es.pronoun_double',
     ]);
   });
 
@@ -164,6 +165,10 @@ describe('EXPLANATIONS', () => {
       'es.negative_command': 'no lo hagas',
       'es.pronoun_order': 'te lo digo',
       'es.se_lo': 'se lo di',
+      'es.verb_agreement': 'los niños juegan',
+      'es.contraction': 'voy al cine',
+      'es.body_article': 'me lavo las manos',
+      'es.pronoun_double': 'lo voy a comprar',
     };
     for (const k of EXPLANATION_KEYS) {
       const text = EXPLANATIONS[k];

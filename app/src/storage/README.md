@@ -84,6 +84,7 @@ model file statuses) have no CHECK constraints; repositories validate them.
 |---|---|
 | 1 | `settings` (key, JSON value, updated_at); `learner_events` (append-only: id, at, type, key, JSON payload; indexes on key and at); `learner_snapshots` (id, at, version, json, through_event_id); `sessions` (id, kind, updated_at, version, JSON snapshot, active; one active per kind); `stories` (id, title, created_at); `story_sentences` (story_id, idx, text, json) |
 | 2 | `songs` (id, source, external_id, title, artist, artwork_url, added_at; unique source + external_id); `lyrics` (song_id, raw_text, parsed JSON, updated_at; on device only); `spoken_time` (local day YYYY-MM-DD, ms); `model_files` (id, path, bytes, sha256, status, updated_at); `share_inbox` (id, received_at, url, text, handled) |
+| 3 | `learner_snapshots.prior` (JSON PriorSpec of the engine; NULL on older rows) |
 
 Times are ms since the epoch. Booleans are 0/1. JSON columns that fail to parse read as a
 fallback (null, or the setting's default), never as a crash.
@@ -93,7 +94,7 @@ fallback (null, or the setting's default), never as a crash.
 | Repository | Calls |
 |---|---|
 | `settings` | `get(key)`, `getAll()`, `set(key, value)`, `update(patch)`, `reset(key?)`. Defaults: register `neutral`, regions `['PR','CARIB']`, showExplicit `true`, textMode `auto` (`text`/`tiles` force), nativeLanguage `en`, targetLanguage `es`, onboarded `false`, startLevel `brandNew` (`placement` after "I know some"; picks the learner prior), speechRateBias `0` (clamped to ±0.5), nativeAnswersAllowed `true`. Invalid writes throw `InvalidSettingError`; invalid stored values read as the default. |
-| `learner` | `appendEvents(events)`, `record(learner, events)`, `eventsSince(afterId?, limit?)`, `eventsForKey(key)`, `countEvents()`, `saveSnapshot(learner, at, { keep })` (keeps 3 by default), `latestSnapshot()`, `loadLearner({ prior, params?, evidence? })`. |
+| `learner` | `appendEvents(events)`, `record(learner, events)`, `eventsSince(afterId?, limit?)`, `eventsForKey(key)`, `countEvents()`, `saveSnapshot(learner, at, { keep, prior })` (keeps 3 by default; `prior` is the engine's PriorSpec, kept from the newest row when omitted), `latestPrior()`, `latestSnapshot()`, `loadLearner({ prior, params?, evidence? })`. |
 | `sessions` | `save({ id?, kind, version, snapshot, active? })` (active by default; deactivates the others of its kind), `get(id)`, `active(kind)`, `list({ kind?, limit? })`, `deactivate(id)`, `remove(id)`. |
 | `stories` | `create`, `get`, `list` (newest first), `rename`, `remove` (with sentences), `appendSentence(storyId, text, data)`, `putSentence(storyId, idx, text, data)`, `sentences(storyId)`, `truncate(storyId, fromIdx)`. |
 | `songs` | `upsert({ source, externalId?, title, artist?, artworkUrl? })` (one row per source + external id; manual songs have none), `get`, `findByExternal`, `list`, `remove` (with lyrics). |
@@ -111,7 +112,11 @@ Events are logged append-only; each snapshot stores `through_event_id`, the last
 includes. `loadLearner` restores the newest snapshot that `LearnerModel.restore` accepts
 (skipping damaged or unknown-version ones), then replays the events logged after it, in log
 order. With no usable snapshot it builds a new model (`params`, `evidence`) and replays the
-whole log. Pass the same `prior` the model was built with: priors are not stored.
+whole log. Pass the same `prior` the model was built with. The prior function itself is not
+stored; a snapshot row can carry the engine's `PriorSpec` that rebuilds it (v3). The story
+controller saves one when its session replaces the prior (brand new, placement done), later
+checkpoints keep it, and startup reads it with `latestPrior()` (`src/learner/prior.ts`: the
+stored spec is used while it fits `settings.startLevel`).
 
 To keep memory and disk in step, use `record(learner, events)` (applies the events in
 `applyAll` order and queues their insert in the same synchronous step) and

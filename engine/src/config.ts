@@ -109,12 +109,15 @@ export { DEFAULT_DIFFICULTY_OPTIONS, DEFAULT_RUNG_OPTIONS } from './learner/diff
 export { DEFAULT_PLACEMENT_OPTIONS } from './learner/placement';
 
 // Story
-export { DEFAULT_SELECT_OPTIONS, DEFAULT_LEAK_PATTERNS } from './story/select';
-export { DEFAULT_EXTRACT_OPTIONS, DEFAULT_CONTEXT_SENTENCES } from './story/prompt';
+export { DEFAULT_SELECT_OPTIONS, DEFAULT_LEAK_PATTERNS, DEFAULT_PLACEHOLDER_PATTERN, DEFAULT_LIST_PATTERN } from './story/select';
+export { DEFAULT_EXTRACT_OPTIONS, DEFAULT_CONTEXT_SENTENCES, DEFAULT_STORY_PROMPT_OPTIONS } from './story/prompt';
 export { DEFAULT_NEXT_SENTENCE_TUNING } from './story/next';
 export { DEFAULT_CLIFF_PICK_OPTIONS } from './story/cliffPick';
 export { DEFAULT_TARGET_OPTIONS } from './story/targets';
-export { DEFAULT_ABBREVIATIONS } from './story/text';
+export { NO_ABBREVIATIONS } from './story/text';
+// Spanish story data (prompt wording, abbreviations): pack data, re-exported here so the
+// old DEFAULT_ABBREVIATIONS name keeps working.
+export { SPANISH_ABBREVIATIONS as DEFAULT_ABBREVIATIONS, SPANISH_STORY_DATA } from './lang/es/story';
 
 // Gaps
 export { DEFAULT_GAP_OPTIONS } from './gaps/capture';

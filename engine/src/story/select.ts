@@ -1,6 +1,6 @@
 /**
  * Story sentence selection: given several model-generated candidates for the next story
- * sentence, keep the one that best fits the learner.
+ * sentence, reject the unusable ones and keep the one that best fits the learner.
  *
  * Method
  * ------
@@ -9,27 +9,45 @@
  *    lexemeKey(pack.code, lemma) from the analysis chosen in context (lang/choose.ts:
  *    pack.chooseAnalysis with the previous word, else the first analysis; slang maps
  *    through pack.analyze, so "'tá" gets its own slang lemma). Unknown words use their
- *    normalized form as lemma. A capitalized word that does not start a sentence prefers
- *    a PROPN analysis, and when the pack does not know it at all it is taken to be a name.
+ *    normalized form as lemma. A word listed in ctx.names (the story's characters) is a
+ *    name anywhere, sentence start included; a capitalized word that does not start a
+ *    sentence prefers a PROPN analysis, and when the pack does not know it at all it is
+ *    taken to be a name.
  * 2. knownShare = mean pKnown(meaning) over word segments, excluding PROPN and NUM (and
- *    number segments). A sentence with no counted word has knownShare 1.
+ *    number segments). A word in ctx.familiar (the zero-knowledge bridge: taught words,
+ *    cognates, words already introduced) counts at least familiarCredit. A sentence with
+ *    no counted word has knownShare 1.
  * 3. The band is checked on bandShare, which is knownShare over the counted words that are
  *    not targets: targets are the new material the caller asked for (it paces them with
  *    newWordsPerSentence), so they must not push a sentence out of the band by themselves.
  *    With bandExcludesTargets = false the band uses knownShare as is.
- * 4. Score (higher is better) = band term + target term + length term + unknown term:
- *    - band: -(belowBandWeight x distance below knownBand.min) or
- *      -(aboveBandWeight x distance above knownBand.max); too hard costs more than too easy;
+ * 4. Reject (every code is counted in Selection.rejectCounts): no words; placeholders and
+ *    blanks (_ … ... [ ] < > { } in the cleaned text or the raw completion); a list or a
+ *    numbered step; a heading; a bare quote (a short quotation with nothing around it);
+ *    prompt leakage (model and pack leak patterns, or a run of words echoed from the
+ *    prompt); meta talk (a pack meta word: grammar terms); native-language words (via
+ *    pair.nativeLexicon); another language (most words unknown to the pack); no verb
+ *    (unless the pack says its sentences need none); too short or too long for the
+ *    level; a repeat or near repeat of a recent sentence; unbalanced quotes or brackets.
+ * 5. Score accepted candidates (higher is better), in tiers so the band comes first:
+ *    - band: 0 inside the band; outside, -(outOfBandPenalty + belowBandWeight x distance
+ *      below or aboveBandWeight x distance above), so any in-band candidate beats any
+ *      out-of-band one unless the other terms differ by more than outOfBandPenalty;
  *    - target: +targetBonus per distinct target lexeme in the sentence;
+ *    - novelty: -noveltyWeight x the largest word-set overlap with a recent sentence;
+ *    - continuity: +continuityBonus when the sentence names a story character or reuses
+ *      a content word of the recent story, -newNamePenalty per new name;
+ *    - natural: +naturalWeight x (model log-probability per word - naturalBaseline),
+ *      clamped to +-naturalClamp, when the caller scored the candidate (SelectCandidate.natural);
  *    - length: -lengthWeight per word outside params.sentenceWords;
  *    - unknown: -unknownPenalty per distinct unknown non-target lexeme beyond
  *      params.newWordsPerSentence (fractional allowances give fractional penalties).
- * 5. Reject: no words (empty or punctuation only), far too long, a repeat of a recent
- *    sentence (same normalized words, or nearly the same word set), prompt leakage
- *    (labels or instructions echoed), native-language words (via pair.nativeLexicon)
- *    and unbalanced quotes or brackets.
  * Accepted candidates are ranked by score (ties: earlier candidate first); rejected ones
  * follow in input order. Every candidate carries human-readable reasons for debugging.
+ *
+ * Language-neutral: words come from pack.segment and pack.analyze; leak patterns, meta
+ * words and the verb requirement come from LanguagePack.story; the punctuation checks
+ * look only at punctuation.
  */
 import type { Analysis, LanguagePack, Pos } from '../lang/types';
 import type { PairPack } from '../pair/types';
@@ -48,7 +66,27 @@ import {
 } from './text';
 
 /** Why a candidate was rejected. */
-export type RejectCode = 'empty' | 'too_long' | 'repeat' | 'prompt_leak' | 'native_words' | 'unbalanced_quotes';
+export type RejectCode =
+  | 'empty'
+  | 'placeholder'
+  | 'list'
+  | 'heading'
+  | 'bare_quote'
+  | 'prompt_leak'
+  | 'meta'
+  | 'native_words'
+  | 'foreign'
+  | 'no_verb'
+  | 'too_short'
+  | 'too_long'
+  | 'repeat'
+  | 'unbalanced_quotes';
+
+/** Every reject code, in the order rejectReasons tests them. */
+export const REJECT_CODES: readonly RejectCode[] = [
+  'empty', 'placeholder', 'list', 'heading', 'bare_quote', 'prompt_leak', 'meta', 'native_words', 'foreign',
+  'no_verb', 'too_short', 'too_long', 'repeat', 'unbalanced_quotes',
+];
 
 /** Tunable numbers of selectSentence. */
 export interface SelectOptions {
@@ -62,6 +100,8 @@ export interface SelectOptions {
   belowBandWeight: number;
   /** Penalty per unit of share above knownBand.max. Too easy hurts less than too hard. */
   aboveBandWeight: number;
+  /** Penalty for being outside the band at all (the band comes first). */
+  outOfBandPenalty: number;
   /** Bonus per distinct target lexeme in the sentence. */
   targetBonus: number;
   /** Penalty per word outside params.sentenceWords. */
@@ -70,6 +110,8 @@ export interface SelectOptions {
   unknownPenalty: number;
   /** Reject sentences longer than this many times params.sentenceWords.max. */
   hardMaxWordsFactor: number;
+  /** Reject sentences shorter than this many times params.sentenceWords.min. */
+  minWordsFactor: number;
   /** Reject sentences with more native-language words than this. */
   maxNativeWords: number;
   /** Treat capitalized words the pack does not know, away from a sentence start, as names. */
@@ -78,28 +120,68 @@ export interface SelectOptions {
   excludePos: readonly Pos[];
   /** Reject as a near repeat when the word-set Jaccard overlap with a recent sentence reaches this. */
   nearRepeatJaccard: number;
-  /** Patterns (tested on accent-folded, lowercased text) that reveal echoed instructions or labels. */
+  /**
+   * Reject as a near repeat when this share of the candidate's words (at least
+   * nearRepeatMinWords of them) occur, in order, inside one recent sentence ("Marta toca
+   * la guitarra." after "Marta toca la guitarra y el piano.").
+   */
+  nearRepeatContainment: number;
+  nearRepeatMinWords: number;
+  /**
+   * Model-level leak patterns, tested on accent-folded lowercase text: the English meta
+   * talk of instruct models. Each pack adds its own (StoryLanguageData.leakPatterns).
+   */
   leakPatterns: readonly RegExp[];
   /** A run of this many consecutive words shared with the prompt instructions is leakage. */
   leakNgram: number;
-  /** Abbreviations used when splitting previous sentences. */
+  /** Abbreviations used when splitting previous sentences (default: the pack's). */
   abbreviations?: readonly string[];
+  /** Placeholder and blank marks, tested on the cleaned text and the raw completion. */
+  placeholderPattern: RegExp;
+  /** A list marker or numbered step, tested on the raw completion and the cleaned text. */
+  listPattern: RegExp;
+  /** A comma list: at least this many commas with mostly one-word pieces. */
+  listCommas: number;
+  /** Reject as another language when at least this share of the words is unknown to the pack (names aside). */
+  foreignShare: number;
+  /** ...and at least this many words are unknown. */
+  foreignMinWords: number;
+  /** Require a verb: true, false, or undefined for the pack's StoryLanguageData.requireVerb (default true). */
+  requireVerb?: boolean;
+  /** Parts of speech that count as a verb. */
+  verbPos: readonly Pos[];
+  /** A quoted candidate with fewer words than this times params.sentenceWords.min is a bare quote. */
+  bareQuoteFactor: number;
+  /** pKnown counted for a word in SelectContext.familiar (at least). */
+  familiarCredit: number;
+  /** Weight of the largest overlap with a recent sentence (0..1). */
+  noveltyWeight: number;
+  /** Bonus for naming a story character or reusing a recent content word. */
+  continuityBonus: number;
+  /** Penalty per name the story has not used yet. */
+  newNamePenalty: number;
+  /** Weight per nat of the model's log-probability per word above naturalBaseline. */
+  naturalWeight: number;
+  naturalBaseline: number;
+  /** The natural term stays within +-naturalClamp. */
+  naturalClamp: number;
 }
 
 /**
- * Prompt-leak patterns, matched against foldForMatch(text). They target the vocabulary of
- * buildContinuationPrompt (Spanish) and common English meta-talk of instruct models.
+ * Model-level leak patterns, matched against foldForMatch(text): the English meta talk
+ * of instruct models ("Here is the next sentence"), whatever the language of the prompt.
+ * Language packs add the vocabulary of their prompts (StoryLanguageData.leakPatterns).
  */
 export const DEFAULT_LEAK_PATTERNS: readonly RegExp[] = [
-  /\boracion(es)?\b/,
-  /\binstrucci(on|ones)\b/,
-  /\b(historia|frase|respuesta|registro|palabras?|traduccion|continuacion|sentence|answer|story|translation|output)\s*:/,
-  /\bmaximo\s+\d+\s+palabras\b/,
-  /\b\d+\s+palabras\s+como\s+maximo\b/,
-  /\b(continua|escribe|usa|responde)\s+(la|una|solo|estas|esta|las|con)\s+(historia|oracion|palabras?|frase)\b/,
-  /\bregistro\s+(neutro|callejero|de\s+la\s+calle)\b/,
-  /\b(next sentence|here is|here's|the sentence|translation)\b/,
+  /\b(sentence|answer|story|translation|output|response)\s*:/u,
+  /\b(next sentence|here is|here's|the sentence|translation)\b/u,
 ];
+
+/** Placeholder and blank marks: underscores, ellipses, brackets, angle brackets, braces. */
+export const DEFAULT_PLACEHOLDER_PATTERN = /_|…|\.\.|\[|\]|<|>|\{|\}|\(\s*\)/u;
+
+/** List markers and numbered steps: "1.", "2)", "(1)", "- ", "* ", "• ", or a lone number before a colon. */
+export const DEFAULT_LIST_PATTERN = /^\s*(?:[-*•+]\s|\(?\d+[.)]\s|\(\d+\))|\(\d+\)|\b\p{L}+\s+\d+\s*:/u;
 
 export const DEFAULT_SELECT_OPTIONS: Readonly<SelectOptions> = {
   skill: 'meaning',
@@ -107,16 +189,43 @@ export const DEFAULT_SELECT_OPTIONS: Readonly<SelectOptions> = {
   bandExcludesTargets: true,
   belowBandWeight: 100,
   aboveBandWeight: 30,
+  // The other terms rarely add up to 20 (two targets 6, novelty 2, continuity 1, natural 2).
+  outOfBandPenalty: 20,
   targetBonus: 3,
   lengthWeight: 1,
   unknownPenalty: 4,
-  hardMaxWordsFactor: 2.5,
+  // Measured on Qwen3-1.7B: run-ons cut at maxTokens and two-clause sentences past 1.5
+  // times the maximum read as a paragraph; 2.5 let them through.
+  hardMaxWordsFactor: 1.6,
+  // Below 60% of the minimum: one- and two-word answers for beginners ("¿Qué?", "El.").
+  minWordsFactor: 0.6,
   maxNativeWords: 0,
   capitalizedUnknownAsPropn: true,
   excludePos: ['PROPN', 'NUM'],
   nearRepeatJaccard: 0.9,
+  nearRepeatContainment: 0.85,
+  nearRepeatMinWords: 3,
   leakPatterns: DEFAULT_LEAK_PATTERNS,
   leakNgram: 4,
+  placeholderPattern: DEFAULT_PLACEHOLDER_PATTERN,
+  listPattern: DEFAULT_LIST_PATTERN,
+  listCommas: 3,
+  // Unknown to the pack is not foreign (the shipped Spanish lexicon has 1788 lemmas), so
+  // only a sentence of mostly unknown words is; English is caught by native_words.
+  foreignShare: 0.75,
+  foreignMinWords: 3,
+  verbPos: ['VERB', 'AUX'],
+  bareQuoteFactor: 1,
+  // The top of the known-word band: a familiar word never pulls a sentence out of it.
+  familiarCredit: 0.98,
+  noveltyWeight: 2,
+  continuityBonus: 1,
+  newNamePenalty: 1,
+  // Measured on Qwen3-1.7B (story context, scoring prefix): fluent in-band sentences
+  // score about -2 to -4 nats per word, odd ones ("La comida era muy violenta.") -5 to -7.
+  naturalWeight: 0.5,
+  naturalBaseline: -4,
+  naturalClamp: 2,
 };
 
 export interface SelectContext {
@@ -131,9 +240,23 @@ export interface SelectContext {
   previous: readonly string[];
   /** When given, its nativeLexicon is used to reject native-language words. */
   pair?: PairPack;
-  /** Instruction lines of the prompt that produced the candidates, for leak detection. */
+  /** Instruction or header lines of the prompt that produced the candidates, for leak detection. */
   instructions?: readonly string[];
+  /** The story's characters: names anywhere in a candidate, sentence start included. */
+  names?: readonly string[];
+  /** Lexeme keys counted at least familiarCredit (the zero-knowledge bridge). */
+  familiar?: Iterable<string>;
   options?: Partial<SelectOptions>;
+}
+
+/** A candidate with what the selector may know beyond its cleaned text. */
+export interface SelectCandidate {
+  /** The cleaned sentence. */
+  text: string;
+  /** The model's raw completion (placeholders, lists and headings show there). */
+  raw?: string;
+  /** Model log-probability per word of the sentence in the story context (see generateNextSentence). */
+  natural?: number;
 }
 
 /** One word of a candidate, as the selector saw it. */
@@ -156,6 +279,8 @@ export interface WordInfo {
   unknown: boolean;
   native: boolean;
   sentenceStart: boolean;
+  /** The pack has an analysis for the word. */
+  analyzed: boolean;
 }
 
 export interface ScoreParts {
@@ -163,12 +288,17 @@ export interface ScoreParts {
   target: number;
   length: number;
   unknown: number;
+  novelty: number;
+  continuity: number;
+  natural: number;
 }
 
 export interface CandidateEvaluation {
   /** Index of the candidate in the input list. */
   index: number;
   text: string;
+  /** The raw completion, when the caller gave it. */
+  raw?: string;
   accepted: boolean;
   rejected: RejectCode[];
   words: WordInfo[];
@@ -185,6 +315,13 @@ export interface CandidateEvaluation {
   unknownNonTargets: string[];
   /** Native-language words found (normalized). */
   nativeWords: string[];
+  /** Largest word-set overlap (Jaccard) with a recent sentence. */
+  overlap: number;
+  /** Story names used, and names the story has not used yet (normalized). */
+  namesUsed: string[];
+  newNames: string[];
+  /** Model log-probability per word, when scored. */
+  natural: number | null;
   score: number;
   parts: ScoreParts;
   reasons: string[];
@@ -195,6 +332,8 @@ export interface Selection {
   best: CandidateEvaluation | null;
   /** Accepted candidates by score, then rejected ones. */
   ranked: CandidateEvaluation[];
+  /** How many candidates each reject code hit (a candidate can hit several). */
+  rejectCounts: Partial<Record<RejectCode, number>>;
 }
 
 /** Merge options with the defaults. */
@@ -216,6 +355,10 @@ export function chooseAnalysis(analyses: readonly Analysis[], capitalizedMidSent
   return analyses[0];
 }
 
+function abbreviationsOf(ctx: SelectContext, o: SelectOptions): readonly string[] {
+  return o.abbreviations ?? ctx.pack.abbreviations ?? [];
+}
+
 /**
  * Analyze the words of a text for selection: lexeme keys, parts of speech, pKnown,
  * target and unknown flags. Number segments are NUM and never counted.
@@ -223,9 +366,11 @@ export function chooseAnalysis(analyses: readonly Analysis[], capitalizedMidSent
 export function analyzeWords(text: string, ctx: SelectContext, o: SelectOptions = resolveSelectOptions(ctx.options)): WordInfo[] {
   const { pack, learner, now, pair } = ctx;
   const targets = new Set(ctx.targets.map(lexemeOf));
+  const familiar = new Set([...(ctx.familiar ?? [])].map(lexemeOf));
+  const names = new Set((ctx.names ?? []).map((n) => pack.normalize(n)).filter(Boolean));
   const excluded = new Set(o.excludePos);
   const segments = pack.segment(text);
-  const starts = sentenceStartFlags(segments, o.abbreviations);
+  const starts = sentenceStartFlags(segments, abbreviationsOf(ctx, o));
   const choices = new Map(chooseAnalysesInText(pack, segments, starts).map((c) => [c.segIndex, c]));
   const words: WordInfo[] = [];
   segments.forEach((seg, i) => {
@@ -236,23 +381,25 @@ export function analyzeWords(text: string, ctx: SelectContext, o: SelectOptions 
       words.push({
         kind: 'number', text: seg.text, norm, start: seg.start, end: seg.end, lemma: norm, pos: 'NUM',
         key: lexemeKey(pack.code, norm), counted: false, pKnown: 1, target: false, unknown: false,
-        native: false, sentenceStart,
+        native: false, sentenceStart, analyzed: false,
       });
       return;
     }
     const capsMid = !sentenceStart && isCapitalized(seg.text);
-    const chosen = choices.get(i)?.chosen;
-    let pos: Pos | null = chosen?.pos ?? null;
-    if (!chosen && capsMid && o.capitalizedUnknownAsPropn) pos = 'PROPN';
+    const named = names.has(norm) && isCapitalized(seg.text);
+    const chosen = named ? undefined : choices.get(i)?.chosen;
+    let pos: Pos | null = named ? 'PROPN' : chosen?.pos ?? null;
+    if (!chosen && !named && capsMid && o.capitalizedUnknownAsPropn) pos = 'PROPN';
     const lemma = chosen?.lemma ?? norm;
     const key = lexemeKey(pack.code, lemma);
     const counted = !(pos !== null && excluded.has(pos));
-    const pKnown = clamp01(learner.pKnown(key, o.skill, now));
+    let pKnown = clamp01(learner.pKnown(key, o.skill, now));
+    if (familiar.has(key)) pKnown = Math.max(pKnown, clamp01(o.familiarCredit));
     const target = targets.has(key);
-    const native = pair !== undefined && !chosen && isNativeWord(norm, pack, pair);
+    const native = pair !== undefined && !chosen && !named && isNativeWord(norm, pack, pair);
     words.push({
       kind: 'word', text: seg.text, norm, start: seg.start, end: seg.end, lemma, pos, key, counted, pKnown, target,
-      unknown: counted && !target && pKnown < o.unknownBelow, native, sentenceStart,
+      unknown: counted && !target && pKnown < o.unknownBelow, native, sentenceStart, analyzed: chosen !== undefined || named,
     });
   });
   return words;
@@ -306,10 +453,38 @@ function jaccard(a: readonly string[], b: readonly string[]): number {
   return inter / (A.size + B.size - inter);
 }
 
+/** Share of `a`'s words matched in order inside `b` (longest common subsequence / |a|). */
+function containment(a: readonly string[], b: readonly string[]): number {
+  if (!a.length) return 0;
+  const dp = new Array<number>(b.length + 1).fill(0);
+  for (const x of a) {
+    let prev = 0;
+    for (let j = 1; j <= b.length; j++) {
+      const tmp = dp[j] as number;
+      dp[j] = x === b[j - 1] ? prev + 1 : Math.max(dp[j] as number, dp[j - 1] as number);
+      prev = tmp;
+    }
+  }
+  return (dp[b.length] as number) / a.length;
+}
+
+function previousSentenceWords(previous: readonly string[], pack: LanguagePack, abbreviations?: readonly string[]): string[][] {
+  const out: string[][] = [];
+  for (const entry of previous) {
+    for (const sentence of splitSentences(entry, abbreviations ?? pack.abbreviations ?? [])) {
+      const w = normalizedWords(sentence, pack);
+      if (w.length) out.push(w);
+    }
+  }
+  return out;
+}
+
 /**
- * True when the text repeats a recent sentence: the same normalized word sequence, or a
- * word set whose Jaccard overlap with a recent sentence reaches `nearJaccard`. Previous
- * entries are split into sentences first.
+ * True when the text repeats a recent sentence: the same normalized word sequence, a
+ * word set whose Jaccard overlap with a recent sentence reaches `nearJaccard`, or (with
+ * `nearContainment` > 0) at least that share of its words, and at least `minWords`
+ * words, inside one recent sentence in order. Previous entries are split into sentences
+ * first.
  */
 export function isRepeat(
   text: string,
@@ -317,19 +492,31 @@ export function isRepeat(
   pack: LanguagePack,
   nearJaccard: number,
   abbreviations?: readonly string[],
+  nearContainment = 0,
+  minWords = 3,
 ): boolean {
   const words = normalizedWords(text, pack);
   if (!words.length) return false;
   const joined = words.join(' ');
-  for (const entry of previous) {
-    for (const sentence of splitSentences(entry, abbreviations)) {
-      const prev = normalizedWords(sentence, pack);
-      if (!prev.length) continue;
-      if (prev.join(' ') === joined) return true;
-      if (jaccard(words, prev) >= nearJaccard) return true;
-    }
+  for (const prev of previousSentenceWords(previous, pack, abbreviations)) {
+    if (prev.join(' ') === joined) return true;
+    if (jaccard(words, prev) >= nearJaccard) return true;
+    if (nearContainment > 0 && words.length >= minWords && containment(words, prev) >= nearContainment) return true;
   }
   return false;
+}
+
+/** Leak patterns of a pack (StoryLanguageData.leakPatterns compiled with the "u" flag; bad sources are skipped). */
+export function packLeakPatterns(pack: Pick<LanguagePack, 'story'>): RegExp[] {
+  const out: RegExp[] = [];
+  for (const src of pack.story?.leakPatterns ?? []) {
+    try {
+      out.push(new RegExp(src, 'u'));
+    } catch {
+      // A pattern that does not compile is ignored rather than failing every selection.
+    }
+  }
+  return out;
 }
 
 /**
@@ -380,28 +567,96 @@ export function hasUnbalancedQuotes(text: string): boolean {
   return false;
 }
 
-/** Rejection codes for a candidate (empty list = accepted). */
-export function rejectReasons(text: string, words: readonly WordInfo[], ctx: SelectContext, o: SelectOptions): RejectCode[] {
+const QUOTE_OPEN = `"“«„‘「『`;
+const QUOTE_CLOSE = `"”»“’」』`;
+
+/** True when the whole raw completion is one quotation: it opens with a quote mark and closes with one (end punctuation aside). */
+function isWholeQuote(raw: string): boolean {
+  const s = raw.trim().replace(/[\s.!?…。！？]+$/u, '');
+  return s.length >= 2 && QUOTE_OPEN.includes(s[0] as string) && QUOTE_CLOSE.includes(s[s.length - 1] as string);
+}
+
+/** True for a heading: a markdown heading, a line ending in a colon, or a short title without end punctuation. */
+function isHeading(raw: string): boolean {
+  const s = raw.trim();
+  if (!s) return false;
+  if (/^#{1,6}\s/u.test(s) || /[:：]$/u.test(s)) return true;
+  if (/[.!?…。！？"”»'’)]$/u.test(s)) return false;
+  const words = s.split(/\s+/u).filter((w) => /\p{L}/u.test(w));
+  if (!words.length || words.length > 4) return false;
+  return words.every((w) => isCapitalized(w)) || s === s.toUpperCase();
+}
+
+/** True for a comma list of single words ("el, que, lo, que, el"). */
+function isCommaList(text: string, minCommas: number): boolean {
+  const pieces = text.split(/[,،、，]/u);
+  if (pieces.length - 1 < minCommas) return false;
+  const single = pieces.filter((p) => p.trim().split(/\s+/u).filter(Boolean).length <= 1).length;
+  return single / pieces.length >= 0.6;
+}
+
+/** Rejection codes for a candidate (empty list = accepted). `raw` is the model's completion when known. */
+export function rejectReasons(
+  text: string,
+  words: readonly WordInfo[],
+  ctx: SelectContext,
+  o: SelectOptions,
+  raw?: string,
+): RejectCode[] {
   const out: RejectCode[] = [];
   if (!words.some((w) => w.kind === 'word')) {
     out.push('empty');
     return out;
   }
-  if (words.length > o.hardMaxWordsFactor * ctx.params.sentenceWords.max) out.push('too_long');
-  if (isRepeat(text, ctx.previous, ctx.pack, o.nearRepeatJaccard, o.abbreviations)) out.push('repeat');
-  if (detectPromptLeak(text, ctx.pack, o.leakPatterns, ctx.instructions, o.leakNgram)) out.push('prompt_leak');
+  const story = ctx.pack.story;
+  const rawText = raw ?? text;
+  if (o.placeholderPattern.test(text) || o.placeholderPattern.test(rawText)) out.push('placeholder');
+  if (o.listPattern.test(rawText) || o.listPattern.test(text) || isCommaList(text, o.listCommas)) out.push('list');
+  if (raw !== undefined && isHeading(raw)) out.push('heading');
+  if (raw !== undefined && isWholeQuote(raw) && words.length < o.bareQuoteFactor * ctx.params.sentenceWords.min) out.push('bare_quote');
+  if (detectPromptLeak(text, ctx.pack, [...o.leakPatterns, ...packLeakPatterns(ctx.pack)], ctx.instructions, o.leakNgram)) out.push('prompt_leak');
+  const meta = new Set((story?.metaWords ?? []).map(foldForMatch));
+  if (meta.size && words.some((w) => meta.has(foldForMatch(w.norm)))) out.push('meta');
   if (words.filter((w) => w.native).length > o.maxNativeWords) out.push('native_words');
+  const letters = words.filter((w) => w.kind === 'word' && w.pos !== 'PROPN');
+  const unknownToPack = letters.filter((w) => !w.analyzed).length;
+  if (unknownToPack >= o.foreignMinWords && letters.length && unknownToPack / letters.length >= o.foreignShare) out.push('foreign');
+  const requireVerb = o.requireVerb ?? story?.requireVerb ?? true;
+  if (requireVerb && !words.some((w) => w.pos !== null && o.verbPos.includes(w.pos))) out.push('no_verb');
+  if (words.length < o.minWordsFactor * ctx.params.sentenceWords.min) out.push('too_short');
+  if (words.length > o.hardMaxWordsFactor * ctx.params.sentenceWords.max) out.push('too_long');
+  if (isRepeat(text, ctx.previous, ctx.pack, o.nearRepeatJaccard, abbreviationsOf(ctx, o), o.nearRepeatContainment, o.nearRepeatMinWords)) out.push('repeat');
   if (hasUnbalancedQuotes(text)) out.push('unbalanced_quotes');
   return out;
 }
 
 const fmt = (x: number) => (Math.round(x * 1000) / 1000).toString();
 
-/**
- * Evaluate one candidate: analysis, shares, score parts, rejections and reasons.
- * See the module comment for the scoring method.
- */
-export function evaluateCandidate(text: string, index: number, ctx: SelectContext, o: SelectOptions = resolveSelectOptions(ctx.options)): CandidateEvaluation {
+const CONTENT_POS: readonly Pos[] = ['NOUN', 'VERB', 'ADJ', 'ADV'];
+
+/** Names the recent story uses and its content lemmas, for continuity. */
+function storyMemory(ctx: SelectContext, o: SelectOptions): { names: Set<string>; content: Set<string> } {
+  const names = new Set((ctx.names ?? []).map((n) => ctx.pack.normalize(n)).filter(Boolean));
+  const content = new Set<string>();
+  for (const entry of ctx.previous) {
+    const words = analyzeWords(entry, { ...ctx, targets: [], familiar: [], pair: undefined }, o);
+    for (const w of words) {
+      if (w.pos === 'PROPN') names.add(w.norm);
+      else if (w.pos !== null && CONTENT_POS.includes(w.pos)) content.add(w.key);
+    }
+  }
+  return { names, content };
+}
+
+function evaluateWith(
+  cand: SelectCandidate,
+  index: number,
+  ctx: SelectContext,
+  o: SelectOptions,
+  memory: { names: Set<string>; content: Set<string> },
+  prevWords: string[][],
+): CandidateEvaluation {
+  const { text, raw } = cand;
   const words = analyzeWords(text, ctx, o);
   const counted = words.filter((w) => w.counted);
   const knownShare = knownShareOf(words, false);
@@ -414,14 +669,25 @@ export function evaluateCandidate(text: string, index: number, ctx: SelectContex
   const nativeWords = distinct(words.filter((w) => w.native).map((w) => w.norm));
   const lenOff = lengthDistance(words.length, ctx.params.sentenceWords);
   const excessUnknown = Math.max(0, unknownNonTargets.length - Math.max(0, ctx.params.newWordsPerSentence));
+  const norms = normalizedWords(text, ctx.pack);
+  let overlap = 0;
+  for (const p of prevWords) overlap = Math.max(overlap, jaccard(norms, p));
+  const propns = distinct(words.filter((w) => w.pos === 'PROPN' && w.kind === 'word').map((w) => w.norm));
+  const namesUsed = propns.filter((n) => memory.names.has(n));
+  const newNames = propns.filter((n) => !memory.names.has(n));
+  const reusesContent = words.some((w) => w.pos !== null && CONTENT_POS.includes(w.pos) && memory.content.has(w.key));
+  const natural = typeof cand.natural === 'number' && Number.isFinite(cand.natural) ? cand.natural : null;
   const parts: ScoreParts = {
-    band: -(o.belowBandWeight * dist.below + o.aboveBandWeight * dist.above),
+    band: inBand ? 0 : -(o.outOfBandPenalty + o.belowBandWeight * dist.below + o.aboveBandWeight * dist.above),
     target: o.targetBonus * targetsHit.length,
     length: -o.lengthWeight * lenOff,
     unknown: -o.unknownPenalty * excessUnknown,
+    novelty: -o.noveltyWeight * overlap,
+    continuity: (namesUsed.length || reusesContent ? o.continuityBonus : 0) - o.newNamePenalty * newNames.length,
+    natural: natural === null ? 0 : Math.max(-o.naturalClamp, Math.min(o.naturalClamp, o.naturalWeight * (natural - o.naturalBaseline))),
   };
-  const score = parts.band + parts.target + parts.length + parts.unknown;
-  const rejected = rejectReasons(text, words, ctx, o);
+  const score = parts.band + parts.target + parts.length + parts.unknown + parts.novelty + parts.continuity + parts.natural;
+  const rejected = rejectReasons(text, words, ctx, o, raw);
 
   const reasons: string[] = [];
   for (const r of rejected) reasons.push(`rejected: ${r}`);
@@ -442,21 +708,58 @@ export function evaluateCandidate(text: string, index: number, ctx: SelectContex
     );
   }
   if (nativeWords.length) reasons.push(`native words: ${nativeWords.join(', ')}`);
+  if (overlap > 0) reasons.push(`overlap with a recent sentence ${fmt(overlap)} (${fmt(parts.novelty)})`);
+  if (parts.continuity !== 0) reasons.push(`continuity ${fmt(parts.continuity)}${newNames.length ? ` (new names: ${newNames.join(', ')})` : ''}`);
+  if (natural !== null) reasons.push(`natural ${fmt(natural)} nats per word (${fmt(parts.natural)})`);
 
-  return {
+  const out: CandidateEvaluation = {
     index, text, accepted: rejected.length === 0, rejected, words, wordCount: words.length, knownShare,
-    bandShare, inBand, targetsHit, unknownNonTargets, nativeWords, score, parts, reasons,
+    bandShare, inBand, targetsHit, unknownNonTargets, nativeWords, overlap, namesUsed, newNames, natural, score, parts, reasons,
   };
+  if (raw !== undefined) out.raw = raw;
+  return out;
+}
+
+function asCandidate(c: string | SelectCandidate): SelectCandidate {
+  return typeof c === 'string' ? { text: c } : c;
+}
+
+/**
+ * Evaluate one candidate: analysis, shares, score parts, rejections and reasons.
+ * See the module comment for the scoring method.
+ */
+export function evaluateCandidate(
+  candidate: string | SelectCandidate,
+  index: number,
+  ctx: SelectContext,
+  o: SelectOptions = resolveSelectOptions(ctx.options),
+): CandidateEvaluation {
+  return evaluateWith(asCandidate(candidate), index, ctx, o, storyMemory(ctx, o), previousSentenceWords(ctx.previous, ctx.pack, abbreviationsOf(ctx, o)));
+}
+
+/** Count reject codes over evaluations. */
+export function countRejects(evals: readonly Pick<CandidateEvaluation, 'rejected'>[]): Partial<Record<RejectCode, number>> {
+  const out: Partial<Record<RejectCode, number>> = {};
+  for (const e of evals) for (const c of e.rejected) out[c] = (out[c] ?? 0) + 1;
+  return out;
+}
+
+/** Rank evaluations: accepted by score (ties: input order), then rejected in input order. */
+export function rankEvaluations(evals: readonly CandidateEvaluation[]): Selection {
+  const accepted = evals.filter((e) => e.accepted).sort((a, b) => b.score - a.score || a.index - b.index);
+  const rejected = evals.filter((e) => !e.accepted).sort((a, b) => a.index - b.index);
+  return { best: accepted[0] ?? null, ranked: [...accepted, ...rejected], rejectCounts: countRejects(evals) };
 }
 
 /**
  * Choose the candidate sentence that best fits the learner (see the module comment).
- * Deterministic: the same inputs always give the same ranking.
+ * Candidates are cleaned sentences, or SelectCandidate objects that also carry the raw
+ * completion and a natural score. Deterministic: the same inputs always give the same
+ * ranking.
  */
-export function selectSentence(candidates: readonly string[], ctx: SelectContext): Selection {
+export function selectSentence(candidates: readonly (string | SelectCandidate)[], ctx: SelectContext): Selection {
   const o = resolveSelectOptions(ctx.options);
-  const evals = candidates.map((c, i) => evaluateCandidate(c, i, ctx, o));
-  const accepted = evals.filter((e) => e.accepted).sort((a, b) => b.score - a.score || a.index - b.index);
-  const rejected = evals.filter((e) => !e.accepted);
-  return { best: accepted[0] ?? null, ranked: [...accepted, ...rejected] };
+  const memory = storyMemory(ctx, o);
+  const prevWords = previousSentenceWords(ctx.previous, ctx.pack, abbreviationsOf(ctx, o));
+  return rankEvaluations(candidates.map((c, i) => evaluateWith(asCandidate(c), i, ctx, o, memory, prevWords)));
 }

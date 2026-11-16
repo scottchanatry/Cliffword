@@ -117,18 +117,34 @@ export function slangIn(pack: LanguagePack, text: string, regions: readonly stri
 
 /**
  * Predicate for HeatOptions.exempt in street register: true for a word that is (part of)
- * a slang form of the applicable register packs. Such words are never shaded, because
- * the model cannot judge them (proof test: 0 of 26 street sentences beat their neutral
- * paraphrase). Entries marked alsoStandard are standard words too, and stay exempt here:
- * in street register they are slang.
+ * a slang form of the applicable register packs, or an inflected form of a single-word
+ * entry (an analysis of the word has the entry's lemma or form as its lemma: bacana of
+ * bacano, panas of pana, bregamos of bregar). Such words are never shaded, because the
+ * model cannot judge them (proof test: 0 of 26 street sentences beat their neutral
+ * paraphrase). Besides the applicable packs, entries of other packs that list one of the
+ * regions count too ("vaina" sits in the Dominican pack and lists Puerto Rico), as
+ * corrections protect them. Entries marked alsoStandard are standard words too, and stay
+ * exempt here: in street register they are slang.
  */
 export function slangExemption(
   pack: LanguagePack,
   regions: readonly string[] = [],
 ): (segment: Segment) => boolean {
   const norms = new Set<string>();
-  for (const reg of applicable(pack, regions)) {
-    for (const e of reg.entries) for (const w of formWords(pack, e.form)) norms.add(w);
+  const lemmas = new Set<string>();
+  const packs = applicable(pack, regions);
+  const wanted = new Set(regions);
+  for (const reg of pack.registers) {
+    for (const e of reg.entries) {
+      if (!packs.includes(reg) && !e.regions.some((r) => wanted.has(r))) continue;
+      const fw = formWords(pack, e.form);
+      for (const w of fw) norms.add(w);
+      if (fw.length === 1) {
+        lemmas.add(e.lemma);
+        lemmas.add(e.norm);
+      }
+    }
   }
-  return (segment) => segment.kind === 'word' && norms.has(segment.norm);
+  return (segment) =>
+    segment.kind === 'word' && (norms.has(segment.norm) || pack.analyze(segment.norm).some((a) => lemmas.has(a.lemma)));
 }

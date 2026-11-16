@@ -1,0 +1,1050 @@
+{
+ "meta": {
+  "when": "2026-11-16T00:23:52.089Z",
+  "load": [
+   9.75,
+   8.15,
+   5.76
+  ],
+  "cores": 4,
+  "offline": true
+ },
+ "label": "after-offline",
+ "slang": [
+  {
+   "id": 1,
+   "region": "PR",
+   "text": "¿Qué es la que hay, mano?",
+   "slangNamed": [],
+   "slangSegments": [],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 2,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 2,
+   "region": "PR",
+   "text": "Vamo' a janguear con el corillo esta noche.",
+   "slangNamed": [
+    "vamo'",
+    "janguear",
+    "corillo"
+   ],
+   "slangSegments": [
+    "Vamo'",
+    "janguear",
+    "corillo"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 3,
+   "region": "PR",
+   "text": "Esa vaina 'tá brutal.",
+   "slangNamed": [
+    "'tá",
+    "brutal"
+   ],
+   "slangSegments": [
+    "vaina",
+    "'tá",
+    "brutal"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 4,
+   "region": "PR",
+   "text": "¿Pa' qué tú quieres eso?",
+   "slangNamed": [
+    "pa'"
+   ],
+   "slangSegments": [
+    "Pa'"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 5,
+   "region": "PR",
+   "text": "Ese pana mío es bien chévere.",
+   "slangNamed": [
+    "pana",
+    "chévere"
+   ],
+   "slangSegments": [
+    "pana",
+    "chévere"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 6,
+   "region": "PR",
+   "text": "Estoy janguiando en la playa con mis panas.",
+   "slangNamed": [],
+   "slangSegments": [
+    "panas"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 2,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 7,
+   "region": "DO",
+   "text": "Dímelo, loco, ¿qué lo que?",
+   "slangNamed": [
+    "dímelo",
+    "loco",
+    "qué lo que"
+   ],
+   "slangSegments": [
+    "Dímelo",
+    "loco",
+    "qué",
+    "lo",
+    "que"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 8,
+   "region": "PR",
+   "text": "Ese carro 'tá to' jevi.",
+   "slangNamed": [
+    "'tá",
+    "to'"
+   ],
+   "slangSegments": [
+    "'tá",
+    "to'"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 9,
+   "region": "PR",
+   "text": "No me jodas con esa vaina.",
+   "slangNamed": [],
+   "slangSegments": [
+    "vaina"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 10,
+   "region": "DO",
+   "text": "Tengo un chin de hambre.",
+   "slangNamed": [
+    "chin"
+   ],
+   "slangSegments": [
+    "chin"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 3,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 11,
+   "region": "PR",
+   "text": "Ahorita vengo, voy pa' la tienda.",
+   "slangNamed": [
+    "pa'"
+   ],
+   "slangSegments": [
+    "pa'"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 12,
+   "region": "PR",
+   "text": "El corillo está esperando afuera.",
+   "slangNamed": [
+    "corillo"
+   ],
+   "slangSegments": [
+    "corillo"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 13,
+   "region": "PR",
+   "text": "Mi pana, eso 'tá cabrón.",
+   "slangNamed": [
+    "pana",
+    "'tá",
+    "cabrón"
+   ],
+   "slangSegments": [
+    "pana",
+    "'tá",
+    "cabrón"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 14,
+   "region": "CU",
+   "text": "¿Qué volá, asere?",
+   "slangNamed": [
+    "asere"
+   ],
+   "slangSegments": [
+    "asere"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 15,
+   "region": "CU",
+   "text": "Eso 'tá en candela.",
+   "slangNamed": [
+    "'tá"
+   ],
+   "slangSegments": [
+    "'tá"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 16,
+   "region": "PR",
+   "text": "Me voy pa' casa, que 'toy cansao.",
+   "slangNamed": [
+    "pa'",
+    "'toy"
+   ],
+   "slangSegments": [
+    "pa'",
+    "'toy"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 2,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 17,
+   "region": "CO",
+   "text": "Parcero, ¿qué más pues?",
+   "slangNamed": [
+    "parcero",
+    "qué más"
+   ],
+   "slangSegments": [
+    "Parcero",
+    "qué",
+    "más"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 18,
+   "region": "CO",
+   "text": "Esa fiesta estuvo bacana.",
+   "slangNamed": [],
+   "slangSegments": [
+    "bacana"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 19,
+   "region": "PR",
+   "text": "No tengo chavos pa' salir hoy.",
+   "slangNamed": [
+    "chavos",
+    "pa'"
+   ],
+   "slangSegments": [
+    "chavos",
+    "pa'"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 20,
+   "region": "PR",
+   "text": "Deja la bobería y vamo' ya.",
+   "slangNamed": [
+    "vamo'"
+   ],
+   "slangSegments": [
+    "vamo'"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 2,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 21,
+   "region": "DO",
+   "text": "Ese tipo es un tíguere.",
+   "slangNamed": [
+    "tíguere"
+   ],
+   "slangSegments": [
+    "tíguere"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 22,
+   "region": "PR",
+   "text": "Bregamos con eso mañana.",
+   "slangNamed": [],
+   "slangSegments": [
+    "Bregamos"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 23,
+   "region": "PR",
+   "text": "¡Wepa! Ganamos el juego.",
+   "slangNamed": [
+    "wepa"
+   ],
+   "slangSegments": [
+    "Wepa"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 2,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 24,
+   "region": "PR",
+   "text": "Estoy pela'o este mes.",
+   "slangNamed": [],
+   "slangSegments": [],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 25,
+   "region": "PR",
+   "text": "Qué chévere que viniste, mi pana.",
+   "slangNamed": [
+    "chévere",
+    "pana"
+   ],
+   "slangSegments": [
+    "chévere",
+    "pana"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 26,
+   "region": "CO",
+   "text": "Ese man es más bacano que el putas.",
+   "slangNamed": [
+    "bacano"
+   ],
+   "slangSegments": [
+    "bacano"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 3,
+   "touchingSlang": [],
+   "slangHeat": []
+  }
+ ],
+ "slanghold": [
+  {
+   "id": 101,
+   "region": "PR",
+   "text": "Ese jangueo anoche estuvo brutal.",
+   "slangNamed": [
+    "jangueo",
+    "brutal"
+   ],
+   "slangSegments": [
+    "jangueo",
+    "brutal"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 102,
+   "region": "PR",
+   "text": "Mi jeva y yo vamos pa' la playa.",
+   "slangNamed": [
+    "jeva",
+    "pa'"
+   ],
+   "slangSegments": [
+    "jeva",
+    "pa'"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 103,
+   "region": "PR",
+   "text": "No tengo chavos, mano.",
+   "slangNamed": [
+    "chavos"
+   ],
+   "slangSegments": [
+    "chavos"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 104,
+   "region": "PR",
+   "text": "Ese perreo 'tá cabrón.",
+   "slangNamed": [
+    "perreo",
+    "'tá",
+    "cabrón"
+   ],
+   "slangSegments": [
+    "perreo",
+    "'tá",
+    "cabrón"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 105,
+   "region": "PR",
+   "text": "Acho, qué revolú hay aquí.",
+   "slangNamed": [
+    "acho",
+    "revolú"
+   ],
+   "slangSegments": [
+    "Acho",
+    "revolú"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 106,
+   "region": "PR",
+   "text": "Llegó el corillo completo.",
+   "slangNamed": [
+    "corillo"
+   ],
+   "slangSegments": [
+    "corillo"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 107,
+   "region": "PR",
+   "text": "Dame pon pa'l pueblo.",
+   "slangNamed": [
+    "pon",
+    "pa'l"
+   ],
+   "slangSegments": [
+    "pon",
+    "pa'l"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 2,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 108,
+   "region": "DO",
+   "text": "¿Qué lo que, manito?",
+   "slangNamed": [
+    "qué lo que",
+    "manito"
+   ],
+   "slangSegments": [
+    "Qué",
+    "lo",
+    "que",
+    "manito"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 109,
+   "region": "DO",
+   "text": "Ese tíguere tiene una jeepeta nueva.",
+   "slangNamed": [
+    "tíguere",
+    "jeepeta"
+   ],
+   "slangSegments": [
+    "tíguere",
+    "jeepeta"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 110,
+   "region": "DO",
+   "text": "Vamos pa'l colmado.",
+   "slangNamed": [
+    "pa'l",
+    "colmado"
+   ],
+   "slangSegments": [
+    "pa'l",
+    "colmado"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 111,
+   "region": "DO",
+   "text": "Dame un chin de agua.",
+   "slangNamed": [
+    "chin"
+   ],
+   "slangSegments": [
+    "chin"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 3,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 112,
+   "region": "DO",
+   "text": "Ese bonche estuvo jevi.",
+   "slangNamed": [
+    "bonche",
+    "jevi"
+   ],
+   "slangSegments": [
+    "bonche",
+    "jevi"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 113,
+   "region": "DO",
+   "text": "Hay una pila de gente en el concho.",
+   "slangNamed": [
+    "pila",
+    "concho"
+   ],
+   "slangSegments": [
+    "pila",
+    "concho"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 2,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 114,
+   "region": "DO",
+   "text": "¡Coño, qué calor hace!",
+   "slangNamed": [
+    "coño"
+   ],
+   "slangSegments": [
+    "Coño"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 115,
+   "region": "CU",
+   "text": "Asere, ¿qué bolá?",
+   "slangNamed": [
+    "asere",
+    "qué bolá"
+   ],
+   "slangSegments": [
+    "Asere",
+    "qué",
+    "bolá"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 116,
+   "region": "CU",
+   "text": "Mi socio tiene una pincha nueva.",
+   "slangNamed": [
+    "socio",
+    "pincha"
+   ],
+   "slangSegments": [
+    "socio",
+    "pincha"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 117,
+   "region": "CU",
+   "text": "Vamos a jamar algo, que tengo hambre.",
+   "slangNamed": [
+    "jamar"
+   ],
+   "slangSegments": [
+    "jamar"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 4,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 118,
+   "region": "CU",
+   "text": "Ese yuma no habla español.",
+   "slangNamed": [
+    "yuma"
+   ],
+   "slangSegments": [
+    "yuma"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 119,
+   "region": "CU",
+   "text": "La fiesta estuvo bárbara.",
+   "slangNamed": [],
+   "slangSegments": [
+    "bárbara"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 2,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 120,
+   "region": "CU",
+   "text": "Me voy pa'l gao.",
+   "slangNamed": [
+    "pa'l",
+    "gao"
+   ],
+   "slangSegments": [
+    "pa'l",
+    "gao"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 121,
+   "region": "CU",
+   "text": "¡Qué pinga, se fue la guagua!",
+   "slangNamed": [
+    "pinga"
+   ],
+   "slangSegments": [
+    "pinga",
+    "guagua"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 2,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 122,
+   "region": "CO",
+   "text": "Parce, esa rumba estuvo una chimba.",
+   "slangNamed": [
+    "parce",
+    "rumba",
+    "chimba"
+   ],
+   "slangSegments": [
+    "Parce",
+    "rumba",
+    "chimba"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 2,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 123,
+   "region": "CO",
+   "text": "Qué pereza ir a camellar hoy.",
+   "slangNamed": [
+    "camellar"
+   ],
+   "slangSegments": [
+    "camellar"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 124,
+   "region": "CO",
+   "text": "Pilas con ese man, que es muy sapo.",
+   "slangNamed": [
+    "pilas",
+    "sapo"
+   ],
+   "slangSegments": [
+    "Pilas",
+    "sapo"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 2,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 125,
+   "region": "CO",
+   "text": "Nos tomamos unas polas con el parche.",
+   "slangNamed": [
+    "parche"
+   ],
+   "slangSegments": [
+    "polas",
+    "parche"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 126,
+   "region": "CO",
+   "text": "Ese cucho es muy berraco.",
+   "slangNamed": [
+    "cucho",
+    "berraco"
+   ],
+   "slangSegments": [
+    "cucho",
+    "berraco"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  },
+  {
+   "id": 127,
+   "region": "CO",
+   "text": "Tengo un guayabo terrible.",
+   "slangNamed": [
+    "guayabo"
+   ],
+   "slangSegments": [
+    "guayabo"
+   ],
+   "verdict": null,
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": []
+  }
+ ],
+ "summary": {
+  "slang": {
+   "n": 26,
+   "verdicts": {},
+   "asserts": [],
+   "hints": [],
+   "variantsTouchingSlang": [],
+   "slangWords": 41,
+   "slangShaded": [],
+   "noSlangFound": [
+    "¿Qué es la que hay, mano?",
+    "Estoy pela'o este mes."
+   ]
+  },
+  "slanghold": {
+   "n": 27,
+   "verdicts": {},
+   "asserts": [],
+   "hints": [],
+   "variantsTouchingSlang": [],
+   "slangWords": 50,
+   "slangShaded": [],
+   "noSlangFound": []
+  }
+ },
+ "totalMs": 304
+}

@@ -23,6 +23,7 @@ export const DO_REGISTER: RegisterPack = {
     casual('tíguere', 'pícaro', 'street-smart guy, hustler', { pos: 'NOUN' }),
     // Amounts and money
     casual('chin', 'poco', 'a little bit ("un chin")'),
+    phrase('un chin', 'un poco', 'a little bit ("un chin de hambre")'),
     casual('chinchín', 'poquito', 'a tiny bit', { pos: 'NOUN' }),
     casual('pila', 'mucho', 'a lot, loads ("una pila de gente")'),
     casual('cuartos', 'dinero', 'money', { alsoStandard: true }),
@@ -61,5 +62,7 @@ export const DO_REGISTER: RegisterPack = {
     vulgar('ripio', 'pene', 'penis', { pos: 'NOUN' }),
     vulgar('rapar', 'tener sexo', 'to have sex'),
     vulgar('mamagüevo', 'desgraciado', 'asshole (very strong insult)', { pos: 'NOUN' }),
+    vulgar('güevo', 'pene', 'dick; "me vale güevo": I don\'t give a damn', { pos: 'NOUN', regions: [DO, PR] }),
+    vulgar('totito', 'vagina', 'pussy (diminutive of "toto")', { pos: 'NOUN', regions: [DO, PR] }),
   ],
 };

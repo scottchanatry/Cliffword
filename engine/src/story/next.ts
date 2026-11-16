@@ -1,33 +1,59 @@
 /**
  * Generate the next story sentence: prompt the model for several candidates, clean
- * them, and keep the one that best fits the learner.
+ * them, reject the unusable ones and keep the one that best fits the learner.
  *
  * Method
  * ------
- * 1. Build a continuation prompt from the last story sentences, the target words, the
- *    maximum sentence length and the register (buildContinuationPrompt).
- * 2. Sample `n` completions in one model call. Completion i uses seed + i, so the whole
- *    step is reproducible from `seed`.
- * 3. Clean every completion to one sentence (extractSentence) and rank them with
- *    selectSentence (recent sentences for repeat checks, prompt instructions for leak
- *    checks).
- * 4. If no accepted candidate falls inside the known-word band, retry once with the
- *    simpler prompt (easier wording, only the first target) and seeds seed + n ...
- *    seed + 2n - 1, then select over the candidates of both rounds together.
- * 5. Return the selection (best may still be outside the band: there is always a next
- *    sentence unless every candidate was rejected) with diagnostics, including the
- *    number of model calls.
+ * 1. Story lines: the last story sentences, each tagged with its key word (a StoryLine
+ *    tag from the caller, such as the targets a generated sentence carried, or tagFor:
+ *    its rarest word). Names: the caller's characters plus capitalized words the story
+ *    uses as names (storyNames).
+ * 2. Header: the level name for the learner's estimated vocabulary and a length hint for
+ *    params.sentenceWords.max (pack data), the characters, the scene, and a vocabulary
+ *    line (vocabularyFor) when the learner knows few words (fewer than vocabularyBelow
+ *    lexemes at vocabularyKnownAt) or the caller gives familiar words (the bridge).
+ * 3. Round 1 (targets): the continuation prompt ends with the target words as the next
+ *    tag (buildStoryPrompt). `n` completions are sampled in one model call; completion i
+ *    uses seed + i, so the whole step is reproducible from `seed`. Generation stops at
+ *    the first sentence end (tuning.stop).
+ * 4. Every completion is cleaned to one sentence (extractSentence with the pack's labels)
+ *    and selectSentence ranks them (rejects first, then band, targets, novelty,
+ *    continuity, length, unknown words), with the raw completion for the placeholder,
+ *    list and heading checks.
+ * 5. Round 2 (safe): when no accepted candidate is inside the band and retry is on, the
+ *    same prompt prefix ends with a safe tag instead (the caller's safeTag, else the main
+ *    character, else the last line's tag), `retryN` completions with seeds seed + n ...,
+ *    at retryTemperature. Selection runs over both rounds together.
+ * 6. Natural score: the `naturalTop` best accepted candidates (distinct texts) are scored
+ *    by the model after the story (scoringContext) and their log-probability per word
+ *    enters the selection score (SelectOptions.naturalWeight); 0 turns it off.
+ * 7. The result: the selection (best may still be outside the band: there is always a
+ *    next sentence unless every candidate was rejected), reject counts by reason, and
+ *    diagnostics, including the number of model calls of each kind.
+ *
+ * Language-neutral: wording comes from LanguagePack.story; words from pack.segment.
  */
 import type { LanguagePack } from '../lang/types';
 import type { LanguageModel } from '../model/types';
 import type { PairPack } from '../pair/types';
 import type { DifficultyParams, LearnerView } from '../learner/types';
-import { lexemeOf } from '../learner/types';
-import type { Register } from './prompt';
-import { buildContinuationPrompt, extractSentence, promptInstructionLines, storySentences } from './prompt';
-import type { SelectOptions, Selection } from './select';
-import { selectSentence } from './select';
-import { wholeAtLeast } from './text';
+import { lexemeKey, lexemeOf } from '../learner/types';
+import { estimateVocabulary } from '../learner/difficulty';
+import { scoringContext } from '../scoring/context';
+import { needsLeadingSpace } from '../scoring/text';
+import type { Register, StoryLine } from './prompt';
+import {
+  DEFAULT_CONTEXT_SENTENCES,
+  buildStoryPrompt,
+  extractOptionsFor,
+  extractSentence,
+  lengthHintFor,
+  levelName,
+  tagFor,
+} from './prompt';
+import type { CandidateEvaluation, SelectCandidate, SelectContext, SelectOptions, Selection } from './select';
+import { evaluateCandidate, resolveSelectOptions, selectSentence } from './select';
+import { isCapitalized, sentenceStartFlags, splitSentences, wholeAtLeast } from './text';
 
 /** Collaborators that stay the same from sentence to sentence. */
 export interface NextSentenceDeps {
@@ -39,41 +65,70 @@ export interface NextSentenceDeps {
 
 /** Tunable numbers of generateNextSentence. */
 export interface NextSentenceTuning {
-  /** Candidates sampled per model call. */
+  /** Candidates sampled in the target round. */
   n: number;
+  /** Candidates sampled in the safe round. */
+  retryN: number;
   temperature: number;
-  /** Temperature of the simpler retry (lower = safer, more common words). */
+  /** Temperature of the safe round (lower = safer, more common words). */
   retryTemperature: number;
-  /** Retry once with the simpler prompt when nothing lands in the band. */
+  /** Run the safe round when nothing accepted lands in the band. */
   retry: boolean;
-  /** Generation stops at these strings. The prompt asks for one line. */
+  /** Generation stops at these strings: the first sentence end. */
   stop: string[];
   /** maxTokens = ceil(maxWords x tokensPerWord) + extraTokens. */
   tokensPerWord: number;
   extraTokens: number;
   /** Story sentences shown in the prompt. */
   contextSentences: number;
-  /** Recent story sentences checked for repeats. */
+  /** Recent story sentences checked for repeats and novelty. */
   previousSentences: number;
+  /** Best accepted candidates scored by the model for naturalness (0 = no scoring calls). */
+  naturalTop: number;
+  /** Most words in the vocabulary line. */
+  vocabularyWords: number;
+  /** Show the vocabulary line while the learner knows fewer lexemes than this... */
+  vocabularyBelow: number;
+  /** ...counting a lexeme as known from this pKnown(meaning). */
+  vocabularyKnownAt: number;
 }
 
+/**
+ * Defaults, measured on Qwen3-1.7B through proof/model_server.py (proof/ENGINE_REAL_MODEL.md,
+ * "Story generation at every level"):
+ * - n 5, retryN 4: with 5 candidates at least one landed in the band in most steps for
+ *   every simulated learner; the safe round rescues most of the rest.
+ * - temperature 0.9: at 0.8 the beginner prompts repeated one sentence in up to 6 of 12
+ *   candidates; 0.9 keeps the min-p filter's quality with more distinct candidates.
+ * - stop at the first sentence end (". ", "? ", "! " or a line break): about 10 to 14
+ *   tokens per candidate instead of the 24 to 36 of a full maxTokens run.
+ * - tokensPerWord 2: Qwen3 uses about 1.6 tokens per Spanish word, punctuation included;
+ *   extraTokens 4 leaves room for the stop string.
+ * - naturalTop 3: three scoring calls of about 0.1 s each.
+ * - vocabularyBelow 800 at 0.9: the early learner (about 230 lexemes at 0.9) got 33% of
+ *   its candidates in the band with the line, 25% without; learners past a few hundred
+ *   words gain nothing from it and pay for the longer prompt.
+ */
 export const DEFAULT_NEXT_SENTENCE_TUNING: Readonly<NextSentenceTuning> = {
-  n: 6,
-  temperature: 0.8,
-  retryTemperature: 0.6,
+  n: 5,
+  retryN: 4,
+  temperature: 0.9,
+  retryTemperature: 0.7,
   retry: true,
-  stop: ['\n'],
-  // Proof test: Qwen3 uses about 1.6 tokens per Spanish word, punctuation included; 2
-  // leaves headroom so a sentence is not cut off.
+  stop: ['. ', '? ', '! ', '\n'],
   tokensPerWord: 2,
-  extraTokens: 8,
-  contextSentences: 4,
+  extraTokens: 4,
+  contextSentences: DEFAULT_CONTEXT_SENTENCES,
   previousSentences: 8,
+  naturalTop: 3,
+  vocabularyWords: 40,
+  vocabularyBelow: 800,
+  vocabularyKnownAt: 0.9,
 };
 
 export interface NextSentenceOptions {
-  /** Story so far (sentences, or one text). */
-  story: string | readonly string[];
+  /** Story so far: sentences (optionally tagged with their key word), or one text. */
+  story: string | readonly (string | StoryLine)[];
   /** Lexeme keys to introduce or practice. */
   targets: readonly string[];
   /** Surface words for the prompt; defaults to the lemma part of each target key. */
@@ -85,6 +140,18 @@ export interface NextSentenceOptions {
   seed: number;
   register?: Register;
   region?: string;
+  /** The story's characters (the main character first). */
+  names?: readonly string[];
+  /** Where the story happens, for the header. */
+  scene?: string;
+  /** Estimated vocabulary for the level name (estimateVocabulary over the pack's list when omitted). */
+  vocab?: number;
+  /** The vocabulary line's words; [] for none. Computed with vocabularyFor when omitted. */
+  vocabulary?: readonly string[];
+  /** Lexeme keys counted as known in the band check (the zero-knowledge bridge). */
+  familiar?: readonly string[];
+  /** Tag of the safe round. */
+  safeTag?: string;
   tuning?: Partial<NextSentenceTuning>;
   select?: Partial<SelectOptions>;
 }
@@ -92,22 +159,35 @@ export interface NextSentenceOptions {
 /** One model call made while generating. */
 export interface GenerationRound {
   prompt: string;
+  /** The tag the prompt ended with. */
+  tag: string;
+  /** True for the safe round. */
   simple: boolean;
   seed: number;
   temperature: number;
+  maxTokens: number;
   raw: string[];
   cleaned: string[];
 }
 
 export interface NextSentenceDiagnostics {
-  /** Number of LanguageModel calls made (1, or 2 after a retry). */
+  /** Number of LanguageModel calls made (generate and score). */
   modelCalls: number;
+  generateCalls: number;
+  scoreCalls: number;
   retried: boolean;
   /** True when the best candidate is inside the known-word band. */
   inBand: boolean;
+  /** True when the best candidate uses a target word. */
+  targetUsed: boolean;
   rounds: GenerationRound[];
   /** Round (0-based) of each candidate, by candidate index in the selection. */
   candidateRound: number[];
+  /** Candidates rejected, by reason, over all rounds. */
+  rejectCounts: Selection['rejectCounts'];
+  /** The vocabulary line's words (empty when the prompt had none). */
+  vocabulary: string[];
+  names: string[];
 }
 
 export interface NextSentenceResult extends Selection {
@@ -130,8 +210,115 @@ export function maxTokensFor(maxWords: number, t: Pick<NextSentenceTuning, 'toke
   return Math.ceil(wholeAtLeast(maxWords) * t.tokensPerWord) + t.extraTokens;
 }
 
-function hasInBand(sel: Selection): boolean {
-  return sel.ranked.some((e) => e.accepted && e.inBand);
+/**
+ * Names a story uses: capitalized words the pack analyzes as PROPN, and capitalized
+ * words away from a sentence start that the pack does not know, in order of first use,
+ * distinct.
+ */
+export function storyNames(pack: LanguagePack, sentences: readonly string[]): string[] {
+  const out: string[] = [];
+  const seen = new Set<string>();
+  for (const s of sentences) {
+    const segs = pack.segment(s);
+    const starts = sentenceStartFlags(segs, pack.abbreviations ?? []);
+    segs.forEach((seg, i) => {
+      if (seg.kind !== 'word' || !isCapitalized(seg.text)) return;
+      const norm = seg.norm || pack.normalize(seg.text);
+      const a = pack.analyze(norm);
+      const propn = a.some((x) => x.pos === 'PROPN');
+      // At a sentence start only a word the pack knows as a name; elsewhere also an unknown one.
+      if (starts[i] ? !propn : a.length > 0 && !propn) return;
+      if (!seen.has(norm)) {
+        seen.add(norm);
+        out.push(seg.text);
+      }
+    });
+  }
+  return out;
+}
+
+const CONTENT_POS = new Set(['NOUN', 'VERB', 'ADJ', 'ADV']);
+
+export interface VocabularyInput {
+  pack: LanguagePack;
+  learner: LearnerView;
+  now: number;
+  /** Recent story sentences: their known content words come first. */
+  story: readonly string[];
+  /** Keys counted as known (the bridge), listed before other known words. */
+  familiar?: readonly string[];
+  /** A lexeme is known from this pKnown(meaning). */
+  knownAt: number;
+  max: number;
+  /** Keys never listed (the targets: they are the tag). */
+  exclude?: readonly string[];
+}
+
+/**
+ * Words for the vocabulary line: content words (NOUN, VERB, ADJ, ADV) the reader knows
+ * or that are familiar, as dictionary forms. Order: those of the recent story, then the
+ * familiar keys in the given order, then the pack's frequency list (most frequent first)
+ * at knownAt or above; distinct, at most `max`.
+ */
+export function vocabularyFor(v: VocabularyInput): string[] {
+  const { pack, learner, now } = v;
+  const familiar = new Set((v.familiar ?? []).map(lexemeOf));
+  const exclude = new Set((v.exclude ?? []).map(lexemeOf));
+  const out: string[] = [];
+  const seen = new Set<string>();
+  const known = (key: string) => familiar.has(key) || learner.pKnown(key, 'meaning', now) >= v.knownAt;
+  const add = (lemma: string, key: string): void => {
+    if (out.length >= v.max || seen.has(key) || exclude.has(key)) return;
+    seen.add(key);
+    out.push(lemma);
+  };
+  for (const s of v.story) {
+    for (const seg of pack.segment(s)) {
+      if (seg.kind !== 'word') continue;
+      const a = pack.analyze(seg.norm || pack.normalize(seg.text))[0];
+      if (!a || !CONTENT_POS.has(a.pos)) continue;
+      const key = lexemeKey(pack.code, a.lemma);
+      if (known(key)) add(a.lemma, key);
+    }
+  }
+  for (const key of familiar) {
+    const lemma = targetWordsFromKeys([key])[0] as string;
+    const a = pack.analyze(pack.normalize(lemma))[0];
+    if (a && CONTENT_POS.has(a.pos)) add(lemma, key);
+  }
+  for (const lemma of pack.frequencyList ?? []) {
+    if (out.length >= v.max) break;
+    const key = lexemeKey(pack.code, lemma);
+    if (seen.has(key) || learner.pKnown(key, 'meaning', now) < v.knownAt) continue;
+    const a = pack.analyze(pack.normalize(lemma))[0];
+    if (a && CONTENT_POS.has(a.pos)) add(lemma, key);
+  }
+  return out;
+}
+
+/** Lexemes of the pack's frequency list the learner knows at `knownAt` or above. */
+export function knownLexemeCount(pack: LanguagePack, learner: LearnerView, now: number, knownAt: number): number {
+  let n = 0;
+  for (const lemma of pack.frequencyList ?? []) if (learner.pKnown(lexemeKey(pack.code, lemma), 'meaning', now) >= knownAt) n++;
+  return n;
+}
+
+/** Sentences joined with a space only where the script uses one (needsLeadingSpace). */
+function joinScriptAware(parts: readonly string[]): string {
+  let out = '';
+  for (const p of parts) out += (out && needsLeadingSpace(out) ? ' ' : '') + p;
+  return out;
+}
+
+function storyLines(pack: LanguagePack, story: NextSentenceOptions['story']): StoryLine[] {
+  const entries = typeof story === 'string' ? [story] : story;
+  const out: StoryLine[] = [];
+  for (const e of entries) {
+    const line = typeof e === 'string' ? { text: e } : e;
+    const parts = splitSentences(line.text.replace(/\s+/gu, ' '), pack.abbreviations ?? []);
+    parts.forEach((text, i) => out.push(i === parts.length - 1 && line.tag ? { text, tag: line.tag } : { text }));
+  }
+  return out;
 }
 
 /**
@@ -144,77 +331,133 @@ export async function generateNextSentence(
   opts: NextSentenceOptions,
 ): Promise<NextSentenceResult> {
   const t: NextSentenceTuning = { ...DEFAULT_NEXT_SENTENCE_TUNING, ...opts.tuning };
+  const { pack, learner } = deps;
   const n = wholeAtLeast(t.n);
   const register = opts.register ?? 'neutral';
-  const targetWords = opts.targetWords ?? targetWordsFromKeys(opts.targets);
-  const sentences = storySentences(opts.story);
-  const previous = sentences.slice(-Math.max(0, t.previousSentences));
+  const targetWords = (opts.targetWords ?? targetWordsFromKeys(opts.targets)).map((w) => w.trim()).filter(Boolean);
+  const lines = storyLines(pack, opts.story);
+  const texts = lines.map((l) => l.text);
+  const previous = texts.slice(-Math.max(0, t.previousSentences));
+  const names = [...new Set([...(opts.names ?? []), ...storyNames(pack, texts.slice(-Math.max(t.previousSentences, t.contextSentences)))])];
   const maxWords = opts.params.sentenceWords.max;
-  const extract = {
+  const familiar = opts.familiar ?? [];
+  const frequencyKeys = (pack.frequencyList ?? []).map((l) => lexemeKey(pack.code, l));
+  const vocab = opts.vocab ?? estimateVocabulary(learner, opts.now, frequencyKeys);
+  let vocabulary: string[];
+  if (opts.vocabulary) vocabulary = [...opts.vocabulary];
+  else if (familiar.length > 0 || knownLexemeCount(pack, learner, opts.now, t.vocabularyKnownAt) < t.vocabularyBelow) {
+    vocabulary = vocabularyFor({
+      pack, learner, now: opts.now, story: texts.slice(-t.contextSentences), familiar, knownAt: t.vocabularyKnownAt,
+      max: t.vocabularyWords, exclude: opts.targets,
+    });
+  } else vocabulary = [];
+  const extract = extractOptionsFor(pack, {
     nativeLexicon: deps.pair?.nativeLexicon,
-    isTargetWord: (w: string) => deps.pack.analyze(deps.pack.normalize(w)).length > 0,
+    isTargetWord: (w: string) => pack.analyze(pack.normalize(w)).length > 0,
+  });
+  const promptInput = {
+    story: lines,
+    level: levelName(pack.story, vocab),
+    lengthHint: lengthHintFor(pack.story, maxWords),
+    names,
+    scene: opts.scene,
+    vocabulary,
+    register,
+    region: opts.region,
+    options: { contextSentences: t.contextSentences },
   };
+  const selectCtx = (instructions: string[]): SelectContext => ({
+    pack,
+    learner,
+    now: opts.now,
+    targets: opts.targets,
+    params: opts.params,
+    previous,
+    pair: deps.pair,
+    instructions,
+    names,
+    familiar,
+    options: opts.select,
+  });
 
   const rounds: GenerationRound[] = [];
-  const candidates: string[] = [];
+  const candidates: SelectCandidate[] = [];
   const candidateRound: number[] = [];
-  const instructions: string[] = [];
+  let instructions: string[] = [];
+  let generateCalls = 0;
+  let scoreCalls = 0;
 
-  const runRound = async (simple: boolean): Promise<Selection> => {
-    const promptOpts = {
-      targets: targetWords,
-      maxWords,
-      register,
-      region: opts.region,
-      simple,
-      contextSentences: t.contextSentences,
-    };
-    const prompt = buildContinuationPrompt(sentences, promptOpts);
-    const seed = opts.seed + rounds.length * n;
-    const temperature = simple ? t.retryTemperature : t.temperature;
-    const raw = await model.generate(prompt, {
-      n,
-      maxTokens: maxTokensFor(maxWords, t),
-      temperature,
-      stop: t.stop,
-      seed,
-    });
+  const runRound = async (tag: string, simple: boolean, count: number, temperature: number): Promise<Selection> => {
+    const built = buildStoryPrompt(pack, { ...promptInput, tag });
+    const seed = opts.seed + rounds.reduce((s, r) => s + r.raw.length, 0);
+    const maxTokens = maxTokensFor(maxWords, t);
+    const raw = await model.generate(built.prompt, { n: count, maxTokens, temperature, stop: t.stop, seed });
+    generateCalls += 1;
     const cleaned = raw.map((r) => extractSentence(r, extract));
     const round = rounds.length;
-    rounds.push({ prompt, simple, seed, temperature, raw, cleaned });
-    for (const c of cleaned) {
-      candidates.push(c);
+    rounds.push({ prompt: built.prompt, tag, simple, seed, temperature, maxTokens, raw, cleaned });
+    cleaned.forEach((text, i) => {
+      candidates.push({ text, raw: raw[i] ?? '' });
       candidateRound.push(round);
-    }
-    instructions.push(...promptInstructionLines(promptOpts, sentences.length === 0));
-    return selectSentence(candidates, {
-      pack: deps.pack,
-      learner: deps.learner,
-      now: opts.now,
-      targets: opts.targets,
-      params: opts.params,
-      previous,
-      pair: deps.pair,
-      instructions,
-      options: opts.select,
     });
+    instructions = built.headerLines.filter((l) => l !== built.vocabularyLine);
+    return selectSentence(candidates, selectCtx(instructions));
   };
 
-  let selection = await runRound(false);
+  const firstTag = targetWords.join(', ') || (lines.length ? lines[lines.length - 1]?.tag ?? tagFor(pack, texts[texts.length - 1] ?? '', names) : '');
+  let selection = await runRound(firstTag, false, n, t.temperature);
   let retried = false;
-  if (t.retry && !hasInBand(selection)) {
+  if (t.retry && wholeAtLeast(t.retryN, 0) > 0 && !selection.ranked.some((e) => e.accepted && e.inBand)) {
     retried = true;
-    selection = await runRound(true);
+    const safe = opts.safeTag ?? names[0] ?? lines[lines.length - 1]?.tag ?? tagFor(pack, texts[texts.length - 1] ?? '', names);
+    selection = await runRound(safe || firstTag, true, wholeAtLeast(t.retryN), t.retryTemperature);
   }
+
+  // Natural score: the best accepted candidates (distinct texts) are scored after the
+  // story and re-ranked among themselves; the other candidates keep their places below.
+  const top = Math.max(0, Math.floor(t.naturalTop));
+  if (top > 0 && selection.best) {
+    const o = resolveSelectOptions(opts.select);
+    const context = scoringContext(pack, joinScriptAware(texts.slice(-t.contextSentences)));
+    const lead = needsLeadingSpace(context) ? ' ' : '';
+    const naturals = new Map<string, number>();
+    const scored: CandidateEvaluation[] = [];
+    const ctx = selectCtx(instructions);
+    for (const e of selection.ranked) {
+      if (!e.accepted || scored.length >= top) break;
+      let nat = naturals.get(e.text);
+      if (nat === undefined) {
+        const tokens = await model.scoreContinuation(context, lead + e.text);
+        scoreCalls += 1;
+        let sum = 0;
+        for (const tok of tokens) sum += Number.isFinite(tok.logprob) ? Math.max(tok.logprob, -100) : -100;
+        nat = sum / Math.max(1, e.wordCount);
+        naturals.set(e.text, nat);
+      }
+      const cand: SelectCandidate = { text: e.text, natural: nat };
+      if (e.raw !== undefined) cand.raw = e.raw;
+      scored.push(evaluateCandidate(cand, e.index, ctx, o));
+    }
+    scored.sort((a, b) => b.score - a.score || a.index - b.index);
+    const rest = selection.ranked.filter((e) => !scored.some((x) => x.index === e.index));
+    selection = { best: scored[0] ?? selection.best, ranked: [...scored, ...rest], rejectCounts: selection.rejectCounts };
+  }
+
   return {
     ...selection,
     sentence: selection.best?.text ?? null,
     diagnostics: {
-      modelCalls: rounds.length,
+      modelCalls: generateCalls + scoreCalls,
+      generateCalls,
+      scoreCalls,
       retried,
       inBand: selection.best?.inBand ?? false,
+      targetUsed: (selection.best?.targetsHit.length ?? 0) > 0,
       rounds,
       candidateRound,
+      rejectCounts: selection.rejectCounts,
+      vocabulary,
+      names,
     },
   };
 }

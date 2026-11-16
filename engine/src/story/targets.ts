@@ -14,8 +14,13 @@
  *    (slang lexemes of the register packs, words from texts the learner brought). This
  *    is what a learner who knows the whole list still has to learn.
  * 3. practice: lexemes the learner understands (pKnown(meaning) >= knownAt) but cannot
- *    yet produce (pKnown(speaking) < practiceBelow), weakest speaking first.
- * 4. review: every remaining lexeme, least known for meaning first.
+ *    yet produce (pKnown(speaking) < practiceBelow), weakest speaking first. Values in the
+ *    same `bucket` (0.05 wide by default) count as equal and keep frequency order, so a
+ *    learner who produces almost nothing practises "grande" before "conque" (the
+ *    rarest word otherwise wins by a few thousandths).
+ * 4. review: every remaining lexeme, least known for meaning first (same buckets).
+ * `accept`, when given, filters every pass (the session's zero-knowledge bridge takes
+ * content words only).
  * Keys in `exclude` (targets used in the last few sentences) are skipped in every pass,
  * and no key is returned twice. The result therefore holds min(count, usable keys)
  * entries: there is always material while any candidate is left, at every level.
@@ -47,6 +52,8 @@ export interface TargetOptions {
   knownAt: number;
   /** An understood lexeme needs production practice while pKnown(speaking) is below this. */
   practiceBelow: number;
+  /** Practice and review order compares probabilities in buckets this wide (0 = exact). */
+  bucket: number;
 }
 
 /** Defaults; to be calibrated from usage. */
@@ -59,6 +66,8 @@ export const DEFAULT_TARGET_OPTIONS: Readonly<TargetOptions> = Object.freeze({
   knownAt: 0.8,
   // Same line as RungOptions.hintBelow: below it the learner cannot yet answer freely.
   practiceBelow: 0.6,
+  // Five-point buckets: differences below that are noise in the learner model's estimates.
+  bucket: 0.05,
 });
 
 export interface TargetContext {
@@ -71,6 +80,8 @@ export interface TargetContext {
   extra?: Iterable<string>;
   /** Keys never returned (recent targets). */
   exclude?: Iterable<string>;
+  /** Only keys this accepts are returned (all when omitted). */
+  accept?: (key: string) => boolean;
   options?: Partial<TargetOptions>;
 }
 
@@ -84,6 +95,8 @@ export function chooseTargets(ctx: TargetContext): TargetChoice[] {
   const out: TargetChoice[] = [];
   if (count === 0) return out;
   const taken = new Set<string>([...(ctx.exclude ?? [])].map(lexemeOf));
+  const accept = ctx.accept ?? (() => true);
+  const bucketOf = (p: number): number => (o.bucket > 0 ? Math.floor(p / o.bucket) : p);
   const look = (key: string): Omit<TargetChoice, 'reason'> => ({
     key,
     pMeaning: ctx.learner.pKnown(key, 'meaning', ctx.now),
@@ -101,7 +114,7 @@ export function chooseTargets(ctx: TargetContext): TargetChoice[] {
     const key = lexemeOf(k);
     if (!key || seen.has(key)) continue;
     seen.add(key);
-    listed.push(key);
+    if (accept(key)) listed.push(key);
   }
 
   // 1. New lexemes from the frequency list, most frequent first.
@@ -113,7 +126,7 @@ export function chooseTargets(ctx: TargetContext): TargetChoice[] {
   // 2. New lexemes beyond the list.
   for (const k of ctx.extra ?? []) {
     const key = lexemeOf(k);
-    if (!key || taken.has(key)) continue;
+    if (!key || taken.has(key) || !accept(key)) continue;
     const c = look(key);
     if (c.pMeaning < o.newBelow && take(c, 'extra')) return out;
   }
@@ -121,10 +134,16 @@ export function chooseTargets(ctx: TargetContext): TargetChoice[] {
   const rest = listed.filter((k) => !taken.has(k)).map(look);
   const practice = rest
     .filter((c) => c.pMeaning >= o.knownAt && c.pSpeaking < o.practiceBelow)
-    .sort((a, b) => a.pSpeaking - b.pSpeaking);
+    .map((c, i) => ({ c, i }))
+    .sort((a, b) => bucketOf(a.c.pSpeaking) - bucketOf(b.c.pSpeaking) || a.i - b.i)
+    .map((x) => x.c);
   for (const c of practice) if (take(c, 'practice')) return out;
   // 4. Everything else, least known first.
-  const review = rest.filter((c) => !taken.has(c.key)).sort((a, b) => a.pMeaning - b.pMeaning);
+  const review = rest
+    .filter((c) => !taken.has(c.key))
+    .map((c, i) => ({ c, i }))
+    .sort((a, b) => bucketOf(a.c.pMeaning) - bucketOf(b.c.pMeaning) || a.i - b.i)
+    .map((x) => x.c);
   for (const c of review) if (take(c, 'review')) return out;
   return out;
 }

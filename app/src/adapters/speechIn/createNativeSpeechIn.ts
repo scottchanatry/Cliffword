@@ -5,11 +5,14 @@
  * native package never reaches the web bundle (__tests__/importGraph.test.ts checks it). When
  * the binary lacks the native module (an old development build, Expo Go), requiring it throws;
  * the app then falls back to typed answers instead of crashing at startup.
+ *
+ * On iOS it also sets the app's audio session category once (IOS_STARTUP_AUDIO_SESSION:
+ * playback), so text to speech before the first hold is not muted by the Ring/Silent switch.
  */
 import { Platform } from 'react-native';
 import type { Clock } from '../clock/types';
 import { systemClock } from '../clock/systemClock';
-import { ExpoSpeechIn, type SpeechRecognitionModuleLike } from './ExpoSpeechIn';
+import { ExpoSpeechIn, IOS_STARTUP_AUDIO_SESSION, type SpeechRecognitionModuleLike } from './ExpoSpeechIn';
 import { TypedSpeechIn } from './TypedSpeechIn';
 import type { SpeechIn } from './types';
 
@@ -37,10 +40,20 @@ export function createNativeSpeechIn(
 ): SpeechIn {
   const mod = loadSpeechRecognitionModule(load);
   if (!mod) return new TypedSpeechIn();
+  if (platform === 'ios') prepareIosAudioSession(mod);
   const version = Number(Platform.Version);
   return new ExpoSpeechIn(mod, {
     platform,
     androidApiLevel: platform === 'android' && Number.isFinite(version) ? version : undefined,
     clock,
   });
+}
+
+/** Sets the startup category (see IOS_STARTUP_AUDIO_SESSION); a failure only logs. */
+export function prepareIosAudioSession(mod: SpeechRecognitionModuleLike): void {
+  try {
+    mod.setCategoryIOS?.(IOS_STARTUP_AUDIO_SESSION);
+  } catch (error) {
+    console.warn('Could not set the audio session category.', error);
+  }
 }

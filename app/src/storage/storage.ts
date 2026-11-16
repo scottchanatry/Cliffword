@@ -13,6 +13,7 @@ import { ShareInboxRepo } from './repos/shareInbox';
 import { SongRepo } from './repos/songs';
 import { SpokenTimeRepo } from './repos/spokenTime';
 import { StoryRepo } from './repos/stories';
+import { TextRepo } from './repos/texts';
 import { MIGRATIONS } from './schema';
 import type { SqlDatabase } from './sql/types';
 
@@ -27,6 +28,8 @@ export interface Storage {
   readonly spokenTime: SpokenTimeRepo;
   readonly modelFiles: ModelFileRepo;
   readonly shareInbox: ShareInboxRepo;
+  /** Texts the learner brought (v4). */
+  readonly texts: TextRepo;
   close(): Promise<void>;
 }
 
@@ -43,6 +46,7 @@ export function createStorage(db: SqlDatabase, clock: StorageClock = systemClock
     spokenTime: new SpokenTimeRepo(db),
     modelFiles: new ModelFileRepo(db, clock),
     shareInbox: new ShareInboxRepo(db, clock),
+    texts: new TextRepo(db, clock),
     close: () => db.close(),
   };
 }

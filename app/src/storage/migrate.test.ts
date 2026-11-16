@@ -16,6 +16,7 @@ const TABLES = [
   'spoken_time',
   'stories',
   'story_sentences',
+  'texts',
 ];
 
 async function names(db: SqlDatabase, type: 'table' | 'index'): Promise<string[]> {
@@ -76,7 +77,7 @@ describe('migrations', () => {
     await db.run("INSERT INTO story_sentences (story_id, idx, text) VALUES ('s1', 0, 'Marta llegó tarde.')");
 
     const result = await migrate(db, MIGRATIONS);
-    expect(result).toEqual({ from: 1, to: SCHEMA_VERSION, applied: [2] });
+    expect(result).toEqual({ from: 1, to: SCHEMA_VERSION, applied: MIGRATIONS.slice(1).map((m) => m.version) });
     expect(await db.all('SELECT key, value FROM settings')).toEqual([{ key: 'onboarded', value: 'true' }]);
     expect(await db.get('SELECT type, key FROM learner_events')).toEqual({ type: 'heard', key: 'es:casa' });
     expect(await db.get('SELECT text FROM story_sentences')).toEqual({ text: 'Marta llegó tarde.' });
@@ -84,6 +85,21 @@ describe('migrations', () => {
     const fresh = await openTestDatabase();
     expect(await schemaShape(db)).toEqual(await schemaShape(fresh));
     await fresh.close();
+  });
+
+  it('upgrades a v2 database: learner snapshots keep their rows and gain an empty prior', async () => {
+    db = await openTestDatabase({ to: 2 });
+    await db.run("INSERT INTO learner_snapshots (at, version, json, through_event_id) VALUES (1, 1, '{}', 0)");
+    expect(await migrate(db, MIGRATIONS)).toMatchObject({ from: 2, applied: MIGRATIONS.slice(2).map((m) => m.version) });
+    expect(await db.all('SELECT at, prior FROM learner_snapshots')).toEqual([{ at: 1, prior: null }]);
+  });
+
+  it('upgrades a v3 database: songs keep their rows and gain genre and last opened, and texts exist', async () => {
+    db = await openTestDatabase({ to: 3 });
+    await db.run("INSERT INTO songs (id, source, external_id, title, artist, added_at) VALUES ('s1', 'manual', NULL, 'Luna', 'Rayo K.', 1)");
+    expect(await migrate(db, MIGRATIONS)).toMatchObject({ from: 3, applied: MIGRATIONS.slice(3).map((m) => m.version) });
+    expect(await db.all('SELECT id, genre, last_opened_at FROM songs')).toEqual([{ id: 's1', genre: null, last_opened_at: null }]);
+    expect(await names(db, 'table')).toContain('texts');
   });
 
   it('refuses a database from a newer app', async () => {
@@ -104,8 +120,8 @@ describe('migrations', () => {
     expect((error as MigrationError).version).toBe(2);
     expect(await readSchemaVersion(db)).toBe(1);
     expect(await names(db, 'table')).not.toContain('half_done');
-    // The real v2 still applies afterwards.
-    expect((await migrate(db, MIGRATIONS)).applied).toEqual([2]);
+    // The real v2 (and every later migration) still applies afterwards.
+    expect((await migrate(db, MIGRATIONS)).applied).toEqual(MIGRATIONS.slice(1).map((m) => m.version));
   });
 
   it('rejects a list with gaps and an unknown target', async () => {

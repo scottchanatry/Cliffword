@@ -18,6 +18,10 @@ export const EXPLANATION_KEYS = [
   'es.negative_command',
   'es.pronoun_order',
   'es.se_lo',
+  'es.verb_agreement',
+  'es.contraction',
+  'es.body_article',
+  'es.pronoun_double',
 ] as const;
 
 export type ExplanationKey = (typeof EXPLANATION_KEYS)[number];
@@ -47,4 +51,12 @@ export const EXPLANATIONS: Readonly<Record<ExplanationKey, string>> = {
     'With two object pronouns, se comes first and lo, la, los or las come last, with me, te or nos in between. Te lo digo.',
   'es.se_lo':
     'Le and les change to se right before lo, la, los or las. Se lo di a mi hermana.',
+  'es.verb_agreement':
+    'The verb matches its subject in person and number, and with gustar the thing you like is the subject. Los niños juegan; me gustan las manzanas.',
+  'es.contraction':
+    'A and de join with el to make al and del, but never with la, los or las. Voy al cine; vengo del trabajo.',
+  'es.body_article':
+    'With body parts and clothes, use el, la, los or las instead of mi or tu when me, te or se already says whose they are. Me lavo las manos.',
+  'es.pronoun_double':
+    'Say an object pronoun once: before the conjugated verb or on the end of the infinitive or gerund, not both. Lo voy a comprar, or voy a comprarlo.',
 };

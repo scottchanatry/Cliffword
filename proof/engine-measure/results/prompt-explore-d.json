@@ -1,0 +1,1638 @@
+{
+ "date": "2026-11-16T00:26:48.027Z",
+ "seeds": [
+  1,
+  1001
+ ],
+ "n": 6,
+ "summary": {
+  "brandNew": {
+   "G1": {
+    "inBand": 0,
+    "famBand": 0,
+    "target": 0.08,
+    "verb": 1,
+    "inLength": 1,
+    "distinct": 4,
+    "n": 12,
+    "msPerCall": 15403,
+    "promptChars": 522
+   },
+   "G2": {
+    "inBand": 0,
+    "famBand": 0.08,
+    "target": 0.08,
+    "verb": 0.08,
+    "inLength": 0,
+    "distinct": 2,
+    "n": 12,
+    "msPerCall": 9840,
+    "promptChars": 255
+   },
+   "G3": {
+    "inBand": 0,
+    "famBand": 0.08,
+    "target": 0.17,
+    "verb": 1,
+    "inLength": 0.92,
+    "distinct": 10,
+    "n": 12,
+    "msPerCall": 14079,
+    "promptChars": 524
+   },
+   "G4": {
+    "inBand": 0,
+    "famBand": 0.25,
+    "target": 0.42,
+    "verb": 0.92,
+    "inLength": 0.75,
+    "distinct": 11,
+    "n": 12,
+    "msPerCall": 16963,
+    "promptChars": 454
+   }
+  },
+  "early": {
+   "G1": {
+    "inBand": 0.33,
+    "famBand": 0.67,
+    "target": 1,
+    "verb": 1,
+    "inLength": 1,
+    "distinct": 12,
+    "n": 12,
+    "msPerCall": 15700,
+    "promptChars": 454
+   },
+   "G2": {
+    "inBand": 0.25,
+    "famBand": 0.25,
+    "target": 0.83,
+    "verb": 0.92,
+    "inLength": 0.83,
+    "distinct": 12,
+    "n": 12,
+    "msPerCall": 14467,
+    "promptChars": 163
+   },
+   "G3": {
+    "inBand": 0.25,
+    "famBand": 0.42,
+    "target": 0,
+    "verb": 0.92,
+    "inLength": 0.42,
+    "distinct": 10,
+    "n": 12,
+    "msPerCall": 22542,
+    "promptChars": 454
+   },
+   "G4": {
+    "inBand": 0.33,
+    "famBand": 0.5,
+    "target": 0.83,
+    "verb": 1,
+    "inLength": 0.83,
+    "distinct": 12,
+    "n": 12,
+    "msPerCall": 19586,
+    "promptChars": 390
+   }
+  },
+  "reader": {
+   "G1": {
+    "inBand": 0.67,
+    "famBand": 0.67,
+    "target": 0,
+    "verb": 1,
+    "inLength": 0.75,
+    "distinct": 12,
+    "n": 12,
+    "msPerCall": 29539,
+    "promptChars": 169
+   },
+   "G2": {
+    "inBand": 0.67,
+    "famBand": 0.67,
+    "target": 0,
+    "verb": 1,
+    "inLength": 0.75,
+    "distinct": 12,
+    "n": 12,
+    "msPerCall": 19833,
+    "promptChars": 169
+   },
+   "G3": {
+    "inBand": 0.58,
+    "famBand": 0.58,
+    "target": 0,
+    "verb": 0.92,
+    "inLength": 0.17,
+    "distinct": 12,
+    "n": 12,
+    "msPerCall": 35421,
+    "promptChars": 168
+   },
+   "G4": {
+    "inBand": 0.75,
+    "famBand": 0.75,
+    "target": 0,
+    "verb": 1,
+    "inLength": 0.75,
+    "distinct": 11,
+    "n": 12,
+    "msPerCall": 43053,
+    "promptChars": 119
+   }
+  }
+ },
+ "rows": [
+  {
+   "profile": "brandNew",
+   "format": "G1",
+   "prompt": "Cuento en español (nivel A1). Frases muy cortas.\nPersonajes: Marta.\nPalabras: el, un, ser, y, en, de, muy, no, con, tener, su, para, ella, tocar, ir, a, hoy, después, artista, guitarra, importante, concierto, parque, piano, música, fantástico, momento, perfecto, restaurante, familia, hotel, café, banana, chocolate, animal, teléfono.\n\n[piano] Marta toca la guitarra y el piano.\n[fantástica] La música es fantástica.\n[perfecto] Es un momento perfecto.\n[restaurante] Después, Marta va a un restaurante con su familia.\n[que]",
+   "inBand": 0,
+   "famBand": 0,
+   "target": 0.08,
+   "verb": 1,
+   "inLength": 1,
+   "distinct": 4,
+   "n": 12,
+   "msPerCall": 15403,
+   "promptChars": 522,
+   "evals": [
+    {
+     "text": "El restaurante es muy bueno.",
+     "raw": " El restaurante es muy bueno.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "El restaurante es muy bonito.",
+     "raw": " El restaurante es muy bonito.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "El restaurante es muy bueno.",
+     "raw": " El restaurante es muy bueno.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "La familia quiere comer en el restaurante.",
+     "raw": " La familia quiere comer en el restaurante.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 7
+    },
+    {
+     "text": "Es el restaurante que ella quiere.",
+     "raw": " Es el restaurante que ella quiere.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "El restaurante es muy bueno.",
+     "raw": " El restaurante es muy bueno.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "El restaurante es muy bueno.",
+     "raw": " El restaurante es muy bueno.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "El restaurante es muy bueno.",
+     "raw": " El restaurante es muy bueno.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "El restaurante es muy bonito.",
+     "raw": " El restaurante es muy bonito.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "El restaurante es muy bonito.",
+     "raw": " El restaurante es muy bonito.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "El restaurante es muy bonito.",
+     "raw": " El restaurante es muy bonito.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "El restaurante es muy bueno.",
+     "raw": " El restaurante es muy bueno.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    }
+   ]
+  },
+  {
+   "profile": "brandNew",
+   "format": "G2",
+   "prompt": "Cuento en español (nivel A1). Frases muy cortas.\nPersonajes: Marta.\n\n[piano] Marta toca la guitarra y el piano.\n[fantástica] La música es fantástica.\n[perfecto] Es un momento perfecto.\n[restaurante] Después, Marta va a un restaurante con su familia.\n[que]",
+   "inBand": 0,
+   "famBand": 0.08,
+   "target": 0.08,
+   "verb": 0.08,
+   "inLength": 0,
+   "distinct": 2,
+   "n": 12,
+   "msPerCall": 9840,
+   "promptChars": 255,
+   "evals": [
+    {
+     "text": "¿Qué?",
+     "raw": " ¿Qué?",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 1
+    },
+    {
+     "text": "¿Qué?",
+     "raw": " ¿Qué",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 1
+    },
+    {
+     "text": "¿Qué?",
+     "raw": " ¿Qué",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 1
+    },
+    {
+     "text": "Que es.",
+     "raw": " Que es.",
+     "inBand": false,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 2
+    },
+    {
+     "text": "¿Qué?",
+     "raw": " ¿Qué?",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 1
+    },
+    {
+     "text": "¿Qué?",
+     "raw": " ¿Qué?",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 1
+    },
+    {
+     "text": "¿Qué?",
+     "raw": " ¿Qué?",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 1
+    },
+    {
+     "text": "¿Qué?",
+     "raw": " ¿Qué",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 1
+    },
+    {
+     "text": "¿Qué?",
+     "raw": " ¿Qué?",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 1
+    },
+    {
+     "text": "¿Qué?",
+     "raw": " ¿Qué?",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 1
+    },
+    {
+     "text": "¿Qué?",
+     "raw": " ¿Qué?",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 1
+    },
+    {
+     "text": "¿Qué?",
+     "raw": " ¿Qué?",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 1
+    }
+   ]
+  },
+  {
+   "profile": "brandNew",
+   "format": "G3",
+   "prompt": "Cuento en español (nivel A1). Frases muy cortas.\nPersonajes: Marta.\nPalabras: el, un, ser, y, en, de, muy, no, con, tener, su, para, ella, tocar, ir, a, hoy, después, artista, guitarra, importante, concierto, parque, piano, música, fantástico, momento, perfecto, restaurante, familia, hotel, café, banana, chocolate, animal, teléfono.\n\n[piano] Marta toca la guitarra y el piano.\n[fantástica] La música es fantástica.\n[perfecto] Es un momento perfecto.\n[restaurante] Después, Marta va a un restaurante con su familia.\n[Marta]",
+   "inBand": 0,
+   "famBand": 0.08,
+   "target": 0.17,
+   "verb": 1,
+   "inLength": 0.92,
+   "distinct": 10,
+   "n": 12,
+   "msPerCall": 14079,
+   "promptChars": 524,
+   "evals": [
+    {
+     "text": "Tengo que ir a un restaurante.",
+     "raw": " Tengo que ir a un restaurante.",
+     "inBand": false,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "Marta quiere ir a un concierto.",
+     "raw": " Marta quiere ir a un concierto.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "Marta quiere tocar la guitarra.",
+     "raw": " Marta quiere tocar la guitarra.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "Puedo tocar el piano.",
+     "raw": " Puedo tocar el piano.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 4
+    },
+    {
+     "text": "A veces, Marta toca la guitarra y el piano en el parque.",
+     "raw": " A veces, Marta toca la guitarra y el piano en el parque.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 12
+    },
+    {
+     "text": "Tengo que ir al concierto.",
+     "raw": " Tengo que ir al concierto.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "¿Tú también quieres ir al parque?",
+     "raw": " ¿Tú también quieres ir al parque?",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "Marta toca la guitarra y el piano.",
+     "raw": " Marta toca la guitarra y el piano.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 7
+    },
+    {
+     "text": "Marta tiene un teléfono.",
+     "raw": " Marta tiene un teléfono.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 4
+    },
+    {
+     "text": "Marta tiene un teléfono.",
+     "raw": " Marta tiene un teléfono.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 4
+    },
+    {
+     "text": "Marta tiene un teléfono en casa.",
+     "raw": " Marta tiene un teléfono en casa.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "Marta tiene un teléfono.",
+     "raw": " Marta tiene un teléfono.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 4
+    }
+   ]
+  },
+  {
+   "profile": "brandNew",
+   "format": "G4",
+   "prompt": "Palabras: el, un, ser, y, en, de, muy, no, con, tener, su, para, ella, tocar, ir, a, hoy, después, artista, guitarra, importante, concierto, parque, piano, música, fantástico, momento, perfecto, restaurante, familia, hotel, café, banana, chocolate, animal, teléfono.\n\n[piano] Marta toca la guitarra y el piano.\n[fantástica] La música es fantástica.\n[perfecto] Es un momento perfecto.\n[restaurante] Después, Marta va a un restaurante con su familia.\n[que]",
+   "inBand": 0,
+   "famBand": 0.25,
+   "target": 0.42,
+   "verb": 0.92,
+   "inLength": 0.75,
+   "distinct": 11,
+   "n": 12,
+   "msPerCall": 16963,
+   "promptChars": 454,
+   "evals": [
+    {
+     "text": "El restaurante es muy bueno.",
+     "raw": " El restaurante es muy bueno.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "El animal que está en el parque es un perro.",
+     "raw": " El animal que está en el parque es un perro.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 10
+    },
+    {
+     "text": "El animal que tiene Marta es un perro.",
+     "raw": " El animal que tiene Marta es un perro.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 8
+    },
+    {
+     "text": "El, que, lo, que, el, el, que, la, la, que, la, que.",
+     "raw": " el, que, lo, que, el, el, que, la, la, que, la, que,",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": false,
+     "words": 12
+    },
+    {
+     "text": "La música es que es fantástica.",
+     "raw": " La música es que es fantástica.",
+     "inBand": false,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "El animal más grande del mundo es la banana.",
+     "raw": " El animal más grande del mundo es la banana.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 9
+    },
+    {
+     "text": "El animal es animal.",
+     "raw": " El animal es animal.",
+     "inBand": false,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 4
+    },
+    {
+     "text": "El animal que está en el parque es un perro.",
+     "raw": " El animal que está en el parque es un perro.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 10
+    },
+    {
+     "text": "El animal se llama Banana.",
+     "raw": " El animal se llama Banana.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "El animal es un animal de compañía.",
+     "raw": " El animal es un animal de compañía.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 7
+    },
+    {
+     "text": "El restaurante es muy rico.",
+     "raw": " El restaurante es muy rico.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "El teléfono de la familia es.",
+     "raw": " El teléfono de la familia es [teléfono].",
+     "inBand": false,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 6
+    }
+   ]
+  },
+  {
+   "profile": "early",
+   "format": "G1",
+   "prompt": "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: ser, estar, tener, hacer, poder, decir, ir, ver, dar, vez, saber, mismo, año, querer, primero, grande, llegar, pasar, tiempo, día, deber, poner, cosa, hombre, parecer, parte, vida, quedar, creer, hablar, llevar, dejar, seguir, nuevo, encontrar, solo, mundo, llamar, venir, pensar.\n\n[pequeña] Marta vive en una casa pequeña.\n[hermano] Hoy ella va al mercado con su hermano.\n[viejo]",
+   "inBand": 0.33,
+   "famBand": 0.67,
+   "target": 1,
+   "verb": 1,
+   "inLength": 1,
+   "distinct": 12,
+   "n": 12,
+   "msPerCall": 15700,
+   "promptChars": 454,
+   "evals": [
+    {
+     "text": "El viejo va a salir a correr.",
+     "raw": " El viejo va a salir a correr.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 7
+    },
+    {
+     "text": "El viejo dice que es importante aprender a ser más valiente.",
+     "raw": " El viejo dice que es importante aprender a ser más valiente.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 11
+    },
+    {
+     "text": "El viejo está en la calle.",
+     "raw": " El viejo está en la calle.",
+     "inBand": false,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "El viejo dice que el mundo es grande.",
+     "raw": " El viejo dice que el mundo es grande.",
+     "inBand": true,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 8
+    },
+    {
+     "text": "El viejo es muy sabio.",
+     "raw": " El viejo es muy sabio.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "El viejo se está poniendo un suéter.",
+     "raw": " El viejo se está poniendo un suéter.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 7
+    },
+    {
+     "text": "El viejo de la calle está mirando el tiempo.",
+     "raw": " El viejo de la calle está mirando el tiempo.",
+     "inBand": false,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 9
+    },
+    {
+     "text": "El viejo se llama Juan.",
+     "raw": " El viejo se llama Juan.",
+     "inBand": true,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "El viejo vuelve a casa.",
+     "raw": " El viejo vuelve a casa.",
+     "inBand": true,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "El viejo se siente mal.",
+     "raw": " El viejo se siente mal.",
+     "inBand": false,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "El viejo no quiere ver a los jóvenes.",
+     "raw": " El viejo no quiere ver a los jóvenes.",
+     "inBand": false,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 8
+    },
+    {
+     "text": "El viejo es un hombre de 70 años.",
+     "raw": " El viejo es un hombre de 70 años.",
+     "inBand": true,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 8
+    }
+   ]
+  },
+  {
+   "profile": "early",
+   "format": "G2",
+   "prompt": "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\n\n[pequeña] Marta vive en una casa pequeña.\n[hermano] Hoy ella va al mercado con su hermano.\n[viejo]",
+   "inBand": 0.25,
+   "famBand": 0.25,
+   "target": 0.83,
+   "verb": 0.92,
+   "inLength": 0.83,
+   "distinct": 12,
+   "n": 12,
+   "msPerCall": 14467,
+   "promptChars": 163,
+   "evals": [
+    {
+     "text": "El viejo que vive en el barrio.",
+     "raw": " El viejo que vive en el barrio.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 7
+    },
+    {
+     "text": "El viejo está en la casa.",
+     "raw": " El viejo está en la casa.",
+     "inBand": true,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "El viejo se llama Pablo.",
+     "raw": " El viejo se llama Pablo.",
+     "inBand": true,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "Marta compra un pan.",
+     "raw": " Marta compra un pan.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 4
+    },
+    {
+     "text": "Ella no va al mercado con su hermano.",
+     "raw": " Ella no va al mercado con su hermano.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 8
+    },
+    {
+     "text": "El viejo pide una comida.",
+     "raw": " El viejo pide una comida.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "El viejo le da un helado a Marta.",
+     "raw": " El viejo le da un helado a Marta.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 8
+    },
+    {
+     "text": "El viejo pide alimento a la gente.",
+     "raw": " El viejo pide alimento a la gente.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 7
+    },
+    {
+     "text": "El viejo de la casa dice que los niños no pueden salir.",
+     "raw": " El viejo de la casa dice que los niños no pueden salir.",
+     "inBand": true,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 12
+    },
+    {
+     "text": "El viejo pide a Marta que vaya al mercado con él.",
+     "raw": " El viejo pide a Marta que vaya al mercado con él.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 11
+    },
+    {
+     "text": "El viejo de la esquina es su abuelo.",
+     "raw": " El viejo de la esquina es su abuelo.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 8
+    },
+    {
+     "text": "El viejo vende frutas y verduras.",
+     "raw": " El viejo vende frutas y verduras.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 6
+    }
+   ]
+  },
+  {
+   "profile": "early",
+   "format": "G3",
+   "prompt": "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: ser, estar, tener, hacer, poder, decir, ir, ver, dar, vez, saber, mismo, año, querer, primero, grande, llegar, pasar, tiempo, día, deber, poner, cosa, hombre, parecer, parte, vida, quedar, creer, hablar, llevar, dejar, seguir, nuevo, encontrar, solo, mundo, llamar, venir, pensar.\n\n[pequeña] Marta vive en una casa pequeña.\n[hermano] Hoy ella va al mercado con su hermano.\n[Marta]",
+   "inBand": 0.25,
+   "famBand": 0.42,
+   "target": 0,
+   "verb": 0.92,
+   "inLength": 0.42,
+   "distinct": 10,
+   "n": 12,
+   "msPerCall": 22542,
+   "promptChars": 454,
+   "evals": [
+    {
+     "text": "El verano pasado, Marta fue a un festival.",
+     "raw": " El verano pasado, Marta fue a un festival.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 8
+    },
+    {
+     "text": "Ella es muy alta.",
+     "raw": " Ella es muy alta.",
+     "inBand": false,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 4
+    },
+    {
+     "text": "Ella tiene un perro.",
+     "raw": " Ella tiene un perro.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 4
+    },
+    {
+     "text": "La casa tiene una puerta.",
+     "raw": " La casa tiene una puerta.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "Tengo que ir a la escuela.",
+     "raw": " Tengo que ir a la escuela.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "¿Qué hace Marta?",
+     "raw": " ¿Qué hace Marta?",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 3
+    },
+    {
+     "text": "Hace un mes que no ve a su hermano.",
+     "raw": " Hace un mes que no ve a su hermano.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 9
+    },
+    {
+     "text": "Ella es muy alta.",
+     "raw": " Ella es muy alta.",
+     "inBand": false,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 4
+    },
+    {
+     "text": "Ella es de España.",
+     "raw": " Ella es de España.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 4
+    },
+    {
+     "text": "Ella tiene un perro.",
+     "raw": " Ella tiene un perro.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 4
+    },
+    {
+     "text": "Ella va a la escuela.",
+     "raw": " Ella va a la escuela.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "Ella de 12 años.",
+     "raw": " Ella (1) (ser) de 12 años.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": false,
+     "words": 4
+    }
+   ]
+  },
+  {
+   "profile": "early",
+   "format": "G4",
+   "prompt": "Palabras: ser, estar, tener, hacer, poder, decir, ir, ver, dar, vez, saber, mismo, año, querer, primero, grande, llegar, pasar, tiempo, día, deber, poner, cosa, hombre, parecer, parte, vida, quedar, creer, hablar, llevar, dejar, seguir, nuevo, encontrar, solo, mundo, llamar, venir, pensar.\n\n[pequeña] Marta vive en una casa pequeña.\n[hermano] Hoy ella va al mercado con su hermano.\n[viejo]",
+   "inBand": 0.33,
+   "famBand": 0.5,
+   "target": 0.83,
+   "verb": 1,
+   "inLength": 0.83,
+   "distinct": 12,
+   "n": 12,
+   "msPerCall": 19586,
+   "promptChars": 390,
+   "evals": [
+    {
+     "text": "El viejo mira el reloj.",
+     "raw": " El viejo mira el reloj.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "El viejo dice que ella es muy inteligente.",
+     "raw": " El viejo dice que ella es muy inteligente.",
+     "inBand": false,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 8
+    },
+    {
+     "text": "El viejo está en la plaza.",
+     "raw": " El viejo está en la plaza.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "No es muy grande.",
+     "raw": " No es muy grande.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 4
+    },
+    {
+     "text": "Ella le dice a su hermano que lo espera.",
+     "raw": " Ella le dice a su hermano que lo espera.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 9
+    },
+    {
+     "text": "El viejo vio a Marta y le dijo: \"No estés solo\".",
+     "raw": " El viejo vio a Marta y le dijo: \"No estés solo\".",
+     "inBand": true,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 11
+    },
+    {
+     "text": "La casa es de un viejo.",
+     "raw": " La casa es de un viejo.",
+     "inBand": true,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "El viejo vende cosas viejas.",
+     "raw": " El viejo vende cosas viejas.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "El viejo vive en un apartamento en el centro de la ciudad.",
+     "raw": " El viejo vive en un apartamento en el centro de la ciudad.",
+     "inBand": false,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 12
+    },
+    {
+     "text": "El viejo vende el pan.",
+     "raw": " El viejo vende el pan.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "El viejo no es grande.",
+     "raw": " El viejo no es grande.",
+     "inBand": true,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "El viejo quiere ir al mercado.",
+     "raw": " El viejo quiere ir al mercado.",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 6
+    }
+   ]
+  },
+  {
+   "profile": "reader",
+   "format": "G1",
+   "prompt": "Cuento en español (nivel B1).\nPersonajes: Marta.\n\n[mercado] Marta llegó tarde al mercado.\n[cerrado] Buscó al señor de las frutas, pero su puesto estaba cerrado.\n[conque]",
+   "inBand": 0.67,
+   "famBand": 0.67,
+   "target": 0,
+   "verb": 1,
+   "inLength": 0.75,
+   "distinct": 12,
+   "n": 12,
+   "msPerCall": 29539,
+   "promptChars": 169,
+   "evals": [
+    {
+     "text": "Señor de las frutas no respondió.",
+     "raw": " Señor de las frutas no respondió.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "Buscó a un vendedor de frutas.",
+     "raw": " Buscó a un vendedor de frutas.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "Buscó a otro señor, pero no lo encontró.",
+     "raw": " Buscó a otro señor, pero no lo encontró.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 8
+    },
+    {
+     "text": "Le ofreció un fruto de la planta de los árboles.",
+     "raw": " Le ofreció un fruto de la planta de los árboles.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 10
+    },
+    {
+     "text": "Pidió un vaso de agua al mesero.",
+     "raw": " Pidió un vaso de agua al mesero.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 7
+    },
+    {
+     "text": "Se puso a ver los precios de las frutas.",
+     "raw": " Se puso a ver los precios de las frutas.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 9
+    },
+    {
+     "text": "Marta se quedó en el mercado.",
+     "raw": " Marta se quedó en el mercado.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "Buscó un puesto de frutas en otra parte del mercado.",
+     "raw": " Buscó un puesto de frutas en otra parte del mercado.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 10
+    },
+    {
+     "text": "Buscó al señor de las frutas pero no lo encontró.",
+     "raw": " Buscó al señor de las frutas pero no lo encontró.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 10
+    },
+    {
+     "text": "Buscó en el mercado y encontró a un hombre que vendía frutas.",
+     "raw": " Buscó en el mercado y encontró a un hombre que vendía frutas.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 12
+    },
+    {
+     "text": "Buscó en el mercado un puesto de frutas, pero no encontró ningún puesto.",
+     "raw": " Buscó en el mercado un puesto de frutas, pero no encontró ningún puesto.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 13
+    },
+    {
+     "text": "Buscó en el mercado, pero no encontró al señor de las frutas.",
+     "raw": " Buscó en el mercado, pero no encontró al señor de las frutas.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 12
+    }
+   ]
+  },
+  {
+   "profile": "reader",
+   "format": "G2",
+   "prompt": "Cuento en español (nivel B1).\nPersonajes: Marta.\n\n[mercado] Marta llegó tarde al mercado.\n[cerrado] Buscó al señor de las frutas, pero su puesto estaba cerrado.\n[conque]",
+   "inBand": 0.67,
+   "famBand": 0.67,
+   "target": 0,
+   "verb": 1,
+   "inLength": 0.75,
+   "distinct": 12,
+   "n": 12,
+   "msPerCall": 19833,
+   "promptChars": 169,
+   "evals": [
+    {
+     "text": "Señor de las frutas no respondió.",
+     "raw": " Señor de las frutas no respondió.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "Buscó a un vendedor de frutas.",
+     "raw": " Buscó a un vendedor de frutas.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "Buscó a otro señor, pero no lo encontró.",
+     "raw": " Buscó a otro señor, pero no lo encontró.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 8
+    },
+    {
+     "text": "Le ofreció un fruto de la planta de los árboles.",
+     "raw": " Le ofreció un fruto de la planta de los árboles.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 10
+    },
+    {
+     "text": "Pidió un vaso de agua al mesero.",
+     "raw": " Pidió un vaso de agua al mesero.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 7
+    },
+    {
+     "text": "Se puso a ver los precios de las frutas.",
+     "raw": " Se puso a ver los precios de las frutas.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 9
+    },
+    {
+     "text": "Marta se quedó en el mercado.",
+     "raw": " Marta se quedó en el mercado.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "Buscó un puesto de frutas en otra parte del mercado.",
+     "raw": " Buscó un puesto de frutas en otra parte del mercado.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 10
+    },
+    {
+     "text": "Buscó al señor de las frutas pero no lo encontró.",
+     "raw": " Buscó al señor de las frutas pero no lo encontró.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 10
+    },
+    {
+     "text": "Buscó en el mercado y encontró a un hombre que vendía frutas.",
+     "raw": " Buscó en el mercado y encontró a un hombre que vendía frutas.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 12
+    },
+    {
+     "text": "Buscó en el mercado un puesto de frutas, pero no encontró ningún puesto.",
+     "raw": " Buscó en el mercado un puesto de frutas, pero no encontró ningún puesto.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 13
+    },
+    {
+     "text": "Buscó en el mercado, pero no encontró al señor de las frutas.",
+     "raw": " Buscó en el mercado, pero no encontró al señor de las frutas.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 12
+    }
+   ]
+  },
+  {
+   "profile": "reader",
+   "format": "G3",
+   "prompt": "Cuento en español (nivel B1).\nPersonajes: Marta.\n\n[mercado] Marta llegó tarde al mercado.\n[cerrado] Buscó al señor de las frutas, pero su puesto estaba cerrado.\n[Marta]",
+   "inBand": 0.58,
+   "famBand": 0.58,
+   "target": 0,
+   "verb": 0.92,
+   "inLength": 0.17,
+   "distinct": 12,
+   "n": 12,
+   "msPerCall": 35421,
+   "promptChars": 168,
+   "evals": [
+    {
+     "text": "Pero está cerrado..",
+     "raw": " \"Pero está cerrado..",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 3
+    },
+    {
+     "text": "¡Señor, ¿vendrá el día después?",
+     "raw": " (menciona el nombre del señor) \"¡Señor, ¿vendrá el día después?\"",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "¿Señor, ¿dónde está su puesto?",
+     "raw": " (a un hombre) ¿Señor, ¿dónde está su puesto?",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "¡Hola, ¿puedes ayudarme!",
+     "raw": " ¡Hola, ¿puedes ayudarme",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 3
+    },
+    {
+     "text": "Marta, ¿puedes ayudarme con esto.",
+     "raw": " Marta, ¿puedes ayudarme con esto",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "¿Señor de las frutas?",
+     "raw": " \"¿Señor de las frutas",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": false,
+     "words": 4
+    },
+    {
+     "text": "¿Puedo ayudarle?",
+     "raw": " \"¿Puedo ayudarle?\"",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 2
+    },
+    {
+     "text": "¿Tienes un puesto en el mercado?",
+     "raw": " - ¿Tienes un puesto en el mercado",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "¿Cómo haré para comprar frutas?",
+     "raw": " (murmurando) ¿Cómo haré para comprar frutas?",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "Marta no era una persona de miedo, pero se sentía como si la miedo.",
+     "raw": " (años 20) [miedo] [miedo] Marta no era una persona de miedo, pero se sentía como si la miedo",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 14
+    },
+    {
+     "text": "No tengo tiempo para buscar un puesto nuevo.",
+     "raw": " (¡Ay!) No tengo tiempo para buscar un puesto nuevo",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 8
+    },
+    {
+     "text": "¿Está el señor de las frutas?",
+     "raw": " - \"¿Está el señor de las frutas?\"",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 6
+    }
+   ]
+  },
+  {
+   "profile": "reader",
+   "format": "G4",
+   "prompt": "[mercado] Marta llegó tarde al mercado.\n[cerrado] Buscó al señor de las frutas, pero su puesto estaba cerrado.\n[conque]",
+   "inBand": 0.75,
+   "famBand": 0.75,
+   "target": 0,
+   "verb": 1,
+   "inLength": 0.75,
+   "distinct": 11,
+   "n": 12,
+   "msPerCall": 43053,
+   "promptChars": 119,
+   "evals": [
+    {
+     "text": "Buscó al señor de las frutas, pero su puesto estaba cerrado.",
+     "raw": " Buscó al señor de las frutas, pero su puesto estaba cerrado.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 11
+    },
+    {
+     "text": "El señor de las frutas no está en el mercado.",
+     "raw": " El señor de las frutas no está en el mercado.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 10
+    },
+    {
+     "text": "El señor de las frutas no está aqui.",
+     "raw": " El señor de las frutas no está aqui.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 8
+    },
+    {
+     "text": "Le dio al señor de las frutas, pero su puesto estaba cerrado.",
+     "raw": " Le dio al señor de las frutas, pero su puesto estaba cerrado.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 12
+    },
+    {
+     "text": "Ella se perdió en el mercado.",
+     "raw": " Ella se perdió en el mercado.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "Buscó al señor de las frutas, pero su puesto estaba cerrado.",
+     "raw": " Buscó al señor de las frutas, pero su puesto estaba cerrado.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 11
+    },
+    {
+     "text": "La señora Pita, la madre de Marta, se puso a llorar.",
+     "raw": " La señora Pita, la madre de Marta, se puso a llorar.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 11
+    },
+    {
+     "text": "Se puso a buscar en el mercado.",
+     "raw": " Se puso a buscar en el mercado.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 7
+    },
+    {
+     "text": "El señor de las frutas no vino.",
+     "raw": " El señor de las frutas no vino.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 7
+    },
+    {
+     "text": "El señor de las frutas no estaba allí.",
+     "raw": " El señor de las frutas no estaba allí.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 8
+    },
+    {
+     "text": "El vendedor no era él.",
+     "raw": " El vendedor no era él.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "El mercado está cerrado.",
+     "raw": " El mercado está cerrado.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 4
+    }
+   ]
+  }
+ ]
+}

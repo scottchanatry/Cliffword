@@ -41,6 +41,8 @@
  *   and music; input then comes from the phone's microphone.
  * - not mixWithOthers: activating the session interrupts other audio while listening. Apple
  *   Music is paused by the music feature before the microphone opens.
+ * Before the first hold the category is IOS_STARTUP_AUDIO_SESSION (playback), set once at start
+ * by createNativeSpeechIn, so text to speech is not muted by the Ring/Silent switch.
  * The session is left active after a session ends (no setActive(false)): deactivating while
  * text to speech starts fails or cuts it, and notifyOthersOnDeactivation would resume other
  * apps' audio mid-lesson. Whoever resumes Apple Music switches the category back to playback.
@@ -113,6 +115,8 @@ export interface SpeechRecognitionModuleLike {
    */
   supportsOnDeviceRecognition(locale?: string): boolean;
   isRecognitionAvailable(): boolean;
+  /** iOS: AVAudioSession.setCategory on the app's shared session (no activation). */
+  setCategoryIOS?(options: SetCategoryOptions): void;
   androidTriggerOfflineModelDownload(options: { locale: string }): Promise<{ status: string; message: string }>;
   addListener<E extends RecognitionEventName>(
     eventName: E,
@@ -148,6 +152,21 @@ export interface ExpoSpeechInOptions {
 export const IOS_RECOGNITION_AUDIO_SESSION: SetCategoryOptions = {
   category: 'playAndRecord',
   categoryOptions: ['defaultToSpeaker', 'allowBluetoothA2DP'],
+  mode: 'default',
+};
+
+/**
+ * The iOS audio session from app start until the first hold (createNativeSpeechIn sets it once):
+ * playback, mode default. iOS starts an app in soloAmbient, which the Ring/Silent switch mutes,
+ * so the story's text to speech (AVSpeechSynthesizer, on the app's session) would be silent on a
+ * phone set to silent until the first hold switched the category. playback is not muted by the
+ * switch, plays from the speaker, and, unlike playAndRecord, cannot bring up the microphone
+ * prompt before the learner holds to speak. Setting the category does not activate the session,
+ * so other apps' audio keeps playing until the app first speaks.
+ */
+export const IOS_STARTUP_AUDIO_SESSION: SetCategoryOptions = {
+  category: 'playback',
+  categoryOptions: [],
   mode: 'default',
 };
 

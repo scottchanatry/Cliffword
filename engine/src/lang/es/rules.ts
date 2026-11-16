@@ -14,19 +14,24 @@
  * and their order and the le -> se change by a move rule and a swap; see the clitic
  * section below.
  *
+ * Contractions (a + el = al, de + el = del) are a contract rule: it joins "a el", and the
+ * variant generator writes inserts contracted ("Voy a cine" -> "al cine", "Veo el niño"
+ * -> "al niño") and lets the personal-a delete take the "a" out of "al" ("Leo al
+ * periódico" -> "el periódico").
+ *
  * Out of scope:
- * - Contractions: inserting "el" after "a" or "de" yields "a el" / "de el", never "al" /
- *   "del", and deleting the personal "a" from "al" is not attempted. The personal "a" is
- *   not inserted before "el" (it would have to be "al").
  * - Voseo ("sos" for ser) is left out because its estar partner "estás" is already the
  *   tú form; one form may appear only once per rule.
  * - Imperatives ("sé", "está") are left out of ser/estar: "sé" is also "I know" and
  *   "está" is already the indicative third person.
  * - Clitic placement does not handle clitic climbing past two verbs ("Quiero poder lo
- *   hacer"), a pronoun after a participle ("Ha visto lo"), le/les attached in front of an
- *   attached lo ("dálelo"), or slang verbs with attached pronouns.
+ *   hacer"), le/les attached in front of an attached lo ("dálelo"), or slang verbs with
+ *   attached pronouns.
+ * - Subject-verb agreement looks only at a subject right before the verb (through no,
+ *   pronouns and adverbs) or, for gustar-type verbs, a noun right after it; a subject
+ *   after other verbs, or coordinated subjects, are left alone.
  */
-import type { CorrectionRule, DeleteRule, InflectRule, InsertRule, MoveRule, Pos, SwapRule } from '../types';
+import type { AgreeRule, ContractRule, CorrectionRule, DeleteRule, InflectRule, InsertRule, MoveRule, Pos, SwapRule } from '../types';
 
 /** Every explainKey the Spanish rules may use. PairPacks for Spanish must define each. */
 export const SPANISH_EXPLAIN_KEYS = [
@@ -42,6 +47,10 @@ export const SPANISH_EXPLAIN_KEYS = [
   'es.negative_command',
   'es.pronoun_order',
   'es.se_lo',
+  'es.verb_agreement',
+  'es.contraction',
+  'es.body_article',
+  'es.pronoun_double',
 ] as const;
 
 export type SpanishExplainKey = (typeof SPANISH_EXPLAIN_KEYS)[number];
@@ -142,12 +151,19 @@ export function serEstarGroups(): string[][] {
   return groups;
 }
 
-/** ser vs estar: swap any form of one verb for the same person, number, tense and mood of the other. */
+/**
+ * ser vs estar: swap any form of one verb for the same person, number, tense and mood of
+ * the other. Not before a slang predicate (through adverbs: "estuvo bien bacana"): the
+ * model cannot score the slang word, and it asserted "Esa fiesta fue bacana" for the
+ * correct "estuvo bacana" (both are fine; proof/ENGINE_REAL_MODEL.md).
+ */
 export const SER_ESTAR_RULE: SwapRule = {
   id: 'es.ser_estar',
   kind: 'swap',
   explainKey: 'es.ser_estar',
   groups: serEstarGroups(),
+  notBeforeSlang: true,
+  slangThroughPos: ['ADV'],
 };
 
 /** por vs para. The clipped "pa'" is a slang entry and is left alone by the generator. */
@@ -158,6 +174,21 @@ export const POR_PARA_RULE: SwapRule = {
   groups: [['por', 'para']],
 };
 
+/**
+ * Words whose agreement in gender and number the agreement rules never break: a word
+ * that agrees with an adjacent noun, determiner or adjective keeps agreeing ("Esas
+ * mujeres trabaja" must not become "Esa mujeres trabaja", which the real model asserted
+ * at +6.4 nats because the singular verb then agreed with something).
+ */
+export const AGREEMENT_NEIGHBOUR_POS: readonly Pos[] = ['NOUN', 'DET', 'ADJ'];
+
+/**
+ * A determiner is re-inflected only before a word of its noun phrase. Before a verb, la,
+ * las, lo, los are object pronouns: "Las compré en el mercado" was asserted as "La compré"
+ * (+7.0 nats, number rule) on the real model, and "La invité a cenar" got "El invité".
+ */
+export const DETERMINER_NEXT_POS: Partial<Record<Pos, Pos[]>> = { DET: ['NOUN', 'ADJ', 'DET', 'NUM', 'PROPN'] };
+
 /** Gender agreement: re-inflect adjectives and determiners as masculine or feminine. */
 export const GENDER_RULE: InflectRule = {
   id: 'es.gender',
@@ -166,6 +197,8 @@ export const GENDER_RULE: InflectRule = {
   pos: ['ADJ', 'DET'],
   feature: 'gender',
   values: ['m', 'f'],
+  keepAgreement: [...AGREEMENT_NEIGHBOUR_POS],
+  nextPosFor: DETERMINER_NEXT_POS,
 };
 
 /**
@@ -180,6 +213,90 @@ export const NUMBER_RULE: InflectRule = {
   pos: ['ADJ', 'DET', 'NOUN'],
   feature: 'number',
   values: ['s', 'p'],
+  streetTolerant: true,
+  keepAgreement: [...AGREEMENT_NEIGHBOUR_POS],
+  nextPosFor: DETERMINER_NEXT_POS,
+};
+
+/** Subject pronouns: they control the person and number of the verb after them. */
+export const SUBJECT_PRONOUNS: readonly string[] = [
+  'yo', 'tú', 'él', 'ella', 'usted', 'nosotros', 'nosotras', 'vosotros', 'vosotras', 'ellos', 'ellas', 'ustedes',
+];
+
+/**
+ * Nouns of time that stand before a verb as adverbials, not subjects: "Los lunes trabajo
+ * en casa", "Esta noche salimos", "Todos los días como fruta".
+ */
+export const TIME_NOUNS: readonly string[] = [
+  'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado', 'domingo', 'día', 'semana', 'mes', 'año',
+  'noche', 'mañana', 'tarde', 'vez', 'fin', 'verano', 'invierno', 'otoño', 'primavera', 'hora', 'minuto',
+  'momento', 'rato', 'siglo',
+];
+
+/** Words that join coordinated subjects ("mi madre y mi padre trabajan", "tú y yo vamos"). */
+export const COORDINATORS: readonly string[] = ['y', 'e', 'o', 'u', 'ni'];
+
+/**
+ * Verbs whose subject is the thing liked, hurting or missing, after the verb: me gustan
+ * las manzanas, me duelen los pies, nos falta tiempo. Lemmas of the lexicon only
+ * (fascinar, sobrar and apetecer are not in it yet).
+ */
+export const GUSTAR_VERBS: readonly string[] = [
+  'gustar', 'encantar', 'doler', 'faltar', 'importar', 'interesar', 'molestar', 'preocupar', 'quedar',
+];
+
+/** Indirect object pronouns that come before a gustar-type verb. */
+export const INDIRECT_PRONOUNS: readonly string[] = ['me', 'te', 'le', 'nos', 'os', 'les'];
+
+/**
+ * Subject-verb agreement: a finite verb takes the person and number of the subject right
+ * before it, looking through no, object pronouns and adverbs ("Los niños juega" ->
+ * "juegan", "Nosotros vive" -> "vivimos", "Ellos no lo quiere" -> "quieren"). A noun is
+ * third person. The subject does not count after a preposition or a verb ("el libro de
+ * los niños está", "cuando llegan los niños empieza la fiesta"), after y/o/ni (a
+ * coordinated subject), or when it is a noun of time ("Los lunes trabajo"). Street
+ * tolerant, like number agreement: Caribbean speech drops final -s on verbs too ("tú
+ * tiene'").
+ */
+export const VERB_AGREEMENT_RULE: AgreeRule = {
+  id: 'es.verb_agreement.subject',
+  kind: 'agree',
+  explainKey: 'es.verb_agreement',
+  pos: ['VERB', 'AUX'],
+  forms: ['fin'],
+  features: ['person', 'number'],
+  defaults: { person: '3' },
+  side: 'before',
+  throughWords: ['no', 'nunca', 'ya', 'también', 'tampoco', 'siempre', 'me', 'te', 'se', 'nos', 'os', 'lo', 'la', 'los', 'las', 'le', 'les'],
+  throughPos: ['ADV'],
+  phrasePos: ['DET', 'NUM', 'ADJ'],
+  controllerPos: ['NOUN'],
+  controllerWords: [...SUBJECT_PRONOUNS],
+  notControllerLemmas: [...TIME_NOUNS],
+  notAfterPos: ['ADP', 'VERB', 'AUX'],
+  notAfterWords: [...COORDINATORS],
+  streetTolerant: true,
+};
+
+/**
+ * Agreement of a gustar-type verb with the noun after it, after an indirect pronoun: "Me
+ * gusta las manzanas" -> "gustan", "Me duele los pies" -> "duelen". Not before a
+ * coordination ("Me gusta el café y el té"). Street tolerant like the subject rule.
+ */
+export const VERB_AGREEMENT_GUSTAR_RULE: AgreeRule = {
+  id: 'es.verb_agreement.gustar',
+  kind: 'agree',
+  explainKey: 'es.verb_agreement',
+  pos: ['VERB'],
+  forms: ['fin'],
+  lemmas: [...GUSTAR_VERBS],
+  afterWords: [...INDIRECT_PRONOUNS],
+  features: ['number'],
+  side: 'after',
+  throughPos: ['ADV'],
+  phrasePos: ['DET', 'NUM', 'ADJ'],
+  controllerPos: ['NOUN'],
+  notBeforeWords: [...COORDINATORS],
   streetTolerant: true,
 };
 
@@ -229,11 +346,17 @@ export const PERSON_NOUNS: readonly string[] = [
   'dueño', 'policía', 'presidente', 'rey', 'reina', 'jugador', 'artista', 'cantante', 'actor',
 ];
 
+/** Pronouns for people that take the personal "a" as objects: No conozco a nadie. */
+export const PERSON_PRONOUNS: readonly string[] = ['nadie', 'alguien'];
+
 /**
  * Personal "a" missing before a person object after a verb: before a proper noun ("Veo
  * Marta" -> "Veo a Marta"; a capitalized word the pack does not know, away from a
- * sentence start, counts as one) or before a person noun and its determiners ("Veo mi
- * madre" -> "Veo a mi madre"). Not before "el", which would need the contraction "al".
+ * sentence start, counts as one), before a person noun and its determiners ("Veo mi
+ * madre" -> "Veo a mi madre"; before "el" it contracts: "Veo el niño" -> "Veo al niño"),
+ * or before nadie and alguien ("No conozco nadie" -> "a nadie"). An adverb may stand
+ * between the verb and the "a" ("Quiero mucho mis abuelos" -> "Quiero mucho a mis
+ * abuelos"). Not after haber (hay is AUX: "No hay nadie").
  */
 export const PERSONAL_A_INSERT_RULE: InsertRule = {
   id: 'es.personal_a.insert',
@@ -241,10 +364,10 @@ export const PERSONAL_A_INSERT_RULE: InsertRule = {
   explainKey: 'es.personal_a',
   word: 'a',
   beforePos: ['PROPN'],
-  beforeLemmas: [...PERSON_NOUNS],
+  beforeLemmas: [...PERSON_NOUNS, ...PERSON_PRONOUNS],
   throughPos: ['DET'],
   afterPos: ['VERB'],
-  notBeforeWords: ['el'],
+  afterThroughPos: ['ADV'],
 };
 
 /**
@@ -259,6 +382,8 @@ export const PERSONAL_A_DELETE_RULE: DeleteRule = {
   explainKey: 'es.personal_a',
   words: ['a'],
   notBeforePos: ['VERB', 'AUX'],
+  // "Leo al periódico" -> "Leo el periódico" ("al" is a + el).
+  fromContractions: true,
 };
 
 /** The articles the article rules insert and delete. */
@@ -277,11 +402,34 @@ export const STRESSED_A_FEMININES: readonly string[] = [
 /** Contractions that already hold the article (a + el, de + el): nothing is inserted after them. */
 export const ARTICLE_CONTRACTIONS: readonly string[] = ['al', 'del'];
 
+/** a + el = al, de + el = del: [first, second, joined]. */
+export const SPANISH_CONTRACTIONS: readonly (readonly [string, string, string])[] = [
+  ['a', 'el', 'al'],
+  ['de', 'el', 'del'],
+];
+
+/**
+ * Contractions left apart: "Voy a el cine" -> "Voy al cine", "Vengo de el trabajo" ->
+ * "del trabajo"; never before a name ("Voy a El Salvador"). The generator also writes
+ * inserts contracted and the personal-a delete takes "a" out of "al" (see ContractRule).
+ */
+export const CONTRACTION_RULE: ContractRule = {
+  id: 'es.contraction',
+  kind: 'contract',
+  explainKey: 'es.contraction',
+  contractions: SPANISH_CONTRACTIONS.map((c) => [...c] as const),
+};
+
+/** The articles a sentence-opening generic subject takes: "La vida es bella", "Los perros son leales". */
+export const SENTENCE_START_ARTICLES: readonly string[] = ['el', 'la', 'los', 'las'];
+
 /**
  * Missing article: insert one before a noun that directly follows a verb or a
- * preposition ("Compro pan" -> "Compro el pan", "por comida" -> "por la comida").
- * Restricting the left neighbour avoids "la la casa"; the generator also drops an
- * inserted article whose gender or number clashes with the noun. Never after "al" or
+ * preposition ("Compro pan" -> "Compro el pan", "por comida" -> "por la comida"), and a
+ * definite article before a noun that opens the sentence ("Vida es bella" -> "La vida es
+ * bella"). Restricting the left neighbour avoids "la la casa"; the generator also drops
+ * an inserted article whose gender or number clashes with the noun, and writes "el"
+ * after "a" or "de" contracted ("Voy a cine" -> "Voy al cine"). Never after "al" or
  * "del"; "el" and "un" go before a stressed-a feminine (el agua) and "la" never does.
  */
 export const ARTICLE_INSERT_RULES: readonly InsertRule[] = SPANISH_ARTICLES.map((word) => {
@@ -296,8 +444,54 @@ export const ARTICLE_INSERT_RULES: readonly InsertRule[] = SPANISH_ARTICLES.map(
   };
   if (word === 'el' || word === 'un') rule.agreementExceptions = [...STRESSED_A_FEMININES];
   if (word === 'la') rule.notBeforeWords = [...STRESSED_A_FEMININES];
+  if (SENTENCE_START_ARTICLES.includes(word)) rule.sentenceStart = true;
   return rule;
 });
+
+/** Clock hours that take "las": a las dos ... a las doce ("a la una" is singular). */
+export const HOUR_NUMBERS: readonly string[] = ['dos', 'tres', 'cuatro', 'cinco', 'seis', 'siete', 'ocho', 'nueve', 'diez', 'once', 'doce'];
+
+/** Missing article before a clock hour: "Llegamos a ocho" -> "Llegamos a las ocho", "hasta las diez". */
+export const ARTICLE_HOUR_RULE: InsertRule = {
+  id: 'es.article.insert.hour',
+  kind: 'insert',
+  explainKey: 'es.article',
+  word: 'las',
+  beforeLemmas: [...HOUR_NUMBERS],
+  afterWords: ['a', 'desde', 'hasta', 'entre'],
+};
+
+/**
+ * Body parts and clothes (lemmas of the lexicon): with a reflexive or indirect pronoun
+ * they take the article, not a possessive (me lavo las manos, me duele la cabeza, se
+ * puso el abrigo).
+ */
+export const BODY_PARTS: readonly string[] = [
+  'mano', 'pie', 'cabeza', 'pelo', 'cabello', 'diente', 'ojo', 'oreja', 'oído', 'nariz', 'boca', 'cara', 'brazo',
+  'pierna', 'dedo', 'uña', 'rodilla', 'espalda', 'estómago', 'cuello', 'hombro', 'pecho', 'labio', 'lengua', 'piel',
+  'frente', 'abrigo', 'camisa', 'zapato', 'sombrero', 'pantalón', 'vestido',
+];
+
+/**
+ * Possessive where Spanish uses the article: before a body part or a garment, right after
+ * a verb, when a reflexive or indirect pronoun earlier in the sentence already says whose
+ * it is ("Me lavo mis manos" -> "Me lavo las manos", "Me duele mi cabeza" -> "Me duele la
+ * cabeza"). The article agrees with the noun (mis -> los dientes, las manos).
+ */
+export const BODY_ARTICLE_RULE: SwapRule = {
+  id: 'es.body_article',
+  kind: 'swap',
+  explainKey: 'es.body_article',
+  groups: [
+    ['mi', 'el', 'la'], ['tu', 'el', 'la'], ['su', 'el', 'la'], ['nuestro', 'el', 'la'], ['nuestra', 'el', 'la'],
+    ['mis', 'los', 'las'], ['tus', 'los', 'las'], ['sus', 'los', 'las'], ['nuestros', 'los', 'las'], ['nuestras', 'los', 'las'],
+  ],
+  fromWords: ['mi', 'tu', 'su', 'nuestro', 'nuestra', 'mis', 'tus', 'sus', 'nuestros', 'nuestras'],
+  beforeLemmas: [...BODY_PARTS],
+  afterPos: ['VERB'],
+  cueWords: ['me', 'te', 'se', 'nos', 'os', 'le', 'les'],
+  agreeNext: true,
+};
 
 /** Unneeded article: "Me gusta la Marta" -> "Me gusta Marta". */
 export const ARTICLE_DELETE_RULE: DeleteRule = {
@@ -308,8 +502,10 @@ export const ARTICLE_DELETE_RULE: DeleteRule = {
   // la/los/las before a verb are object pronouns ("La invité a cenar.", "cuando la
   // conocí"): deleting them gave the only false assert on the 93 correct proof sentences
   // (+8.7 nats on Qwen3-1.7B, proof/ENGINE_REAL_MODEL.md). An article before "que" or
-  // "de" stands for a noun ("la que hay", "la de mi madre"), never a stray article.
-  notBeforePos: ['VERB', 'AUX'],
+  // "de" stands for a noun ("la que hay", "la de mi madre"), never a stray article. An
+  // article is never followed by a preposition or a conjunction: "Invité la a cenar" has
+  // the pronoun, misplaced, and deleting it was asserted (+14.4) over the move fix (+5.7).
+  notBeforePos: ['VERB', 'AUX', 'ADP', 'CONJ'],
   notBeforeWords: ['que', 'de', 'del'],
 };
 
@@ -359,6 +555,14 @@ export const ARTICLE_FOLLOWER_WORDS: readonly string[] = [
   'que', 'de', 'del', 'cual', 'cuales', 'más', 'menos', 'bien', 'mal', 'mucho', 'poco', 'tanto', 'antes',
 ];
 
+/**
+ * The neuter article "lo" goes before an adjective, determiner, numeral or pronoun (lo
+ * bueno, lo mismo, lo primero, lo mío), never before a noun: "Compro lo mañana" is the
+ * pronoun, misplaced. Checked against every analysis of the next word, so "lo contrario"
+ * (also a noun) stays the article.
+ */
+export const NEUTER_LO_FOLLOWER_POS: readonly Pos[] = ['ADJ', 'DET', 'NUM', 'PRON'];
+
 /** Shared by the clitic move rules: what moves, onto which verbs, and the article guard. */
 const CLITIC_MOVE_BASE = {
   kind: 'move' as const,
@@ -367,6 +571,7 @@ const CLITIC_MOVE_BASE = {
   homographs: [...CLITIC_HOMOGRAPHS],
   notBeforePos: [...ARTICLE_FOLLOWER_POS],
   notBeforeWords: [...ARTICLE_FOLLOWER_WORDS],
+  homographNotBeforePos: { lo: [...NEUTER_LO_FOLLOWER_POS] },
 };
 
 /**
@@ -438,6 +643,33 @@ export const NEGATIVE_FINITE_RULE: MoveRule = {
   afterWords: [...NEGATION_WORDS],
 };
 
+/**
+ * A past participle after haber takes no pronoun; it goes before haber: "He lo visto" ->
+ * "Lo he visto", "Ha visto lo" -> "Lo ha visto", "Ya hemos la comprado" -> "Ya la hemos
+ * comprado". The participle matches through any reading (visto is also "I dress").
+ */
+export const PRONOUN_PARTICIPLE_RULE: MoveRule = {
+  ...CLITIC_MOVE_BASE,
+  id: 'es.pronoun_placement.participle',
+  explainKey: 'es.pronoun_placement',
+  anchorForms: ['part'],
+  positions: ['before'],
+  viaAuxiliary: ['haber'],
+};
+
+/**
+ * A pronoun said twice, before the conjugated verb and attached to the infinitive or
+ * gerund of the same chain: "Lo estoy leyéndolo" -> "Estoy leyéndolo" or "Lo estoy
+ * leyendo"; "Lo voy a comprarlo" (two words on: voy, a, comprarlo).
+ */
+export const PRONOUN_DOUBLE_RULE: MoveRule = {
+  ...CLITIC_MOVE_BASE,
+  id: 'es.pronoun_double',
+  explainKey: 'es.pronoun_double',
+  positions: [],
+  doubledWithin: 2,
+};
+
 /** Two pronouns together in the wrong order: "Lo te digo" -> "Te lo digo", "Me se olvidó" -> "Se me olvidó". */
 export const PRONOUN_ORDER_RULE: MoveRule = {
   ...CLITIC_MOVE_BASE,
@@ -467,7 +699,9 @@ export const PRONOUN_MOVE_RULES: readonly MoveRule[] = [
   PRONOUN_ATTACH_COMMAND_RULE,
   NEGATIVE_COMMAND_RULE,
   NEGATIVE_FINITE_RULE,
+  PRONOUN_PARTICIPLE_RULE,
   PRONOUN_ORDER_RULE,
+  PRONOUN_DOUBLE_RULE,
 ];
 
 /**
@@ -479,13 +713,18 @@ export const SPANISH_RULES: CorrectionRule[] = [
   SER_ESTAR_RULE,
   POR_PARA_RULE,
   SE_LO_RULE,
+  BODY_ARTICLE_RULE,
+  CONTRACTION_RULE,
   ...PRONOUN_MOVE_RULES,
   GENDER_RULE,
   NUMBER_RULE,
+  VERB_AGREEMENT_RULE,
+  VERB_AGREEMENT_GUSTAR_RULE,
   ASPECT_RULE,
   MOOD_RULE,
   PERSONAL_A_INSERT_RULE,
   PERSONAL_A_DELETE_RULE,
   ...ARTICLE_INSERT_RULES,
+  ARTICLE_HOUR_RULE,
   ARTICLE_DELETE_RULE,
 ];

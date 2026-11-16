@@ -18,6 +18,7 @@
 import type {
   ExpoSpeechRecognitionOptions,
   ExpoSpeechRecognitionResultSegment,
+  SetCategoryOptions,
 } from 'expo-speech-recognition';
 import type {
   RecognitionEventMap,
@@ -45,6 +46,8 @@ export class FakeSpeechRecognitionModule implements SpeechRecognitionModuleLike 
   requestCalls = 0;
   supportedLocalesCalls = 0;
   readonly downloadCalls: string[] = [];
+  /** setCategoryIOS() calls, in order. */
+  readonly categoryCalls: SetCategoryOptions[] = [];
 
   permission: RecognitionPermission = GRANTED;
   /** What requestPermissionsAsync() turns the permission into. */
@@ -116,6 +119,10 @@ export class FakeSpeechRecognitionModule implements SpeechRecognitionModuleLike 
 
   isRecognitionAvailable(): boolean {
     return this.recognitionAvailable;
+  }
+
+  setCategoryIOS(options: SetCategoryOptions): void {
+    this.categoryCalls.push(options);
   }
 
   async androidTriggerOfflineModelDownload(options: { locale: string }): Promise<{ status: string; message: string }> {

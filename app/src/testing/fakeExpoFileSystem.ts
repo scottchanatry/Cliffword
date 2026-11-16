@@ -58,6 +58,8 @@ let platform: FakePlatform = 'android';
 let freeBytes: number = 50_000_000_000;
 let digestMode: DigestMode = 'throw';
 let digestImpl: ((bytes: Bytes) => string) | null = null;
+/** When true, pause() is lost, as when it reaches the native task before the task started. */
+let losePauses = false;
 let now = 1_000_000;
 
 const DOCUMENT = 'file:///docs/';
@@ -361,6 +363,7 @@ export class DownloadTask {
 
   pause(): void {
     assertState(this.state, ['active'], 'pause');
+    if (losePauses) return;
     this.resumeData = this.current?.pauseNow();
   }
 
@@ -440,8 +443,13 @@ export const fakeFs = {
     freeBytes = opts.freeBytes ?? 50_000_000_000;
     digestMode = opts.digest ?? 'throw';
     digestImpl = opts.digestImpl ?? null;
+    losePauses = false;
     now = 1_000_000;
     dirs.add(DOCUMENT);
+  },
+  /** Makes pause() calls get lost (pauseAsync() then waits for the transfer to end). */
+  losePauses(lose: boolean): void {
+    losePauses = lose;
   },
   setFreeBytes(bytes: number): void {
     freeBytes = bytes;

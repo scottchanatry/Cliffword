@@ -15,6 +15,7 @@ export const PR_REGISTER: RegisterPack = {
   entries: [
     // Going out and friends
     casual('janguear', 'salir', 'to hang out, go out'),
+    casual('janguiar', 'salir', 'to hang out, go out (another spelling of "janguear")', { pos: 'VERB' }),
     casual('jangueo', 'salida', 'a night out, hanging out'),
     casual('corillo', 'grupo', 'group of friends, crew'),
     casual('pana', 'amigo', 'buddy, friend', { regions: [PR, DO] }),
@@ -70,6 +71,7 @@ export const PR_REGISTER: RegisterPack = {
     clipped('chacho', 'muchacho', 'man! wow! (from "muchacho")'),
     casual('diache', 'diablo', 'damn! wow! (mild)', { pos: 'INTJ' }),
     casual('mera', 'mira', 'hey! look! (from "mira")'),
+    phrase('qué es la que hay', 'qué pasa', "what's up? what's going on?", { alsoStandard: true }),
     // Vulgar and sexual (explicit)
     vulgar('bellaco', 'excitado', 'horny (man)', { pos: 'ADJ' }),
     vulgar('bellaca', 'excitada', 'horny (woman)', { pos: 'ADJ' }),
@@ -81,5 +83,9 @@ export const PR_REGISTER: RegisterPack = {
     vulgar('cabrón', 'desgraciado', 'bastard; as praise: badass, intense', { pos: 'NOUN', regions: [PR, DO, CU] }),
     vulgar('pendejo', 'tonto', 'idiot, jerk; coward', { regions: [PR, DO] }),
     vulgar('mamao', 'tonto', 'idiot, sucker'),
+    vulgar('cabrona', 'desgraciada', 'bitch; as praise: badass, intense (feminine of "cabrón")', { pos: 'NOUN', regions: [PR, DO, CU] }),
+    vulgar('bellaquear', 'excitarse', 'to get horny; to grind or make out', { pos: 'VERB' }),
+    vulgar('chingar', 'tener sexo', 'to have sex (Puerto Rico; in Mexico it means to screw over)', { pos: 'VERB' }),
+    vulgar('mamabicho', 'desgraciado', 'asshole, jerk (very strong insult)', { pos: 'NOUN' }),
   ],
 };

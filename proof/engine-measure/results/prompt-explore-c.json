@@ -1,0 +1,1206 @@
+{
+ "date": "2026-11-16T00:14:03.904Z",
+ "seeds": [
+  1,
+  101
+ ],
+ "n": 4,
+ "summary": {
+  "reader": {
+   "F0": {
+    "inBand": 0.25,
+    "famBand": 0.25,
+    "target": 0,
+    "verb": 0.38,
+    "inLength": 0.5,
+    "distinct": 7,
+    "n": 8,
+    "msPerCall": 13472,
+    "promptChars": 344
+   },
+   "F4": {
+    "inBand": 0.5,
+    "famBand": 0.5,
+    "target": 0,
+    "verb": 1,
+    "inLength": 0.63,
+    "distinct": 8,
+    "n": 8,
+    "msPerCall": 12921,
+    "promptChars": 176
+   },
+   "F8": {
+    "inBand": 0.63,
+    "famBand": 0.63,
+    "target": 0,
+    "verb": 1,
+    "inLength": 0.63,
+    "distinct": 8,
+    "n": 8,
+    "msPerCall": 10863,
+    "promptChars": 181
+   },
+   "F9": {
+    "inBand": 0.63,
+    "famBand": 0.63,
+    "target": 0,
+    "verb": 1,
+    "inLength": 0.63,
+    "distinct": 8,
+    "n": 8,
+    "msPerCall": 10068,
+    "promptChars": 181
+   }
+  },
+  "advanced": {
+   "F0": {
+    "inBand": 0.13,
+    "famBand": 0.13,
+    "target": 0,
+    "verb": 0.13,
+    "inLength": 0,
+    "distinct": 2,
+    "n": 8,
+    "msPerCall": 9592,
+    "promptChars": 412
+   },
+   "F4": {
+    "inBand": 0.38,
+    "famBand": 0.38,
+    "target": 0.38,
+    "verb": 1,
+    "inLength": 0.75,
+    "distinct": 8,
+    "n": 8,
+    "msPerCall": 15383,
+    "promptChars": 244
+   },
+   "F8": {
+    "inBand": 0.25,
+    "famBand": 0.25,
+    "target": 0,
+    "verb": 1,
+    "inLength": 0.75,
+    "distinct": 8,
+    "n": 8,
+    "msPerCall": 20555,
+    "promptChars": 256
+   },
+   "F9": {
+    "inBand": 0.25,
+    "famBand": 0.25,
+    "target": 0,
+    "verb": 1,
+    "inLength": 0.75,
+    "distinct": 8,
+    "n": 8,
+    "msPerCall": 14532,
+    "promptChars": 256
+   }
+  },
+  "heritage": {
+   "F0": {
+    "inBand": 0.38,
+    "famBand": 0.38,
+    "target": 0,
+    "verb": 0.63,
+    "inLength": 0.5,
+    "distinct": 6,
+    "n": 8,
+    "msPerCall": 12432,
+    "promptChars": 340
+   },
+   "F4": {
+    "inBand": 0,
+    "famBand": 0,
+    "target": 0,
+    "verb": 1,
+    "inLength": 0.88,
+    "distinct": 8,
+    "n": 8,
+    "msPerCall": 19350,
+    "promptChars": 172
+   },
+   "F8": {
+    "inBand": 0.75,
+    "famBand": 0.75,
+    "target": 0.5,
+    "verb": 0.88,
+    "inLength": 0.5,
+    "distinct": 8,
+    "n": 8,
+    "msPerCall": 10170,
+    "promptChars": 179
+   },
+   "F9": {
+    "inBand": 0.75,
+    "famBand": 0.75,
+    "target": 0.5,
+    "verb": 0.88,
+    "inLength": 0.5,
+    "distinct": 8,
+    "n": 8,
+    "msPerCall": 11757,
+    "promptChars": 179
+   }
+  }
+ },
+ "rows": [
+  {
+   "profile": "reader",
+   "format": "F0",
+   "prompt": "Escribe la siguiente oración de esta historia.\nUna sola oración, de 15 palabras como máximo.\nUsa la palabra conque.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nMarta llegó tarde al mercado. Buscó al señor de las frutas, pero su puesto estaba cerrado.\n\nSiguiente oración:",
+   "inBand": 0.25,
+   "famBand": 0.25,
+   "target": 0,
+   "verb": 0.38,
+   "inLength": 0.5,
+   "distinct": 7,
+   "n": 8,
+   "msPerCall": 13472,
+   "promptChars": 344,
+   "evals": [
+    {
+     "text": "",
+     "raw": " ",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 0
+    },
+    {
+     "text": "Marta se _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _.",
+     "raw": " Marta se _______ _______ _______ _______ _______ _______ _______ _______ _______ _______ _______ _______ _______ _______ _______ _______ _______ ______",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 2
+    },
+    {
+     "text": "Marta se _ al señor de las frutas, pero su puesto estaba cerrado.",
+     "raw": " Marta se _______ al señor de las frutas, pero su puesto estaba cerrado.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 12
+    },
+    {
+     "text": "El señor de las frutas...",
+     "raw": " El señor de las frutas...",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": false,
+     "words": 5
+    },
+    {
+     "text": "El señor de las frutas.",
+     "raw": " El señor de las frutas ____________.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": false,
+     "words": 5
+    },
+    {
+     "text": "Marta se _ al señor de las frutas, pero su puesto estaba cerrado.",
+     "raw": " Marta se _______ al señor de las frutas, pero su puesto estaba cerrado.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 12
+    },
+    {
+     "text": "Marta buscó el señor de las frutas con que se veía cansada.",
+     "raw": " Marta buscó el señor de las frutas con que se veía cansada.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 12
+    },
+    {
+     "text": "La tierra se secó porque el sol ardía muy fuerte.",
+     "raw": " La tierra se secó porque el sol ardía muy fuerte.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 10
+    }
+   ]
+  },
+  {
+   "profile": "reader",
+   "format": "F4",
+   "prompt": "Cuento corto en español fácil (nivel B1).\nPersonajes: Marta.\nPalabra nueva: conque.\n\nMarta llegó tarde al mercado.\nBuscó al señor de las frutas, pero su puesto estaba cerrado.\n",
+   "inBand": 0.5,
+   "famBand": 0.5,
+   "target": 0,
+   "verb": 1,
+   "inLength": 0.63,
+   "distinct": 8,
+   "n": 8,
+   "msPerCall": 12921,
+   "promptChars": 176,
+   "evals": [
+    {
+     "text": "Marta se quejó.",
+     "raw": "Marta se quejó.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 3
+    },
+    {
+     "text": "Pero cuando se acercó, vio que había un jarrón con flores.",
+     "raw": "Pero cuando se acercó, vio que había un jarrón con flores.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 11
+    },
+    {
+     "text": "Pero cuando ella llegó, ya no estaba.",
+     "raw": "Pero cuando ella llegó, ya no estaba.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 7
+    },
+    {
+     "text": "Lloró porque no pudo encontrar el señor de las frutas.",
+     "raw": "Lloró porque no pudo encontrar el señor de las frutas.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 10
+    },
+    {
+     "text": "Lloró, pero no fue recibida con cariño.",
+     "raw": "Lloró, pero no fue recibida con cariño.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 7
+    },
+    {
+     "text": "Pero cuando se acercó, notó que había un cartel.",
+     "raw": "Pero cuando se acercó, notó que había un cartel.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 9
+    },
+    {
+     "text": "Marta se acordó de un día en que un señor había venido con un bote de frutas.",
+     "raw": "Marta se acordó de un día en que un señor había venido con un bote de frutas.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 17
+    },
+    {
+     "text": "La muchacha se perdió.",
+     "raw": "La muchacha se perdió.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 4
+    }
+   ]
+  },
+  {
+   "profile": "reader",
+   "format": "F8",
+   "prompt": "Cuento corto en español fácil (nivel B1).\nPersonajes: Marta.\n\n[mercado] Marta llegó tarde al mercado.\n[cerrado] Buscó al señor de las frutas, pero su puesto estaba cerrado.\n[conque]",
+   "inBand": 0.63,
+   "famBand": 0.63,
+   "target": 0,
+   "verb": 1,
+   "inLength": 0.63,
+   "distinct": 8,
+   "n": 8,
+   "msPerCall": 10863,
+   "promptChars": 181,
+   "evals": [
+    {
+     "text": "Marta se encontró con un hombre que vendía frutas y verduras.",
+     "raw": " Marta se encontró con un hombre que vendía frutas y verduras.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 11
+    },
+    {
+     "text": "Buscó a un vendedor de frutas.",
+     "raw": " Buscó a un vendedor de frutas.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "Buscó a otro señor, pero no encontró a nadie.",
+     "raw": " Buscó a otro señor, pero no encontró a nadie.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 9
+    },
+    {
+     "text": "Algo está mal.",
+     "raw": " Algo está mal",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 3
+    },
+    {
+     "text": "Al final, encontró una caja con frutas.",
+     "raw": " Al final, encontró una caja con frutas.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 7
+    },
+    {
+     "text": "Buscó a un vendedor de frutas, pero no le dio la atención.",
+     "raw": " Buscó a un vendedor de frutas, pero no le dio la atención.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 12
+    },
+    {
+     "text": "Se puso a esperar en el sol.",
+     "raw": " Se puso a esperar en el sol.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 7
+    },
+    {
+     "text": "No tenía tiempo para esperar.",
+     "raw": " No tenía tiempo para esperar",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 5
+    }
+   ]
+  },
+  {
+   "profile": "reader",
+   "format": "F9",
+   "prompt": "Cuento corto en español fácil (nivel B1).\nPersonajes: Marta.\n\n[mercado] Marta llegó tarde al mercado.\n[cerrado] Buscó al señor de las frutas, pero su puesto estaba cerrado.\n[conque]",
+   "inBand": 0.63,
+   "famBand": 0.63,
+   "target": 0,
+   "verb": 1,
+   "inLength": 0.63,
+   "distinct": 8,
+   "n": 8,
+   "msPerCall": 10068,
+   "promptChars": 181,
+   "evals": [
+    {
+     "text": "Marta se encontró con un hombre que vendía frutas y verduras.",
+     "raw": " Marta se encontró con un hombre que vendía frutas y verduras.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 11
+    },
+    {
+     "text": "Buscó a un vendedor de frutas.",
+     "raw": " Buscó a un vendedor de frutas.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "Buscó a otro señor, pero no encontró a nadie.",
+     "raw": " Buscó a otro señor, pero no encontró a nadie.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 9
+    },
+    {
+     "text": "Algo está mal.",
+     "raw": " Algo está mal",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 3
+    },
+    {
+     "text": "Al final, encontró una caja con frutas.",
+     "raw": " Al final, encontró una caja con frutas.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 7
+    },
+    {
+     "text": "Buscó a un vendedor de frutas, pero no le dio la atención.",
+     "raw": " Buscó a un vendedor de frutas, pero no le dio la atención.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 12
+    },
+    {
+     "text": "Se puso a esperar en el sol.",
+     "raw": " Se puso a esperar en el sol.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 7
+    },
+    {
+     "text": "No tenía tiempo para esperar.",
+     "raw": " No tenía tiempo para esperar",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 5
+    }
+   ]
+  },
+  {
+   "profile": "advanced",
+   "format": "F0",
+   "prompt": "Escribe la siguiente oración de esta historia.\nUna sola oración, de 15 palabras como máximo.\nUsa la palabra violento.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nMarta llegó tarde al mercado. Buscó al señor de las frutas, pero su puesto estaba cerrado. Entonces vio una nota en la puerta y empezó a leerla en voz alta.\n\nSiguiente oración:",
+   "inBand": 0.13,
+   "famBand": 0.13,
+   "target": 0,
+   "verb": 0.13,
+   "inLength": 0,
+   "distinct": 2,
+   "n": 8,
+   "msPerCall": 9592,
+   "promptChars": 412,
+   "evals": [
+    {
+     "text": "El señor de las frutas era un hombre de cuarenta años, alto y de ropa negra.",
+     "raw": " El señor de las frutas era un hombre de cuarenta años, alto y de ropa negra. Llevaba un sombrero de paja y un pañuelo",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 16
+    },
+    {
+     "text": "",
+     "raw": " ",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 0
+    },
+    {
+     "text": "",
+     "raw": " ",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 0
+    },
+    {
+     "text": "",
+     "raw": " (La primera oración de la historia fue \"Marta llegó tarde al mercado\"). ",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 0
+    },
+    {
+     "text": "",
+     "raw": " (la que vas a generar):",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 0
+    },
+    {
+     "text": "",
+     "raw": " ",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 0
+    },
+    {
+     "text": "",
+     "raw": " ",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 0
+    },
+    {
+     "text": "",
+     "raw": " ",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 0
+    }
+   ]
+  },
+  {
+   "profile": "advanced",
+   "format": "F4",
+   "prompt": "Cuento corto en español fácil (nivel C1).\nPersonajes: Marta.\nPalabra nueva: violento.\n\nMarta llegó tarde al mercado.\nBuscó al señor de las frutas, pero su puesto estaba cerrado.\nEntonces vio una nota en la puerta y empezó a leerla en voz alta.\n",
+   "inBand": 0.38,
+   "famBand": 0.38,
+   "target": 0.38,
+   "verb": 1,
+   "inLength": 0.75,
+   "distinct": 8,
+   "n": 8,
+   "msPerCall": 15383,
+   "promptChars": 244,
+   "evals": [
+    {
+     "text": "La nota decía: \"¿Quién quiere un fruto violento?\"",
+     "raw": "La nota decía: \"¿Quién quiere un fruto violento?\"",
+     "inBand": false,
+     "famBand": false,
+     "target": true,
+     "verb": true,
+     "words": 8
+    },
+    {
+     "text": "La nota decía: \"¡No vayas a hacer daño al señor de las frutas.",
+     "raw": "La nota decía: \"¡No vayas a hacer daño al señor de las frutas",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 13
+    },
+    {
+     "text": "La nota decía: \"¡No se olviden del festín del sol.",
+     "raw": "La nota decía: \"¡No se olviden del festín del sol",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 10
+    },
+    {
+     "text": "La nota decía: \"¿Quién es el más violento en el mercado?\".",
+     "raw": "La nota decía: \"¿Quién es el más violento en el mercado?\".",
+     "inBand": true,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 11
+    },
+    {
+     "text": "La nota decía: “¿Quieres ser feliz.",
+     "raw": "La nota decía: “¿Quieres ser feliz",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "La nota decía: \"Si no estás en el mercado a las ocho, será violento\".",
+     "raw": "La nota decía: \"Si no estás en el mercado a las ocho, será violento\".",
+     "inBand": true,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 14
+    },
+    {
+     "text": "La nota decía: \"¡Hoy no hay frutas, pero si quieres un café, pide con el cuchillo de la mesa!\".",
+     "raw": "La nota decía: \"¡Hoy no hay frutas, pero si quieres un café, pide con el cuchillo de la mesa!\".",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 19
+    },
+    {
+     "text": "La nota decía: \"No vengas a las 10:00.",
+     "raw": "La nota decía: \"No vengas a las 10:00",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 9
+    }
+   ]
+  },
+  {
+   "profile": "advanced",
+   "format": "F8",
+   "prompt": "Cuento corto en español fácil (nivel C1).\nPersonajes: Marta.\n\n[mercado] Marta llegó tarde al mercado.\n[cerrado] Buscó al señor de las frutas, pero su puesto estaba cerrado.\n[nota] Entonces vio una nota en la puerta y empezó a leerla en voz alta.\n[violento]",
+   "inBand": 0.25,
+   "famBand": 0.25,
+   "target": 0,
+   "verb": 1,
+   "inLength": 0.75,
+   "distinct": 8,
+   "n": 8,
+   "msPerCall": 20555,
+   "promptChars": 256,
+   "evals": [
+    {
+     "text": "El señor de las frutas había sido asesinado.",
+     "raw": " El señor de las frutas había sido asesinado.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 8
+    },
+    {
+     "text": "Marta gritó y pidió ayuda a la policía.",
+     "raw": " Marta gritó y pidió ayuda a la policía.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 8
+    },
+    {
+     "text": "Marta gritó al señor de las frutas, pero no respondió.",
+     "raw": " Marta gritó al señor de las frutas, pero no respondió.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 10
+    },
+    {
+     "text": "Mientras tanto, un hombre llegó y comenzó a agredir a Marta.",
+     "raw": " Mientras tanto, un hombre llegó y comenzó a agredir a Marta",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 11
+    },
+    {
+     "text": "Mientras se leía la nota, algo pasó.",
+     "raw": " Mientras se leía la nota, algo pasó",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 7
+    },
+    {
+     "text": "Marta vio un hombre que se arrastraba por la calle, muy malito.",
+     "raw": " Marta vio un hombre que se arrastraba por la calle, muy malito.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 12
+    },
+    {
+     "text": "Marta se mordió el labio.",
+     "raw": " Marta se mordió el labio.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "En el mercado, había un hombre que no permitía que nadie se acercara a su puesto.",
+     "raw": " En el mercado, había un hombre que no permitía que nadie se acercara a su puesto.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 16
+    }
+   ]
+  },
+  {
+   "profile": "advanced",
+   "format": "F9",
+   "prompt": "Cuento corto en español fácil (nivel C1).\nPersonajes: Marta.\n\n[mercado] Marta llegó tarde al mercado.\n[cerrado] Buscó al señor de las frutas, pero su puesto estaba cerrado.\n[nota] Entonces vio una nota en la puerta y empezó a leerla en voz alta.\n[violento]",
+   "inBand": 0.25,
+   "famBand": 0.25,
+   "target": 0,
+   "verb": 1,
+   "inLength": 0.75,
+   "distinct": 8,
+   "n": 8,
+   "msPerCall": 14532,
+   "promptChars": 256,
+   "evals": [
+    {
+     "text": "El señor de las frutas había sido asesinado.",
+     "raw": " El señor de las frutas había sido asesinado.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 8
+    },
+    {
+     "text": "Marta gritó y pidió ayuda a la policía.",
+     "raw": " Marta gritó y pidió ayuda a la policía.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 8
+    },
+    {
+     "text": "Marta gritó al señor de las frutas, pero no respondió.",
+     "raw": " Marta gritó al señor de las frutas, pero no respondió.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 10
+    },
+    {
+     "text": "Mientras tanto, un hombre llegó y comenzó a agredir a Marta.",
+     "raw": " Mientras tanto, un hombre llegó y comenzó a agredir a Marta",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 11
+    },
+    {
+     "text": "Mientras se leía la nota, algo pasó.",
+     "raw": " Mientras se leía la nota, algo pasó",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 7
+    },
+    {
+     "text": "Marta vio un hombre que se arrastraba por la calle, muy malito.",
+     "raw": " Marta vio un hombre que se arrastraba por la calle, muy malito.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 12
+    },
+    {
+     "text": "Marta se mordió el labio.",
+     "raw": " Marta se mordió el labio.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "En el mercado, había un hombre que no permitía que nadie se acercara a su puesto.",
+     "raw": " En el mercado, había un hombre que no permitía que nadie se acercara a su puesto.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 16
+    }
+   ]
+  },
+  {
+   "profile": "heritage",
+   "format": "F0",
+   "prompt": "Escribe la siguiente oración de esta historia.\nUna sola oración, de 15 palabras como máximo.\nUsa la palabra violento.\nUsa palabras sencillas.\nHabla en español neutro.\nResponde solo con la oración, sin comillas ni traducción.\n\nHistoria:\nMi abuela siempre cocinaba los domingos. Toda la familia llegaba temprano a su casa.\n\nSiguiente oración:",
+   "inBand": 0.38,
+   "famBand": 0.38,
+   "target": 0,
+   "verb": 0.63,
+   "inLength": 0.5,
+   "distinct": 6,
+   "n": 8,
+   "msPerCall": 12432,
+   "promptChars": 340,
+   "evals": [
+    {
+     "text": "El cocinero de la abuela era un hombre muy amable.",
+     "raw": " El cocinero de la abuela era un hombre muy amable. La familia disfrutaba de una comida alegre.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 10
+    },
+    {
+     "text": "El perro de mi abuela se comió el pan de los invitados.",
+     "raw": " El perro de mi abuela se comió el pan de los invitados. ",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 12
+    },
+    {
+     "text": "El perro de mi abuela se movió con mucha fuerza, y el aire se llenó de polvo.",
+     "raw": " El perro de mi abuela se movió con mucha fuerza, y el aire se llenó de polvo. La comida de la mesa se partió y se desperd",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 17
+    },
+    {
+     "text": "",
+     "raw": " ",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 0
+    },
+    {
+     "text": "",
+     "raw": " ",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 0
+    },
+    {
+     "text": "El _ de la familia se divirtió mucho en el restaurante.",
+     "raw": " El ___________ de la familia se divirtió mucho en el restaurante.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 10
+    },
+    {
+     "text": "El perro del vecino se mordió el puño con violencia.",
+     "raw": " El perro del vecino se mordió el puño con violencia.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 10
+    },
+    {
+     "text": "",
+     "raw": " ",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": false,
+     "words": 0
+    }
+   ]
+  },
+  {
+   "profile": "heritage",
+   "format": "F4",
+   "prompt": "Cuento corto en español fácil (nivel B2).\nPersonajes: Marta.\nPalabra nueva: violento.\n\nMi abuela siempre cocinaba los domingos.\nToda la familia llegaba temprano a su casa.\n",
+   "inBand": 0,
+   "famBand": 0,
+   "target": 0,
+   "verb": 1,
+   "inLength": 0.88,
+   "distinct": 8,
+   "n": 8,
+   "msPerCall": 19350,
+   "promptChars": 172,
+   "evals": [
+    {
+     "text": "Marta, mi hermana, siempre se sentaba a la izquierda.",
+     "raw": "Marta, mi hermana, siempre se sentaba a la izquierda.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 9
+    },
+    {
+     "text": "Marta era la más joven de la familia.",
+     "raw": "Marta era la más joven de la familia.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 8
+    },
+    {
+     "text": "Marta era la que más se preocupaba por la comida.",
+     "raw": "Marta era la que más se preocupaba por la comida.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 10
+    },
+    {
+     "text": "La abuela preparaba un pavo olibo.",
+     "raw": "La abuela preparaba un pavo olibo.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "La abuela siempre hacía la comida tradicional: pan, sopa, arroz, etc.",
+     "raw": "La abuela siempre hacía la comida tradicional: pan, sopa, arroz, etc.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 11
+    },
+    {
+     "text": "Marta era la más joven, pero nunca se le veía en la cocina.",
+     "raw": "Marta era la más joven, pero nunca se le veía en la cocina",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 13
+    },
+    {
+     "text": "Marta, la hija de mi abuela, era muy amable.",
+     "raw": "Marta, la hija de mi abuela, era muy amable.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 9
+    },
+    {
+     "text": "Marta, la hermana de mi abuela, siempre hacía la tarea.",
+     "raw": "Marta, la hermana de mi abuela, siempre hacía la tarea.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 10
+    }
+   ]
+  },
+  {
+   "profile": "heritage",
+   "format": "F8",
+   "prompt": "Cuento corto en español fácil (nivel B2).\nPersonajes: Marta.\n\n[domingos] Mi abuela siempre cocinaba los domingos.\n[temprano] Toda la familia llegaba temprano a su casa.\n[violento]",
+   "inBand": 0.75,
+   "famBand": 0.75,
+   "target": 0.5,
+   "verb": 0.88,
+   "inLength": 0.5,
+   "distinct": 8,
+   "n": 8,
+   "msPerCall": 10170,
+   "promptChars": 179,
+   "evals": [
+    {
+     "text": "El Sr.",
+     "raw": " El Sr",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": false,
+     "words": 2
+    },
+    {
+     "text": "La comida era muy violenta.",
+     "raw": " La comida era muy violenta.",
+     "inBand": true,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "La comida era muy maloliente.",
+     "raw": " La comida era muy maloliente.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "Ella siempre había sido muy violenta.",
+     "raw": " Ella siempre había sido muy violenta.",
+     "inBand": true,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "Ella no le decía nunca a nadie que se comportaba mal.",
+     "raw": " Ella no le decía nunca a nadie que se comportaba mal.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 11
+    },
+    {
+     "text": "La comida era muy violenta y no nos gustaba.",
+     "raw": " La comida era muy violenta y no nos gustaba.",
+     "inBand": true,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 9
+    },
+    {
+     "text": "La comida era comida, no comida dulce.",
+     "raw": " La comida era comida, no comida dulce.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 7
+    },
+    {
+     "text": "No era muy amable, pero no era violento.",
+     "raw": " No era muy amable, pero no era violento.",
+     "inBand": true,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 8
+    }
+   ]
+  },
+  {
+   "profile": "heritage",
+   "format": "F9",
+   "prompt": "Cuento corto en español fácil (nivel B2).\nPersonajes: Marta.\n\n[domingos] Mi abuela siempre cocinaba los domingos.\n[temprano] Toda la familia llegaba temprano a su casa.\n[violento]",
+   "inBand": 0.75,
+   "famBand": 0.75,
+   "target": 0.5,
+   "verb": 0.88,
+   "inLength": 0.5,
+   "distinct": 8,
+   "n": 8,
+   "msPerCall": 11757,
+   "promptChars": 179,
+   "evals": [
+    {
+     "text": "El Sr.",
+     "raw": " El Sr",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": false,
+     "words": 2
+    },
+    {
+     "text": "La comida era muy violenta.",
+     "raw": " La comida era muy violenta.",
+     "inBand": true,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "La comida era muy maloliente.",
+     "raw": " La comida era muy maloliente.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 5
+    },
+    {
+     "text": "Ella siempre había sido muy violenta.",
+     "raw": " Ella siempre había sido muy violenta.",
+     "inBand": true,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 6
+    },
+    {
+     "text": "Ella no le decía nunca a nadie que se comportaba mal.",
+     "raw": " Ella no le decía nunca a nadie que se comportaba mal.",
+     "inBand": false,
+     "famBand": false,
+     "target": false,
+     "verb": true,
+     "words": 11
+    },
+    {
+     "text": "La comida era muy violenta y no nos gustaba.",
+     "raw": " La comida era muy violenta y no nos gustaba.",
+     "inBand": true,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 9
+    },
+    {
+     "text": "La comida era comida, no comida dulce.",
+     "raw": " La comida era comida, no comida dulce.",
+     "inBand": true,
+     "famBand": true,
+     "target": false,
+     "verb": true,
+     "words": 7
+    },
+    {
+     "text": "No era muy amable, pero no era violento.",
+     "raw": " No era muy amable, pero no era violento.",
+     "inBand": true,
+     "famBand": true,
+     "target": true,
+     "verb": true,
+     "words": 8
+    }
+   ]
+  }
+ ]
+}

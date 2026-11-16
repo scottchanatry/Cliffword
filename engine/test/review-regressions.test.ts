@@ -319,7 +319,8 @@ describe('alg-3: a placed learner can land inside the known-word band', () => {
     const stub = { id: 'stub', scoreContinuation: async () => [], nextTokens: async () => [], generate: async (_p: string, o: { n: number }) => Array.from({ length: o.n }, (_, i) => cands[i % cands.length] as string) };
     const r = await generateNextSentence(stub, { pack, learner, pair }, { story: ['Marta llegó tarde al mercado.'], targets: [], params, now: T0, seed: 1 });
     expect(r.diagnostics.retried).toBe(false);
-    expect(r.diagnostics.modelCalls).toBe(1);
+    // One generation call; the natural score adds scoring calls only (naturalTop).
+    expect(r.diagnostics.generateCalls).toBe(1);
     expect(r.best?.inBand).toBe(true);
     expect(r.best?.bandShare).toBeGreaterThan(params.knownBand.min);
   });

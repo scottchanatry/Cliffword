@@ -111,6 +111,12 @@ export function toMusicPlayerError(error: unknown): MusicPlayerError {
   }
 }
 
+/** Module seconds as whole ms (never negative or NaN). */
+function msOf(seconds: number): number {
+  const ms = Math.round(Number(seconds) * 1000);
+  return Number.isFinite(ms) && ms > 0 ? ms : 0;
+}
+
 function playbackStatusOf(status: NativePlaybackStatus): PlaybackStatus {
   switch (status) {
     case 'playing':
@@ -299,7 +305,7 @@ export class MusicKitPlayer implements MusicPlayer {
       this.slot.cancel('past-target');
       return;
     }
-    const positionMs = Math.max(0, event.positionSec * 1000);
+    const positionMs = msOf(event.positionSec);
     if (this.current.song) this.set({ status: 'paused', song: this.current.song, positionMs });
     this.slot.fire(event.token, positionMs);
   }
@@ -307,13 +313,13 @@ export class MusicKitPlayer implements MusicPlayer {
   private applyTime(event: NativeTimeEvent): void {
     const { status, song } = this.current;
     if (!song || status !== 'playing' || playbackStatusOf(event.status) !== 'playing') return;
-    this.current = { ...this.current, positionMs: Math.max(0, event.positionSec * 1000), at: this.clock.now() };
+    this.current = { ...this.current, positionMs: msOf(event.positionSec), at: this.clock.now() };
   }
 
   private applyNative(native: NativePlaybackState, opts: ApplyOptions = {}): void {
     const previous = this.current;
     const song = this.songFor(native);
-    let positionMs = Math.max(0, Number(native.positionSec) * 1000 || 0);
+    let positionMs = msOf(native.positionSec);
     let status: PlaybackStatus = song ? (opts.force ?? playbackStatusOf(native.status)) : 'idle';
     if (song && !opts.force && status !== 'playing' && previous.song?.id === song.id) {
       const reachedEnd =

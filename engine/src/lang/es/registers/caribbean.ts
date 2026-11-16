@@ -54,5 +54,12 @@ export const CARIB_REGISTER: RegisterPack = {
     casual('papi', 'cariño', 'babe, handsome (term of address)'),
     vulgar('coño', 'caramba', 'damn! (strong exclamation)'),
     vulgar('carajo', 'caramba', 'damn! hell! (exclamation)'),
+    // more shared words of street talk and lyrics
+    clipped("pela'o", 'pelado', 'broke, out of money (clipped "pelado")', { pos: 'ADJ' }),
+    vulgar('joder', 'molestar', 'to bother, mess with ("no me jodas": don\'t mess with me); also: to screw', { pos: 'VERB' }),
+    vulgar('jodío', 'jodido', 'screwed, messed up; damn (clipped "jodido")', { kind: 'clipped', pos: 'ADJ' }),
+    vulgar('mierda', 'porquería', 'shit', { pos: 'NOUN' }),
+    vulgar('culo', 'trasero', 'ass, butt', { pos: 'NOUN' }),
+    vulgar('puta', 'prostituta', 'whore; also an insult or an intensifier', { pos: 'NOUN' }),
   ],
 };

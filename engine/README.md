@@ -23,8 +23,8 @@ npx vitest run     # all tests, including integration and simulated learners
 | `src/lang/types.ts` | The `LanguagePack` contract: segments, analyses, analysis choice in context, features, correction rule kinds (swap, inflect, insert, delete, move), slang entries and register packs, the shared `Register` type, enclitic pronouns (`attachClitic`, `splitClitics`), spoken commands (`commands`), command fillers (`fillers`) and regular street endings (`streetEndings`). |
 | `src/lang/choose.ts` | One analysis per word in context (`chooseAnalysesInText`): PROPN for capitalized words mid-sentence, else `pack.chooseAnalysis` with the previous word, else the first analysis. Selection, cliff choice and corrections all key words through it. |
 | `src/lang/es/` | The Spanish pack: segmenter that keeps clipped forms (`'tá`, `pa'`) whole, normalizer, conjugation and inflection, analyzer (exact, then enclitics, then accent-insensitive; a noun or adjective in its own dictionary form first), homographs in context (`chooseSpanishAnalysis`: la comida, he estado, ella vino), a 1788-lemma frequency lexicon that includes every cognate of the pair pack. `clitics.ts`: enclitics attached keeping the host's stress (leyéndolo, dámelo) and split off again. `commands.ts`: spoken commands, fillers and street endings (`SPANISH_COMMANDS`, `SPANISH_FILLERS`, `SPANISH_STREET_ENDINGS`). `createSpanishPack`. |
-| `src/lang/es/rules.ts` | The 22 Spanish correction rules as data: ser/estar, por/para, gender, number (street tolerant), aspect, mood, personal a, articles, and object pronouns (five move rules for placement, clitic order, le/les to se before lo/la). |
-| `src/lang/es/registers/` | Slang register packs for Puerto Rico, the Dominican Republic, Cuba, Colombia and shared Caribbean clipped forms, with meaning, region, formality and explicit flag. `findSlang`. |
+| `src/lang/es/rules.ts` | The 29 Spanish correction rules as data: ser/estar (not before a slang predicate), por/para, gender and number (never breaking an agreement that holds; number street tolerant), subject-verb agreement (subject before the verb, and gustar-type verbs with the noun after), aspect, mood, personal a (also across an adverb and before nadie/alguien), articles (also at a sentence start and before clock hours), a + el = al and de + el = del, possessive to article with body parts and clothes, and object pronouns (move rules for placement, participles after haber, doubled pronouns, clitic order, le/les to se before lo/la). |
+| `src/lang/es/registers/` | Slang register packs for Puerto Rico, the Dominican Republic, Cuba, Colombia and shared Caribbean clipped forms, with meaning, region, formality and explicit flag (common explicit lyric words included). `findSlang`. |
 | `src/pair/types.ts` | The `PairPack` contract. |
 | `src/pair/en-es/` | English speakers learning Spanish: glosses both ways (every lexicon lemma has one), phrase translations, cognates, false friends, an English lexicon for spotting English inside Spanish replies, correction explanations, interface strings (every key a session screen can carry), and the starter story `EN_ES_STARTER` (zero-knowledge scene, canned mode, placement ladder), which `createDefaultPairPack()` includes. |
 | `src/scoring/` | Word surprise and heat (`scoreWords`), whole-word next-word lists from sub-word tokens (`nextWords`), cliff positions (`cliffPositions`) and answer credit (`scoreCliffAnswer`). |
@@ -368,19 +368,50 @@ fallback.
   context (`unitsBefore`), `judgeSentence`'s context join and `nativeReply` use it, so a
   Japanese story context is never joined with spaces.
 
+## Contract decisions made in the correction coverage round
+
+- `CorrectionRule` gained `AgreeRule` (kind `agree`: re-inflect a target with the person
+  and number of a controller found next to it; Spanish subject-verb and gustar
+  agreement) and `ContractRule` (kind `contract`: join "a el" into "al"; the generator
+  also writes inserts contracted and lets a delete with `fromContractions` take a word
+  out of a contraction). `KIND_PRIORITY` ranks `contract` with swaps and `agree` with
+  inflections.
+- `SwapRule` gained `beforeLemmas`, `afterPos`, `cueWords`, `agreeNext` (body-part
+  article) and `notBeforeSlang` / `slangThroughPos` (ser/estar before a slang predicate).
+  `InflectRule` gained `keepAgreement` (never break an agreement that holds; never change
+  a word next to a slang word of those parts of speech) and `nextPosFor` (a determiner
+  changes only before its noun phrase, so "Las compré" keeps its pronoun).
+  `InsertRule` gained `sentenceStart` and `afterThroughPos`; `DeleteRule` gained
+  `fromContractions`; `MoveRule` gained `homographNotBeforePos` (neuter "lo" is never an
+  article before a noun), `viaAuxiliary` (a participle after haber hands its pronouns to
+  haber) and `doubledWithin` (a pronoun said twice).
+- Corrections protect inflected forms of single-word slang entries through the chosen
+  lemma, and `slangExemption` exempts them from heat.
+- The Spanish pack reads a noun/verb homograph after que, si, cuando, porque, aunque,
+  ojalá or mientras as the verb (`VERB_CUE_CONJUNCTIONS`), so "que estudio" gets a mood
+  variant.
+- New explanation keys in the en-es pack: `es.verb_agreement`, `es.contraction`,
+  `es.body_article`, `es.pronoun_double`.
+
 ## Known limits
 
-- No contractions in corrections: inserting "el" after "a" gives "a el", not "al", and
-  the personal a is not proposed before "el" ("Veo el niño" gets no "Veo al niño").
 - Corrections never restore a missing accent (by design, so ser/estar is not credited for
   an accent fix). Typed text without accents can therefore get a wrong explanation: with
   the mock, "Ella esta cansada." gives a gender hint. Speech recognition writes accents;
   typed input needs an accent-restoration step before `judgeSentence`.
-- Voseo and vosotros are not covered. Pronoun placement misses "He lo visto" (visto is
-  also a form of vestir), pronouns past two verbs, "dálelo", a doubled pronoun ("Lo
-  estoy leyéndolo"), "Compro lo mañana", and a wrong mood with the pronoun already in
-  place ("No lo haz"). `Analysis` has no field for enclitics; `splitClitics` recovers
-  them ("dámelo" -> da + me, lo).
+- Voseo and vosotros are not covered. Pronoun placement misses pronouns past two verbs,
+  "dálelo", and a wrong mood with the pronoun already in place ("No lo haz").
+  `Analysis` has no field for enclitics; `splitClitics` recovers them ("dámelo" -> da +
+  me, lo).
+- Subject-verb agreement sees only a subject right before the verb (through no, object
+  pronouns and adverbs) or, for gustar-type verbs, the noun right after it: a subject
+  after the verb ("Ayer llegó mis padres"), coordinated subjects and a noun of time
+  before the verb ("Los lunes trabajo") are left alone. The body-part and gustar lists
+  hold lexicon lemmas only (chaqueta, fascinar are not in the lexicon).
+- `slangExemption` exempts every word of a phrase entry wherever it occurs ("qué es la
+  que hay" exempts que and la in Puerto Rican street text), because the predicate sees one
+  segment at a time; corrections match phrases as runs of words. Inflected slang
+  (bacana, panas, bregamos) is exempt and protected through its lemma.
 - Scripts without spaces (Japanese, Chinese) need a pack-aware token classifier for
   `nextWords` (`opts.classify`); none exists yet, so next-word lists and cliff
   alternatives are whole token runs there. `test/language-neutral.test.ts` runs scoring,
@@ -413,6 +444,10 @@ fallback.
 - `test/integration.test.ts`: the real Spanish pack, rules, registers and pair pack with the
   mock model. Covers the ser/estar assert, ok sentences, slang protection in street register,
   word scores and next words end to end, gap capture, and one full story step.
+- `test/correction-coverage.test.ts`: the rules and slang entries of the correction
+  coverage round (agreement, contractions, sentence-start and hour articles, body-part
+  articles, personal a, participles and doubled pronouns, slang protection and the new
+  entries), with regressions for the fixes the last real-model round never generated.
 - `test/review-regressions.test.ts`: real-pack regression tests for the review findings
   (alg-*, lng-*): multi-word cliff credit, personal a, homographs in context, slang that is
   also standard, variants per rule category without junk, judge asserts whose fix is not in

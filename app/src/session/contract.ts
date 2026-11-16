@@ -16,8 +16,10 @@
 import type {
   LyricScreen,
   MeaningView,
+  SentenceView,
   SpokenCommand,
   StoryScreen,
+  SurpriseUnit,
   TextMode,
   UiText,
 } from '@cliffword/engine';
@@ -84,6 +86,19 @@ export interface StoryViewModel extends CommonViewState {
   /** ViewWord.index currently being spoken by TTS (tile highlight), or null. */
   speakingWord: number | null;
   textMode: TextMode;
+  /**
+   * Optional (added by the story views): the chapter's earlier sentences, oldest first, as
+   * the session drew them once resolved (e.g. each landing's sentence). The views draw them
+   * above the current sentence, as the design's passage; without it only the current
+   * sentence shows.
+   */
+  previous?: readonly SentenceView[];
+  /**
+   * Optional (added by the story controller): on the options rung each option is read aloud
+   * after the sentence; this is CliffOption.index of the one being read (its chip lights), or
+   * null.
+   */
+  speakingOption?: number | null;
 }
 
 export interface StoryActions extends CommonActions {
@@ -129,6 +144,25 @@ export interface LyricViewModel extends CommonViewState {
   playback: PlaybackState;
   /** Neutral or street register shown on the song page. */
   register: 'neutral' | 'street';
+  /**
+   * Optional (added by the music views): settings.showExplicit. The cliff's "Explicit · on"
+   * pill shows it, and while it is false the views also hide explicit slang in the raw lines
+   * a screen carries (cliff previous/before, echo, registers), which have no masked spans.
+   * Absent: no pill, nothing extra hidden.
+   */
+  showExplicit?: boolean;
+  /**
+   * Optional (added by the music views): settings.regions (the register packs that apply),
+   * so slang notes the views look up for a line (echo hold, register labels) use the same
+   * packs as the session. Absent: every pack.
+   */
+  regions?: readonly string[];
+  /**
+   * Optional (added by the music views): word surprise of a brought text (engine
+   * surpriseMap, one unit per sentence), for the reader's amber shading. Absent or null:
+   * not scored (no model yet), the text is drawn unshaded.
+   */
+  surprise?: readonly SurpriseUnit[] | null;
 }
 
 export interface LyricActions extends CommonActions {
@@ -145,6 +179,17 @@ export interface LyricActions extends CommonActions {
   markLine(index: number, positionMs: number): void;
   play(): void;
   pause(): void;
+  /**
+   * Optional (added by the music views): the "Explicit · on" pill on the cliff turns
+   * explicit lyrics off or on (settings.showExplicit). Absent: the pill is a static chip.
+   */
+  setShowExplicit?(show: boolean): void;
+  /**
+   * Optional (added by the music views): tap a hollow (missed) tile of the echo's learner
+   * row: hear that word of the line slowly. index is the EchoTile index (the line's word and
+   * number segments). Absent: the tiles are drawn only.
+   */
+  hearWord?(index: number): void;
 }
 
 export interface LyricController {

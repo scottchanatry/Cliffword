@@ -168,19 +168,34 @@ describe('generateVariants: swaps', () => {
 });
 
 describe('generateVariants: inflections', () => {
-  it('re-inflects gender on adjectives and determiners', () => {
+  it('re-inflects gender on adjectives and determiners, never breaking an agreement that holds', () => {
     const pack = createTestPack({ rules: [GENDER_RULE] });
     const t = 'La casa blanco es bonita.';
     const vs = generateVariants(pack, t);
-    expect(texts(vs)).toEqual(['El casa blanco es bonita.', 'La casa blanca es bonita.', 'La casa blanco es bonito.']);
+    // "El casa" would break the agreement of "La" with "casa" (keepAgreement); "blanco"
+    // disagrees with "casa", so it changes; "bonita" has no noun next to it.
+    expect(texts(vs)).toEqual(['La casa blanca es bonita.', 'La casa blanco es bonito.']);
     expectWellFormed(t, vs);
+    const without = createTestPack({ rules: [{ ...GENDER_RULE, keepAgreement: undefined }] });
+    expect(texts(generateVariants(without, t))).toEqual([
+      'El casa blanco es bonita.',
+      'La casa blanca es bonita.',
+      'La casa blanco es bonito.',
+    ]);
   });
 
   it('re-inflects number on nouns too and skips invariant forms', () => {
-    const pack = createTestPack({ rules: [GENDER_RULE, NUMBER_RULE] });
+    const plain = (r: InflectRule): InflectRule => ({ ...r, keepAgreement: undefined });
+    const pack = createTestPack({ rules: [plain(GENDER_RULE), plain(NUMBER_RULE)] });
     const vs = generateVariants(pack, 'La mesa grande.');
     // "grande" has no gender, so only its number changes.
     expect(texts(vs)).toEqual(['El mesa grande.', 'Las mesa grande.', 'La mesas grande.', 'La mesa grandes.']);
+    // With the agreement guard, a sentence that agrees throughout gets nothing.
+    expect(generateVariants(createTestPack({ rules: [GENDER_RULE, NUMBER_RULE] }), 'La mesa grande.')).toEqual([]);
+    // A determiner that disagrees with its noun is changed to agree; the noun keeps its
+    // agreement with the adjective after it, so "mesas" is not proposed.
+    expect(texts(generateVariants(createTestPack({ rules: [NUMBER_RULE] }), 'Las mesa grande.'))).toEqual(['La mesa grande.']);
+    expect(texts(generateVariants(createTestPack({ rules: [NUMBER_RULE] }), 'Las mesa.'))).toEqual(['La mesa.', 'Las mesas.']);
   });
 
   it('re-inflects mood and aspect on verbs, keeping person and tense', () => {
@@ -204,8 +219,8 @@ describe('generateVariants: inflections', () => {
 
   it('keeps capitalization when re-inflecting', () => {
     const pack = createTestPack({ rules: [GENDER_RULE] });
-    expect(texts(generateVariants(pack, 'La casa.'))).toEqual(['El casa.']);
-    expect(texts(generateVariants(pack, 'LA CASA.'))).toEqual(['EL CASA.']);
+    expect(texts(generateVariants(pack, 'El casa.'))).toEqual(['La casa.']);
+    expect(texts(generateVariants(pack, 'EL CASA.'))).toEqual(['LA CASA.']);
   });
 
   it('ignores words whose analysis lacks the feature or whose POS is not listed', () => {
@@ -252,8 +267,11 @@ describe('generateVariants: inserts', () => {
   it('inserts articles that agree with the noun after a verb or preposition', () => {
     const pack = createTestPack({ rules: [...ARTICLE_INSERT_RULES] });
     expect(texts(generateVariants(pack, 'Compro pan.'))).toEqual(['Compro el pan.', 'Compro un pan.']);
+    // "gracias" is a noun in the test lexicon, so a definite article may also open the
+    // sentence (sentenceStart); the real pack reads it as an interjection.
     expect(texts(generateVariants(pack, 'Gracias por comida.'))).toEqual([
       'Gracias por la comida.',
+      'Las gracias por comida.',
       'Gracias por una comida.',
     ]);
     // After a determiner nothing is inserted (no "la la casa").
@@ -405,7 +423,9 @@ describe('generateVariants: slang and register', () => {
     const t = 'Vamos de una.';
     expect(generateVariants(full, t, { maxVariants: 100 })).toEqual([]);
     const noSlang = createTestPack({ rules: SPANISH_RULES, registers: [] });
-    expect(texts(generateVariants(noSlang, t, { maxVariants: 100 }))).toContain('Vamos de un.');
+    // Without the slang entry the phrase's words are edited like any others (a determiner
+    // with no noun after it is no longer re-inflected, nextPosFor, but it is deleted).
+    expect(texts(generateVariants(noSlang, t, { maxVariants: 100 }))).toContain('Vamos de.');
   });
 
   it('finds slang word indices for single words and phrases', () => {
@@ -415,13 +435,14 @@ describe('generateVariants: slang and register', () => {
   });
 
   it('skips streetTolerant rules in street register only', () => {
-    const t = 'Los libro nuevos.';
+    const t = 'Las libro nuevos.';
     const neutral = generateVariants(full, t, { maxVariants: 100 });
     const streetVs = generateVariants(full, t, { register: 'street', maxVariants: 100 });
     expect(neutral.some((v) => v.ruleId === 'es.number')).toBe(true);
     expect(streetVs.some((v) => v.ruleId === 'es.number')).toBe(false);
     expect(streetVs.some((v) => v.ruleId === 'es.gender')).toBe(true);
-    expect(texts(neutral)).toContain('Los libros nuevos.');
+    expect(texts(neutral)).toContain('Las libros nuevos.');
+    expect(texts(streetVs)).toContain('Los libro nuevos.');
   });
 
   it('applies the streetTolerant flag of any rule, not just number', () => {
@@ -438,9 +459,10 @@ describe('generateVariants: priority, dedup and cap', () => {
     const rules: CorrectionRule[] = [ARTICLE_DELETE_RULE, uncuedMood, GENDER_RULE, SER_ESTAR_RULE];
     const pack = createTestPack({ rules });
     const vs = generateVariants(pack, 'La casa es blanco.', { maxVariants: 100 });
-    expect(vs.map((v) => v.kind)).toEqual(['swap', 'inflect', 'inflect', 'inflect', 'delete']);
-    // Inflections follow the order of rules in the pack (mood before gender here).
-    expect(vs.map((v) => v.ruleId)).toEqual(['es.ser_estar', 'es.mood', 'es.gender', 'es.gender', 'es.article.delete']);
+    expect(vs.map((v) => v.kind)).toEqual(['swap', 'inflect', 'inflect', 'delete']);
+    // Inflections follow the order of rules in the pack (mood before gender here). "El
+    // casa" is not proposed: it would break the agreement of "La" with "casa".
+    expect(vs.map((v) => v.ruleId)).toEqual(['es.ser_estar', 'es.mood', 'es.gender', 'es.article.delete']);
   });
 
   it('keeps the first of identical texts and drops variants equal to the original', () => {

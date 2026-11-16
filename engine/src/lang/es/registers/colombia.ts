@@ -16,6 +16,7 @@ export const CO_REGISTER: RegisterPack = {
     // Greetings and friends
     casual('parce', 'amigo', 'buddy, mate'),
     casual('parcero', 'amigo', 'buddy, mate'),
+    casual('man', 'hombre', 'guy, dude (from English "man": "ese man")', { pos: 'NOUN' }),
     phrase('qué más', 'qué tal', "how's it going?", { alsoStandard: true }),
     clipped('quiubo', 'hola', "hi, what's up? (from \"¿qué hubo?\")"),
     casual('parche', 'grupo', 'group of friends; plan, hangout'),
@@ -60,5 +61,10 @@ export const CO_REGISTER: RegisterPack = {
     // Vulgar (explicit)
     vulgar('chimba', 'genial', 'awesome ("¡qué chimba!"); also vulgar for vagina'),
     vulgar('gonorrea', 'desgraciado', 'scumbag (strong insult)', { pos: 'NOUN' }),
+    // A masculine singular noun in "el putas" (the devil, the best): "más bacano que el putas".
+    vulgar('putas', 'lo máximo', 'in "el putas": the best, like hell ("más bacano que el putas")', { pos: 'NOUN' }),
+    vulgar('hijueputa', 'desgraciado', 'son of a bitch; also an exclamation or intensifier', { pos: 'NOUN' }),
+    vulgar('malparido', 'desgraciado', 'bastard', { pos: 'NOUN' }),
+    vulgar('güevón', 'tonto', 'idiot; between friends: dude', { pos: 'NOUN' }),
   ],
 };

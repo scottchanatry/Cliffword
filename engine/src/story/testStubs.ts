@@ -8,6 +8,7 @@ import type { Analysis, Features, LanguagePack, Pos, Segment } from '../lang/typ
 import type { GenerateOptions, LanguageModel, TokenCandidate, TokenScore } from '../model/types';
 import type { PairPack } from '../pair/types';
 import type { DifficultyParams, LearnerView, Skill } from '../learner/types';
+import { SPANISH_ABBREVIATIONS, SPANISH_STORY_DATA } from '../lang/es/story';
 
 const WORD_RE = /['’]?[\p{L}\p{M}]+(?:['’][\p{L}\p{M}]+)*['’]?/uy;
 const NUMBER_RE = /\d+(?:[.,]\d+)*/uy;
@@ -163,6 +164,10 @@ export function createStubPack(): LanguagePack {
     frequencyRank: (lemma) => RANKS[lemma],
     rules: [],
     registers: [],
+    // The Spanish story data (prompt wording, leak patterns, meta words, labels) and
+    // abbreviations, as the real Spanish pack carries them.
+    abbreviations: SPANISH_ABBREVIATIONS,
+    story: SPANISH_STORY_DATA,
   };
 }
 
@@ -273,19 +278,28 @@ export class CountingModel implements LanguageModel {
 
 /**
  * A model whose generate() returns scripted outputs: call i returns rounds[i] (the last
- * round repeats), truncated or cycled to n. Scoring methods are not used by these tests.
+ * round repeats), truncated or cycled to n. scoreContinuation returns one token with the
+ * scripted log-probability (the natural score of generateNextSentence).
  */
 export class ScriptedModel implements LanguageModel {
   readonly id = 'scripted';
   calls = 0;
-  constructor(private readonly rounds: readonly (readonly string[])[]) {}
+  scoreCalls = 0;
+  readonly prompts: string[] = [];
+  /** `logprob(text)` gives the total log-probability scoreContinuation reports for a text (0 by default). */
+  constructor(
+    private readonly rounds: readonly (readonly string[])[],
+    private readonly logprob: (text: string) => number = () => 0,
+  ) {}
   async scoreContinuation(_context: string, text: string): Promise<TokenScore[]> {
-    return [{ text, start: 0, end: text.length, logprob: 0 }];
+    this.scoreCalls++;
+    return [{ text, start: 0, end: text.length, logprob: this.logprob(text.trim()) }];
   }
   async nextTokens(): Promise<TokenCandidate[]> {
     return [];
   }
-  async generate(_prompt: string, opts: GenerateOptions): Promise<string[]> {
+  async generate(prompt: string, opts: GenerateOptions): Promise<string[]> {
+    this.prompts.push(prompt);
     const round = this.rounds[Math.min(this.calls, this.rounds.length - 1)] ?? [];
     this.calls++;
     const out: string[] = [];

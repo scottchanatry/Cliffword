@@ -114,7 +114,39 @@ const MUSIC_AND_DEVICE: Migration = {
   ],
 };
 
-export const MIGRATIONS: readonly Migration[] = [CORE, MUSIC_AND_DEVICE];
+/**
+ * v3: the learner model's prior next to its snapshot. A prior is a function, so the row keeps
+ * the engine's PriorSpec (JSON) that rebuilds it (buildPrior); NULL on older rows, where
+ * settings.startLevel decides (src/learner/prior.ts). Written when placement replaces the prior.
+ */
+const LEARNER_PRIOR: Migration = {
+  version: 3,
+  name: 'learner-prior',
+  steps: ['ALTER TABLE learner_snapshots ADD COLUMN prior TEXT'],
+};
+
+/**
+ * v4: texts the learner brings (articles, transcripts) for cliffs and surprise shading. Like
+ * lyrics they stay on this device. Songs gain the Apple Music genre (the song page's "artist ·
+ * genre · region" line) and when they were last opened (the library puts recent songs first).
+ */
+const BROUGHT_TEXTS: Migration = {
+  version: 4,
+  name: 'brought-texts',
+  steps: [
+    `CREATE TABLE IF NOT EXISTS texts (
+      id TEXT PRIMARY KEY NOT NULL,
+      title TEXT NOT NULL,
+      raw_text TEXT NOT NULL,
+      created_at INTEGER NOT NULL,
+      last_opened_at INTEGER
+    )`,
+    'ALTER TABLE songs ADD COLUMN genre TEXT',
+    'ALTER TABLE songs ADD COLUMN last_opened_at INTEGER',
+  ],
+};
+
+export const MIGRATIONS: readonly Migration[] = [CORE, MUSIC_AND_DEVICE, LEARNER_PRIOR, BROUGHT_TEXTS];
 
 /** The schema version this build of the app writes. */
 export const SCHEMA_VERSION = MIGRATIONS.length;

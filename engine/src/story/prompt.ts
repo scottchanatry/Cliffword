@@ -1,18 +1,40 @@
 /**
- * Prompting a small instruct model for the next story sentence, and cleaning what it
- * writes back.
+ * Prompting the model for the next story sentence, and cleaning what it writes back.
  *
- * The prompt is written in the language being learned (Spanish by default) with short,
- * one-line instructions, then the last few story sentences, then a label for the model
- * to continue after. All wording lives in a PromptText table so other languages supply
- * their own.
+ * The continuation prompt (buildStoryPrompt) is plain text the model continues, with no
+ * chat template, the way model_server.py /generate and llama.rn completion work. Layout:
+ *
+ *   header line           what the text is, its level and a length hint (pack wording)
+ *   characters line       the story's names
+ *   scene line            where it happens (when known)
+ *   vocabulary line       words the reader knows (only for small vocabularies)
+ *   street line           street register only
+ *   (blank line)
+ *   [tag] sentence        the last story sentences, one per line, each after its key word
+ *   [tag] sentence
+ *   [next tag]            the word the next sentence should use
+ *
+ * The model writes " sentence" after the last tag; generation stops at the first
+ * sentence end. Measured on Qwen3-1.7B (proof/ENGINE_REAL_MODEL.md, "Story generation at
+ * every level"): the tagged lines made the next sentence use a content-word target in 12
+ * of 12 early-learner candidates where a "new word" header line alone gave 2 of 12, and
+ * the instruction prompt this replaces gave fill-in templates and empty lines.
+ *
+ * All wording comes from LanguagePack.story (lang/storyData.ts); a pack without it gets
+ * the tagged lines alone. The brackets and line breaks are the only fixed text
+ * (DEFAULT_STORY_PROMPT_OPTIONS). The prompt is returned as a shared prefix plus a
+ * suffix (the next tag), so rounds with another tag reuse the prefix (and the model's
+ * KV cache of it).
+ *
+ * The older instruction prompt (buildContinuationPrompt) is kept for callers that still
+ * build it; its wording comes from the pack too (StoryLanguageData.instructions).
  *
  * Small models decorate their answers: labels ("Oración:"), quotes, markdown, a
  * translation in brackets, a second sentence, an English gloss. extractSentence undoes
  * all of that and returns one clean sentence.
  */
 import {
-  DEFAULT_ABBREVIATIONS,
+  NO_ABBREVIATIONS,
   SENTENCE_END_CHARS,
   capitalizeFirst,
   isCapitalized,
@@ -21,67 +43,23 @@ import {
   splitSentences,
   wholeAtLeast,
 } from './text';
-import type { Register } from '../lang/types';
+import type { LanguagePack, Register, StoryInstructionText, StoryLanguageData } from '../lang/types';
 
 /** Neutral or street register (shared contract type; street lets clipped forms like 'tá and pa' through). */
 export type { Register } from '../lang/types';
 
 /**
- * Prompt wording. Placeholders: {max} (maximum words), {words} (target words),
- * {region} (region name).
+ * Wording of the older instruction prompt (buildContinuationPrompt). Placeholders: {max}
+ * (maximum words), {words} (target words), {region} (region name). Languages supply it as
+ * StoryLanguageData.instructions (Spanish: SPANISH_PROMPT_TEXT in lang/es).
  */
-export interface PromptText {
-  /** Task line when the story has sentences. */
-  task: string;
-  /** Task line when the story is empty. */
-  taskFirst: string;
-  /** Task line of the simpler retry prompt. */
-  taskSimple: string;
-  length: string;
-  oneTarget: string;
-  manyTargets: string;
-  simpleWords: string;
-  veryEasyWords: string;
-  neutral: string;
-  street: string;
-  /** Inserted into `street` as {region} when a region is given, e.g. " de Puerto Rico". */
-  streetRegion: string;
-  answerOnly: string;
-  storyLabel: string;
-  nextLabel: string;
-  firstLabel: string;
-  /** Separator between target words, and before the last one. */
-  listSeparator: string;
-  listLastSeparator: string;
-}
+export type PromptText = StoryInstructionText;
 
-export const SPANISH_PROMPT_TEXT: Readonly<PromptText> = {
-  task: 'Escribe la siguiente oración de esta historia.',
-  taskFirst: 'Escribe la primera oración de una historia corta.',
-  taskSimple: 'Escribe una oración muy corta y fácil que siga la historia.',
-  length: 'Una sola oración, de {max} palabras como máximo.',
-  oneTarget: 'Usa la palabra {words}.',
-  manyTargets: 'Usa estas palabras: {words}.',
-  simpleWords: 'Usa palabras sencillas.',
-  veryEasyWords: 'Usa solo palabras muy comunes.',
-  neutral: 'Habla en español neutro.',
-  street: "Usa español de la calle{region}, como 'tá y pa'.",
-  streetRegion: ' de {region}',
-  answerOnly: 'Responde solo con la oración, sin comillas ni traducción.',
-  storyLabel: 'Historia:',
-  nextLabel: 'Siguiente oración:',
-  firstLabel: 'Primera oración:',
-  listSeparator: ', ',
-  listLastSeparator: ' y ',
-};
-
-/** Region codes (as used in SlangEntry.regions) to names used in prompts. */
-export const REGION_NAMES: Readonly<Record<string, string>> = {
-  PR: 'Puerto Rico',
-  DO: 'República Dominicana',
-  CU: 'Cuba',
-  CO: 'Colombia',
-  CARIB: 'el Caribe',
+/** Instruction wording with every line empty: a pack without instructions gets no lines. */
+const BLANK_PROMPT_TEXT: Readonly<PromptText> = {
+  task: '', taskFirst: '', taskSimple: '', length: '', oneTarget: '', manyTargets: '', simpleWords: '',
+  veryEasyWords: '', neutral: '', street: '', streetRegion: '', answerOnly: '', storyLabel: '', nextLabel: '',
+  firstLabel: '', listSeparator: ', ', listLastSeparator: ', ',
 };
 
 export interface PromptOptions {
@@ -95,9 +73,12 @@ export interface PromptOptions {
   simple?: boolean;
   /** Number of story sentences included (the last ones). Default 4. */
   contextSentences?: number;
-  /** Wording overrides (another language, or tuning). */
+  /**
+   * Wording, merged over blank lines (pass the pack's StoryLanguageData.instructions,
+   * e.g. SPANISH_PROMPT_TEXT). Empty lines are left out.
+   */
   text?: Partial<PromptText>;
-  /** Region code to name table. Default REGION_NAMES. */
+  /** Region code to name table (StoryLanguageData.regionNames). Default none: the code is used. */
   regionNames?: Readonly<Record<string, string>>;
 }
 
@@ -115,23 +96,23 @@ export function joinList(words: readonly string[], sep: string, lastSep: string)
 }
 
 /** Story sentences as a list: a string is split into sentences; array entries are split too. */
-export function storySentences(story: string | readonly string[]): string[] {
+export function storySentences(story: string | readonly string[], abbreviations: readonly string[] = NO_ABBREVIATIONS): string[] {
   const entries = typeof story === 'string' ? [story] : story;
-  return entries.flatMap((e) => splitSentences(e.replace(/\s+/gu, ' ')));
+  return entries.flatMap((e) => splitSentences(e.replace(/\s+/gu, ' '), abbreviations));
 }
 
 /**
- * The instruction lines of a continuation prompt, in order. Exposed so the selector can
+ * The instruction lines of the older prompt, in order. Exposed so the selector can
  * detect candidates that echo them.
  *
  * Method: a task line (first sentence, next sentence, or the simpler retry wording), a
  * length limit, a line naming the target words (only the first one in the simple
  * prompt), a word-difficulty line, a register line (street names the region when
- * given) and a line asking for the bare sentence.
+ * given) and a line asking for the bare sentence. Lines whose wording is empty are left out.
  */
 export function promptInstructionLines(opts: PromptOptions, storyIsEmpty = false): string[] {
-  const t: PromptText = { ...SPANISH_PROMPT_TEXT, ...opts.text };
-  const names = opts.regionNames ?? REGION_NAMES;
+  const t: PromptText = { ...BLANK_PROMPT_TEXT, ...opts.text };
+  const names = opts.regionNames ?? {};
   const targets = (opts.simple ? opts.targets.slice(0, 1) : opts.targets).map((w) => w.trim()).filter(Boolean);
   const lines: string[] = [];
   lines.push(opts.simple ? t.taskSimple : storyIsEmpty ? t.taskFirst : t.task);
@@ -146,28 +127,198 @@ export function promptInstructionLines(opts: PromptOptions, storyIsEmpty = false
     lines.push(t.neutral);
   }
   lines.push(t.answerOnly);
-  return lines;
+  return lines.filter((l) => l.trim() !== '');
 }
 
 /**
- * Build a continuation prompt for a small instruct model.
+ * Build the older instruction prompt.
  *
  * Layout: instruction lines (see promptInstructionLines), a blank line, the story label
  * and the last `contextSentences` sentences on one line, a blank line, then the "next
- * sentence" label. The prompt ends right after the label's colon, with no trailing
- * space or newline, so a stop sequence of "\n" ends the model's answer after one line.
- * An empty story omits the story block and asks for a first sentence.
+ * sentence" label. The prompt ends right after the label, with no trailing space or
+ * newline, so a stop sequence of "\n" ends the model's answer after one line. An empty
+ * story omits the story block and asks for a first sentence.
  */
 export function buildContinuationPrompt(storySoFar: string | readonly string[], opts: PromptOptions): string {
-  const t: PromptText = { ...SPANISH_PROMPT_TEXT, ...opts.text };
+  const t: PromptText = { ...BLANK_PROMPT_TEXT, ...opts.text };
   const keep = Math.max(0, Math.floor(opts.contextSentences ?? DEFAULT_CONTEXT_SENTENCES));
   const sentences = storySentences(storySoFar);
   const recent = keep === 0 ? [] : sentences.slice(-keep);
   const lines = promptInstructionLines(opts, recent.length === 0);
   const parts = [lines.join('\n')];
-  if (recent.length) parts.push(`${t.storyLabel}\n${recent.join(' ')}`);
+  if (recent.length) parts.push(t.storyLabel ? `${t.storyLabel}\n${recent.join(' ')}` : recent.join(' '));
   parts.push(recent.length ? t.nextLabel : t.firstLabel);
-  return parts.join('\n\n');
+  return parts.filter((p) => p !== '').join('\n\n');
+}
+
+// ---------------------------------------------------------------------------
+// The continuation prompt
+// ---------------------------------------------------------------------------
+
+/** A story sentence with the key word its prompt line is tagged with. */
+export interface StoryLine {
+  text: string;
+  /** The tag word; computed with tagFor when absent. */
+  tag?: string;
+}
+
+/** Fixed structure of the continuation prompt (no words of any language). */
+export interface StoryPromptOptions {
+  /** Opening and closing marks of a line tag. */
+  tagOpen: string;
+  tagClose: string;
+  /** Between the tag and the sentence. */
+  tagSeparator: string;
+  /** Between several tag words. */
+  tagJoiner: string;
+  /** Story sentences shown (the last ones). */
+  contextSentences: number;
+  /** Example lines (StoryLanguageData.examples) fill the story block up to this many lines. */
+  minLines: number;
+}
+
+/**
+ * Defaults. Brackets: Qwen3-1.7B keeps the "[word] sentence" pattern and starts its
+ * answer with a space after the final tag; it rarely writes brackets inside a sentence,
+ * and a candidate that does is rejected as a placeholder. contextSentences 4: the story
+ * module's earlier default. minLines 3: with fewer tagged lines the model did not pick up
+ * the pattern (one line gave tag-only answers such as "¿Qué?").
+ */
+export const DEFAULT_STORY_PROMPT_OPTIONS: Readonly<StoryPromptOptions> = Object.freeze({
+  tagOpen: '[',
+  tagClose: ']',
+  tagSeparator: ' ',
+  tagJoiner: ', ',
+  contextSentences: DEFAULT_CONTEXT_SENTENCES,
+  minLines: 3,
+});
+
+export interface StoryPromptInput {
+  /** Story so far (oldest first); plain strings are tagged with tagFor. */
+  story: readonly (string | StoryLine)[];
+  /** The next line's tag: the target words, or a familiar word for a safe round. */
+  tag: string | readonly string[];
+  /** Level name for the header (StoryLanguageData.levels); see levelName. */
+  level?: string;
+  /** Length hint for the header; see lengthHintFor. */
+  lengthHint?: string;
+  /** Characters to name. */
+  names?: readonly string[];
+  scene?: string;
+  /** Words the reader knows (left out when empty). */
+  vocabulary?: readonly string[];
+  register?: Register;
+  /** Region code; named through StoryLanguageData.regionNames. */
+  region?: string;
+  options?: Partial<StoryPromptOptions>;
+}
+
+export interface StoryPrompt {
+  /** The whole prompt: prefix + suffix. */
+  prompt: string;
+  /** Everything up to the last line break: the same for every tag. */
+  prefix: string;
+  /** The final tag. */
+  suffix: string;
+  /** Header lines, for leak detection. */
+  headerLines: string[];
+  /** The vocabulary line among them, or null. */
+  vocabularyLine: string | null;
+}
+
+/** Parts of speech preferred as a tag (content words); a word the pack does not know counts as one. */
+const TAG_POS = new Set(['NOUN', 'VERB', 'ADJ', 'ADV']);
+
+/**
+ * The tag word of a sentence: its rarest content word by pack.frequencyRank (a word
+ * outside the frequency list counts as rarest; a function word only when the sentence
+ * has no content word), skipping names (PROPN, a capitalized word the pack does not
+ * know, and `names`). Lowercase surface form as
+ * written; '' when the sentence has no such word. Language-neutral: words come from
+ * pack.segment.
+ */
+export function tagFor(pack: LanguagePack, sentence: string, names: readonly string[] = []): string {
+  const skip = new Set(names.map((n) => pack.normalize(n)));
+  let best = '';
+  let bestRank = -1;
+  let bestContent = false;
+  for (const seg of pack.segment(sentence)) {
+    if (seg.kind !== 'word') continue;
+    const norm = seg.norm || pack.normalize(seg.text);
+    if (!norm || skip.has(norm)) continue;
+    const a = pack.analyze(norm)[0];
+    // A capitalized word the pack does not know is most likely a name, at a sentence start too.
+    if (a?.pos === 'PROPN' || (!a && isCapitalized(seg.text))) continue;
+    const rank = a ? pack.frequencyRank(a.lemma) ?? Number.MAX_SAFE_INTEGER : Number.MAX_SAFE_INTEGER;
+    const content = !a || TAG_POS.has(a.pos);
+    if ((content && !bestContent) || (content === bestContent && rank > bestRank)) {
+      bestRank = rank;
+      bestContent = content;
+      best = seg.text.toLocaleLowerCase(pack.code);
+    }
+  }
+  return best;
+}
+
+/** Level name for an estimated vocabulary: the first StoryLanguageData.levels entry whose upTo is at least vocab. */
+export function levelName(data: StoryLanguageData | undefined, vocab: number): string | undefined {
+  return data?.levels?.find((l) => vocab <= l.upTo)?.name;
+}
+
+/** Length hint for the longest sentence allowed: the first lengthHints entry whose maxWords is at least it. */
+export function lengthHintFor(data: StoryLanguageData | undefined, maxWords: number): string | undefined {
+  return data?.lengthHints?.find((h) => maxWords <= h.maxWords)?.text;
+}
+
+/**
+ * Build the continuation prompt (see the module comment for the layout). Header lines
+ * whose wording or value is missing are left out; with no header line at all the
+ * prompt starts with the story lines. Story lines are the last `contextSentences`
+ * sentences; when there are fewer than minLines, the pack's example lines come first.
+ * Line breaks inside a sentence become spaces.
+ */
+export function buildStoryPrompt(pack: LanguagePack, input: StoryPromptInput): StoryPrompt {
+  const o: StoryPromptOptions = { ...DEFAULT_STORY_PROMPT_OPTIONS, ...input.options };
+  const data = pack.story;
+  const t = data?.prompt;
+  const names = [...new Set((input.names ?? []).map((n) => n.trim()).filter(Boolean))];
+  const headerLines: string[] = [];
+  let vocabularyLine: string | null = null;
+  if (t) {
+    const sep = t.listSeparator;
+    const level = input.level ? fill(t.level, { name: input.level }) : '';
+    const hint = input.lengthHint ? fill(t.lengthHint, { text: input.lengthHint }) : '';
+    if (t.header) headerLines.push(fill(t.header, { level, lengthHint: hint }));
+    if (t.characters && names.length) headerLines.push(fill(t.characters, { names: names.join(sep) }));
+    if (t.scene && input.scene?.trim()) headerLines.push(fill(t.scene, { scene: input.scene.trim() }));
+    const vocab = [...new Set((input.vocabulary ?? []).map((w) => w.trim()).filter(Boolean))];
+    if (t.vocabulary && vocab.length) {
+      vocabularyLine = fill(t.vocabulary, { words: vocab.join(sep) });
+      headerLines.push(vocabularyLine);
+    }
+    if (input.register === 'street' && t.street) {
+      const region = input.region ? data?.regionNames?.[input.region] ?? input.region : '';
+      headerLines.push(fill(t.street, { region: region ? fill(t.streetRegion, { region }) : '' }));
+    }
+  }
+  const keep = Math.max(0, Math.floor(o.contextSentences));
+  const lines: StoryLine[] = input.story
+    .map((x) => (typeof x === 'string' ? { text: x } : x))
+    .map((x) => ({ ...x, text: x.text.replace(/\s+/gu, ' ').trim() }))
+    .filter((x) => x.text !== '')
+    .slice(keep === 0 ? input.story.length : -keep);
+  const examples = (data?.examples ?? []).slice(0, Math.max(0, o.minLines - lines.length));
+  const tagged = [...examples.map((e) => ({ text: e.text, tag: e.tag })), ...lines].map((l) => {
+    const tag = l.tag?.trim() || tagFor(pack, l.text, names);
+    return tag ? `${o.tagOpen}${tag}${o.tagClose}${o.tagSeparator}${l.text}` : l.text;
+  });
+  const tagWords = (typeof input.tag === 'string' ? [input.tag] : [...input.tag]).map((w) => w.trim()).filter(Boolean);
+  const blocks: string[] = [];
+  if (headerLines.length) blocks.push(headerLines.join('\n'));
+  if (tagged.length) blocks.push(tagged.join('\n'));
+  const prefix = blocks.length ? `${blocks.join('\n\n')}\n` : '';
+  const suffix = tagWords.length ? `${o.tagOpen}${tagWords.join(o.tagJoiner)}${o.tagClose}` : '';
+  return { prompt: prefix + suffix, prefix, suffix, headerLines, vocabularyLine };
 }
 
 // ---------------------------------------------------------------------------
@@ -198,23 +349,47 @@ export interface ExtractOptions {
   preambleWords: readonly string[];
 }
 
+/**
+ * Answer labels and preamble words of the model itself. Qwen3 and similar instruct
+ * models fall back to English meta talk whatever the language of the prompt ("Sentence:",
+ * "Here is the next sentence:"), so these belong to the model, not to a language; each
+ * pack adds its own (StoryLanguageData.labels, preambleWords).
+ */
+export const MODEL_META_LABELS: readonly string[] = [
+  'sentence', 'next sentence', 'answer', 'response', 'output', 'story', 'assistant', 'model', 'translation',
+];
+export const MODEL_META_PREAMBLE_WORDS: readonly string[] = ['sentence', 'here', "here's", 'sure', 'next'];
+
 export const DEFAULT_EXTRACT_OPTIONS: Readonly<ExtractOptions> = {
   minTrailingNative: 2,
-  abbreviations: DEFAULT_ABBREVIATIONS,
+  abbreviations: NO_ABBREVIATIONS,
   capitalize: true,
   addFinalPunctuation: true,
-  labels: [
-    'oracion', 'siguiente oracion', 'primera oracion', 'nueva oracion', 'frase', 'respuesta', 'continuacion',
-    'historia', 'texto', 'salida', 'espanol', 'sentence', 'next sentence', 'answer', 'response', 'output',
-    'spanish', 'story', 'assistant', 'asistente', 'modelo', 'model',
-  ],
-  // Only words that rarely appear in a story sentence before a colon ("frase" and
-  // "respuesta" do, as in "Marta leyó la frase: hola", so they are labels only).
-  preambleWords: ['oracion', 'aqui', 'claro', 'siguiente', 'continuacion', 'sentence', 'here', "here's", 'sure', 'next'],
+  labels: MODEL_META_LABELS,
+  preambleWords: MODEL_META_PREAMBLE_WORDS,
 };
 
+/**
+ * Extract options for a pack: the model's own labels and preamble words plus the pack's
+ * (StoryLanguageData.labels, preambleWords) and the pack's abbreviations.
+ */
+export function extractOptionsFor(pack: Pick<LanguagePack, 'story' | 'abbreviations'>, base: Partial<ExtractOptions> = {}): Partial<ExtractOptions> {
+  const d = pack.story;
+  return {
+    ...base,
+    labels: [...(base.labels ?? MODEL_META_LABELS), ...(d?.labels ?? [])],
+    preambleWords: [...(base.preambleWords ?? MODEL_META_PREAMBLE_WORDS), ...(d?.preambleWords ?? [])],
+    abbreviations: base.abbreviations ?? pack.abbreviations ?? NO_ABBREVIATIONS,
+  };
+}
+
 const DOUBLE_QUOTES = `"“”„«»`;
-const TRANSLATION_CUT_RE = /\s+(?:=|\/|\||->|→|-|–)\s+|\b(?:translation|traducci[oó]n|english|in english|en ingl[eé]s)\s*:/iu;
+/**
+ * Where a translation starts: a separator between spaces (" = ", " / ", " - "...) or the
+ * model's own English label ("Translation:", "English:"). A label in the target language
+ * ("Traducción:") is a pack leak pattern, so such a candidate is rejected instead.
+ */
+const TRANSLATION_CUT_RE = /\s+(?:=|\/|\||->|→|-|–)\s+|\b(?:translation|english|in english)\s*:/iu;
 
 /** Remove markdown decoration from one line: fences, headings, quotes, bullets, emphasis, code ticks. */
 export function stripMarkdown(line: string): string {

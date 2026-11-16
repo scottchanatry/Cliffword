@@ -13,12 +13,10 @@ export const SENTENCE_CLOSERS = `"'”’»)]」』`;
 
 /**
  * Abbreviations (normalized, without the dot) after which a period does not end a
- * sentence. Spanish defaults; pass another list for other languages.
+ * sentence: none by default. Languages supply theirs in LanguagePack.abbreviations
+ * (Spanish: SPANISH_ABBREVIATIONS); the story module passes the pack's list.
  */
-export const DEFAULT_ABBREVIATIONS: readonly string[] = [
-  'sr', 'sra', 'srta', 'sres', 'sras', 'dr', 'dra', 'ud', 'uds', 'vd', 'vds',
-  'prof', 'profa', 'av', 'avda', 'dña', 'núm', 'pág',
-];
+export const NO_ABBREVIATIONS: readonly string[] = [];
 
 const CJK_END_RE = /[。！？]/u;
 const ELLIPSIS_RE = /^(?:…|\.{2,})$/u;
@@ -85,7 +83,7 @@ export function isSentenceEndPunct(seg: Segment): boolean {
  */
 export function sentenceEndFlags(
   segments: readonly Segment[],
-  abbreviations: readonly string[] = DEFAULT_ABBREVIATIONS,
+  abbreviations: readonly string[] = NO_ABBREVIATIONS,
 ): boolean[] {
   const abbr = new Set(abbreviations);
   let lastContent: Segment | undefined;
@@ -108,7 +106,7 @@ export function sentenceEndFlags(
  */
 export function sentenceStartFlags(
   segments: readonly Segment[],
-  abbreviations: readonly string[] = DEFAULT_ABBREVIATIONS,
+  abbreviations: readonly string[] = NO_ABBREVIATIONS,
 ): boolean[] {
   const ends = sentenceEndFlags(segments, abbreviations);
   let atStart = true;
@@ -139,7 +137,7 @@ function previousWord(text: string, end: number): string {
  * (uppercase letter, ¿, ¡, a quote or a dash). Sentences are trimmed; empty pieces are
  * dropped. A final piece without end punctuation is kept.
  */
-export function splitSentences(text: string, abbreviations: readonly string[] = DEFAULT_ABBREVIATIONS): string[] {
+export function splitSentences(text: string, abbreviations: readonly string[] = NO_ABBREVIATIONS): string[] {
   const abbr = new Set(abbreviations);
   const out: string[] = [];
   let start = 0;

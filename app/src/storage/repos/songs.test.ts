@@ -17,6 +17,8 @@ describe('SongRepo', () => {
       artist: 'Bad Bunny',
       artworkUrl: null,
       addedAt: 1,
+      genre: null,
+      lastOpenedAt: null,
     });
     const again = await storage.songs.upsert({
       source: 'apple_music',
@@ -52,6 +54,20 @@ describe('SongRepo', () => {
     expect((await storage.songs.list()).map((s) => s.id)).toEqual([recent.id, old.id]);
     expect(await storage.songs.get(old.id)).toEqual(old);
     expect(await storage.songs.list(1)).toHaveLength(1);
+  });
+
+  it('keeps a genre once known, renames, and lists recently opened songs first', async () => {
+    const a = await storage.songs.upsert({ source: 'apple_music', externalId: 'a', title: 'A', genre: 'Reggaeton', addedAt: 1 });
+    expect(a.genre).toBe('Reggaeton');
+    expect((await storage.songs.upsert({ source: 'apple_music', externalId: 'a', title: 'A', addedAt: 1 })).genre).toBe('Reggaeton');
+    const b = await storage.songs.upsert({ source: 'manual', title: 'B', addedAt: 2 });
+    expect((await storage.songs.recent()).map((s) => s.id)).toEqual([b.id, a.id]);
+    await storage.songs.markOpened(a.id, 10);
+    expect((await storage.songs.recent()).map((s) => s.id)).toEqual([a.id, b.id]);
+    expect((await storage.songs.get(a.id))?.lastOpenedAt).toBe(10);
+    expect(await storage.songs.rename(b.id, { title: ' Luna de Santurce ', artist: 'Rayo K.' })).toMatchObject({ title: 'Luna de Santurce', artist: 'Rayo K.' });
+    await expect(storage.songs.rename(b.id, { title: ' ' })).rejects.toThrow(/title/);
+    expect(await storage.songs.rename('nope', { title: 'X' })).toBeNull();
   });
 
   it('removes a song with its lyrics', async () => {

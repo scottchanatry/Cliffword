@@ -1,7 +1,8 @@
 /**
  * Songs the learner added: from Apple Music (MusicKit id), shared in from Spotify (track id
  * from the share link) or typed in by hand (no external id). A song from a service is stored
- * once per (source, external id); adding it again updates its title, artist and artwork.
+ * once per (source, external id); adding it again updates its title, artist and artwork (and
+ * its genre when the new one has one). v4 adds the genre and when the song was last opened.
  */
 import type { StorageClock } from '../clock';
 import type { SqlDatabase } from '../sql/types';
@@ -18,6 +19,10 @@ export interface Song {
   artist: string;
   artworkUrl: string | null;
   addedAt: number;
+  /** Apple Music's first genre name ("Reggaeton"); null when unknown. */
+  genre: string | null;
+  /** When the song page was last opened; null until then. */
+  lastOpenedAt: number | null;
 }
 
 export interface SongInput {
@@ -27,6 +32,7 @@ export interface SongInput {
   artist?: string;
   artworkUrl?: string | null;
   addedAt?: number;
+  genre?: string | null;
 }
 
 interface SongRow {
@@ -37,6 +43,8 @@ interface SongRow {
   artist: string;
   artwork_url: string | null;
   added_at: number;
+  genre: string | null;
+  last_opened_at: number | null;
 }
 
 const toSong = (row: SongRow): Song => ({
@@ -47,6 +55,8 @@ const toSong = (row: SongRow): Song => ({
   artist: row.artist,
   artworkUrl: row.artwork_url,
   addedAt: row.added_at,
+  genre: row.genre ?? null,
+  lastOpenedAt: row.last_opened_at ?? null,
 });
 
 export class SongRepo {
@@ -64,10 +74,10 @@ export class SongRepo {
     const addedAt = input.addedAt ?? this.clock.now();
     return this.db.transaction(async (tx) => {
       await tx.run(
-        `INSERT INTO songs (id, source, external_id, title, artist, artwork_url, added_at) VALUES (?, ?, ?, ?, ?, ?, ?)
+        `INSERT INTO songs (id, source, external_id, title, artist, artwork_url, added_at, genre) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
          ON CONFLICT (source, external_id) DO UPDATE SET title = excluded.title, artist = excluded.artist,
-           artwork_url = excluded.artwork_url`,
-        [id, input.source, externalId, input.title, input.artist ?? '', input.artworkUrl ?? null, addedAt],
+           artwork_url = excluded.artwork_url, genre = COALESCE(excluded.genre, songs.genre)`,
+        [id, input.source, externalId, input.title, input.artist ?? '', input.artworkUrl ?? null, addedAt, input.genre?.trim() || null],
       );
       const row = externalId
         ? await tx.get<SongRow>('SELECT * FROM songs WHERE source = ? AND external_id = ?', [input.source, externalId])
@@ -91,6 +101,30 @@ export class SongRepo {
   async list(limit = -1): Promise<Song[]> {
     const rows = await this.db.all<SongRow>('SELECT * FROM songs ORDER BY added_at DESC, id LIMIT ?', [limit]);
     return rows.map(toSong);
+  }
+
+  /** Most recently opened or added first (the library order). */
+  async recent(limit = -1): Promise<Song[]> {
+    const rows = await this.db.all<SongRow>(
+      'SELECT * FROM songs ORDER BY MAX(added_at, IFNULL(last_opened_at, 0)) DESC, added_at DESC, id LIMIT ?',
+      [limit],
+    );
+    return rows.map(toSong);
+  }
+
+  /** Change the title or artist (the learner corrects a shared or pasted song). Returns null for an unknown id. */
+  async rename(id: string, patch: { title?: string; artist?: string }): Promise<Song | null> {
+    const title = patch.title?.trim();
+    const artist = patch.artist?.trim();
+    if (title !== undefined && !title) throw new Error('A song needs a title');
+    if (title !== undefined) await this.db.run('UPDATE songs SET title = ? WHERE id = ?', [title, id]);
+    if (artist !== undefined) await this.db.run('UPDATE songs SET artist = ? WHERE id = ?', [artist, id]);
+    return this.get(id);
+  }
+
+  /** The song page was opened at `at`. */
+  async markOpened(id: string, at: number = this.clock.now()): Promise<void> {
+    await this.db.run('UPDATE songs SET last_opened_at = ? WHERE id = ?', [at, id]);
   }
 
   /** Delete a song and its lyrics. */

@@ -130,4 +130,4 @@ labels will say so before the version that does it is released.
 
 ## Contact
 
-Questions about this policy or about Cliffword's privacy: `<CONTACT_EMAIL>`
+Questions about this policy or about Cliffword's privacy: hello@scottchanatry.com

@@ -26,17 +26,28 @@ Facts the answers rest on (checked in the code on 2026-11-16):
 
 ## Decisions for the owner
 
-Each of these is open. The answers below assume the choice marked "assumed".
+Decided on 2026-11-16 (owner's answers; 1, 3, 6 and 7 are the assistant's defaults under the
+owner's instruction to finish without further questions).
 
-| # | Decision | Assumed | Why it matters |
+| # | Decision | Decided | Why it matters |
 |---|---|---|---|
-| 1 | **Oldest iPhone.** iOS 16.4 lets the iPhone 8, 8 Plus and X (A11, 2 to 3 GB of memory) install the app, but they cannot hold the 1.1 GB model. Options: raise the deployment target to iOS 17.0 (A12 and later), or add `UIRequiredDeviceCapabilities` `iphone-ipad-minimum-performance-a12`. | iOS 16.4, no device requirement | Apple does not accept an update that adds a device capability requirement, so that option exists only for 1.0. Raising the iOS version later is allowed. |
-| 2 | **Explicit default.** Keep explicit lyrics and slang ON by default. | ON (your choice) | Sets the age rating answers (below). |
-| 3 | **Network recognition.** Keep the opt-in switch, or remove it for 1.0 and offer typing only where on-device Spanish is missing. | Keep, off by default | See "App Privacy" for how the labels treat it. |
-| 4 | **EU trader status** (Digital Services Act). App Store Connect asks every developer who distributes in the EU whether they are a trader; a trader's address, phone and email are shown on the product page. | Not decided | Without an answer the app cannot be offered in EU storefronts. Leaving the EU out of the availability list is the other route. |
-| 5 | **Android memory floor.** Exclude phones with less than 4 GB of RAM in the Play Console device catalog. | Not decided | 3 GB phones may be killed while the model is loaded (DEVICE-CHECKLIST L4). |
-| 6 | **Generated sentences on Play.** Add an in-app "Report this sentence" action. | Not decided | See "AI-generated content" under Google Play. |
-| 7 | **Final icon.** `app/assets/icon.png` is the generated placeholder. | Placeholder | The store icon is hard to change after reviews and screenshots exist. |
+| 1 | **Oldest iPhone.** iOS 16.4 would let the iPhone 8, 8 Plus and X (A11, 2 to 3 GB of memory) install the app, but they cannot hold the 1.1 GB model. | Deployment target raised to **iOS 17.0** (A12 and later) | Apple does not accept an update that adds a device capability requirement; raising the iOS version is the route that stays open. |
+| 2 | **Explicit default.** Explicit lyrics and slang ON by default. | **ON** (owner) | Sets the age rating answers (below). |
+| 3 | **Network recognition.** Opt-in switch for network speech recognition where on-device Spanish is missing. | **Keep, off by default** | See "App Privacy" for how the labels treat it. |
+| 4 | **EU trader status** (Digital Services Act). | **Not a trader** (owner). Answer "No" in App Store Connect; the app stays available in EU storefronts and no trader contact details are shown. | Without an answer the app cannot be offered in EU storefronts. |
+| 5 | **Android memory floor.** | **Exclude phones with less than 4 GB of RAM** in the Play Console device catalog (owner) | 3 GB phones may be killed while the model is loaded (DEVICE-CHECKLIST L4). |
+| 6 | **Generated sentences on Play.** In-app "Report this sentence" action. | **Add it** (opens an email to the contact address with the sentence) | See "AI-generated content" under Google Play. |
+| 7 | **Final icon.** | **Replace the placeholder** before screenshots | The store icon is hard to change after reviews and screenshots exist. |
+| 8 | **State age-check laws** (Texas, Utah, Louisiana). | **No age check** (owner) | The owner's call; the age rating is set from the content (below). |
+
+## Hosting and contact (owner)
+
+| Item | Value |
+|---|---|
+| Privacy policy URL | https://scottchanatry.com/cliffword/privacy |
+| Support URL | https://scottchanatry.com/cliffword/support |
+| Marketing URL | https://scottchanatry.com/cliffword |
+| Contact email | hello@scottchanatry.com |
 
 ## Not in the app yet (needed before review)
 
@@ -64,7 +75,7 @@ Each of these is open. The answers below assume the choice marked "assumed".
 | Primary category | Education |
 | Secondary category | Music |
 | Content rights | "Does your app contain, show, or access third-party content?" Yes: it plays the user's Apple Music library through MusicKit and shows lyrics and texts the user pastes. It ships no third-party songs or lyrics. The model is Apache-2.0 and the fonts are OFL-1.1, with notices on the in-app licenses screen. |
-| Privacy Policy URL | `<PRIVACY_URL>` (where `docs/PRIVACY.md` is hosted, see RELEASE.md) |
+| Privacy Policy URL | https://scottchanatry.com/cliffword/privacy (where `docs/PRIVACY.md` is hosted, see RELEASE.md) |
 | Copyright | `2026 Scott Chanatry` (the field takes the year and the owner's name; no URL) |
 | Price | Free (tier 0), no in-app purchases |
 | Age rating | See "Age rating" |
@@ -125,8 +136,8 @@ Slang notes and lyrics include explicit words, and they are shown by default. Tu
 The language model needs about 1.1 GB of storage, plus some free space while it downloads. Works best on iPhone 12 or newer.
 ```
 
-**Support URL:** `<SUPPORT_URL>` (a page with a contact email; it can be the same site as the
-privacy policy). **Marketing URL** (optional): `<MARKETING_URL>`.
+**Support URL:** https://scottchanatry.com/cliffword/support (a page with a contact email; it can be the same site as the
+privacy policy). **Marketing URL** (optional): https://scottchanatry.com/cliffword.
 
 **What's New:** not shown for the first version.
 
@@ -345,9 +356,9 @@ and place the shots on a canvas of an accepted size without stretching them.
 | Free or paid | Free |
 | Category | Education |
 | Tags | Language learning (pick the closest tags the console offers) |
-| Contact email | `<CONTACT_EMAIL>` (required, shown publicly) |
-| Website | `<SUPPORT_URL>` (optional) |
-| Privacy policy | `<PRIVACY_URL>` |
+| Contact email | hello@scottchanatry.com (required, shown publicly) |
+| Website | https://scottchanatry.com/cliffword/support (optional) |
+| Privacy policy | https://scottchanatry.com/cliffword/privacy |
 
 **Full description** (under 4,000 characters; it says what Android does differently: no Apple
 Music):
@@ -398,7 +409,7 @@ Needs a 64-bit (arm64) phone and about 1.1 GB of storage for the language model,
 
 | Declaration | Answer | Reason |
 |---|---|---|
-| Privacy policy | `<PRIVACY_URL>` | |
+| Privacy policy | https://scottchanatry.com/cliffword/privacy | |
 | App access | All functionality is available without special access | No login. Apple Music is iOS only and not part of the Android app. |
 | Ads | No, my app does not contain ads | |
 | Advertising ID | No | `com.google.android.gms.permission.AD_ID` is in `blockedPermissions` |

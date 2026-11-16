@@ -254,24 +254,25 @@ promote a release from internal to closed testing in the Play Console.
 6. Then create the production release (Production, Create new release, or `submit` with
    `track: production`) and roll it out.
 
-## Privacy policy and URLs (Owner, with Assistant help)
+## Privacy policy and URLs (Owner)
 
-1. Host `docs/PRIVACY.md`. Two simple ways:
-   - **GitHub Pages.** Pages on a private repo needs a paid GitHub plan, so if this repo stays
-     private, make a small public repo (for example `cliffword-site`) holding `privacy.md`
-     (a copy of `docs/PRIVACY.md`) and a short `index.md` support page with your contact email.
-     Settings, Pages, Deploy from a branch, `main`, root. The policy is then at
-     `https://scottchanatry.github.io/cliffword-site/privacy.html`. The assistant can prepare the
-     files; you create the repo and turn on Pages.
-   - **Your domain.** Register cliffword.app, point it at the same Pages site (Settings, Pages,
-     Custom domain), and use `https://cliffword.app/privacy.html`.
-2. Replace the placeholders in `docs/STORE.md` and `docs/PRIVACY.md` (`<PRIVACY_URL>`,
-   `<SUPPORT_URL>`, `<MARKETING_URL>`, `<CONTACT_EMAIL>`) and enter the URLs in App Store Connect
-   (App Information: Privacy Policy URL; version page: Support URL, Marketing URL) and the Play
-   Console (App content: Privacy policy; Store settings: website and email).
-3. Give the privacy URL to the assistant: Settings needs a "Privacy policy" link inside the app
-   (Guideline 5.1.1(i)) before review.
-4. Whenever the policy changes, update the hosted copy and its effective date.
+The pages live on your site, scottchanatry.com. Ready-to-upload HTML is in `docs/site/cliffword/`
+(made from `docs/PRIVACY.md`; regenerate with `python3 docs/site/build.py` after editing the policy).
+
+| Upload this file | To this URL |
+|---|---|
+| `docs/site/cliffword/index.html` | https://scottchanatry.com/cliffword (marketing) |
+| `docs/site/cliffword/privacy/index.html` | https://scottchanatry.com/cliffword/privacy |
+| `docs/site/cliffword/support/index.html` | https://scottchanatry.com/cliffword/support |
+
+1. Upload the three files so each URL above opens its page (most hosts serve `index.html` for a
+   folder URL).
+2. Enter the URLs and hello@scottchanatry.com in App Store Connect (App Information: Privacy
+   Policy URL; version page: Support URL, Marketing URL) and in the Play Console (App content:
+   Privacy policy; Store settings: website and email).
+3. The app links to the privacy URL from Settings, About (Guideline 5.1.1(i)).
+4. Whenever the policy changes, update `docs/PRIVACY.md`, its effective date, rebuild the pages and
+   upload them again.
 
 ## Mirror the model file (Owner creates the storage; Assistant can do the rest)
 

@@ -124,7 +124,7 @@ for (const id of profiles) {
       newRejects: own?.rejected ?? [], rejects, candidates: r.ranked.length, accepted: r.ranked.filter((e) => e.accepted).length,
       retried: r.diagnostics.retried, generateCalls: model.calls.generate, scoreCalls: model.calls.score,
       seconds: +(ms / 1000).toFixed(2), promptTokens, decodeTokens, bridge,
-      ranked: r.ranked.map((e) => ({ text: e.text, accepted: e.accepted, inBand: e.inBand, share: +e.bandShare.toFixed(3), rejected: e.rejected, targets: e.targetsHit })),
+      ranked: r.ranked.map((e) => ({ text: e.text, accepted: e.accepted, inBand: e.inBand, share: +e.bandShare.toFixed(3), rejected: e.rejected, targets: e.targetsHit, natural: (e as { natural?: number | null }).natural ?? null })),
       prompts: rounds.map((x) => x.prompt),
     };
     rows.push(row);

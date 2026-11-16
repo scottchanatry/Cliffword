@@ -332,6 +332,14 @@ export interface PlacementNews {
   snapshot?: PlacementSnapshot;
 }
 
+/**
+ * Why a session refused a call. 'busy': another step of the session was still running
+ * (an async step waiting for the model). A refused call changes nothing: it returns at
+ * once with the screen as it was before the running step began and no events, and the
+ * app may call again once that step has resolved.
+ */
+export type StepRefusal = 'busy';
+
 /** What one call into a story session returns. */
 export interface StoryStep {
   screen: StoryScreen;
@@ -346,6 +354,8 @@ export interface StoryStep {
   learnerReplaced?: boolean;
   /** The command that was recognized in the utterance, if any. */
   command?: SpokenCommand;
+  /** Set when the call was refused and changed nothing (see StepRefusal). */
+  refused?: StepRefusal;
 }
 
 // ---------------------------------------------------------------------------
@@ -459,6 +469,8 @@ export interface LyricStep {
   speak?: SpeakCue;
   meaning?: MeaningView;
   command?: SpokenCommand;
+  /** Set when the call was refused and changed nothing (see StepRefusal). */
+  refused?: StepRefusal;
 }
 
 /** The source of a lyric session: pasted (parsed) lyrics, or a text the learner brought. */

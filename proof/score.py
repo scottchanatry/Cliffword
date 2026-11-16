@@ -22,8 +22,10 @@ llm = Llama(model_path=MODEL, n_ctx=512, n_threads=4, n_batch=512,
             logits_all=True, verbose=False)
 VOCAB = llm.n_vocab()
 
-# Start-of-text context: BOS when the model uses one, else the end-of-text token
-# (Qwen has no BOS; <|endoftext|> separates documents in its training data).
+# Start-of-text context: BOS when the model uses one, else llama.cpp's end-of-generation
+# token, token_eos(). Qwen3 has no BOS, and for the Qwen3 GGUFs used here token_eos() is
+# <|im_end|> (id 151645), not <|endoftext|> (151643): every proof number was scored after
+# <|im_end|>, and proof/model_server.py and the device adapter use the same start token.
 START = llm.tokenize(b"", add_bos=True, special=False) or [llm.token_eos()]
 
 WORD_RE = re.compile(r"[\w'’]+", re.UNICODE)

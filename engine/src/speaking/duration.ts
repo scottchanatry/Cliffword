@@ -58,6 +58,8 @@ export const DEFAULT_DURATION_OPTIONS: Readonly<DurationOptions> = {
 
 const LETTER_RE = /[\p{L}]/u;
 const DIGIT_RE = /\p{N}/u;
+/** A letter or a number character: something to say. */
+const SAYABLE_RE = /[\p{L}\p{N}]/u;
 
 /** Fallback syllable count of a word (see the module comment). */
 export function fallbackSyllables(
@@ -94,7 +96,8 @@ export function fallbackSyllables(
 /**
  * Estimated spoken length of `word` in ms at `speechRate` (1 = natural speed, as in
  * DifficultyParams.speechRate; 0.75 is slower, so longer). A non-positive or non-finite
- * rate counts as 1. See the module comment for the method.
+ * rate counts as 1. Text with no letter or number (empty, spaces, punctuation only) has
+ * nothing to say and lasts 0 ms. See the module comment for the method.
  */
 export function estimateDurationMs(
   word: string,
@@ -103,6 +106,8 @@ export function estimateDurationMs(
   opts: Partial<DurationOptions> = {},
 ): number {
   const o: DurationOptions = { ...DEFAULT_DURATION_OPTIONS, ...opts };
+  // Nothing to say (empty, spaces or punctuation only): no time, not minSyllables.
+  if (!SAYABLE_RE.test(word)) return 0;
   const counted = o.syllables ? o.syllables(word) : fallbackSyllables(word, pack, o);
   const syllables = Math.max(o.minSyllables, Number.isFinite(counted) ? counted : 0);
   const rate = Number.isFinite(speechRate) && speechRate > 0 ? speechRate : 1;

@@ -57,15 +57,22 @@ class CountingModel implements LanguageModel {
   constructor(readonly inner: LanguageModel) {
     this.id = inner.id;
   }
+  private queue: Promise<unknown> = Promise.resolve();
+  /** One request at a time (the server answers one at a time; a burst of connections can overflow its listen queue under load). */
   private async time<T>(m: Method, f: () => Promise<T>): Promise<T> {
     const book = this.book;
     book.calls[m] += 1;
-    const t0 = performance.now();
-    try {
-      return await f();
-    } finally {
-      book.ms[m] += performance.now() - t0;
-    }
+    const run = async () => {
+      const t0 = performance.now();
+      try {
+        return await f();
+      } finally {
+        book.ms[m] += performance.now() - t0;
+      }
+    };
+    const p = this.queue.then(run, run);
+    this.queue = p.catch(() => undefined);
+    return p;
   }
   scoreContinuation(c: string, t: string): Promise<TokenScore[]> {
     return this.time('scoreContinuation', () => this.inner.scoreContinuation(c, t));

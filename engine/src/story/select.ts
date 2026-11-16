@@ -37,8 +37,9 @@
  *    - novelty: -noveltyWeight x the largest word-set overlap with a recent sentence;
  *    - continuity: +continuityBonus when the sentence names a story character or reuses
  *      a content word of the recent story, -newNamePenalty per new name;
- *    - natural: +naturalWeight x (model log-probability per word - naturalBaseline),
+ *    - natural: +naturalWeight x (model log-probability per token - naturalBaseline),
  *      clamped to +-naturalClamp, when the caller scored the candidate (SelectCandidate.natural);
+ *      a scored candidate below naturalFloor is rejected (unnatural);
  *    - length: -lengthWeight per word outside params.sentenceWords;
  *    - unknown: -unknownPenalty per distinct unknown non-target lexeme beyond
  *      params.newWordsPerSentence (fractional allowances give fractional penalties).
@@ -80,12 +81,13 @@ export type RejectCode =
   | 'too_short'
   | 'too_long'
   | 'repeat'
-  | 'unbalanced_quotes';
+  | 'unbalanced_quotes'
+  | 'unnatural';
 
 /** Every reject code, in the order rejectReasons tests them. */
 export const REJECT_CODES: readonly RejectCode[] = [
   'empty', 'placeholder', 'list', 'heading', 'bare_quote', 'prompt_leak', 'meta', 'native_words', 'foreign',
-  'no_verb', 'too_short', 'too_long', 'repeat', 'unbalanced_quotes',
+  'no_verb', 'too_short', 'too_long', 'repeat', 'unbalanced_quotes', 'unnatural',
 ];
 
 /** Tunable numbers of selectSentence. */
@@ -160,11 +162,13 @@ export interface SelectOptions {
   continuityBonus: number;
   /** Penalty per name the story has not used yet. */
   newNamePenalty: number;
-  /** Weight per nat of the model's log-probability per word above naturalBaseline. */
+  /** Weight per nat of the model's mean log-probability per token above naturalBaseline. */
   naturalWeight: number;
   naturalBaseline: number;
   /** The natural term stays within +-naturalClamp. */
   naturalClamp: number;
+  /** A scored candidate below this mean log-probability per token is rejected (unnatural). */
+  naturalFloor: number;
 }
 
 /**
@@ -221,11 +225,15 @@ export const DEFAULT_SELECT_OPTIONS: Readonly<SelectOptions> = {
   noveltyWeight: 2,
   continuityBonus: 1,
   newNamePenalty: 1,
-  // Measured on Qwen3-1.7B (story context, scoring prefix): fluent in-band sentences
-  // score about -2 to -4 nats per word, odd ones ("La comida era muy violenta.") -5 to -7.
-  naturalWeight: 0.5,
-  naturalBaseline: -4,
+  // Measured on Qwen3-1.7B after a two-sentence story with the scoring prefix (mean
+  // log-probability per token): fluent beginner sentences -1.9 to -2.9 (one at -4.2),
+  // degenerate ones from a locked story ("El más es el que es más.", "El grupo está ver.")
+  // -4.1 to -6.2; per word the two groups overlapped far more. The floor rejects 6 of 10
+  // degenerate sentences and none of 10 fluent ones.
+  naturalWeight: 1,
+  naturalBaseline: -3,
   naturalClamp: 2,
+  naturalFloor: -4.4,
 };
 
 export interface SelectContext {
@@ -255,7 +263,7 @@ export interface SelectCandidate {
   text: string;
   /** The model's raw completion (placeholders, lists and headings show there). */
   raw?: string;
-  /** Model log-probability per word of the sentence in the story context (see generateNextSentence). */
+  /** Model mean log-probability per token of the sentence in the story context (see generateNextSentence). */
   natural?: number;
 }
 
@@ -320,7 +328,7 @@ export interface CandidateEvaluation {
   /** Story names used, and names the story has not used yet (normalized). */
   namesUsed: string[];
   newNames: string[];
-  /** Model log-probability per word, when scored. */
+  /** Model mean log-probability per token, when scored. */
   natural: number | null;
   score: number;
   parts: ScoreParts;
@@ -602,6 +610,7 @@ export function rejectReasons(
   ctx: SelectContext,
   o: SelectOptions,
   raw?: string,
+  natural?: number | null,
 ): RejectCode[] {
   const out: RejectCode[] = [];
   if (!words.some((w) => w.kind === 'word')) {
@@ -627,6 +636,7 @@ export function rejectReasons(
   if (words.length > o.hardMaxWordsFactor * ctx.params.sentenceWords.max) out.push('too_long');
   if (isRepeat(text, ctx.previous, ctx.pack, o.nearRepeatJaccard, abbreviationsOf(ctx, o), o.nearRepeatContainment, o.nearRepeatMinWords)) out.push('repeat');
   if (hasUnbalancedQuotes(text)) out.push('unbalanced_quotes');
+  if (natural !== undefined && natural !== null && Number.isFinite(natural) && natural < o.naturalFloor) out.push('unnatural');
   return out;
 }
 
@@ -687,7 +697,7 @@ function evaluateWith(
     natural: natural === null ? 0 : Math.max(-o.naturalClamp, Math.min(o.naturalClamp, o.naturalWeight * (natural - o.naturalBaseline))),
   };
   const score = parts.band + parts.target + parts.length + parts.unknown + parts.novelty + parts.continuity + parts.natural;
-  const rejected = rejectReasons(text, words, ctx, o, raw);
+  const rejected = rejectReasons(text, words, ctx, o, raw, natural);
 
   const reasons: string[] = [];
   for (const r of rejected) reasons.push(`rejected: ${r}`);
@@ -710,7 +720,7 @@ function evaluateWith(
   if (nativeWords.length) reasons.push(`native words: ${nativeWords.join(', ')}`);
   if (overlap > 0) reasons.push(`overlap with a recent sentence ${fmt(overlap)} (${fmt(parts.novelty)})`);
   if (parts.continuity !== 0) reasons.push(`continuity ${fmt(parts.continuity)}${newNames.length ? ` (new names: ${newNames.join(', ')})` : ''}`);
-  if (natural !== null) reasons.push(`natural ${fmt(natural)} nats per word (${fmt(parts.natural)})`);
+  if (natural !== null) reasons.push(`natural ${fmt(natural)} nats per token (${fmt(parts.natural)})`);
 
   const out: CandidateEvaluation = {
     index, text, accepted: rejected.length === 0, rejected, words, wordCount: words.length, knownShare,

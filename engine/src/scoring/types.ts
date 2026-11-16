@@ -95,4 +95,10 @@ export interface CliffResult {
    * Absent when the probability is exact.
    */
   bounded?: boolean;
+  /**
+   * Set when the credit came from lemma credit (CreditOptions.lemmaWeight): the
+   * alternative that is the same inflection of the same lexeme as the answer (reírse for
+   * reír) and its probability. logprob and prob stay the answer's own. Absent otherwise.
+   */
+  lemmaMatch?: { word: string; prob: number };
 }

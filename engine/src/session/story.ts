@@ -31,6 +31,19 @@
  *
  * Language-neutral: words come from LanguagePack.segment(), target-language data from
  * the packs, and display text is UiText (PairPack.ui keys).
+ *
+ * One step at a time
+ * ------------------
+ * An async step (next, handleUtterance, command, pickOption, startRegisterTask) can wait
+ * for the model for seconds. While it runs, every other step call is refused, not queued:
+ * it returns at once with refused: 'busy', the screen as it was before the running step
+ * began and no events, and changes nothing (a queued tap or answer would land on whatever
+ * screen the running step ends on). That holds for the synchronous calls too (tapWord,
+ * revealWord, played, setSettings). Reads during a step see the state from before it:
+ * snapshot(), screen, settings, prior and stageAt() never expose a half-done step, so a
+ * snapshot taken while busy restores to the session as it was when the step began.
+ * setModel() during a step is deferred until the step ends. A step that throws (a model
+ * error) leaves the session as it was before the step, so the app can simply retry.
  */
 import type { SpokenCommand } from '../lang/types';
 import type { LanguageModel } from '../model/types';
@@ -41,7 +54,7 @@ import { LearnerModel } from '../learner/model';
 import { cliffRungFor, deriveParams, estimateVocabulary, type RecentStats } from '../learner/difficulty';
 import { PlacementTracker, bandOf, type PlacementOptions } from '../learner/placement';
 import type { CliffPosition, CliffResult, NextWord } from '../scoring/types';
-import { cliffPositions } from '../scoring/cliff';
+import { alternativesReusable, cliffPositions } from '../scoring/cliff';
 import { scoringContext, slangExemption, slangIn } from '../scoring/context';
 import { scoreWords } from '../scoring/wordScores';
 import { chooseTargets } from '../story/targets';
@@ -360,6 +373,10 @@ export class StorySession {
   private readonly o: StorySessionOptions;
   private readonly applyEvents: boolean;
   private busy = false;
+  /** The state as it was when the running step began (reads while busy, and the rollback of a failed step). */
+  private stable: StoryState | null = null;
+  /** A model set while a step ran, applied when it ends. */
+  private pendingModel: { model: LanguageModel | null } | null = null;
   private lemmaCache: { lemma: string; key: string; pos: string | null; rank: number }[] | null = null;
   /** Every model call of this session goes through the gate (one at a time; prefetched answers replayed). */
   private gate: ModelGate | null = null;
@@ -446,13 +463,17 @@ export class StorySession {
     return new StorySession(deps, plain(snapshot.state), opts);
   }
 
-  /** JSON-serializable snapshot of the whole session (not the learner, which the app stores). */
+  /**
+   * JSON-serializable snapshot of the whole session (not the learner, which the app
+   * stores). While a step runs it is the session as it was before that step.
+   */
   snapshot(): StorySessionSnapshot {
-    return { format: STORY_SESSION_FORMAT, kind: 'story', state: plain(this.state) };
+    return { format: STORY_SESSION_FORMAT, kind: 'story', state: plain(this.readState()) };
   }
 
+  /** The current screen (while a step runs: the screen before it). */
   get screen(): StoryScreen {
-    return plain(this.state.screen);
+    return plain(this.readState().screen);
   }
 
   /** The learner the session updates (replaced when placement or brand_new set a prior). */
@@ -461,15 +482,27 @@ export class StorySession {
   }
 
   get settings(): SessionSettings {
-    return plain(this.state.settings);
+    return plain(this.readState().settings);
   }
 
   get prior(): PriorSpec {
-    return plain(this.state.prior);
+    return plain(this.readState().prior);
   }
 
-  /** Switch between canned mode (null) and a model; takes effect at the next sentence. Drops a prefetch. */
+  /** True while a step runs; other step calls are then refused (see the module comment). */
+  get isBusy(): boolean {
+    return this.busy;
+  }
+
+  /**
+   * Switch between canned mode (null) and a model; takes effect at the next sentence.
+   * Drops a prefetch. Called while a step runs, it takes effect when that step ends.
+   */
   setModel(model: LanguageModel | null): void {
+    if (this.busy) {
+      this.pendingModel = { model };
+      return;
+    }
     this.useModel(model);
   }
 
@@ -478,7 +511,7 @@ export class StorySession {
    * generation on the bridge vocabulary, or free generation (session/handover.ts).
    */
   stageAt(at: number): StoryStage {
-    return this.stage(at);
+    return this.stage(at, this.readState());
   }
 
   /** Model calls so far: made, answered from a prefetch, made by prefetches. */
@@ -573,6 +606,7 @@ export class StorySession {
 
   /** The no-sé answer (or a native target phrase) finished playing. */
   played(at: number): StoryStep {
+    if (this.busy) return this.refused();
     if (this.state.phase === 'noSe' && this.state.noSe) {
       this.state.noSe = advanceNoSe(this.state.noSe, { type: 'played' }, this.deps.pack, this.noSeOpts());
       this.state.screen = this.noSeScreen(at);
@@ -582,6 +616,7 @@ export class StorySession {
 
   /** Tap a word: hear it again (tap_rehear). Hidden and masked words cannot be tapped. */
   tapWord(index: number, at: number): StoryStep {
+    if (this.busy) return this.refused();
     const cur = this.state.current;
     const w = cur?.words[index];
     if (!cur || !w || !this.visible(index)) return this.step([]);
@@ -592,6 +627,7 @@ export class StorySession {
 
   /** Hold a word: see it (hold_reveal); it stays text for the rest of the sentence. */
   revealWord(index: number, at: number): StoryStep {
+    if (this.busy) return this.refused();
     const cur = this.state.current;
     const w = cur?.words[index];
     if (!cur || !w || !this.visible(index)) return this.step([]);
@@ -607,6 +643,7 @@ export class StorySession {
    * was generated and scored under the old ones).
    */
   setSettings(change: Partial<SessionSettings>, at: number): StoryStep {
+    if (this.busy) return this.refused();
     this.state.settings = resolveSessionSettings(change, this.state.settings);
     this.rerender(at);
     return this.step([]);
@@ -621,14 +658,39 @@ export class StorySession {
   // Internals: running steps and events
   // -------------------------------------------------------------------------
 
+  /**
+   * Run one async step: refused while another runs; the state before it is kept for reads
+   * during the step and restored if the step throws.
+   */
   private async run(fn: () => Promise<StoryStep>): Promise<StoryStep> {
-    if (this.busy) throw new Error('StorySession: a step is already running');
+    if (this.busy) return this.refused();
     this.busy = true;
+    const before = plain(this.state);
+    this.stable = before;
     try {
       return await fn();
+    } catch (e) {
+      // Nothing of a failed step stays: the app can retry it on the same state.
+      for (const k of Object.keys(this.state)) delete (this.state as unknown as Record<string, unknown>)[k];
+      Object.assign(this.state, before);
+      throw e;
     } finally {
       this.busy = false;
+      this.stable = null;
+      const pending = this.pendingModel;
+      this.pendingModel = null;
+      if (pending) this.useModel(pending.model);
     }
+  }
+
+  /** The state reads see: the state before the running step while busy. */
+  private readState(): StoryState {
+    return this.busy && this.stable ? this.stable : this.state;
+  }
+
+  /** A refused call (StepRefusal): nothing changes. */
+  private refused(): StoryStep {
+    return { screen: plain(this.readState().screen), events: [], refused: 'busy' };
   }
 
   /** Apply events to the learner and wrap the current screen into a step. */
@@ -925,13 +987,13 @@ export class StorySession {
   }
 
   /** The hand-over stage of the next story sentence (session/handover.ts). */
-  private stage(at: number): StoryStage {
+  private stage(at: number, state: StoryState = this.state): StoryStage {
     return handoverStage({
       pack: this.deps.pack,
       pair: this.deps.pair,
       learner: this.deps.learner,
       now: at,
-      starterUsed: this.state.starterUsed.length,
+      starterUsed: state.starterUsed.length,
       zeroStart: this.zeroStart(),
       hasModel: this.deps.model !== null,
       options: this.o.handover,
@@ -1544,7 +1606,7 @@ export class StorySession {
     let equivalence: LyricEquivalence | undefined;
     let scoredBy: CliffOutcome['scoredBy'];
     if (model) {
-      const r = await scoreLyricAnswer(model, pack, { context: cur.context, answer: cur.cliff.answer, before: cur.before }, transcript, this.regOpts());
+      const r = await scoreLyricAnswer(model, pack, { context: cur.context, answer: cur.cliff.answer, before: cur.before, ...this.precomputed(cur) }, transcript, this.regOpts());
       result = r;
       equivalence = r.equivalence;
       scoredBy = 'model';
@@ -1557,6 +1619,18 @@ export class StorySession {
       scoredBy = 'canned';
     }
     return this.land(result, scoredBy, at, equivalence);
+  }
+
+  /**
+   * What cliffPositions already found at the cliff of a model sentence (its alternatives
+   * and, for a single-word cliff, P(actual)), so the answer costs no next-word search.
+   * Canned sentences were never rated: their answers search as usual.
+   */
+  private precomputed(cur: CurrentSentence): { alternatives?: NextWord[]; actualLogprob?: number } {
+    if (cur.source !== 'model' || !alternativesReusable({}, {})) return {};
+    const out: { alternatives?: NextWord[]; actualLogprob?: number } = { alternatives: cur.alternatives };
+    if (cur.actualProb !== null && cur.actualProb > 0) out.actualLogprob = Math.log(cur.actualProb);
+    return out;
   }
 
   private async chooseOption(index: number, at: number): Promise<StoryStep> {

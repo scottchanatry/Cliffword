@@ -199,7 +199,12 @@ const DIGIT_RE = /\p{N}/u;
 /** Private-use character standing in for an enhanced-LRC word mark while the line is cleaned. */
 const MARK = '\uE000';
 
-function timeMs(min: string, sec: string, frac: string | undefined): number {
+/**
+ * An LRC time in ms, or undefined when it is not a valid time: LRC writes mm:ss.xx with
+ * seconds from 00 to 59, so "[99:99.99]" or "<01:75>" is junk, not a time.
+ */
+function timeMs(min: string, sec: string, frac: string | undefined): number | undefined {
+  if (Number(sec) >= 60) return undefined;
   let ms = (Number(min) * 60 + Number(sec)) * 1000;
   // .5 = 500 ms, .50 = 500 ms (centiseconds), .500 = 500 ms
   if (frac) ms += Math.round(Number(frac) * 10 ** (3 - frac.length));
@@ -265,7 +270,10 @@ interface DraftSection {
 function cleanLine(s: string, o: ParseLyricsOptions): { text: string; marks: WordMark[] } {
   const times: number[] = [];
   let t = s.replace(WORD_MARK_RE, (_m, a: string, b: string, c: string | undefined) => {
-    times.push(timeMs(a, b, c));
+    const ms = timeMs(a, b, c);
+    // An invalid mark is removed without a time.
+    if (ms === undefined) return '';
+    times.push(ms);
     return MARK;
   });
   t = t.trimEnd();
@@ -288,7 +296,9 @@ function cleanLine(s: string, o: ParseLyricsOptions): { text: string; marks: Wor
  * Method, line by line (the text is split at line breaks):
  * 1. Quotes are normalized (curly apostrophes to "'", curly double quotes to '"', odd
  *    spaces and invisible characters cleaned) and leading LRC timestamps
- *    ("[01:02.50][02:10.00]") are read; a bracketed line with an LRC tag key
+ *    ("[01:02.50][02:10.00]") are read (one with seconds of 60 or more, such as
+ *    "[99:99.99]", is not an LRC time: it is removed and gives none, and so is such a
+ *    word mark); a bracketed line with an LRC tag key
  *    ("[ar: Artist]", "[offset: +200]") becomes a tag. Enhanced-LRC word marks
  *    ("<01:02.80>") are removed and kept as WordMarks. Junk suffixes are cut, inner
  *    spaces collapsed, the line trimmed.
@@ -345,7 +355,9 @@ export function parseLyrics(raw: string, pack: LanguagePack, opts: Partial<Parse
     for (;;) {
       const m = TIMESTAMP_RE.exec(s);
       if (!m) break;
-      times.push(timeMs(m[1] as string, m[2] as string, m[3]));
+      // An invalid timestamp ("[99:99.99]") is removed from the line but gives no time.
+      const ms = timeMs(m[1] as string, m[2] as string, m[3]);
+      if (ms !== undefined) times.push(ms);
       s = s.slice(m[0].length);
     }
     const trimmed = s.trim();

@@ -94,23 +94,44 @@ function formWords(pack: LanguagePack, form: string): string[] {
 }
 
 /**
+ * Normalized words of every entry form of a register pack, in entry order, segmented
+ * once per language pack and register pack (slangIn and slangExemption run on every
+ * step; segmenting every entry each time dominated them). A register pack whose entries
+ * array is replaced is segmented again.
+ */
+const formWordsCache = new WeakMap<LanguagePack, WeakMap<RegisterPack, { entries: RegisterPack['entries']; words: string[][] }>>();
+function registerFormWords(pack: LanguagePack, reg: RegisterPack): readonly string[][] {
+  let byReg = formWordsCache.get(pack);
+  if (!byReg) formWordsCache.set(pack, (byReg = new WeakMap()));
+  const hit = byReg.get(reg);
+  if (hit && hit.entries === reg.entries && hit.words.length === reg.entries.length) return hit.words;
+  const words = reg.entries.map((e) => formWords(pack, e.form));
+  byReg.set(reg, { entries: reg.entries, words });
+  return words;
+}
+
+/**
  * Slang forms from the applicable register packs that occur in `text`, in text order.
  * Single words match by normalized form; phrases match as a run of words.
  */
 export function slangIn(pack: LanguagePack, text: string, regions: readonly string[] = []): string[] {
   const words = pack.segment(text).filter((s) => s.kind === 'word').map((s) => s.norm);
+  if (words.length === 0) return [];
+  const present = new Set(words);
   const found: { at: number; form: string }[] = [];
   for (const reg of applicable(pack, regions)) {
-    for (const e of reg.entries) {
-      const fw = formWords(pack, e.form);
-      if (fw.length === 0) continue;
+    const all = registerFormWords(pack, reg);
+    reg.entries.forEach((e, k) => {
+      const fw = all[k] as string[];
+      // Every word of the form must occur in the text (cheap test before the run match).
+      if (fw.length === 0 || !fw.every((w) => present.has(w))) return;
       for (let i = 0; i + fw.length <= words.length; i++) {
         if (fw.every((w, j) => words[i + j] === w)) {
           if (!found.some((f) => f.form === e.form)) found.push({ at: i, form: e.form });
           break;
         }
       }
-    }
+    });
   }
   return found.sort((a, b) => a.at - b.at).map((f) => f.form);
 }
@@ -135,9 +156,10 @@ export function slangExemption(
   const packs = applicable(pack, regions);
   const wanted = new Set(regions);
   for (const reg of pack.registers) {
-    for (const e of reg.entries) {
+    const all = registerFormWords(pack, reg);
+    for (const [k, e] of reg.entries.entries()) {
       if (!packs.includes(reg) && !e.regions.some((r) => wanted.has(r))) continue;
-      const fw = formWords(pack, e.form);
+      const fw = all[k] as string[];
       for (const w of fw) norms.add(w);
       if (fw.length === 1) {
         lemmas.add(e.lemma);

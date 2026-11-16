@@ -79,21 +79,26 @@ describe('first run', () => {
     expectAccessibleControls();
   });
 
-  it('stores "I’m brand new" and opens the Story tab', async () => {
+  it('stores "I’m brand new", walks the onboarding steps and opens the Story tab', async () => {
     await renderRouter(APP_DIR, { initialUrl: '/' });
     await fireEvent.press(await screen.findByRole('button', { name: 'I’m brand new' }));
+    // Model (the test model file is already there), voice, slang: see onboarding.test.tsx.
+    await fireEvent.press(await screen.findByTestId('model-continue'));
+    await fireEvent.press(await screen.findByTestId('voice-continue'));
+    await fireEvent.press(await screen.findByRole('button', { name: 'Start the story' }));
     expect(await screen.findByTestId('story-screen')).toBeOnTheScreen();
     expect(screen).toHavePathname('/');
     const storage = await services.storage.open();
-    expect(await storage.settings.getAll()).toMatchObject({ onboarded: true, startLevel: 'brandNew' });
+    expect(await storage.settings.getAll()).toMatchObject({ onboarded: true, startLevel: 'brandNew', onboardingStep: 'done' });
   });
 
-  it('stores "I know some" as placement', async () => {
+  it('stores "Start the first story" as placement', async () => {
     await renderRouter(APP_DIR, { initialUrl: '/onboarding' });
-    await fireEvent.press(await screen.findByRole('button', { name: 'I know some Spanish' }));
-    expect(await screen.findByTestId('story-screen')).toBeOnTheScreen();
+    await fireEvent.press(await screen.findByRole('button', { name: 'Start the first story' }));
+    expect(await screen.findByTestId('onboarding-model')).toBeOnTheScreen();
     const storage = await services.storage.open();
     expect(await storage.settings.get('startLevel')).toBe('placement');
+    expect(await storage.settings.get('onboarded')).toBe(false);
   });
 
   it('shows the startup error with Try again, and starts once storage opens', async () => {
@@ -183,10 +188,16 @@ describe('returning learner', () => {
     await fireEvent.press(await screen.findByRole('button', { name: 'Open profile and settings' }));
     expect(await screen.findByTestId('profile-screen')).toBeOnTheScreen();
     expect(screen).toHavePathname('/profile');
-    expect(await screen.findByText('2:05')).toBeOnTheScreen();
+    await waitFor(() => expect(screen.getByTestId('minutes-total')).toHaveTextContent('2:05'));
+    expectAccessibleControls();
+    await fireEvent.press(screen.getByRole('link', { name: 'Settings' }));
+    expect(await screen.findByTestId('settings-screen')).toBeOnTheScreen();
+    expect(screen).toHavePathname('/profile/settings');
     expect(screen.getByText('Spanish')).toBeOnTheScreen();
     expect(screen.getByTestId('settings-explicit')).toHaveTextContent(/Off/);
     expectAccessibleControls();
+    await fireEvent.press(screen.getByTestId('settings-back'));
+    expect(await screen.findByTestId('profile-screen')).toBeOnTheScreen();
     await fireEvent.press(screen.getByRole('button', { name: 'Close' }));
     expect(await screen.findByTestId('story-screen')).toBeOnTheScreen();
     expect(screen).toHavePathname('/');

@@ -4,7 +4,7 @@
  * answer earns. The model only scores; credit comes from probability, so every natural
  * answer earns credit, not just the story's word.
  */
-import type { LanguagePack, Segment } from '../lang/types';
+import type { Analysis, LanguagePack, Segment } from '../lang/types';
 import type { LanguageModel } from '../model/types';
 import type { CliffPosition, CliffResult, Credit, CreditReason, NextWord } from './types';
 import {
@@ -97,10 +97,41 @@ export interface CreditOptions {
   accentMarks: string;
   /** Token log-probabilities are clamped to this. */
   logprobFloor: number;
+  /**
+   * Lemma credit: a single-word answer that is the same inflection of the same lexeme as
+   * an alternative (same lemma, part of speech and features in pack.analyze: the two
+   * differ only in attached pronouns or spelling, as reír and reírse do) is credited as if
+   * its probability were lemmaWeight x P(that alternative), when that earns more than its
+   * own probability. 0 turns it off. See DEFAULT_CREDIT_OPTIONS for the measurement.
+   */
+  lemmaWeight: number;
+  /**
+   * Lemma credit applies only when the answer's own probability is at least this: the
+   * model must find the form possible here, so a verb that needs its pronoun ("fue a su
+   * cuarto a acostar" for acostarse) is not credited through the pronominal form.
+   */
+  lemmaFloor: number;
   /** Options for the next-word search (k and normalize are set by this module). */
   nextWord: Partial<NextWordOptions>;
   /** Called once per model call, before it is issued. */
   onModelCall?: ModelCallListener;
+  /**
+   * Precomputed next words at this cliff: what the next-word search after the trimmed
+   * context would return with this function's k and nextWord options, such as
+   * CliffPosition.alternatives from cliffPositions on the same context and sentence (see
+   * alternativesReusable) or a session's cliff state. When given, no next-word search is
+   * made, so an answer costs at most two model calls (a scoring call and a boundary call
+   * when the answer is not among them; four for a multi-word answer), and the result is
+   * the same as without it whenever the list is the same. Used as given, cut to k.
+   */
+  alternatives?: readonly NextWord[];
+  /**
+   * Precomputed log P(actual words) at this cliff, as this function scores a text (its
+   * tokens plus the boundary mass when includeBoundary), such as CliffPosition.actualLogprob
+   * for a single-word cliff. When given, the actual words are not scored again: an answer
+   * that is the actual words reports it, and a multi-word answer is compared with it.
+   */
+  actualLogprob?: number;
 }
 
 export const DEFAULT_CREDIT_OPTIONS: Readonly<CreditOptions> = {
@@ -129,8 +160,31 @@ export const DEFAULT_CREDIT_OPTIONS: Readonly<CreditOptions> = {
   restoreAccents: true,
   accentMarks: DEFAULT_ACCENT_MARKS,
   logprobFloor: -100,
+  // Lemma credit: LEMMA_CREDIT_MEASUREMENT below.
+  lemmaWeight: 0.02,
+  lemmaFloor: 2e-5,
   nextWord: {},
 };
+
+/**
+ * True when the alternatives cliffPositions finds with `cliff` options can stand in for
+ * the next-word search scoreCliffAnswer makes with `credit` options at the same context
+ * (the same k and next-word options), so they may be passed as CreditOptions.alternatives.
+ */
+export function alternativesReusable(cliff: Partial<CliffOptions> = {}, credit: Partial<CreditOptions> = {}): boolean {
+  const c = { ...DEFAULT_CLIFF_OPTIONS, ...cliff };
+  const r = { ...DEFAULT_CREDIT_OPTIONS, ...credit };
+  if (c.k !== r.k) return false;
+  const a = { ...DEFAULT_NEXT_WORD_OPTIONS, ...c.nextWord };
+  const b = { ...DEFAULT_NEXT_WORD_OPTIONS, ...r.nextWord };
+  const keys = new Set([...Object.keys(a), ...Object.keys(b)]) as Set<keyof NextWordOptions>;
+  for (const k of keys) {
+    // k, normalize and onModelCall are set by the scoring functions themselves.
+    if (k === 'k' || k === 'normalize' || k === 'onModelCall') continue;
+    if (a[k] !== b[k]) return false;
+  }
+  return true;
+}
 
 /** Remove trailing whitespace; contexts are passed to the model without it. */
 function trimEndSpace(s: string): string {
@@ -268,6 +322,30 @@ function sharesLemma(pack: LanguagePack, a: string, b: string): boolean {
   return pack.analyze(b).some((x) => la.has(x.lemma));
 }
 
+function sameFeatures(a: Analysis['features'], b: Analysis['features']): boolean {
+  const keys = new Set([...Object.keys(a), ...Object.keys(b)]);
+  for (const k of keys) {
+    const x = (a as Record<string, unknown>)[k];
+    const y = (b as Record<string, unknown>)[k];
+    if (x !== y && !(x === undefined && y === undefined)) return false;
+  }
+  return true;
+}
+
+/**
+ * True when `a` and `b` (normalized words) are the same inflection of the same lexeme by
+ * pack.analyze: an analysis of each with the same lemma, part of speech and features.
+ * They then differ only in what the analyzer looks through (attached pronouns, spelling),
+ * as reír and reírse do; lee and leer (another inflection) do not match.
+ */
+export function sameLexemeForm(pack: LanguagePack, a: string, b: string): boolean {
+  if (a === b) return true;
+  const xs = pack.analyze(a);
+  if (xs.length === 0) return false;
+  const ys = pack.analyze(b);
+  return xs.some((x) => ys.some((y) => x.lemma === y.lemma && x.pos === y.pos && sameFeatures(x.features, y.features)));
+}
+
 /**
  * Credit for a learner's answer at a cliff.
  *
@@ -275,7 +353,9 @@ function sharesLemma(pack: LanguagePack, a: string, b: string): boolean {
  * `actual` (via pack.segment); the context loses trailing whitespace, and the answer is
  * scored with a leading space when the context ends in a word or other non-opening
  * character (needsLeadingSpace). Case is adjusted for the position (caseForPosition).
- * Alternatives are always computed with nextWords at the cliff and returned.
+ * Alternatives are computed with nextWords at the cliff, or taken from
+ * opts.alternatives when the caller already has them (cliffPositions found them for the
+ * same cliff), and returned.
  *
  * Single-word answer and single-word actual:
  * - the actual word, compared by pack.normalize or accent-insensitively (foldAccents),
@@ -287,6 +367,10 @@ function sharesLemma(pack: LanguagePack, a: string, b: string): boolean {
  *   alternative or else from the pack's own spelling (accentedForm), which is scored;
  * - full credit, 'likely', if P >= fullRatio * P(top alternative) or P >= fullFloor;
  * - partial, 'plausible', if P >= partialFloor;
+ * - lemma credit: when the answer is the same inflection of the same lexeme as an
+ *   alternative (sameLexemeForm: reír for reírse) and P >= lemmaFloor, the two rules
+ *   above are applied to lemmaWeight x P(alternative) as well, and the better credit wins
+ *   (reason 'likely' or 'plausible', lemmaMatch names the alternative);
  * - partial, 'form', if the answer shares a lemma with the actual word (pack.analyze)
  *   but the form differs;
  * - otherwise none, 'unlikely'.
@@ -314,7 +398,9 @@ function sharesLemma(pack: LanguagePack, a: string, b: string): boolean {
  * touches answers outside the alternatives: those come from nextTokens lists, which a
  * top-N runtime reports exactly, so every natural answer the model ranks keeps its
  * credit. In the multi-word comparison only a bound on the answer side counts: a bound
- * on the actual continuation raises the reference and can only lower the credit.
+ * on the actual continuation raises the reference and can only lower the credit. Lemma
+ * credit needs P(answer) >= lemmaFloor, which a bound cannot show, so a bounded answer
+ * never gets it.
  *
  * rank is the 1-based position of a single-word answer among the alternatives, else null.
  * An answer with no words (empty, punctuation only) gets none with logprob = logprobFloor.
@@ -336,8 +422,17 @@ export async function scoreCliffAnswer(
   const nw = nextWordOptions(pack, o.k, o.nextWord, o.onModelCall);
   const fold = (s: string): string => (pack.foldAccents ? pack.foldAccents(s) : foldAccents(s, o.accentMarks));
 
-  const alternatives: NextWord[] = (await nextWordsDetailed(model, ctx, nw)).words;
+  const alternatives: NextWord[] =
+    o.alternatives !== undefined
+      ? o.k < 1
+        ? []
+        : o.alternatives.slice(0, o.k).map((a) => ({ ...a }))
+      : (await nextWordsDetailed(model, ctx, nw)).words;
+  /** The caller's log P(actual words), when it has one. */
+  const knownActual = o.actualLogprob !== undefined && Number.isFinite(o.actualLogprob) ? clampLogprob(o.actualLogprob, o.logprobFloor) : undefined;
   let scored = '';
+  /** The alternative whose lexeme credited the answer (lemma credit). */
+  let lemmaVia: NextWord | undefined;
   /** The answer's probability came from a scoring with an upper-bound token. */
   let bounded = false;
   const result = (logprob: number, rank: number | null, credit: Credit, reason: CreditReason): CliffResult => {
@@ -353,6 +448,7 @@ export async function scoreCliffAnswer(
     };
     // Set only when true, so exact results keep their shape.
     if (bounded) r.bounded = true;
+    if (lemmaVia) r.lemmaMatch = { word: lemmaVia.word, prob: lemmaVia.prob };
     return r;
   };
 
@@ -405,18 +501,28 @@ export async function scoreCliffAnswer(
     scored = alt ? alt.word : shown(text);
     let logprob: number;
     if (alt) logprob = alt.logprob;
+    else if (isActual && knownActual !== undefined) logprob = knownActual;
     else ({ logprob, bounded } = await scoreText(text));
     if (isActual) return result(logprob, rank, 'full', 'actual');
     const prob = Math.exp(logprob);
     const top = alternatives[0]?.prob ?? 0;
+    /** 2: likely (full), 1: plausible (partial), 0: neither. */
+    const levelOf = (p: number): number => ((top > 0 && p >= o.fullRatio * top) || p >= o.fullFloor ? 2 : p >= o.partialFloor ? 1 : 0);
     // A bounded probability is only an upper bound: it never earns likely or plausible.
-    if (!bounded) {
-      if ((top > 0 && prob >= o.fullRatio * top) || prob >= o.fullFloor) return result(logprob, rank, 'full', 'likely');
-      if (prob >= o.partialFloor) return result(logprob, rank, 'partial', 'plausible');
-    }
-    const actNorm = actNorms[0];
+    let level = bounded ? 0 : levelOf(prob);
     // After accent restoration the restored form is the one the learner meant.
     const ansNorm = alt ? alt.norm : (restored ?? (ansNorms[0] as string));
+    if (level < 2 && !bounded && o.lemmaWeight > 0 && prob >= o.lemmaFloor) {
+      // The most likely alternative of the same lexeme and inflection gives the most credit.
+      const via = alternatives.find((a) => a.norm !== ansNorm && sameLexemeForm(pack, ansNorm, a.norm));
+      if (via && levelOf(o.lemmaWeight * via.prob) > level) {
+        level = levelOf(o.lemmaWeight * via.prob);
+        lemmaVia = via;
+      }
+    }
+    if (level === 2) return result(logprob, rank, 'full', 'likely');
+    if (level === 1) return result(logprob, rank, 'partial', 'plausible');
+    const actNorm = actNorms[0];
     if (actNorm !== undefined && sharesLemma(pack, ansNorm, actNorm)) {
       return result(logprob, rank, 'partial', 'form');
     }
@@ -425,6 +531,7 @@ export async function scoreCliffAnswer(
 
   // Multi-word comparison by mean logprob per word.
   scored = shown(isActual ? act : ans);
+  if (isActual && knownActual !== undefined) return result(knownActual, rank, 'full', 'actual');
   const ansScore = await scoreText(isActual ? act : ans);
   const ansLp = ansScore.logprob;
   bounded = ansScore.bounded;
@@ -439,6 +546,7 @@ export async function scoreCliffAnswer(
   let actMean: number;
   if (actWords.length === 0) actMean = alternatives[0]?.logprob ?? o.logprobFloor;
   else if (shorter && ansNorms.every((n, i) => sameWord(n, actNorms[i] as string))) actMean = ansMean;
+  else if (!shorter && knownActual !== undefined) actMean = knownActual / refWords;
   else {
     const ref = shorter ? act.slice(0, (actWords[refWords - 1] as Segment).end) : act;
     // A bound here raises the reference, which can only lower the answer's credit.

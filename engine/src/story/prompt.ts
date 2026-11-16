@@ -175,6 +175,8 @@ export interface StoryPromptOptions {
   contextSentences: number;
   /** Example lines (StoryLanguageData.examples) fill the story block up to this many lines. */
   minLines: number;
+  /** A story line's tag avoids its first this-many words when a later word qualifies (tagFor). */
+  tagSkipLead: number;
 }
 
 /**
@@ -182,7 +184,10 @@ export interface StoryPromptOptions {
  * answer with a space after the final tag; it rarely writes brackets inside a sentence,
  * and a candidate that does is rejected as a placeholder. contextSentences 4: the story
  * module's earlier default. minLines 3: with fewer tagged lines the model did not pick up
- * the pattern (one line gave tag-only answers such as "¿Qué?").
+ * the pattern (one line gave tag-only answers such as "¿Qué?"). tagSkipLead 2: when every
+ * line's tag was its first content word, the model started every new sentence with its
+ * tag ("El viejo...", "El claro...", "El tener es la casa.") and the story locked into
+ * one pattern; tags taken from later in the line show the word can go anywhere.
  */
 export const DEFAULT_STORY_PROMPT_OPTIONS: Readonly<StoryPromptOptions> = Object.freeze({
   tagOpen: '[',
@@ -191,6 +196,7 @@ export const DEFAULT_STORY_PROMPT_OPTIONS: Readonly<StoryPromptOptions> = Object
   tagJoiner: ', ',
   contextSentences: DEFAULT_CONTEXT_SENTENCES,
   minLines: 3,
+  tagSkipLead: 2,
 });
 
 export interface StoryPromptInput {
@@ -232,28 +238,31 @@ const TAG_POS = new Set(['NOUN', 'VERB', 'ADJ', 'ADV']);
 /**
  * The tag word of a sentence: its rarest content word by pack.frequencyRank (a word
  * outside the frequency list counts as rarest; a function word only when the sentence
- * has no content word), skipping names (PROPN, a capitalized word the pack does not
- * know, and `names`). Lowercase surface form as
+ * has no content word; a word among the first `skipLead` words only when no later word
+ * qualifies), skipping names (PROPN, a capitalized word the pack does not know, and
+ * `names`). Lowercase surface form as
  * written; '' when the sentence has no such word. Language-neutral: words come from
  * pack.segment.
  */
-export function tagFor(pack: LanguagePack, sentence: string, names: readonly string[] = []): string {
+export function tagFor(pack: LanguagePack, sentence: string, names: readonly string[] = [], skipLead = 0): string {
   const skip = new Set(names.map((n) => pack.normalize(n)));
+  // Best candidate as [isContent, notInLead, rank], compared in that order.
   let best = '';
-  let bestRank = -1;
-  let bestContent = false;
+  let bestKey: [number, number, number] = [-1, -1, -1];
+  let position = 0;
   for (const seg of pack.segment(sentence)) {
     if (seg.kind !== 'word') continue;
+    const lead = position < skipLead;
+    position += 1;
     const norm = seg.norm || pack.normalize(seg.text);
     if (!norm || skip.has(norm)) continue;
     const a = pack.analyze(norm)[0];
     // A capitalized word the pack does not know is most likely a name, at a sentence start too.
     if (a?.pos === 'PROPN' || (!a && isCapitalized(seg.text))) continue;
     const rank = a ? pack.frequencyRank(a.lemma) ?? Number.MAX_SAFE_INTEGER : Number.MAX_SAFE_INTEGER;
-    const content = !a || TAG_POS.has(a.pos);
-    if ((content && !bestContent) || (content === bestContent && rank > bestRank)) {
-      bestRank = rank;
-      bestContent = content;
+    const key: [number, number, number] = [!a || TAG_POS.has(a.pos) ? 1 : 0, lead ? 0 : 1, rank];
+    if (key[0] > bestKey[0] || (key[0] === bestKey[0] && (key[1] > bestKey[1] || (key[1] === bestKey[1] && key[2] > bestKey[2])))) {
+      bestKey = key;
       best = seg.text.toLocaleLowerCase(pack.code);
     }
   }
@@ -309,7 +318,7 @@ export function buildStoryPrompt(pack: LanguagePack, input: StoryPromptInput): S
     .slice(keep === 0 ? input.story.length : -keep);
   const examples = (data?.examples ?? []).slice(0, Math.max(0, o.minLines - lines.length));
   const tagged = [...examples.map((e) => ({ text: e.text, tag: e.tag })), ...lines].map((l) => {
-    const tag = l.tag?.trim() || tagFor(pack, l.text, names);
+    const tag = l.tag?.trim() || tagFor(pack, l.text, names, o.tagSkipLead);
     return tag ? `${o.tagOpen}${tag}${o.tagClose}${o.tagSeparator}${l.text}` : l.text;
   });
   const tagWords = (typeof input.tag === 'string' ? [input.tag] : [...input.tag]).map((w) => w.trim()).filter(Boolean);

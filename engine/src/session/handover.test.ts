@@ -97,7 +97,10 @@ describe('bridgeFamiliar', () => {
 describe('a brand-new learner with a model', () => {
   it('hears the starter, then gets generated sentences on the bridge vocabulary with content-word targets', async () => {
     const model = scripted([['Marta toca el piano en el parque.', 'Ella va al concierto con su familia.']]);
-    const s = StorySession.create({ model, pack, pair, learner: new LearnerModel(), now: T0, seed: 3, startMode: 'brand_new' });
+    // The n-gram mock is no judge of naturalness: no natural pass here.
+    const s = StorySession.create({
+      model, pack, pair, learner: new LearnerModel(), now: T0, seed: 3, startMode: 'brand_new', options: { generation: { naturalTop: 0 } },
+    });
     let t = T0;
     const texts: string[] = [];
     while (texts.length < STARTER.sentences.length) {

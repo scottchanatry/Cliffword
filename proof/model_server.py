@@ -11,7 +11,7 @@ engine/scripts/real-model.md.
 Scoring follows proof/score.py exactly, so totals match proof/raw_*.json:
 - start token: BOS when the model has one, else llama.cpp's end-of-text token
   (`token_eos()`; for the Qwen3 GGUFs that is <|im_end|>, id 151645, which is what the
-  proof used even though its comment says <|endoftext|>);
+  proof used, not <|endoftext|>);
 - the context and the text are tokenized separately (no special tokens, no BOS) and
   scored as one sequence: start + context tokens + text tokens;
 - logits_all=True and a natural-log softmax over the raw logits (no temperature);

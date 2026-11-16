@@ -48,7 +48,7 @@ export function ConfirmSheet({ visible, title, body, confirmLabel, onConfirm, on
 
 const styles = StyleSheet.create({
   fill: { flex: 1, justifyContent: 'flex-end' },
-  backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(22, 24, 29, 0.35)' },
+  backdrop: { ...StyleSheet.absoluteFill, backgroundColor: 'rgba(22, 24, 29, 0.35)' },
   sheet: {
     gap: spacing.md,
     paddingTop: spacing.xl,

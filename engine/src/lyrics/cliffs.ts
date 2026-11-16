@@ -18,7 +18,7 @@
  */
 import type { LanguagePack, Pos, Register, Segment } from '../lang/types';
 import type { LanguageModel } from '../model/types';
-import type { CliffPosition, CliffResult, Credit } from '../scoring/types';
+import type { CliffPosition, CliffResult, Credit, NextWord } from '../scoring/types';
 import type { LearnerView } from '../learner/types';
 import { lexemeKey, lexemeOf } from '../learner/types';
 import { chooseAnalysesInText } from '../lang/choose';
@@ -574,14 +574,24 @@ export interface LyricAnswerTarget {
   answer: string;
   /** The context without its scoring prefix, used to rescore in neutral form. */
   before?: string;
+  /**
+   * Precomputed next words at `context` (TextCliff.position.alternatives, when the cliff
+   * options and the credit options search alike: alternativesReusable). Passed to
+   * scoreCliffAnswer as CreditOptions.alternatives for the answer as given, so it makes
+   * no next-word search; the neutral rescoring has another context and searches as usual.
+   */
+  alternatives?: readonly NextWord[];
+  /** Precomputed log P(answer words) at `context` (CreditOptions.actualLogprob), for the answer as given. */
+  actualLogprob?: number;
 }
 
 /**
  * Credit for an answer at a lyric or brought-text cliff, with street tolerance.
  *
  * Method:
- * 1. scoreCliffAnswer(model, pack, cliff.context, answer, cliff.answer) as usual; the
- *    lyric's own words are full 'actual'.
+ * 1. scoreCliffAnswer(model, pack, cliff.context, answer, cliff.answer) as usual, with
+ *    cliff.alternatives and cliff.actualLogprob when the caller has them (no next-word
+ *    search then); the lyric's own words are full 'actual'.
  * 2. Same words as the lyric once accents, apostrophes and case are ignored (looseKey):
  *    full 'actual', equivalence spelling ("pa" for "pa'": recognition drops the mark).
  * 3. Both sides are put in neutral form with registerPairs (in street register, forms
@@ -603,7 +613,12 @@ export async function scoreLyricAnswer(
   opts: Partial<LyricAnswerOptions> & { register: Register },
 ): Promise<LyricAnswerResult> {
   const o: LyricAnswerOptions = { ...DEFAULT_LYRIC_ANSWER_OPTIONS, ...opts };
-  const raw = await scoreCliffAnswer(model, pack, cliff.context, answer, cliff.answer, o.credit);
+  // Precomputed values belong to cliff.context: never to the neutral rescoring below.
+  const { alternatives: _alternatives, actualLogprob: _actualLogprob, ...credit } = o.credit;
+  const pre: Partial<CreditOptions> = { ...o.credit };
+  if (cliff.alternatives !== undefined) pre.alternatives = cliff.alternatives;
+  if (cliff.actualLogprob !== undefined) pre.actualLogprob = cliff.actualLogprob;
+  const raw = await scoreCliffAnswer(model, pack, cliff.context, answer, cliff.answer, pre);
   if (raw.reason === 'actual') return { ...raw, model: raw };
 
   const keysOf = (text: string): string =>
@@ -661,7 +676,7 @@ export async function scoreLyricAnswer(
   if (raw.credit === 'full') return { ...raw, model: raw };
   const neutralBefore = cliff.before === undefined ? undefined : registerPairs(cliff.before, pack, o.regions, pairOpts).neutral;
   const context = neutralBefore === undefined ? cliff.context : scoringPrefix(pack) + neutralBefore;
-  const rescored = await scoreCliffAnswer(model, pack, context, pa.neutral, pc.neutral, o.credit);
+  const rescored = await scoreCliffAnswer(model, pack, context, pa.neutral, pc.neutral, credit);
   if (CREDIT_RANK[rescored.credit] <= CREDIT_RANK[raw.credit]) return { ...raw, model: raw };
   const pairs = [...toPairs(pc.substitutions), ...toPairs(pa.substitutions)];
   return {

@@ -1,0 +1,18 @@
+brandNew 0 6.75s IN T  {} La familia está en el restaurante.
+brandNew 1 6.74s IN T  {} El grupo es más importante.
+brandNew 2 25.12s IN -  {"placeholder":1} El grupo toca la guitarra.
+brandNew 3 21.99s IN T  {} El grupo tiene el poder de crear música.
+brandNew 4 22.22s IN -  {} El grupo presenta la música.
+brandNew 5 20.43s IN -  {} El grupo está en el parque.
+brandNew 6 30.5s IN T  {"repeat":1} El grupo está haciendo la música.
+brandNew 7 14.36s IN T  {} El grupo está ver.
+brandNew {"runs":8,"inBand":1,"ownInBand":0,"targetUse":0.63,"distinct":8,"noSentence":0,"chosenFailingNewRejects":0,"rejects":{"placeholder":1,"repeat":1},"meanSeconds":18.5,"medianSeconds":21.99,"maxSeconds":30.5,"meanGenerateCalls":1,"meanScoreCalls":2,"meanPromptTokens":176,"meanDecodeTokens":48}
+early 0 24.62s IN/own T  {} El viejo está en la casa.
+early 1 29.64s IN/own T  {} El claro está en el claro.
+early 2 29.76s IN/own T  {} El nacional es el de la casa.
+early 3 8.34s IN/own - retry {"repeat":6} El tener es la casa.
+early 4 7.76s IN/own - retry {"repeat":7} El saber es el que sabe.
+early 5 9.57s IN/own T  {"repeat":2} El claro es el que está en el claro.
+early 6 44.35s IN/own - retry {"repeat":5} El más es el que es más.
+early 7 30.37s IN/own T  {} El único es el que es único.
+early {"runs":8,"inBand":1,"ownInBand":1,"targetUse":0.63,"distinct":8,"noSentence":0,"chosenFailingNewRejects":0,"rejects":{"repeat":20},"meanSeconds":23.1,"medianSeconds":29.64,"maxSeconds":44.35,"meanGenerateCalls":1.38,"meanScoreCalls":2.38,"meanPromptTokens":211,"meanDecodeTokens":57}

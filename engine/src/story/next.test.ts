@@ -114,7 +114,7 @@ describe('generateNextSentence with the mock model', () => {
     await generateNextSentence(model, deps(), opts({ tuning: { n: 3 }, names: ['Marta'], vocab: 300 }));
     const prompt = model.prompts[0] ?? '';
     expect(prompt.startsWith('Cuento en español (nivel A1). Frases muy cortas.\nPersonajes: Marta.\n')).toBe(true);
-    expect(prompt).toContain('[llegó] Marta llegó tarde al mercado.\n[comprar]');
+    expect(prompt).toContain('[tarde] Marta llegó tarde al mercado.\n[comprar]');
     expect(model.generateOptions[0]).toEqual({
       n: 3,
       maxTokens: 8 * 2 + DEFAULT_NEXT_SENTENCE_TUNING.extraTokens,
@@ -144,7 +144,7 @@ describe('generateNextSentence with the mock model', () => {
   it('keeps the tags the caller gives story lines', async () => {
     const model = new CountingModel(createMockModel());
     await generateNextSentence(model, deps(), opts({ story: [{ text: 'Marta compró pan.', tag: 'pan' }, 'Volvió a casa.'] }));
-    expect(model.prompts[0]).toContain('[pan] Marta compró pan.\n[volvió] Volvió a casa.\n');
+    expect(model.prompts[0]).toContain('[pan] Marta compró pan.\n[casa] Volvió a casa.\n');
   });
 
   it('shows a vocabulary line for a small vocabulary or familiar words, never for a large one', async () => {
@@ -228,16 +228,38 @@ describe('generateNextSentence with scripted outputs', () => {
 
   it('breaks a tie between in-band candidates with the natural score, and scores each text once', async () => {
     const texts = ['Marta compró pan en la casa.', 'Marta compró pan en la playa.', 'Marta compró pan en la casa.'];
-    const lp = (t: string) => (t.includes('playa') ? -6 : -60);
+    // One token per scored text: its log-probability is the mean per token.
+    const lp = (t: string) => (t.includes('playa') ? -2 : -4);
     const model = new ScriptedModel([texts], lp);
     const r = await generateNextSentence(model, deps(early), opts({ tuning: { n: 3, naturalTop: 3 } }));
     expect(model.scoreCalls).toBe(2);
     expect(r.diagnostics.scoreCalls).toBe(2);
     expect(r.sentence).toBe('Marta compró pan en la playa.');
-    expect(r.best?.natural).toBeCloseTo(-1, 6);
+    expect(r.best?.natural).toBeCloseTo(-2, 6);
     const flat = await generateNextSentence(new ScriptedModel([texts], lp), deps(early), opts({ tuning: { n: 3, naturalTop: 0 } }));
     expect(flat.best?.index).toBe(0);
     expect(flat.best?.natural).toBeNull();
+  });
+
+  it('rejects candidates below the natural floor and scores the next ones', async () => {
+    const texts = ['Marta compró pan en la casa.', 'Marta compró pan en la playa.', 'Marta compró pan en el mercado.'];
+    const lp = (t: string) => (t.includes('mercado') ? -2.5 : -6);
+    const model = new ScriptedModel([texts], lp);
+    const r = await generateNextSentence(model, deps(early), opts({ tuning: { n: 3, naturalTop: 1, retry: false } }));
+    expect(r.sentence).toBe('Marta compró pan en el mercado.');
+    expect(r.rejectCounts.unnatural).toBe(2);
+    expect(model.scoreCalls).toBe(3);
+    // Every candidate unnatural: no sentence (the session falls back to canned content).
+    const none = await generateNextSentence(new ScriptedModel([texts], () => -6), deps(early), opts({ tuning: { n: 3, retry: false } }));
+    expect(none.sentence).toBeNull();
+    expect(none.rejectCounts.unnatural).toBe(3);
+  });
+
+  it('runs the safe round when every in-band candidate of the first round is unnatural', async () => {
+    const model = new ScriptedModel([['Marta compró pan en la casa.'], ['Marta compró pan en el mercado.']], (t) => (t.includes('casa') ? -6 : -2.5));
+    const r = await generateNextSentence(model, deps(early), opts({ tuning: { n: 1, retryN: 1 } }));
+    expect(r.diagnostics.retried).toBe(true);
+    expect(r.sentence).toBe('Marta compró pan en el mercado.');
   });
 });
 

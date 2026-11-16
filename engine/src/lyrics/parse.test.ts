@@ -210,6 +210,21 @@ describe('parseLyrics: LRC timestamps', () => {
     expect(ly.removed.filter((r) => r.reason === 'tag')).toHaveLength(2);
   });
 
+  it('rejects timestamps and word marks that are not LRC times (seconds 60 or more)', () => {
+    const ly = parseLyrics('[99:99.99]Esto no es un tiempo\n[00:60.00][00:05.00]uno\n[01:59.99]<00:61.00>dos <01:59.99>tres', pack);
+    // Untimed lines stay after the line before them (here: first).
+    expect(ly.lines.map((l) => [l.text, l.startMs])).toEqual([
+      ['Esto no es un tiempo', undefined],
+      ['uno', 5000],
+      ['dos tres', 119_990],
+    ]);
+    expect(ly.lines[2]?.wordMarks).toEqual([{ at: 4, ms: 119_990 }]);
+    // A line with only an invalid timestamp is untimed lyrics, not text with a bracket.
+    const only = parseLyrics('[99:99.99]Hola mundo', pack);
+    expect(only.timed).toBe(false);
+    expect(only.lines.map((l) => [l.text, l.startMs])).toEqual([['Hola mundo', undefined]]);
+  });
+
   it('applies the offset tag (a positive offset shows lyrics earlier)', () => {
     const ly = parseLyrics('[offset:+500]\n[00:10.00]uno\n[00:00.20]dos', pack);
     expect(ly.lines.map((l) => [l.text, l.startMs])).toEqual([

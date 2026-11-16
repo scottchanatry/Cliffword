@@ -29,9 +29,13 @@
  *    candidate becomes a near repeat, and a safe round tagged with the main character at
  *    a lower temperature repeated it again (2 of 8 early steps and 3 of 8 heritage steps
  *    ended with no sentence); a fresh known word moves the story on.
- * 6. Natural score: the `naturalTop` best accepted candidates (distinct texts) are scored
- *    by the model after the story (scoringContext) and their log-probability per word
- *    enters the selection score (SelectOptions.naturalWeight); 0 turns it off.
+ * 6. Natural score, after each round: the `naturalTop` best accepted candidates (distinct
+ *    texts) are scored by the model after the story (scoringContext); their mean
+ *    log-probability per token enters the selection score (SelectOptions.naturalWeight),
+ *    and one below SelectOptions.naturalFloor is rejected as unnatural and the next one
+ *    is scored (at most naturalMaxCalls calls). Because it runs before the safe-round
+ *    decision, a round whose in-band candidates are all unnatural gets the safe round.
+ *    naturalTop 0 turns it off.
  * 7. The result: the selection (best may still be outside the band: there is always a
  *    next sentence unless every candidate was rejected), reject counts by reason, and
  *    diagnostics, including the number of model calls of each kind.
@@ -56,8 +60,8 @@ import {
   levelName,
   tagFor,
 } from './prompt';
-import type { CandidateEvaluation, SelectCandidate, SelectContext, SelectOptions, Selection } from './select';
-import { evaluateCandidate, resolveSelectOptions, selectSentence } from './select';
+import type { SelectCandidate, SelectContext, SelectOptions, Selection } from './select';
+import { resolveSelectOptions, selectSentence } from './select';
 import { isCapitalized, sentenceStartFlags, splitSentences, wholeAtLeast } from './text';
 
 /** Collaborators that stay the same from sentence to sentence. */
@@ -90,6 +94,8 @@ export interface NextSentenceTuning {
   previousSentences: number;
   /** Best accepted candidates scored by the model for naturalness (0 = no scoring calls). */
   naturalTop: number;
+  /** Most scoring calls per step for the natural pass (candidates below the floor are replaced). */
+  naturalMaxCalls: number;
   /** Most words in the vocabulary line. */
   vocabularyWords: number;
   /** Show the vocabulary line while the learner knows fewer lexemes than this... */
@@ -112,7 +118,8 @@ export interface NextSentenceTuning {
  *   tokens per candidate instead of the 24 to 36 of a full maxTokens run.
  * - tokensPerWord 2: Qwen3 uses about 1.6 tokens per Spanish word, punctuation included;
  *   extraTokens 4 leaves room for the stop string.
- * - naturalTop 3: three scoring calls of about 0.1 s each.
+ * - naturalTop 3, naturalMaxCalls 6: three to six scoring calls of about 0.1 s each; a
+ *   candidate below the natural floor (SelectOptions.naturalFloor) is replaced by the next.
  * - vocabularyBelow 800 at 0.9: the early learner (about 230 lexemes at 0.9) got 33% of
  *   its candidates in the band with the line, 25% without; learners past a few hundred
  *   words gain nothing from it and pay for the longer prompt.
@@ -129,6 +136,7 @@ export const DEFAULT_NEXT_SENTENCE_TUNING: Readonly<NextSentenceTuning> = {
   contextSentences: DEFAULT_CONTEXT_SENTENCES,
   previousSentences: 8,
   naturalTop: 3,
+  naturalMaxCalls: 6,
   vocabularyWords: 40,
   vocabularyBelow: 800,
   vocabularyKnownAt: 0.9,
@@ -430,6 +438,58 @@ export async function generateNextSentence(
   let generateCalls = 0;
   let scoreCalls = 0;
 
+  // Natural scores by candidate text (model log-probability per token after the story).
+  const naturals = new Map<string, number>();
+  const o = resolveSelectOptions(opts.select);
+  const scoreContext = scoringContext(pack, joinScriptAware(texts.slice(-t.contextSentences)));
+  const scoreLead = needsLeadingSpace(scoreContext) ? ' ' : '';
+  const top = Math.max(0, Math.floor(t.naturalTop));
+  const maxScores = Math.max(top, Math.floor(t.naturalMaxCalls));
+
+  /**
+   * Selection over every candidate so far, then the natural pass: the best accepted
+   * candidates (distinct texts) are scored by the model, up to `naturalTop` that pass the
+   * natural floor and `naturalMaxCalls` calls per step; a scored candidate below the floor
+   * is rejected (unnatural). The scored ones are ranked among themselves first, the other
+   * accepted candidates keep their order below them.
+   */
+  const select = async (): Promise<Selection> => {
+    const ctx = selectCtx(instructions);
+    let sel = selectSentence(
+      candidates.map((c) => {
+        const nat = naturals.get(c.text);
+        return nat === undefined ? c : { ...c, natural: nat };
+      }),
+      ctx,
+    );
+    if (top === 0 || !sel.best) return sel;
+    let kept = sel.ranked.filter((e) => e.accepted && e.natural !== null).length;
+    for (const e of sel.ranked) {
+      if (!e.accepted || kept >= top || scoreCalls >= maxScores) break;
+      if (e.natural !== null || naturals.has(e.text)) continue;
+      const tokens = await model.scoreContinuation(scoreContext, scoreLead + e.text);
+      scoreCalls += 1;
+      let sum = 0;
+      for (const tok of tokens) sum += Number.isFinite(tok.logprob) ? Math.max(tok.logprob, -100) : -100;
+      const nat = sum / Math.max(1, tokens.length);
+      naturals.set(e.text, nat);
+      if (nat >= o.naturalFloor) kept += 1;
+    }
+    sel = selectSentence(
+      candidates.map((c) => {
+        const nat = naturals.get(c.text);
+        return nat === undefined ? c : { ...c, natural: nat };
+      }),
+      ctx,
+    );
+    const scored = sel.ranked.filter((e) => e.accepted && e.natural !== null);
+    const unscored = sel.ranked.filter((e) => e.accepted && e.natural === null).sort((a, b) => a.index - b.index);
+    const order = new Map(sel.ranked.map((e, i) => [e.index, i]));
+    unscored.sort((a, b) => (order.get(a.index) ?? 0) - (order.get(b.index) ?? 0));
+    const rejected = sel.ranked.filter((e) => !e.accepted);
+    return { best: scored[0] ?? unscored[0] ?? null, ranked: [...scored, ...unscored, ...rejected], rejectCounts: sel.rejectCounts };
+  };
+
   const runRound = async (tag: string, simple: boolean, count: number, temperature: number): Promise<Selection> => {
     const built = buildStoryPrompt(pack, { ...promptInput, tag });
     const seed = opts.seed + rounds.reduce((s, r) => s + r.raw.length, 0);
@@ -444,7 +504,7 @@ export async function generateNextSentence(
       candidateRound.push(round);
     });
     instructions = built.headerLines.filter((l) => l !== built.vocabularyLine);
-    return selectSentence(candidates, selectCtx(instructions));
+    return select();
   };
 
   const firstTag = targetWords.join(', ') || (lines.length ? lines[lines.length - 1]?.tag ?? tagFor(pack, texts[texts.length - 1] ?? '', names) : '');
@@ -457,36 +517,6 @@ export async function generateNextSentence(
       knownAt: t.vocabularyKnownAt, exclude: opts.targets,
     }) ?? names[0] ?? lines[lines.length - 1]?.tag ?? tagFor(pack, texts[texts.length - 1] ?? '', names);
     selection = await runRound(safe || firstTag, true, wholeAtLeast(t.retryN), t.retryTemperature);
-  }
-
-  // Natural score: the best accepted candidates (distinct texts) are scored after the
-  // story and re-ranked among themselves; the other candidates keep their places below.
-  const top = Math.max(0, Math.floor(t.naturalTop));
-  if (top > 0 && selection.best) {
-    const o = resolveSelectOptions(opts.select);
-    const context = scoringContext(pack, joinScriptAware(texts.slice(-t.contextSentences)));
-    const lead = needsLeadingSpace(context) ? ' ' : '';
-    const naturals = new Map<string, number>();
-    const scored: CandidateEvaluation[] = [];
-    const ctx = selectCtx(instructions);
-    for (const e of selection.ranked) {
-      if (!e.accepted || scored.length >= top) break;
-      let nat = naturals.get(e.text);
-      if (nat === undefined) {
-        const tokens = await model.scoreContinuation(context, lead + e.text);
-        scoreCalls += 1;
-        let sum = 0;
-        for (const tok of tokens) sum += Number.isFinite(tok.logprob) ? Math.max(tok.logprob, -100) : -100;
-        nat = sum / Math.max(1, e.wordCount);
-        naturals.set(e.text, nat);
-      }
-      const cand: SelectCandidate = { text: e.text, natural: nat };
-      if (e.raw !== undefined) cand.raw = e.raw;
-      scored.push(evaluateCandidate(cand, e.index, ctx, o));
-    }
-    scored.sort((a, b) => b.score - a.score || a.index - b.index);
-    const rest = selection.ranked.filter((e) => !scored.some((x) => x.index === e.index));
-    selection = { best: scored[0] ?? selection.best, ranked: [...scored, ...rest], rejectCounts: selection.rejectCounts };
   }
 
   return {

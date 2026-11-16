@@ -33,7 +33,13 @@ describe('estimateDurationMs', () => {
     expect(estimateDurationMs('puesto', pack, 1)).toBe(2 * MS);
     expect(estimateDurationMs('puesto', pack, 0.75)).toBeCloseTo((2 * MS) / 0.75, 10);
     expect(estimateDurationMs('y', pack, 1)).toBe(MS);
-    expect(estimateDurationMs('', pack, 1)).toBe(MS); // at least one syllable
+    expect(estimateDurationMs('a', pack, 1)).toBe(MS); // at least one syllable
+    // Nothing to say: no time (empty, spaces, punctuation only), with or without a pack counter.
+    for (const empty of ['', '  ', '...', '¿?']) {
+      expect(estimateDurationMs(empty, pack, 1)).toBe(0);
+      expect(estimateDurationMs(empty, pack, 0.5, { syllables: () => 3 })).toBe(0);
+    }
+    expect(estimateDurationMs('25', pack, 1)).toBe(4 * MS); // numbers still count
     // A bad rate counts as natural speed.
     expect(estimateDurationMs('puesto', pack, 0)).toBe(2 * MS);
     expect(estimateDurationMs('puesto', pack, Number.NaN)).toBe(2 * MS);

@@ -14,12 +14,21 @@
  * with lines the learner tapped while listening, those times; otherwise the learner
  * advances line by line (manual). Playback never resumes by itself: the app resumes on a
  * user action (next, again).
+ *
+ * One step at a time (as StorySession): while an async step (next, openLine,
+ * handleUtterance, command, pickOption) waits for the model, every other step call,
+ * synchronous ones included (startEcho, played, setRegister, setSettings, markLine,
+ * showSong), is refused with refused: 'busy', the screen from before the running step
+ * and no events, and changes nothing. snapshot(), screen and settings read the state
+ * from before the running step; setModel() is deferred until it ends; a step that throws
+ * leaves the session as it was.
  */
 import type { Segment, SpokenCommand } from '../lang/types';
 import type { CliffRung, LearnerEvent } from '../learner/types';
 import { lexemeKey } from '../learner/types';
 import type { LearnerModel } from '../learner/model';
 import { cliffRungFor, deriveParams, estimateVocabulary } from '../learner/difficulty';
+import { alternativesReusable } from '../scoring/cliff';
 import type { CliffResult, NextWord } from '../scoring/types';
 import { chooseAnalysesInText } from '../lang/choose';
 import { sentenceStartFlags, wholeAtLeast } from '../story/text';
@@ -120,6 +129,8 @@ interface LyricCliffState {
   hint: string | null;
   prob: number | null;
   alternatives: NextWord[];
+  /** The model rated this cliff (alternatives and prob come from lyricCliffs); absent in older snapshots. */
+  rated?: boolean;
   resolved: boolean;
   outcome: CliffOutcome | null;
 }
@@ -167,6 +178,10 @@ export class LyricSession {
   private readonly o: LyricSessionOptions;
   private readonly applyEvents: boolean;
   private busy = false;
+  /** The state as it was when the running step began (reads while busy, and the rollback of a failed step). */
+  private stable: LyricState | null = null;
+  /** A model set while a step ran, applied when it ends. */
+  private pendingModel: { model: SessionDeps['model'] } | null = null;
 
   private constructor(deps: SessionDeps, state: LyricState, opts: { applyEvents?: boolean; options?: Partial<LyricSessionOptions> }) {
     this.deps = { ...deps };
@@ -208,12 +223,14 @@ export class LyricSession {
     return new LyricSession(deps, plain(snapshot.state), opts);
   }
 
+  /** JSON-serializable snapshot (not the learner). While a step runs it is the session as it was before that step. */
   snapshot(): LyricSessionSnapshot {
-    return { format: LYRIC_SESSION_FORMAT, kind: 'lyric', state: plain(this.state) };
+    return { format: LYRIC_SESSION_FORMAT, kind: 'lyric', state: plain(this.readState()) };
   }
 
+  /** The current screen (while a step runs: the screen before it). */
   get screen(): LyricScreen {
-    return plain(this.state.screen);
+    return plain(this.readState().screen);
   }
 
   get learner(): LearnerModel {
@@ -221,10 +238,20 @@ export class LyricSession {
   }
 
   get settings(): SessionSettings {
-    return plain(this.state.settings);
+    return plain(this.readState().settings);
   }
 
+  /** True while a step runs; other step calls are then refused. */
+  get isBusy(): boolean {
+    return this.busy;
+  }
+
+  /** Switch between canned mode (null) and a model; called while a step runs, it takes effect when that step ends. */
   setModel(model: SessionDeps['model']): void {
+    if (this.busy) {
+      this.pendingModel = { model };
+      return;
+    }
     this.deps = { ...this.deps, model };
   }
 
@@ -259,6 +286,7 @@ export class LyricSession {
 
   /** Sing the current line back (B4): the track stays stopped and the next utterance is the echo. */
   startEcho(at: number): LyricStep {
+    if (this.busy) return this.refused();
     const unit = this.unitAt(this.state.unit);
     if (!unit) return this.step([]);
     this.state.phase = 'echo';
@@ -268,6 +296,7 @@ export class LyricSession {
 
   /** The no-sé answer finished playing. */
   played(at: number): LyricStep {
+    if (this.busy) return this.refused();
     if (this.state.phase === 'noSe' && this.state.noSe) {
       this.state.noSe = advanceNoSe(this.state.noSe, { type: 'played' }, this.deps.pack, this.noSeOpts());
       this.state.screen = this.noSeScreen();
@@ -277,6 +306,7 @@ export class LyricSession {
 
   /** Neutral or street: the song page and the side-by-side lines in that register. */
   setRegister(register: SessionSettings['register'], at: number): LyricStep {
+    if (this.busy) return this.refused();
     this.state.settings = resolveSessionSettings({ register }, this.state.settings);
     this.state.phase = 'registers';
     this.state.screen = this.registersScreen();
@@ -284,6 +314,7 @@ export class LyricSession {
   }
 
   setSettings(change: Partial<SessionSettings>, at: number): LyricStep {
+    if (this.busy) return this.refused();
     this.state.settings = resolveSessionSettings(change, this.state.settings);
     if (this.state.phase === 'read') this.state.screen = this.readScreen();
     else if (this.state.phase === 'registers') this.state.screen = this.registersScreen();
@@ -292,6 +323,7 @@ export class LyricSession {
 
   /** The learner tapped line `index` while the track played at `positionMs`: its start time from now on. */
   markLine(index: number, positionMs: number): LyricStep {
+    if (this.busy) return this.refused();
     const unit = this.unitAt(index);
     if (unit && Number.isFinite(positionMs) && positionMs >= 0) this.state.taps[unit.id] = positionMs;
     if (this.state.phase === 'read') this.state.screen = this.readScreen();
@@ -300,6 +332,7 @@ export class LyricSession {
 
   /** Back to the song page. */
   showSong(): LyricStep {
+    if (this.busy) return this.refused();
     this.state.phase = 'read';
     this.state.screen = this.readScreen();
     return this.step([]);
@@ -309,14 +342,35 @@ export class LyricSession {
   // Internals
   // -------------------------------------------------------------------------
 
+  /** Run one async step: refused while another runs; the state before it serves reads and is restored if the step throws. */
   private async run(fn: () => Promise<LyricStep>): Promise<LyricStep> {
-    if (this.busy) throw new Error('LyricSession: a step is already running');
+    if (this.busy) return this.refused();
     this.busy = true;
+    const before = plain(this.state);
+    this.stable = before;
     try {
       return await fn();
+    } catch (e) {
+      for (const k of Object.keys(this.state)) delete (this.state as unknown as Record<string, unknown>)[k];
+      Object.assign(this.state, before);
+      throw e;
     } finally {
       this.busy = false;
+      this.stable = null;
+      const pending = this.pendingModel;
+      this.pendingModel = null;
+      if (pending) this.deps = { ...this.deps, model: pending.model };
     }
+  }
+
+  /** The state reads see: the state before the running step while busy. */
+  private readState(): LyricState {
+    return this.busy && this.stable ? this.stable : this.state;
+  }
+
+  /** A refused call (StepRefusal): nothing changes. */
+  private refused(): LyricStep {
+    return { screen: plain(this.readState().screen), events: [], refused: 'busy' };
   }
 
   private step(events: readonly LearnerEvent[], extra: Partial<Omit<LyricStep, 'screen' | 'events'>> = {}): LyricStep {
@@ -531,6 +585,7 @@ export class LyricSession {
           hint: null,
           prob: best.wordCount === 1 && Number.isFinite(best.prob) ? best.prob : null,
           alternatives: best.position.alternatives,
+          rated: true,
           resolved: false,
           outcome: null,
         };
@@ -781,7 +836,7 @@ export class LyricSession {
     let equivalence: LyricEquivalence | undefined;
     let scoredBy: CliffOutcome['scoredBy'] = 'canned';
     if (model) {
-      const r = await scoreLyricAnswer(model, pack, { context: c.context, answer: c.answer, before: c.before }, transcript, this.regOpts());
+      const r = await scoreLyricAnswer(model, pack, { context: c.context, answer: c.answer, before: c.before, ...this.precomputed(c) }, transcript, this.regOpts());
       result = r;
       equivalence = r.equivalence;
       scoredBy = 'model';
@@ -790,6 +845,18 @@ export class LyricSession {
       result = cannedResult(pack, transcript, c.answer, c.accepted.slice(1));
     }
     return this.land(result, scoredBy, at, equivalence);
+  }
+
+  /**
+   * What lyricCliffs already found at a cliff the model rated (its alternatives and, for a
+   * single-word cliff, P(actual)), when the session's cliff options search like the credit
+   * options; canned cliffs search as usual.
+   */
+  private precomputed(c: LyricCliffState): { alternatives?: NextWord[]; actualLogprob?: number } {
+    if (!c.rated || !alternativesReusable(this.o.cliff.cliff ?? {}, {})) return {};
+    const out: { alternatives?: NextWord[]; actualLogprob?: number } = { alternatives: c.alternatives };
+    if (c.prob !== null && c.prob > 0) out.actualLogprob = Math.log(c.prob);
+    return out;
   }
 
   private async chooseOption(index: number, at: number): Promise<LyricStep> {

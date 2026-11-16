@@ -1,0 +1,165 @@
+{
+ "when": "2026-11-16T01:50:00.368Z",
+ "mode": "before",
+ "node": "v22.23.4",
+ "load": [
+  8.31,
+  6.9,
+  6.8
+ ],
+ "cores": 4,
+ "results": [
+  {
+   "name": "pack.analyze, 40 sentence words (warm)",
+   "perStep": true,
+   "medianMs": 0.136,
+   "meanMs": 0.312,
+   "maxMs": 2.851,
+   "n": 30
+  },
+  {
+   "name": "pack.analyze, first use on a new pack (cold)",
+   "perStep": false,
+   "medianMs": 9.731,
+   "meanMs": 11.529,
+   "maxMs": 19.06,
+   "n": 5
+  },
+  {
+   "name": "createDefaultSpanishPack()",
+   "perStep": false,
+   "medianMs": 0.168,
+   "meanMs": 0.168,
+   "maxMs": 0.189,
+   "n": 5
+  },
+  {
+   "name": "pack.segment, 8 sentences",
+   "perStep": true,
+   "medianMs": 0.05,
+   "meanMs": 0.34,
+   "maxMs": 4.458,
+   "n": 30
+  },
+  {
+   "name": "pack.inflect, 40 analyses",
+   "perStep": true,
+   "medianMs": 0.701,
+   "meanMs": 1.494,
+   "maxMs": 5.993,
+   "n": 30
+  },
+  {
+   "name": "generateVariants, 8 sentences",
+   "perStep": true,
+   "medianMs": 8.134,
+   "meanMs": 8.939,
+   "maxMs": 30.918,
+   "n": 30
+  },
+  {
+   "name": "judgeSentence (mock), 1 sentence",
+   "perStep": true,
+   "medianMs": 5.636,
+   "meanMs": 7.533,
+   "maxMs": 19.417,
+   "n": 30
+  },
+  {
+   "name": "scoreWords (mock), 1 sentence",
+   "perStep": true,
+   "medianMs": 0.882,
+   "meanMs": 0.888,
+   "maxMs": 1.462,
+   "n": 30
+  },
+  {
+   "name": "slangIn + scoringContext (street), 1 sentence",
+   "perStep": true,
+   "medianMs": 0.101,
+   "meanMs": 0.306,
+   "maxMs": 5.815,
+   "n": 30
+  },
+  {
+   "name": "findSlangMatches, 8 sentences",
+   "perStep": true,
+   "medianMs": 1.008,
+   "meanMs": 2.292,
+   "maxMs": 14.286,
+   "n": 30
+  },
+  {
+   "name": "sentenceWords, 8 sentences",
+   "perStep": true,
+   "medianMs": 4.031,
+   "meanMs": 5.622,
+   "maxMs": 12.593,
+   "n": 30
+  },
+  {
+   "name": "buildSentenceView, 8 sentences",
+   "perStep": true,
+   "medianMs": 0.186,
+   "meanMs": 0.407,
+   "maxMs": 5.974,
+   "n": 30
+  },
+  {
+   "name": "estimateVocabulary (frequency list)",
+   "perStep": true,
+   "medianMs": 0.41,
+   "meanMs": 0.447,
+   "maxMs": 0.626,
+   "n": 30
+  },
+  {
+   "name": "frequencyLexemeKeys(pack)",
+   "perStep": true,
+   "medianMs": 0.072,
+   "meanMs": 0.091,
+   "maxMs": 0.556,
+   "n": 30
+  },
+  {
+   "name": "chooseTargets",
+   "perStep": true,
+   "medianMs": 0.358,
+   "meanMs": 0.361,
+   "maxMs": 0.472,
+   "n": 30
+  },
+  {
+   "name": "parseLyrics, 35 source lines",
+   "perStep": false,
+   "medianMs": 0.409,
+   "meanMs": 0.712,
+   "maxMs": 5.074,
+   "n": 30
+  },
+  {
+   "name": "StorySession canned: next + answer",
+   "perStep": true,
+   "medianMs": 1.454,
+   "meanMs": 2.119,
+   "maxMs": 9.837,
+   "n": 20
+  },
+  {
+   "name": "StorySession mock: next + answer",
+   "perStep": true,
+   "medianMs": 110.594,
+   "meanMs": 103.011,
+   "maxMs": 138.195,
+   "n": 10
+  },
+  {
+   "name": "LyricSession mock: next + answer",
+   "perStep": true,
+   "medianMs": 73.51,
+   "meanMs": 73.722,
+   "maxMs": 94.372,
+   "n": 10
+  }
+ ]
+}

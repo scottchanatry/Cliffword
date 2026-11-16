@@ -2,6 +2,7 @@
 export {
   DEFAULT_VARIANT_OPTIONS,
   KIND_PRIORITY,
+  anchorFormOf,
   capitalizeFirst,
   generateVariantSet,
   generateVariants,

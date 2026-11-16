@@ -291,7 +291,7 @@ describe('buildStoryPrompt (the continuation prompt)', () => {
     });
     expect(p.prompt).toBe(
       'Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nLugar: el mercado.\nPalabras: casa, pan.\n\n' +
-        '[llegó] Marta llegó tarde al mercado.\n[pan] Compró pan y fruta.\n[amiga] Su amiga la esperaba en la puerta.\n[comprar]',
+        '[tarde] Marta llegó tarde al mercado.\n[pan] Compró pan y fruta.\n[esperaba] Su amiga la esperaba en la puerta.\n[comprar]',
     );
     expect(p.prefix + p.suffix).toBe(p.prompt);
     expect(p.suffix).toBe('[comprar]');
@@ -326,7 +326,7 @@ describe('buildStoryPrompt (the continuation prompt)', () => {
   it('has no words of its own: a pack without story data gets only the tagged lines', () => {
     const bare = { ...pack, story: undefined };
     const p = buildStoryPrompt(bare, { story, tag: 'comprar', level: 'A1', names: ['Marta'], vocabulary: ['casa'], register: 'street', region: 'PR' });
-    expect(p.prompt).toBe('[llegó] Marta llegó tarde al mercado.\n[pan] Compró pan y fruta.\n[amiga] Su amiga la esperaba en la puerta.\n[comprar]');
+    expect(p.prompt).toBe('[tarde] Marta llegó tarde al mercado.\n[pan] Compró pan y fruta.\n[esperaba] Su amiga la esperaba en la puerta.\n[comprar]');
     expect(p.headerLines).toEqual([]);
   });
 
@@ -334,6 +334,10 @@ describe('buildStoryPrompt (the continuation prompt)', () => {
     expect(tagFor(pack, 'Marta compró pan en el mercado.')).not.toBe('marta');
     expect(tagFor(pack, 'Rosa vio a Pedro.', ['Rosa', 'Pedro'])).toBe('vio');
     expect(tagFor(pack, '')).toBe('');
+    // skipLead: a word after the first ones when one qualifies, else the lead word.
+    expect(tagFor(pack, 'Marta llegó tarde al mercado.')).toBe('llegó');
+    expect(tagFor(pack, 'Marta llegó tarde al mercado.', [], 2)).toBe('tarde');
+    expect(tagFor(pack, 'Marta llegó.', [], 2)).toBe('llegó');
   });
 
   it('levelName and lengthHintFor read the pack tables', () => {

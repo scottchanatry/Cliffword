@@ -636,10 +636,12 @@ describe('snapshot and restore', () => {
     expect(await run()).toEqual(await run());
   });
 
-  it('refuses overlapping steps', async () => {
+  it('refuses overlapping steps with a typed result (src/session/busy.test.ts has the interleavings)', async () => {
     const s = make({ model, startMode: 'brand_new' });
+    const before = s.screen;
     const p = s.next(T0);
-    await expect(s.next(T0)).rejects.toThrow(/already running/);
-    await p;
+    const second = await s.next(T0);
+    expect(second).toEqual({ screen: before, events: [], refused: 'busy' });
+    expect((await p).refused).toBeUndefined();
   });
 });

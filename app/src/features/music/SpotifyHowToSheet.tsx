@@ -26,7 +26,7 @@ export function SpotifyHowToSheet({ visible, onClose }: SpotifyHowToSheetProps) 
         </Text>
         <View style={styles.steps} accessibilityRole="list">
           {SPOTIFY_STEPS.map((key, i) => (
-            <View key={key} style={styles.step} testID={`spotify-step-${i + 1}`} accessible accessibilityLabel={`${t('spotify.howTo.stepLabel', { n: i + 1 })}. ${t(key)}`}>
+            <View key={key} style={styles.step} testID={`spotify-step-${i + 1}`} accessible accessibilityLabel={t('spotify.howTo.stepA11y', { n: i + 1, step: t(key) })}>
               <View style={styles.number}>
                 <Text variant="pillStrong" tone="onInk" maxFontSizeMultiplier={CHROME_MAX_SCALE}>
                   {String(i + 1)}

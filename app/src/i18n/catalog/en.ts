@@ -477,7 +477,7 @@ export const en = {
   'spotify.howTo.step3': 'Cliffword opens with the song. Check the title and the artist.',
   'spotify.howTo.step4': 'Paste the lyrics, and the song is ready to practise.',
   'spotify.howTo.note': 'Spotify keeps playing in its own app. Cliffword only gets the song’s name.',
-  'spotify.howTo.stepLabel': 'Step {n}',
+  'spotify.howTo.stepA11y': 'Step {n}: {step}',
 
   // Paste lyrics, share, time it
   'paste.title': 'Paste lyrics',

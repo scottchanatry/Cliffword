@@ -6,7 +6,7 @@ import { SongView } from '../../../src/features/music/SongView';
 import { useI18n } from '../../../src/i18n';
 import { useLyricController } from '../../../src/session/lyric/useLyricController';
 
-const back = () => (router.canGoBack() ? router.back() : router.replace('/music'));
+const back = () => router.dismissTo('/music');
 
 /**
  * Two registers (C2): the song's lines in neutral and street register side by side (the
@@ -52,8 +52,7 @@ export default function RegistersRoute() {
     else if (reached.current && songId) {
       // "Back to the song" left the registers: this page is done.
       reached.current = false;
-      if (router.canGoBack()) router.back();
-      else router.replace({ pathname: '/music/[songId]', params: { songId } });
+      router.dismissTo({ pathname: '/music/[songId]', params: { songId } });
     }
   }, [vm.screen, vm.register, actions, songId]);
   useEffect(() => () => actions.showSong(), [actions]);

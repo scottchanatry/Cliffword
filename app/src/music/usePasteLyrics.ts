@@ -84,6 +84,6 @@ export function usePasteLyrics(songId: string | null): PasteLyricsProps {
     onChangeArtist: setArtist,
     onChangeText: setText,
     onSave: save,
-    onCancel: () => (router.canGoBack() ? router.back() : router.replace('/music')),
+    onCancel: () => (songId ? router.dismissTo({ pathname: '/music/[songId]', params: { songId } }) : router.dismissTo('/music')),
   };
 }

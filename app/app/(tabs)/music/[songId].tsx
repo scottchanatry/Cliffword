@@ -6,7 +6,8 @@ import { useLyricController } from '../../../src/session/lyric/useLyricControlle
 
 type Mode = 'read' | 'cliff' | 'echo';
 
-const back = () => (router.canGoBack() ? router.back() : router.replace('/music'));
+/** Back to the library (in this stack, or opened there when the song came from a link). */
+const back = () => router.dismissTo('/music');
 
 /**
  * A song page: the lyric controller's screen as it is (read A3, cliff C1, result, no sé, echo

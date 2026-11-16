@@ -65,8 +65,8 @@ export function useTapTimer(songId: string | null): UseTapTimer {
       onUndo: () => setCurrent((c) => Math.max(0, c - 1)),
       onDone: () => {
         actions.pause();
-        if (router.canGoBack()) router.back();
-        else if (songId) router.replace({ pathname: '/music/[songId]', params: { songId } });
+        if (songId) router.dismissTo({ pathname: '/music/[songId]', params: { songId } });
+        else router.dismissTo('/music');
       },
     },
   };

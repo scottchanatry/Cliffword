@@ -37,7 +37,7 @@ export function useShareConfirm(id: string | null): ShareConfirmProps {
     };
   }, [share, pick]);
 
-  const close = () => (router.canGoBack() ? router.back() : router.replace('/music'));
+  const close = () => router.dismissTo('/music');
   const canSave = !saving && draft !== null && title.trim().length > 0;
 
   return {

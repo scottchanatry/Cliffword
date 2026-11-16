@@ -283,6 +283,75 @@ hooks in `src/music/` and `src/session/lyric/`, the views from `src/features/mus
   surprise shading and minutes spoken), `src/music/music.test.ts` and
   `__tests__/routes/music.test.tsx` (the routes end to end).
 
+## Music views
+
+`SongView` (`src/features/music/SongView.tsx`) takes `{ vm: LyricViewModel; actions: LyricActions;
+nav? }` and renders the engine's `LyricScreen` as it is, one view per kind: `ReadView` (A3; a
+brought text: `TextReaderView` in `src/features/text/`), `LineView`, `LyricCliffView` (C1; a
+brought text: `TextCliffView`, the Ink look with the story's `CliffCard`), `LyricResultView`
+(the story's `LandingLine`), `LyricNoSeView`, `LyricNativeReplyView`, `EchoView` (B4),
+`RegistersView` (C2) and `SongDoneView`; a null screen is a calm loading state. The library,
+paste, share, time-it, needs-lyrics and text-paste screens take the plain props of
+`src/features/music/types.ts` (`MusicLibraryView`, `PasteLyricsView`, `ShareConfirmView`,
+`TapTimerView`, `NeedsLyricsView`, `TextPasteView`).
+
+- **Lines.** `lineWords` / `lineViewWords` (`lyricWords.ts`) lay the engine's character spans
+  (`LyricLineView.slang`, `.masked`) over the words of the engine's `sentenceWords` (the pack's
+  segmenter; lead, trail and `spaceAfter` as written, never a split on spaces). `LyricLine`
+  draws them in the Ink (Newsreader), Tarima (Anton) or card look: slang with the dotted accent
+  underline, a masked word as a blank chip named "Hidden word". Screens that carry raw lines
+  (a cliff's `previous` and `before`, the echo line, register pairs) get their slang from
+  `findSlangMatches` on `vm.regions`, and their explicit words masked while `vm.showExplicit` is
+  false (`rawLineWords`).
+- **Song page (A3).** Lines open on tap (`openLine`); the slang notes (`SlangNoteList`:
+  "janguear · to hang out", "Puerto Rico · Casual"); "Teach me to speak" (`RegisterToggle`,
+  `setRegister`); song links from `nav` (two registers, time it, edit lyrics). The player bar
+  (`NowPlayingBar`: "0:42 · playing in Apple Music", never "playing" while stopped) or the
+  manual-mode note and "Sing the next word" (`next`) are pinned under the scroll view.
+- **Cliff (C1).** The Anton title and "Rayo K. · line 2 of 24", the line before, the line up to
+  the ink gap (`LyricGap`), the "Explicit · on" pill (`ExplicitPill`: a toggle through
+  `setShowExplicit`, a chip without it), "SING IT" (`SingItButton`: hold anywhere works the
+  same; its activate action toggles listening), "Stuck? Show three options" (`OptionsSheet`,
+  options rung only; other rungs show the engine's rung line), the player bar that waits, and
+  Otra vez / Más despacio / No sé with "Type instead".
+- **Sing-back (B4).** `EchoTiles`: the singer's row as blank tiles of one height (pitch is not
+  read), slang underlined in live orange; holding a tile (RNGH long press that blocks hold
+  anywhere) shows the word and its note ("corillo · group of friends, crew · Puerto Rico").
+  After singing, the learner's row in the same widths: landed filled, sung differently lighter,
+  missed hollow (tap it: `hearWord(index)`, hear it slowly). "6 of 7 landed" is the engine's
+  `echo.landed`.
+- **Registers (C2).** The line that changes most as the neutral and street cards (the street
+  label names where its slang is heard) with the swaps, the other lines one tap away; "Say it
+  street" / "Say it neutral" call `setRegister`.
+- **Library (C3).** `SourceRow` x3 (Apple Music by authorization state, "Not available on
+  Android yet" where it does not exist; Spotify "Show me" opens `SpotifyHowToSheet`; Lyrics
+  "Paste"), the songs (`LibraryList`: monogram, "Rayo K. · Puerto Rico · lots of slang", or
+  "waiting for lyrics"), Apple Music songs to add, shared songs and brought texts, the region
+  pills and `ExplicitRow` (ON by default). It keeps the route tests' ids (`music-screen`,
+  `toggle-explicit`).
+- **Paste, time it, share.** `PasteLyricsView` previews the parse (lines, timed lines, lines left
+  out, slang notes, explicit words, first lines) and lists the pasted lines with a delete button
+  each. `TapTimerView` taps the current line's start, nudges a tapped start by 0.25 s
+  (`NUDGE_MS`), undoes. `ShareConfirmView` edits the title and artist of a shared song.
+- **Brought text.** The reader shades each word by `vm.surprise` (engine `surpriseMap`, heat
+  `#FFE9C7` / `#FFC46B` / `#F08A1D`; screen readers hear the surprising words named) and pins
+  "Start the cliffs"; unshaded until the model has scored it.
+- **Fixtures and the gallery.** `src/features/music/fixtures.ts` builds every screen from real
+  `LyricSession` steps (canned, or the mock model for the scored result and the text) on sample
+  lyrics written for Cliffword ("Luna de Santurce" by the made-up Rayo K.; not a real song), and
+  the plain props of the other screens. `/preview/a3`, `c1`, `c2`, `b4`, `c3`, `paste`, `text`
+  and the variants in `MUSIC_FIXTURE_NAMES` (`lyric-result-scored`, `b4-before`, `c1-hint`,
+  `a3-explicit-off`, `text-cliff`, `time`, `share`, `c3-android`, ...) render them through the
+  same guarded gallery route as the story.
+- **Tests.** `SongView.test.tsx` (every song fixture with named 44 dp controls; each kind's texts
+  and actions; slang underlines at the engine spans; masked explicit words on screen and for
+  screen readers; echo rows, tile hold and hollow tap; hold anywhere), `MusicScreens.test.tsx`
+  (library per Apple Music state, Spotify how-to, paste preview and line delete, share, time it,
+  needs lyrics, text paste), `lyricWords.test.tsx` (spans, a script without spaces) and
+  `__tests__/routes/musicPreviewGallery.test.tsx`. `src/features/music/testing/musicTestKit.tsx`
+  (`mockLyricActions`, `loadMusicFixtures`, `renderSong`, `expectAccessibleControls`) is
+  test-only.
+
 ## The engine as a dependency (monorepo approach)
 
 The repo has no root package and no workspaces. `engine/` and `app/` are separate npm projects.

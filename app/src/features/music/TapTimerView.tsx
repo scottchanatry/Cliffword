@@ -25,14 +25,16 @@ export function preciseClock(t: Translator['t'], ms: number): string {
  */
 export function TapTimerView(props: TapTimerProps) {
   const { t } = useI18n();
-  const all = props.current >= props.lines.length;
-  const next = props.lines[props.current];
+  const { current } = props;
+  const all = current >= props.lines.length;
+  const next = props.lines[current];
   const scroll = useRef<ComponentRef<typeof ScrollView>>(null);
   const rows = useRef<Record<number, number>>({});
+  // Keep the line the next tap marks in view.
   useEffect(() => {
-    const y = rows.current[props.current];
+    const y = rows.current[current];
     if (y !== undefined) scroll.current?.scrollTo({ y: Math.max(0, y - 80), animated: true });
-  }, [props.current]);
+  }, [current]);
   return (
     <Screen testID="time-screen" contentStyle={styles.content}>
       <View style={styles.head}>

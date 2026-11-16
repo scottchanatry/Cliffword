@@ -304,6 +304,10 @@ ellipsis fragments and candidates without a finite verb; make the length penalty
 minimum length count when no candidate is in band; consider a few more candidates (n = 6
 of 26 tokens costs about 10 s here).
 
+Update 2026-11-16: done in "Story generation at every level (2026-11-16)" at the end of
+this document (tagged continuation prompt, rejects with counts, the starter-to-bridge
+hand-over for a brand-new learner, prefetch).
+
 ## 6. Top-N forced decoding (the llama.rn limitation)
 
 The same 186 judgements through `TopNBoundedModel(model, { n })`, which reports every
@@ -878,3 +882,293 @@ per next()), `generateVariants` (0.3 to 1 ms per sentence; once per learner turn
    a prefetch hides) would make it 2.
 4. Slang answers judged in neutral form still make their own next-word search.
 5. `story/select.ts` is the largest engine cost left in a story step (see section 5).
+
+## Story generation at every level (2026-11-16)
+
+Next-sentence generation (`engine/src/story/`, the hand-over and prefetch in
+`engine/src/session/`) measured on Qwen3-1.7B Q4_K_M through `proof/model_server.py`
+(`--threads 2`, port 8771) on the shared 4-core machine. Other agents ran servers, test
+suites and a headless browser at the same time: the load average was 2 to 16 and mostly
+8, so the seconds below are upper bounds that move by a factor of three between runs.
+The token counts (prompt tokens prefilled, tokens decoded) do not depend on the load and
+are the basis of the phone estimate. Scripts in `proof/engine-measure/`: `learners.ts`
+(the simulated learners), `prompt-explore.ts` (formats), `generation.ts` (before and
+after over a running story), `generation_table.py` (the tables below),
+`session-prefetch.ts` (prefetch on the real model). Raw results in
+`proof/engine-measure/results/`: `prompt-explore*.json`, `generation-before.json`,
+`generation-after-v1.json`, `generation-after.json`, `generation-after-v*-partial.log`,
+`session-prefetch-early.json`.
+
+### Verdict (plain language)
+
+- **Zero knowledge always has a next step, and the brand-new learner now gets real
+  sentences.** Before: 0 of 4 in band, and the chosen sentences included "El." and "La.".
+  Now the learner hears the 8-sentence starter story and then generates on a bridge
+  vocabulary (the starter's words, cognates and introduced words count as known): 7 of 8
+  steps in band, 4 of 8 using the new word, no placeholder; one step gave no sentence,
+  which the session covers with unused canned sentences (never an error screen, never an
+  early repeat; unit-tested with a model that writes only junk).
+- **The other learners land in the band on their own knowledge in 28 of 32 steps** (early
+  7/8, reader 7/8, advanced 6/8, heritage 8/8), against 8 of 16 before when the chosen
+  sentence is re-checked with today's rejects.
+- **Target words are used**: 23 of 40 steps against 4 of 20 before. The tagged
+  continuation prompt ("[word] sentence" lines, ending with the target as the next tag)
+  is what did it; asking for the word in an instruction or a header line rarely worked.
+- **No junk is chosen**: 0 of 40 chosen sentences fail the new rejects, against 6 of 20
+  before ("Ella _.", "El señor de las frutas...", "El romántico del día es el que...").
+  Every reject reason is counted per step.
+- **But a running story drifts into empty patterns.** Over eight sentences the model
+  copies the previous line's frame; repeats are the largest reject count everywhere, 4 of
+  40 steps ended without a sentence, and some accepted sentences are fluent and in band
+  but empty ("La cosa es la casa.", "El hombre es el único.", "El grupo puede tener un
+  concierto."). The early learner's story is the weakest; the reader's drifted from the
+  market into first-person job stories. This is the main open issue (section 7).
+- **Cost**: about 80 to 230 prompt tokens and 50 to 110 decoded tokens per sentence, plus
+  1 to 3 short scoring calls: about 5 to 8 s per generated sentence on a phone-class CPU
+  (the proof's 4-desktop-core speeds), close to before. On this shared machine at
+  `--threads 2` a step took 27 to 34 s at load 8 and 6 to 10 s at load 2 to 5.
+  `StorySession.prefetch` runs the step while the learner is on the landing screen, so
+  next() returns at once when nothing changed in between.
+- **Language-neutral**: every prompt word, example, region name, leak pattern, meta word,
+  label and abbreviation now lives in the pack (`LanguagePack.story`,
+  `LanguagePack.abbreviations`); the Japanese toy pack gets no Spanish prompt.
+
+### 1. Prompt formats on the real model
+
+Every format is plain continuation, the way `/generate` and llama.rn completion work.
+Candidates were cleaned with the engine's `extractSentence` and judged with its
+`evaluateCandidate` ("in band" on the learner's own pKnown). Profiles as in
+`learners.ts`; n = 4 or 6 candidates per seed, one or two seeds (12 candidates at most
+per cell). The brand-new target was "que" (the first frequent lemma outside the starter's
+words), the early one "viejo"; the reader's "conque" and the advanced and heritage
+learners' "violento" were the practice and review targets of the old chooseTargets.
+
+| format | brand new | early | reader / advanced / heritage |
+|---|---|---|---|
+| F0, the instruction prompt this replaces ("Escribe la siguiente oración...", "Siguiente oración:") | 0/4 in band; 2 of 4 empty, the rest long | 1/4 in band, and that one is "Ella _."; 2 of 4 empty | 2/8, 1/8, 3/8 in band; empty answers and "Marta se _ _ _" templates; no target used |
+| F2/F4, header + story one sentence per line (+ "Palabra nueva: X") | real sentences, 0 targets; "Marta tiene un teléfono." 2 times in 4 | 2/8 in band, target 2/8 | 4/8, 3/8, 0/8 in band; target 0, 3/8, 0 |
+| F6/F7, the next line announced ("Siguiente frase, con la palabra «X»" / "Una frase corta con «X»") | F6: target 4/4, but 0/4 in the length range; F7: target 0/8 | F6: target 2/4, 0/4 in band; F7: target 0/8 | (not run: 10 to 14 s per call, the longest outputs) |
+| F9/G2, tagged lines ("[word] sentence"), prompt ends with "[target]" | 5/8 used "que", as "¿Qué?" or "Que es." (a function-word tag) | target 8/8 and 10/12; in band 0/8 and 3/12 | 5/8, 2/8, 6/8 in band; target 0, 0, 4/8 |
+| G1, tagged lines + level header + vocabulary line (kept) | 0/12 (target "que") | in band 4/12 (8/12 counting familiar words), target 12/12, in the length range 12/12 | reader 8/12 in band |
+
+What decided it: only the tagged lines made the model use a content-word target reliably
+(12 of 12 for "viejo" against 2 of 8 with a "Palabra nueva" line); the vocabulary line
+raised the early learner's in-band share (4 of 12 against 3 of 12 without it, 8 of 12
+against 3 of 12 counting familiar words) and kept every candidate in the length range; a
+function-word target as the tag fails, so the bridge introduces content words; a
+sentence-start cue (the character's name, F3) gave the least variety (one sentence 3
+times in 4). The second exploration run (`prompt-explore-b.json`) used seeds 1 and 2 with
+n = 4, which share three completion seeds, so its distinct counts are low by
+construction; the later runs spaced the seeds.
+
+### 2. Before and after: eight sentences in a row per simulated learner
+
+Each learner starts from its own opening (the brand-new learner from the starter story it
+has just heard) and generates one sentence after another, the chosen sentence appended to
+the story; one target per sentence (`newWordsPerSentence` is below 1.5 at every level
+here), the last three targets excluded, as in the session. Seeds 1, 1001, ... per step.
+"Before" is the engine of commit 29a1cdb (the instruction prompt, n = 4 as in the last
+round) and ran 4 sentences per learner, because a step took 20 to 60 s under load;
+"after" ran 8. "In band" is selection's judgement (for the brand-new learner after the
+change, on the bridge vocabulary); "on own pKnown" re-checks the chosen sentence on the
+learner's own pKnown with today's rejects. "Chosen junk" counts chosen sentences that
+today's rejects refuse. The phone estimate converts the tokens with the proof's speed
+table for 4 desktop cores (prompt processing 124 tokens/s, generation 15.4 tokens/s;
+about 12 prompt tokens per natural-score call).
+
+before (2026-11-16T01:20, load 3.5, 7.1, 8.2):
+
+| learner | runs | in band | on own pKnown | target used | distinct | no sentence | chosen junk | rejects | s / call (mean, max) | calls (gen + score) | tokens (prompt + decode) | phone estimate |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| brand new | 4 | 0/4 | 0/4 | 2/4 | 4 | 0 | 2 | repeat 13, empty 5 | 38.5, 57.11 | 2 + 0 | 204 + 111 | 8.9 s |
+| early (~300) | 4 | 1/4 | 0/4 | 0/4 | 3 | 1 | 1 | empty 13, repeat 5 | 17.1, 29.01 | 1.75 + 0 | 164 + 70 | 5.9 s |
+| reader, weak speaking | 4 | 3/4 | 1/4 | 0/4 | 3 | 1 | 2 | repeat 7, empty 5, prompt_leak 2 | 12.3, 22.76 | 1.25 + 0 | 141 + 104 | 7.9 s |
+| advanced | 4 | 4/4 | 4/4 | 0/4 | 4 | 0 | 0 | empty 8, repeat 3 | 7.3, 9.11 | 1 + 0 | 137 + 69 | 5.6 s |
+| heritage | 4 | 4/4 | 3/4 | 2/4 | 4 | 0 | 1 | repeat 4, empty 2, prompt_leak 1 | 9.1, 9.51 | 1 + 0 | 113 + 90 | 6.8 s |
+
+- brand new: "El." / "La familia de Marta va a un restaurante." / "Era un momento perfecto." / "La."
+- early (~300): "Ella _." / (none) / "Marta compra todo lo que necesita." / "La semana pasada, Marta y su hermano fueron al mercado."
+- reader, weak speaking: "El señor de las frutas..." / "El señor de las frutas se puso muy rojo." / "Aunque el señor de las frutas se puso rojo, no se iría de la tienda sin..." / (none)
+- advanced: "El señor de las frutas era un hombre de cuarenta años, alto y de ropa negra." / "La niña se acercó a la puerta y empezó a leer la nota." / "El señor de las frutas se puso de pie y se acercó a la niña, mostrando un libro." / "Señor de las frutas se acercó a la niña y le mostró un libro."
+- heritage: "El cocinero de la abuela era un hombre muy amable." / "La abuela cocinaba un plato sólido y rico el domingo." / "El romántico del día es el que..." / "¿Habla el romántico del día?"
+
+after (2026-11-16T03:27, load 8.8, 8.1, 8.1):
+
+| learner | runs | in band | on own pKnown | target used | distinct | no sentence | chosen junk | rejects | s / call (mean, max) | calls (gen + score) | tokens (prompt + decode) | phone estimate |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| brand new | 8 | 7/8 | 0/8 | 4/8 | 7 | 1 | 0 | repeat 20, unnatural 1, placeholder 1, no_verb 1, unbalanced_quotes 1 | 27.4, 38.26 | 1.25 + 2.25 | 227 + 63 | 6.1 s |
+| early (~300) | 8 | 7/8 | 7/8 | 3/8 | 7 | 1 | 0 | repeat 29, too_short 1 | 32.6, 59.53 | 1.5 + 1.63 | 224 + 53 | 5.4 s |
+| reader, weak speaking | 8 | 7/8 | 7/8 | 6/8 | 8 | 0 | 0 | repeat 11, too_short 5, no_verb 1 | 34.3, 53.31 | 1.13 + 2.88 | 109 + 95 | 7.3 s |
+| advanced | 8 | 6/8 | 6/8 | 3/8 | 6 | 2 | 0 | repeat 24, too_short 5, no_verb 5, unbalanced_quotes 3, empty 3 | 32, 46.34 | 1.38 + 2 | 129 + 108 | 8.2 s |
+| heritage | 8 | 8/8 | 8/8 | 7/8 | 8 | 0 | 0 | repeat 17, too_short 1, list 1 | 28.6, 40.63 | 1.13 + 2.25 | 82 + 73 | 5.6 s |
+
+- brand new: "La familia está en el restaurante." / "El grupo está en el restaurante." / "El grupo toca la guitarra." / (none) / "El grupo dice: "¡Música importante!"" / "El grupo tiene un concierto." / "El grupo hace un concierto." / "El grupo puede tener un concierto."
+- early (~300): "El viejo está en la casa." / "El hombre está en la casa." / "El hombre es el nacional." / "La cosa es la casa." / "La parte es la casa." / "La vez es la casa." / (none) / "El hombre es el único."
+- reader, weak speaking: "Yo, el otro día, ayudé a un hombre a encontrar un trabajo." / "También, en la tienda de ropa, ayudé a un cliente a elegir un vestido." / "También, en un parque, ayudé a un niño a caminar." / "También, en el año 2003, ayudé a un hombre a encontrar un trabajo." / "Puedo ayudarte a encontrar trabajo o a elegir ropa." / "También, en la plaza, ayudé a una señora a encontrar un par de zapatos." / "También, en el año 2012, ayudé a una persona a llegar hasta su casa." / "¿En qué año ayudaste a alguien a encontrar trabajo?"
+- advanced: "El señor de las frutas estaba en la puerta, pero no le hacía caso." / "Marta se acercó a la puerta del mercado y se detuvo." / "Marta se detuvo y empezó a leer la nota." / "Se puso de pie y empezó a leer la nota en voz alta." / "El señor de las frutas se acercó lentamente." / (none) / (none) / "Marta, al ver al señor de las frutas, se puso de pie."
+- heritage: "El coche del abuelo está en el garaje." / "El gas del abuelo estaba en la cocina." / "La geografía está en la mesa." / "El gimnasio está en el segundo piso." / "El horario del abuelo es a las 10." / "El gas del abuelo está en el cuarto." / "El profesor de geografía es el profesor de ciencias." / "El gimnasio de la escuela es el mismo que el del abuelo."
+
+Over all learners: target use 4 of 20 before, 23 of 40 after; chosen sentences that
+today's rejects refuse: 6 of 20 before, 0 of 40 after; steps without a sentence: 2 of 20
+before, 4 of 40 after (the session covers those with canned sentences). The seeded
+variety term (`varietyJitter`) and the seeded order of the vocabulary line were added
+after this run, from the real-model test (section 3, item 5); they reorder only
+candidates within a point of each other and change the vocabulary line's order.
+
+### 3. What the intermediate runs showed
+
+The first version of the new pipeline (`generation-after-v1.json`) already put every
+learner but the heritage speaker in band in 6 to 8 of 8 steps, but a running story
+locked into one pattern: each new line copied the previous one ("El viejo está en la
+casa." / "El claro está en el claro." / "El nacional es el de la casa."), every candidate
+became a near repeat (35 repeat rejects in 8 early steps), and the safe round, tagged
+with the main character at a lower temperature, repeated it again: 2 of 8 early steps
+and 3 of 8 heritage steps ended without a sentence. Five more rounds of changes, each
+from a failure seen in the logs (`generation-after-v*-partial.log`, stopped once the
+failure showed):
+
+1. The safe round takes a fresh known word as its tag and runs hotter (temperature 1).
+   It moved the story on, into nonsense the band cannot see: "El tener es la casa.", "El
+   más es el que es más.", "El grupo está ver.". Scored after the story, such sentences
+   sit at -4.1 to -6.2 nats per token against -1.9 to -2.9 for fluent beginner sentences
+   (one fluent outlier at -4.2; per word the two groups overlapped), so the natural score
+   is now per token, enters the ranking with weight 1, and rejects a candidate below -4.4
+   (unnatural: 6 of 10 degenerate sentences, 0 of 10 fluent ones); the natural pass runs
+   before the safe-round decision.
+2. Tags of story lines avoid their first two words (the model started every sentence
+   with its tag: "El viejo...", "El claro..."); a short sentence that uses one content
+   word twice is a repeat ("El viejo es el viejo.", "El único es el único." pass the
+   natural floor because the repetition is predictable); a candidate that holds a recent
+   sentence whole is a repeat ("Marta dice que el grupo toca la guitarra y el piano.").
+3. The safe tag is a noun: a verb or adverb tag gave "El hombre es estar." and "El hombre
+   es la vez." (-2.1 to -2.8 nats per token: fluent to the model).
+4. With noun tags the early story still ran "El hombre es el nacional." / "El hombre es el
+   único." / "El hombre es el día." / "El hombre es el año.": fluent, under the
+   near-repeat thresholds, and empty. A candidate that opens with the same three words as
+   one of the last two sentences is now a repeat (`sameOpening`). The final run shows the
+   cost: more repeat rejects and 2 of 8 advanced steps without a sentence.
+5. In the real-model test all three seeds chose the same bridge sentence ("Marta y su
+   familia están en el restaurante."): from one story state the model wrote it in 13 of
+   15 candidates. The vocabulary line's order now follows the seed (the prompt changes,
+   not its content), which made the candidate sets differ, and a seeded jitter below one
+   point (`varietyJitter`) orders near ties; two of three seeds still agree.
+
+### 4. Latency
+
+- **Tokens per step** (the tables above): the new prompts are longer for beginners (the
+  header and the vocabulary line: 224 to 227 prompt tokens against 164 to 204) and
+  shorter for the others (82 to 129 against 113 to 141). Stopping at the first sentence
+  end makes a candidate 12.8 decoded tokens on average against 15.8 with the line-end
+  stop, so five candidates (plus a safe round of four in 11 of 40 steps) decode 53 to 108
+  tokens per step against 69 to 111 for four candidates before.
+- **Prefix reuse**: the target and safe rounds differ only in the last line, and
+  `/generate` now reuses the KV cache of the shared prefix (llama.rn does the same with
+  its prompt cache), so a safe round prefills only its tag. The phone estimate in the
+  tables counts every round's prompt in full, so it is an upper bound.
+- **Natural score**: 1.6 to 2.9 scoring calls per step on average (about 12 tokens each after the
+  story context; 100 to 180 ms each over HTTP when the machine is quiet).
+- **Phone estimate**: 5.4 to 8.2 s per generated sentence at 124 tokens/s prompt
+  processing and 15.4 tokens/s generation (the proof's 4 desktop cores; a phone at half
+  that speed doubles it), against 5.6 to 8.9 s before. The cliff choice that follows in
+  the session (cliffPositions: up to three next-word searches of about 50 calls each)
+  costs more than generation and is outside this step; prefetch covers both.
+- **This machine**: seconds per call are in the tables; they follow the load (6 to 10 s
+  per step in the first after run at load 2 to 5, 27 to 34 s in the final one at load 8).
+
+### 5. Zero knowledge, the hand-over and prefetch
+
+- **Hand-over rule** (`session/handover.ts`, `DEFAULT_HANDOVER_OPTIONS`): a zero-knowledge
+  learner hears the pair's starter story (all 8 sentences of `EN_ES_STARTER`); then,
+  with a model, generation on the bridge until the learner knows `strictFrom` = 150
+  frequency-list lexemes at pKnown >= 0.9; then free generation. On the bridge the band
+  counts the starter's taught words, every word of its sentences, the pair's cognates and
+  the words introduced so far as known (`familiarCredit` 0.98), the vocabulary line lists
+  them, and targets are content words outside them. Why a bridge: the learner model gains
+  meaning evidence slowly; a simulated learner who picked the right option at every
+  starter cliff and read every word, three times through the starter (24 sentences), had
+  one lexeme at 0.8 or above and none at 0.9 (ser 0.63, el 0.63, guitarra 0.82), so no
+  generated sentence can be in band on its own pKnown for many sessions.
+- **Never stalls or loops early**: with a model, a step that yields no usable sentence
+  falls back to unused starter sentences, then unused placement-ladder sentences, then
+  the starter again (least recently used). `src/session/handover.test.ts` drives a
+  brand-new session whose model only writes junk ("El y de _______.", "¿Qué?", "1. Marta
+  compró pan."): 24 cliff screens, no error screen, no repeat. Canned mode (no model) now
+  plays the 21 unused ladder sentences after the starter before it cycles (it used to
+  repeat the 8 starter sentences from the ninth step on).
+- **Prefetch** (`StorySession.prefetch(at)`): runs the next step on a copy of the session
+  through a recording view of the model; next(at) recomputes everything and replays the
+  answers to identical requests. Same story with or without it (deterministic model),
+  nothing prefetched in snapshots, fresh requests after learner or model changes, model
+  calls serialized (`ModelGate`); unit tests in `src/session/prefetch.test.ts`.
+- **Prefetch on the real model** (`session-prefetch.ts`, early learner, three sentences,
+  load 2 to 5): a full session step (generation, cliff positions, distractors) cost 8.5,
+  16 and 59 s here (55 to 246 model calls); with the prefetch run on the landing screen,
+  next() took 0.01 to 0.02 s with no model call, and both sessions showed the same three
+  steps.
+- **The real-model test** (`test/real-engine.test.ts`, three seeds from one story state,
+  load 2 to 5): early learner 3/3 in band, 3/3 on target, 2 distinct sentences;
+  intermediate 3/3, 3/3, 3 distinct; brand new on the bridge 3/3, 3/3, 2 distinct ("La
+  familia está en el parque." once, "Marta está con su familia en el restaurante."
+  twice). From one identical state the model's likeliest sentence often wins for two of
+  three seeds even with the seeded vocabulary order and the variety jitter; the test asks
+  for "not one sentence for every seed", the old behaviour ("¿Qué dijo Marta?" every
+  time). Within a running story no sentence repeats (the repeat reject).
+
+
+### 6. Changes made in this step
+
+- `LanguagePack.story` (`StoryLanguageData`, `lang/storyData.ts`) and
+  `LanguagePack.abbreviations`; the Spanish values in `lang/es/story.ts`. `story/` holds
+  no Spanish (`src/story/neutral.test.ts` reads its literals); the old names
+  `SPANISH_PROMPT_TEXT`, `REGION_NAMES` and `DEFAULT_ABBREVIATIONS` are aliases of the
+  Spanish data. The Japanese toy pack gets a bare tagged prompt, or its own header when
+  it has story data (`test/language-neutral.test.ts`).
+- The tagged continuation prompt (`buildStoryPrompt`), the target and safe rounds, the
+  natural pass, sentence-end stops, n 5 + 4, maxTokens 2 per word + 4.
+- Rejects with counts: placeholder, list, heading, bare_quote, meta, foreign, no_verb,
+  too_short, unnatural, and wider repeats (near repeats, contained sentences, a repeated
+  content word, a copied opening); selection band first, then target, novelty,
+  continuity (story names count as names at a sentence start), natural score, variety.
+- `chooseTargets`: `accept`, and practice and review in probability buckets (the
+  reader's practice target was "conque", the rarest understood word, by a few
+  thousandths).
+- Hand-over, bridge, prefetch, `ModelGate`, canned mode through the ladder.
+- `proof/model_server.py` `/generate` reuses the KV cache of the prompt prefix shared with
+  the previous request (identical texts: checked by repeating a request after one with
+  the same prefix and after an unrelated one).
+- `test/real-engine.test.ts`: the brand-new `it.fails` is an `it` (on the bridge: real,
+  in-band sentences over three seeds, the target used at least once, three different
+  sentences); early and intermediate learners must get distinct sentences of their level
+  over three seeds, in band at least twice, the target used at least once, with no
+  placeholder or prompt word.
+
+### 7. Open issues
+
+1. **Pattern lock-in over a running story** (the largest problem). Qwen3-1.7B copies the
+   previous line's frame; with the repeat rejects the step then falls back to the safe
+   round or to no sentence (4 of 40), and some accepted sentences are fluent, in band and
+   empty. Ideas to measure next: show fewer of the model's own lines (the human-written
+   opening or starter lines plus the last one or two generated lines), keep the pack's
+   example lines in the prompt as fixed anchors, choose early targets among nouns and
+   verbs (adjective targets came out as nouns: "El claro", "El nacional"), and a check
+   beyond the per-token natural score, which cannot see "La cosa es la casa." (fluent to
+   the model).
+2. **Continuity** is only a selection bonus for names and recent content words; the
+   reader's market story became first-person job help. A scene line (the builder takes
+   one) needs a source: the app or the chapter.
+3. **Dialogue is cut by the sentence-end stop** inside the quotation ('El viejo dijo: "No
+   tienes que hacer nada.' loses its closing quote and is rejected as unbalanced): the
+   largest reject in the real-model test's early runs. A stop that ignores ". " inside an
+   open quote needs the runtime's stop handling or a longer stop and a client-side cut.
+4. **The simulated learners are static** (no learning between steps), so targets recycle
+   (the reader's "ayudar" in 6 of 8 steps) and the band does not move as it would in a
+   session.
+5. **The advanced learner is judged on the 1788-lemma lexicon**: any word outside it counts
+   as unknown, so 2 of 8 advanced steps ended with no in-band candidate.
+6. **The bridge** rests on the learner model's slow meaning evidence; `strictFrom` (150
+   lexemes at 0.9) is a judgement between the measured profiles. Calibrate both from logs.
+7. **The app's prefetch hook** (`app/src/session/story/createStoryController.ts`,
+   `prefetch()`, called on the landing and no-sé screens) can now call
+   `session.prefetch(at)`; not wired here (app scope).
+8. Modules outside `story/` call `splitSentences` / `sentenceStartFlags` without the
+   pack's abbreviations (now none by default): "Sr. García" splits there.

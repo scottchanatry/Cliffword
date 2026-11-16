@@ -219,8 +219,8 @@ export const DEFAULT_SELECT_OPTIONS: Readonly<SelectOptions> = {
   targetBonus: 3,
   lengthWeight: 1,
   unknownPenalty: 4,
-  // Measured on Qwen3-1.7B: run-ons cut at maxTokens and two-clause sentences past 1.5
-  // times the maximum read as a paragraph; 2.5 let them through.
+  // Judgement from the real-model candidates: past 1.6 times the maximum they were run-ons
+  // cut at maxTokens or two sentences joined; 2.5 let those through.
   hardMaxWordsFactor: 1.6,
   // Below 60% of the minimum: one- and two-word answers for beginners ("¿Qué?", "El.").
   minWordsFactor: 0.6,
@@ -265,10 +265,11 @@ export const DEFAULT_SELECT_OPTIONS: Readonly<SelectOptions> = {
   naturalBaseline: -3,
   naturalClamp: 2,
   naturalFloor: -4.4,
-  // Measured on Qwen3-1.7B: two of three seeds chose the same bridge sentence ("Marta y su
-  // familia están en el restaurante.") from different candidate sets; half a point (a
-  // sixth of a target, a quarter of the natural range) varies near ties only.
-  varietyJitter: 0.5,
+  // Measured on Qwen3-1.7B: from one story state, two or three of three seeds chose the
+  // same bridge sentence ("Marta está con su familia en el restaurante.") over in-band,
+  // on-target alternatives 0.4 to 0.5 points behind. One point (a third of a target, a
+  // quarter of the natural range) varies such near ties and nothing larger.
+  varietyJitter: 1,
 };
 
 export interface SelectContext {
@@ -556,16 +557,26 @@ export function isRepeat(
   return false;
 }
 
-/** Leak patterns of a pack (StoryLanguageData.leakPatterns compiled with the "u" flag; bad sources are skipped). */
+const LEAK_CACHE = new WeakMap<object, RegExp[]>();
+
+/**
+ * Leak patterns of a pack (StoryLanguageData.leakPatterns compiled with the "u" flag; bad
+ * sources are skipped), compiled once per story data object.
+ */
 export function packLeakPatterns(pack: Pick<LanguagePack, 'story'>): RegExp[] {
+  const data = pack.story;
+  if (!data) return [];
+  const cached = LEAK_CACHE.get(data);
+  if (cached) return cached;
   const out: RegExp[] = [];
-  for (const src of pack.story?.leakPatterns ?? []) {
+  for (const src of data.leakPatterns ?? []) {
     try {
       out.push(new RegExp(src, 'u'));
     } catch {
       // A pattern that does not compile is ignored rather than failing every selection.
     }
   }
+  LEAK_CACHE.set(data, out);
   return out;
 }
 

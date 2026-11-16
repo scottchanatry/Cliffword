@@ -1,0 +1,51 @@
+
+> @cliffword/engine@0.1.0 test:real
+> CLIFFWORD_MODEL_URL=${CLIFFWORD_MODEL_URL:-http://127.0.0.1:8765} vitest run test/real-model.test.ts
+
+
+ RUN  v2.1.9 /home/user/cliffword/engine
+
+stdout | test/real-model.test.ts > real model over HTTP
+[real-model] model Qwen3-1.7B-Q4_K_M.gguf, n_ctx 2048, start token [151645]
+
+stdout | test/real-model.test.ts > real model over HTTP > matches the proof totals after the scoring prefix (parity)
+[real-model] parity: 18 sentences, max |delta| 1.42e-14 nats, mean 4.14e-15, 204 ms per sentence
+
+stdout | test/real-model.test.ts > real model over HTTP > prefers the correct sentence in at least 95% of the 93 proof pairs (accuracy)
+[real-model] accuracy 90/93 = 96.8%; assert (>= 3 nats): 74 caught, 0 false; hint (>= 1): 88 caught, 1 false
+[real-model] all 186 sentences vs proof: max |delta| 1.42e-14 nats
+[real-model] scored 186 sentences in 20.1 s (108 ms each)
+[real-model]   wrong way: -1.34 [ser_estar] La fiesta es en mi casa esta noche. / *La fiesta está en mi casa esta noche.*
+[real-model]   wrong way: -0.87 [por_para] Trabajo por la mañana. / *Trabajo para la mañana.*
+[real-model]   wrong way: -0.38 [personal_a] Visitamos a nuestros primos en Ponce. / *Visitamos nuestros primos en Ponce.*
+
+stdout | test/real-model.test.ts > real model over HTTP > runs the engine end to end: a judgement and a next-word list
+[real-model] judge "Mi hermano es enfermo hoy.": assert, best "Mi hermano está enfermo hoy." margin 7.19, 3 variants, 689 ms
+[real-model] next words after "En la playa hacía mucho": calor 0.65, frío 0.27, viento 0.01, sol 0.01, tiempo 0.01; 1761 ms
+
+ ✓ test/real-model.test.ts (20 tests) 69990ms
+   ✓ real model over HTTP > LanguageModel contract: HttpLanguageModel (real) > scores tokens that concatenate to the text with contiguous offsets 810ms
+   ✓ real model over HTTP > LanguageModel contract: HttpLanguageModel (real) > puts the leading space on the token that starts a word 675ms
+   ✓ real model over HTTP > LanguageModel contract: HttpLanguageModel (real) > returns logprobs <= 0 725ms
+   ✓ real model over HTTP > LanguageModel contract: HttpLanguageModel (real) > agrees between scoreContinuation and nextTokens on the first token 1271ms
+   ✓ real model over HTTP > LanguageModel contract: HttpLanguageModel (real) > generates n strings without the stop strings 2420ms
+   ✓ real model over HTTP > LanguageModel contract: HttpLanguageModel (real) > is deterministic: same seed, same completions; same text, same scores 4465ms
+   ✓ real model over HTTP > LanguageModel contract: TopNBoundedModel(HttpLanguageModel, n = 10) > scores tokens that concatenate to the text with contiguous offsets 3281ms
+   ✓ real model over HTTP > LanguageModel contract: TopNBoundedModel(HttpLanguageModel, n = 10) > puts the leading space on the token that starts a word 3453ms
+   ✓ real model over HTTP > LanguageModel contract: TopNBoundedModel(HttpLanguageModel, n = 10) > returns logprobs <= 0 3239ms
+   ✓ real model over HTTP > LanguageModel contract: TopNBoundedModel(HttpLanguageModel, n = 10) > agrees between scoreContinuation and nextTokens on the first token 3831ms
+   ✓ real model over HTTP > LanguageModel contract: TopNBoundedModel(HttpLanguageModel, n = 10) > generates n strings without the stop strings 2196ms
+   ✓ real model over HTTP > LanguageModel contract: TopNBoundedModel(HttpLanguageModel, n = 10) > is deterministic: same seed, same completions; same text, same scores 5393ms
+   ✓ real model over HTTP > matches the proof totals after the scoring prefix (parity) 3673ms
+   ✓ real model over HTTP > prefers the correct sentence in at least 95% of the 93 proof pairs (accuracy) 20082ms
+   ✓ real model over HTTP > runs the engine end to end: a judgement and a next-word list 2453ms
+   ✓ real model over HTTP > times one call of each kind 11792ms
+stdout | test/real-model.test.ts > real model over HTTP > times one call of each kind
+[real-model] timing: score 124 ms, nextTokens(k = 20) 124 ms, generate(n = 4, 24 tokens) 10551 ms
+
+
+ Test Files  1 passed (1)
+      Tests  20 passed (20)
+   Start at  03:48:06
+   Duration  70.69s (transform 386ms, setup 0ms, collect 523ms, tests 69.99s, environment 0ms, prepare 40ms)
+

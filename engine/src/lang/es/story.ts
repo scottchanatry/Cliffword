@@ -125,8 +125,8 @@ export const SPANISH_STORY_DATA: StoryLanguageData = {
     { upTo: 5000, name: 'B2' },
     { upTo: 1e9, name: 'C1' },
   ],
-  // Measured on Qwen3-1.7B: with "Frases cortas." the early learner's candidates stayed in
-  // the length range (12 of 12) where the header without it gave 10 of 12.
+  // Judgement: a beginner's sentences are 4 to 10 words (DifficultyParams), the hint costs
+  // a few prompt tokens; not measured on its own (every tagged format carried it).
   lengthHints: [
     { maxWords: 8, text: 'Frases muy cortas.' },
     { maxWords: 12, text: 'Frases cortas.' },

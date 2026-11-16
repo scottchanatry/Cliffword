@@ -449,7 +449,9 @@ fallback.
   the same three words as one of the last two sentences (`sameOpening`); `Selection.rejectCounts`; `SelectContext.names` (characters are names at a
   sentence start too) and `familiar` (counted at least `familiarCredit`); selection takes
   `{ text, raw, natural }` candidates; `ScoreParts` gained novelty, continuity, natural;
-  the band term carries `outOfBandPenalty` so any in-band candidate comes first.
+  the band term carries `outOfBandPenalty` so any in-band candidate comes first; with
+  `SelectContext.seed` a seeded jitter below `varietyJitter` (1 point) orders near ties,
+  and generation orders the vocabulary line by the seed, so different seeds vary.
   `hardMaxWordsFactor` is 1.6 (was 2.5).
 - `generateNextSentence` uses the tagged continuation prompt; `NextSentenceTuning`
   gained retryN, naturalTop and the vocabulary-line settings, and stops at the first

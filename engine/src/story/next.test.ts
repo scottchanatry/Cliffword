@@ -6,6 +6,7 @@ import {
   knownLexemeCount,
   maxTokensFor,
   safeTagFor,
+  seededOrder,
   storyNames,
   targetWordsFromKeys,
   vocabularyFor,
@@ -188,6 +189,30 @@ describe('generateNextSentence with scripted outputs', () => {
     expect(r.diagnostics.candidateRound[r.best?.index ?? -1]).toBe(1);
   });
 
+  // Review regression (round 3): when the first round already had naturalTop scored,
+  // accepted candidates (all outside the band), the natural pass stopped before scoring
+  // the safe round's in-band candidate and ranked the scored out-of-band ones above it.
+  it('takes the safe-round in-band candidate even when naturalTop first-round candidates were scored', async () => {
+    const model = new ScriptedModel([
+      ['Marta compró bicicletas y zanahorias.', 'Marta vio berenjenas.', 'Marta compró zanahorias y bicicletas en casa.'],
+      ['Marta compró pan en el mercado.'],
+    ], () => -2);
+    const r = await generateNextSentence(model, deps(early), opts({ tuning: { n: 3, retryN: 1, naturalTop: 3 } }));
+    expect(r.diagnostics.retried).toBe(true);
+    expect(r.sentence).toBe('Marta compró pan en el mercado.');
+    expect(r.diagnostics.inBand).toBe(true);
+    // With the scoring budget spent before the safe round, the band still comes first.
+    const spent = await generateNextSentence(
+      new ScriptedModel([
+        ['Marta compró bicicletas y zanahorias.', 'Marta vio berenjenas.', 'Marta compró zanahorias y bicicletas en casa.'],
+        ['Marta compró pan en el mercado.'],
+      ], () => -2),
+      deps(early),
+      opts({ tuning: { n: 3, retryN: 1, naturalTop: 3, naturalMaxCalls: 3 } }),
+    );
+    expect(spent.sentence).toBe('Marta compró pan en el mercado.');
+  });
+
   it('returns no sentence when every candidate is rejected, and counts every reason', async () => {
     const model = new ScriptedModel([['I bought bread.', 'Oración:', 'Marta llegó tarde al mercado.', 'El y de _______.']]);
     const r = await generateNextSentence(model, deps(early), opts({ tuning: { n: 4, retryN: 4 } }));
@@ -315,9 +340,17 @@ describe('next helpers', () => {
       const r = await generateNextSentence(new ScriptedModel([texts]), deps(early), opts({ seed, tuning: { n: 4, naturalTop: 0 } }));
       const again = await generateNextSentence(new ScriptedModel([texts]), deps(early), opts({ seed, tuning: { n: 4, naturalTop: 0 } }));
       expect(again.sentence).toBe(r.sentence);
-      expect(r.best?.parts.variety).toBeLessThan(0.5);
+      expect(r.best?.parts.variety).toBeLessThan(1);
       picks.add(r.sentence);
     }
     expect(picks.size).toBeGreaterThan(1);
+  });
+
+  it('seededOrder reorders by seed only, keeping every item', () => {
+    const items = ['casa', 'pan', 'mercado', 'playa', 'puerta'];
+    const a = seededOrder(items, 1);
+    expect([...a].sort()).toEqual([...items].sort());
+    expect(seededOrder(items, 1)).toEqual(a);
+    expect([1, 2, 3, 4, 5].some((seed) => seededOrder(items, seed).join() !== a.join())).toBe(true);
   });
 });

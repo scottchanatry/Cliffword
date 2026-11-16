@@ -154,6 +154,40 @@ describe('a brand-new learner with a model', () => {
     expect(Array.isArray(st.introduced)).toBe(true);
   });
 
+  // Review regression (round 3): introducedKeep 0 kept every introduced word (slice(-0)).
+  it('keeps at most introducedKeep introduced words (0 keeps none)', async () => {
+    // Echo the prompt's target tag so every generated sentence uses its target.
+    const echo = (): LanguageModel => {
+      const mock = createMockModel();
+      return {
+        id: 'echo-tag',
+        scoreContinuation: (c, t) => mock.scoreContinuation(c, t),
+        nextTokens: (c, k) => mock.nextTokens(c, k),
+        async generate(prompt, o) {
+          const tag = (/\[([^\]]+)\]$/u.exec(prompt)?.[1] ?? 'casa').split(', ')[0];
+          return Array.from({ length: o.n }, () => `Marta ve ${tag} en la casa.`);
+        },
+      };
+    };
+    const run = async (keep: number): Promise<string[]> => {
+      const s = StorySession.create({
+        model: echo(), pack, pair, learner: knowing(0), now: T0, seed: 9, startMode: 'continue',
+        options: { handover: { starterSentences: 0, introducedKeep: keep }, generation: { naturalTop: 0 } },
+      });
+      let t = T0;
+      let generated = 0;
+      for (let i = 0; i < 12 && generated < 3; i++) {
+        const step = await s.next((t += 1000));
+        if (step.screen.kind === 'cliff' && s.snapshot().state.current?.source === 'model') generated += 1;
+      }
+      expect(generated).toBe(3);
+      return s.snapshot().state.introduced;
+    };
+    expect((await run(5)).length).toBeGreaterThanOrEqual(2);
+    expect(await run(0)).toEqual([]);
+    expect((await run(1)).length).toBe(1);
+  });
+
   it('generates freely for a learner who knows enough words', async () => {
     const model = scripted([['Ella vive en una casa grande con su madre.']]);
     // Beyond vocabularyBelow (800): no vocabulary line either.

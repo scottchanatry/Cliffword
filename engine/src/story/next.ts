@@ -122,7 +122,7 @@ export interface NextSentenceTuning {
  *   extraTokens 4 leaves room for the stop string.
  * - naturalTop 3, naturalMaxCalls 6: three to six scoring calls of about 0.1 s each; a
  *   candidate below the natural floor (SelectOptions.naturalFloor) is replaced by the next.
- * - vocabularyBelow 800 at 0.9: the early learner (about 230 lexemes at 0.9) got 33% of
+ * - vocabularyBelow 800 at 0.9: the early learner (about 200 lexemes at 0.9) got 33% of
  *   its candidates in the band with the line, 25% without; learners past a few hundred
  *   words gain nothing from it and pay for the longer prompt.
  */
@@ -469,47 +469,51 @@ export async function generateNextSentence(
   const maxScores = Math.max(top, Math.floor(t.naturalMaxCalls));
 
   /**
-   * Selection over every candidate so far, then the natural pass: the best accepted
-   * candidates (distinct texts) are scored by the model, up to `naturalTop` that pass the
-   * natural floor and `naturalMaxCalls` calls per step; a scored candidate below the floor
-   * is rejected (unnatural). The scored ones are ranked among themselves first, the other
-   * accepted candidates keep their order below them.
+   * Selection over every candidate so far, then the natural pass: the accepted
+   * candidates are walked in rank order and scored by the model (each distinct text
+   * once) until `naturalTop` of them pass the natural floor, with at most
+   * `naturalMaxCalls` calls per step; a scored candidate below the floor is rejected
+   * (unnatural). Candidates scored in an earlier round count where they rank now, so the
+   * safe round's better candidates are scored too. Final order: in-band candidates first
+   * (the band comes first, as in selectSentence), then scored before unscored, then by
+   * score.
    */
+  const withNaturals = (): SelectCandidate[] =>
+    candidates.map((c) => {
+      const nat = naturals.get(c.text);
+      return nat === undefined ? c : { ...c, natural: nat };
+    });
   const select = async (): Promise<Selection> => {
     const ctx = selectCtx(instructions);
-    let sel = selectSentence(
-      candidates.map((c) => {
-        const nat = naturals.get(c.text);
-        return nat === undefined ? c : { ...c, natural: nat };
-      }),
-      ctx,
-    );
+    let sel = selectSentence(withNaturals(), ctx);
     if (top === 0 || !sel.best) return sel;
-    let kept = sel.ranked.filter((e) => e.accepted && e.natural !== null).length;
+    let kept = 0;
     for (const e of sel.ranked) {
-      if (!e.accepted || kept >= top || scoreCalls >= maxScores) break;
-      if (e.natural !== null || naturals.has(e.text)) continue;
-      const tokens = await model.scoreContinuation(scoreContext, scoreLead + e.text);
-      scoreCalls += 1;
-      let sum = 0;
-      for (const tok of tokens) sum += Number.isFinite(tok.logprob) ? Math.max(tok.logprob, -100) : -100;
-      const nat = sum / Math.max(1, tokens.length);
-      naturals.set(e.text, nat);
+      if (!e.accepted || kept >= top) break;
+      let nat = e.natural ?? naturals.get(e.text);
+      if (nat === undefined) {
+        if (scoreCalls >= maxScores) break;
+        const tokens = await model.scoreContinuation(scoreContext, scoreLead + e.text);
+        scoreCalls += 1;
+        let sum = 0;
+        for (const tok of tokens) sum += Number.isFinite(tok.logprob) ? Math.max(tok.logprob, -100) : -100;
+        nat = sum / Math.max(1, tokens.length);
+        naturals.set(e.text, nat);
+      }
       if (nat >= o.naturalFloor) kept += 1;
     }
-    sel = selectSentence(
-      candidates.map((c) => {
-        const nat = naturals.get(c.text);
-        return nat === undefined ? c : { ...c, natural: nat };
-      }),
-      ctx,
-    );
-    const scored = sel.ranked.filter((e) => e.accepted && e.natural !== null);
-    const unscored = sel.ranked.filter((e) => e.accepted && e.natural === null).sort((a, b) => a.index - b.index);
+    sel = selectSentence(withNaturals(), ctx);
     const order = new Map(sel.ranked.map((e, i) => [e.index, i]));
-    unscored.sort((a, b) => (order.get(a.index) ?? 0) - (order.get(b.index) ?? 0));
+    const accepted = sel.ranked
+      .filter((e) => e.accepted)
+      .sort(
+        (a, b) =>
+          Number(b.inBand) - Number(a.inBand) ||
+          Number(b.natural !== null) - Number(a.natural !== null) ||
+          (order.get(a.index) ?? 0) - (order.get(b.index) ?? 0),
+      );
     const rejected = sel.ranked.filter((e) => !e.accepted);
-    return { best: scored[0] ?? unscored[0] ?? null, ranked: [...scored, ...unscored, ...rejected], rejectCounts: sel.rejectCounts };
+    return { best: accepted[0] ?? null, ranked: [...accepted, ...rejected], rejectCounts: sel.rejectCounts };
   };
 
   const runRound = async (tag: string, simple: boolean, count: number, temperature: number): Promise<Selection> => {

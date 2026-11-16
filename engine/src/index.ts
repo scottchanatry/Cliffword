@@ -57,6 +57,7 @@ export {
   repeatsItself,
   resolveSelectOptions,
   sameOpening,
+  seededUnit,
   selectSentence,
 } from './story/select';
 export type {
@@ -100,6 +101,7 @@ export {
   knownLexemeCount,
   maxTokensFor,
   safeTagFor,
+  seededOrder,
   storyNames,
   targetWordsFromKeys,
   vocabularyFor,

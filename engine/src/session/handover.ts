@@ -23,7 +23,7 @@
  *
  * The thresholds are data (DEFAULT_HANDOVER_OPTIONS, re-exported from config.ts).
  * Measured on Qwen3-1.7B (proof/ENGINE_REAL_MODEL.md, "Story generation at every level"):
- * the early learner (about 230 lexemes at 0.9) found an in-band candidate on its own
+ * the early learner (about 200 lexemes at 0.9) found an in-band candidate on its own
  * knowledge in most steps, so `strictFrom` sits below that.
  */
 import type { LanguagePack, Pos } from '../lang/types';
@@ -52,7 +52,7 @@ export interface HandoverOptions {
  * Defaults:
  * - starterSentences 'all': the starter is one short scene (eight sentences in en-es);
  *   cutting it would leave the learner without its taught words.
- * - knownAt 0.9 and strictFrom 150: the simulated early learner (reach 300, about 230
+ * - knownAt 0.9 and strictFrom 150: the simulated early learner (reach 300, about 200
  *   lexemes at 0.9) found in-band candidates on its own knowledge in most steps on the
  *   real model; at 150 known lexemes most of the top-150 frequency words, which make up
  *   the bulk of a beginner sentence, are known. Judgement between the two; calibrate

@@ -1,0 +1,40 @@
+{
+ "date": "2026-11-16T03:41:45.115Z",
+ "loadavg": [
+  3.24,
+  3.53,
+  5.26
+ ],
+ "rows": [
+  {
+   "i": 0,
+   "text": "El viejo de la calle habla con el hombre.",
+   "prefetchMs": 59161,
+   "prefetchCalls": 246,
+   "nextMs": 21,
+   "callsDuringNext": 0,
+   "plainNextMs": 33183,
+   "same": true
+  },
+  {
+   "i": 1,
+   "text": "Es claro que el hombre quiere saber lo que pasa.",
+   "prefetchMs": 8533,
+   "prefetchCalls": 58,
+   "nextMs": 10,
+   "callsDuringNext": 0,
+   "plainNextMs": 8963,
+   "same": true
+  },
+  {
+   "i": 2,
+   "text": "El hombre está en el nacional.",
+   "prefetchMs": 16017,
+   "prefetchCalls": 55,
+   "nextMs": 11,
+   "callsDuringNext": 0,
+   "plainNextMs": 15360,
+   "same": true
+  }
+ ]
+}

@@ -17,7 +17,7 @@
  * The model writes " sentence" after the last tag; generation stops at the first
  * sentence end. Measured on Qwen3-1.7B (proof/ENGINE_REAL_MODEL.md, "Story generation at
  * every level"): the tagged lines made the next sentence use a content-word target in 12
- * of 12 early-learner candidates where a "new word" header line alone gave 2 of 12, and
+ * of 12 early-learner candidates where a "new word" header line gave 2 of 8, and
  * the instruction prompt this replaces gave fill-in templates and empty lines.
  *
  * All wording comes from LanguagePack.story (lang/storyData.ts); a pack without it gets

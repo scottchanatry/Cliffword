@@ -8,7 +8,7 @@ import type { ProfileStats } from './useProfileStats';
 import { WordsCard } from './WordsCard';
 
 export interface ProfileViewProps {
-  stats: Pick<ProfileStats, 'spokenMs' | 'todayMs' | 'week' | 'streakDays' | 'wordsKnown' | 'skills'>;
+  stats: Pick<ProfileStats, 'spokenMs' | 'todayMs' | 'week' | 'streakDays' | 'wordsKnown' | 'skills' | 'practised'>;
   onOpenSettings: () => void;
   onClose: () => void;
 }
@@ -20,7 +20,7 @@ export function ProfileView({ stats, onOpenSettings, onClose }: ProfileViewProps
     <Screen scroll edges={['top', 'left', 'right', 'bottom']} testID="profile-screen">
       <ModalHeader title={t('profile.title')} actionLabel={t('common.close')} onAction={onClose} actionTestID="close-profile" />
       <MinutesHeadline todayMs={stats.todayMs} totalMs={stats.spokenMs} week={stats.week} streakDays={stats.streakDays} />
-      <WordsCard wordsKnown={stats.wordsKnown} skills={stats.skills} />
+      <WordsCard wordsKnown={stats.wordsKnown} skills={stats.skills} practised={stats.practised} />
       <Card style={styles.links}>
         <LinkRow title={t('settings.title')} hint={t('profile.settings.hint')} onPress={onOpenSettings} testID="open-settings" />
       </Card>

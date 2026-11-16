@@ -32,10 +32,22 @@ interface IndexEntry {
 export interface AnalyzeOptions {
   /** Maximum number of enclitic pronouns stripped from one verb (dándoselo has two). */
   maxClitics: number;
+  /**
+   * Distinct words whose analyses an analyzer keeps (0: no cache). Every session step
+   * analyses the same words again (selection, cliff choice, views, corrections, the
+   * vocabulary line walks the frequency list); a cached word skips normalization, the
+   * clitic and accent-insensitive searches and the duplicate check. When full, the
+   * cache starts over.
+   */
+  cacheSize: number;
 }
 
-/** Defaults: up to two clitics, which covers all common Spanish combinations. */
-export const DEFAULT_ANALYZE_OPTIONS: AnalyzeOptions = { maxClitics: 2 };
+/**
+ * Defaults: up to two clitics, which covers all common Spanish combinations. cacheSize
+ * 20000: a few times the lexicon's lemmas plus a long brought text, a few megabytes at
+ * most (proof/engine-measure/bench.ts: 1.8 µs per uncached lookup on desktop Node).
+ */
+export const DEFAULT_ANALYZE_OPTIONS: AnalyzeOptions = { maxClitics: 2, cacheSize: 20_000 };
 
 /** Enclitic pronouns, longest first so "los" is tried before "lo". */
 export const CLITICS: readonly string[] = ['nos', 'les', 'los', 'las', 'me', 'te', 'se', 'os', 'lo', 'la', 'le'];
@@ -261,7 +273,19 @@ export function createAnalyzer(
     return [];
   }
 
-  return (norm: string) => analyzeWith(norm, true);
+  // Analyses per input word; callers get fresh copies, so nobody can change the cache.
+  const cache = new Map<string, Analysis[]>();
+  const copy = (list: readonly Analysis[]): Analysis[] => list.map((a) => ({ lemma: a.lemma, pos: a.pos, features: { ...a.features } }));
+  return (norm: string) => {
+    if (o.cacheSize <= 0) return analyzeWith(norm, true);
+    let hit = cache.get(norm);
+    if (!hit) {
+      if (cache.size >= o.cacheSize) cache.clear();
+      hit = analyzeWith(norm, true);
+      cache.set(norm, hit);
+    }
+    return copy(hit);
+  };
 }
 
 /**

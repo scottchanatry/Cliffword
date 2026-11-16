@@ -78,6 +78,57 @@ function formWords(pack: LanguagePack, form: string): string[] {
     .filter(Boolean);
 }
 
+/** The entries of the applicable register packs, indexed for findSlangMatches. */
+interface MatchIndex {
+  byForm: Map<string, SlangEntry[]>;
+  /** Normalized words of each indexed form. */
+  wordsOf: Map<string, string[]>;
+  slangLemmas: Set<string>;
+  looseIndex: Map<string, SlangEntry[]>;
+  exactSingles: Set<string>;
+}
+
+/**
+ * The index depends only on the pack, its register packs and the options that select
+ * entries, so it is built once per combination (findSlangMatches runs on every sentence
+ * view, selection candidate and answer; rebuilding it segmented every entry each time).
+ */
+const matchIndexCache = new WeakMap<LanguagePack, { registers: readonly unknown[]; byKey: Map<string, MatchIndex> }>();
+
+function matchIndex(pack: LanguagePack, o: SlangMatchOptions): MatchIndex {
+  let hit = matchIndexCache.get(pack);
+  if (!hit || hit.registers !== pack.registers) {
+    hit = { registers: pack.registers, byKey: new Map() };
+    matchIndexCache.set(pack, hit);
+  }
+  const key = JSON.stringify([o.regions, o.alsoStandard, o.kinds ?? null]);
+  const cached = hit.byKey.get(key);
+  if (cached) return cached;
+  const kinds = o.kinds ? new Set(o.kinds) : undefined;
+  const usable = (e: SlangEntry): boolean => (o.alsoStandard || !e.alsoStandard) && (!kinds || kinds.has(e.kind));
+  const idx: MatchIndex = { byForm: new Map(), wordsOf: new Map(), slangLemmas: new Set(), looseIndex: new Map(), exactSingles: new Set() };
+  for (const reg of applicableRegisters(pack, o.regions)) {
+    for (const e of reg.entries) {
+      idx.slangLemmas.add(e.lemma);
+      if (!usable(e)) continue;
+      const list = idx.byForm.get(e.form);
+      if (list) list.push(e);
+      else idx.byForm.set(e.form, [e]);
+      let fw = idx.wordsOf.get(e.form);
+      if (!fw) idx.wordsOf.set(e.form, (fw = formWords(pack, e.form)));
+      if (fw.length === 1) {
+        idx.exactSingles.add(fw[0] as string);
+        const k = looseKey(pack, fw[0] as string);
+        const ll = idx.looseIndex.get(k);
+        if (ll) ll.push(e);
+        else idx.looseIndex.set(k, [e]);
+      }
+    }
+  }
+  hit.byKey.set(key, idx);
+  return idx;
+}
+
 /**
  * Every slang occurrence in `text`, in text order, without overlaps.
  *
@@ -93,30 +144,7 @@ export function findSlangMatches(pack: LanguagePack, text: string, opts: Partial
   const words = pack.segment(text).filter((s) => s.kind === 'word');
   if (words.length === 0) return [];
   const norms = words.map((w) => normOf(pack, w));
-  const kinds = o.kinds ? new Set(o.kinds) : undefined;
-  const usable = (e: SlangEntry): boolean => (o.alsoStandard || !e.alsoStandard) && (!kinds || kinds.has(e.kind));
-
-  const byForm = new Map<string, SlangEntry[]>();
-  const slangLemmas = new Set<string>();
-  const looseIndex = new Map<string, SlangEntry[]>();
-  const exactSingles = new Set<string>();
-  for (const reg of applicableRegisters(pack, o.regions)) {
-    for (const e of reg.entries) {
-      slangLemmas.add(e.lemma);
-      if (!usable(e)) continue;
-      const list = byForm.get(e.form);
-      if (list) list.push(e);
-      else byForm.set(e.form, [e]);
-      const fw = formWords(pack, e.form);
-      if (fw.length === 1) {
-        exactSingles.add(fw[0] as string);
-        const k = looseKey(pack, fw[0] as string);
-        const ll = looseIndex.get(k);
-        if (ll) ll.push(e);
-        else looseIndex.set(k, [e]);
-      }
-    }
-  }
+  const { byForm, wordsOf, slangLemmas, looseIndex, exactSingles } = matchIndex(pack, o);
 
   interface Candidate {
     entries: SlangEntry[];
@@ -128,7 +156,7 @@ export function findSlangMatches(pack: LanguagePack, text: string, opts: Partial
   for (const form of slangIn(pack, text, o.regions)) {
     const entries = byForm.get(form);
     if (!entries) continue;
-    const fw = formWords(pack, form);
+    const fw = wordsOf.get(form) ?? formWords(pack, form);
     for (let i = 0; i + fw.length <= norms.length; i++) {
       if (fw.every((w, j) => norms[i + j] === w)) candidates.push({ entries, wordIndex: i, wordCount: fw.length, loose: false });
     }

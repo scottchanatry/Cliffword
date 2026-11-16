@@ -3,15 +3,15 @@
  * screen opens, so a killed app resumes there; the last one stores onboarded = true and the root
  * guard opens the Story tab (nothing navigates there by hand).
  *
- * Resume: OnboardingResumeProvider (app/onboarding/_layout.tsx) remembers, once per launch of
- * onboarding, that the welcome screen should forward to the stored step; going back to the
- * welcome screen later does not forward again.
+ * Resume: OnboardingResumeProvider (app/onboarding/_layout.tsx) reads the stored step when
+ * onboarding opens; the welcome screen forwards to it once, and going back to the welcome screen
+ * later stays there.
  *
  * Reset progress (Settings) arrives here with settings.progressResetPending: the start choice then
  * clears the progress (src/features/profile/progress.ts), builds a new learner with the chosen
  * prior and finishes onboarding at once (model, voice and slang were set up before).
  */
-import { createContext, useCallback, useContext, useRef, useState, type ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
 import { useRouter } from 'expo-router';
 import { useAppState } from '../../appState/AppStateProvider';
 import { learnerPrior } from '../../learner/prior';
@@ -20,22 +20,31 @@ import type { AppSettings, StartLevel } from '../../storage/repos/settings';
 import { clearProgress } from '../profile/progress';
 import { nextStep, previousStep, resumeRoute, STEP_ROUTES, type OnboardingScreenStep } from './flow';
 
-const ResumeContext = createContext<{ consumed: boolean } | null>(null);
+interface Resume {
+  /** The stored step's route when onboarding opened, until the welcome screen forwarded to it. */
+  route: ReturnType<typeof resumeRoute>;
+  consume: () => void;
+}
 
+const ResumeContext = createContext<Resume | null>(null);
+
+/** Reads the stored step once, when onboarding opens (a relaunch), for the welcome screen. */
 export function OnboardingResumeProvider({ children }: { children: ReactNode }) {
-  const state = useRef({ consumed: false });
-  return <ResumeContext.Provider value={state.current}>{children}</ResumeContext.Provider>;
+  const { settings } = useAppState();
+  const [route, setRoute] = useState(() => resumeRoute(settings.onboardingStep));
+  const value = useMemo<Resume>(() => ({ route, consume: () => setRoute(null) }), [route]);
+  return <ResumeContext.Provider value={value}>{children}</ResumeContext.Provider>;
 }
 
 /** The route the welcome screen should forward to (once per launch of onboarding), or null. */
 export function useResumeRoute(): ReturnType<typeof resumeRoute> {
   const resume = useContext(ResumeContext);
-  const { settings } = useAppState();
-  const [route] = useState(() => {
-    if (!resume || resume.consumed) return null;
-    resume.consumed = true;
-    return resumeRoute(settings.onboardingStep);
-  });
+  const route = resume?.route ?? null;
+  const consume = resume?.consume;
+  useEffect(() => {
+    // Forwarded once: going back to the welcome screen later stays there.
+    if (route) consume?.();
+  }, [route, consume]);
   return route;
 }
 

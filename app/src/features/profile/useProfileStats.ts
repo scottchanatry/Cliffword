@@ -10,7 +10,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { estimateVocabulary, frequencyLexemeKeys, spokenStats } from '@cliffword/engine';
 import { useAppState } from '../../appState/AppStateProvider';
 import { useServices } from '../../services/ServicesProvider';
-import { skillCounts, spokenLogOf, tzOffsetAt, weekBars, type SkillCounts, type SpokenDayRow, type WeekBar } from './stats';
+import { practisedLexemes, skillCounts, spokenLogOf, tzOffsetAt, weekBars, type SkillCounts, type SpokenDayRow, type WeekBar } from './stats';
 
 export interface ProfileStats {
   /** Total time spoken, in ms (0 until storage has answered). */
@@ -25,6 +25,8 @@ export interface ProfileStats {
   wordsKnown: number;
   /** Expected words known per skill. */
   skills: SkillCounts;
+  /** Words with any evidence yet (the skill mix means little before a few stories). */
+  practised: number;
   /** Storage has answered (the minutes are real, not the zero placeholder). */
   loaded: boolean;
 }
@@ -63,7 +65,11 @@ export function useProfileStats(): ProfileStats & { refresh: () => void } {
   const words = useMemo(() => {
     const now = clock.now();
     const keys = frequencyLexemeKeys(packs.lang);
-    return { wordsKnown: Math.round(estimateVocabulary(learner, now, keys)), skills: skillCounts(learner, now, keys) };
+    return {
+      wordsKnown: Math.round(estimateVocabulary(learner, now, keys)),
+      skills: skillCounts(learner, now, keys),
+      practised: practisedLexemes(learner),
+    };
   }, [learner, clock, packs]);
 
   return {
@@ -73,6 +79,7 @@ export function useProfileStats(): ProfileStats & { refresh: () => void } {
     streakDays: spoken.stats.streakDays,
     wordsKnown: words.wordsKnown,
     skills: words.skills,
+    practised: words.practised,
     loaded: rows !== null,
     refresh,
   };

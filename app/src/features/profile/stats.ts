@@ -99,6 +99,13 @@ export function skillCounts(learner: LearnerView, now: number, frequencyKeys: It
   return { meaning: Math.round(counts.meaning), sound: Math.round(counts.sound), speaking: Math.round(counts.speaking) };
 }
 
+/** Lexemes the learner has any evidence on (answers, taps, replays): how much the mix rests on. */
+export function practisedLexemes(learner: Pick<LearnerView, 'knownKeys'>): number {
+  const lexemes = new Set<string>();
+  for (const k of learner.knownKeys()) if (k) lexemes.add(lexemeOf(k));
+  return lexemes.size;
+}
+
 /**
  * The skill furthest behind the best one, when it is at most `ratio` of it (and the best is at
  * least `minWords`); null while the mix is balanced or there is too little to say.

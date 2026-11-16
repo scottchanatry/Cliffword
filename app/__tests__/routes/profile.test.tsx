@@ -288,3 +288,11 @@ describe('settings', () => {
     expect(screen.getByTestId('selftest-pair-pairs#1')).toHaveTextContent(/Mi hermano está enfermo hoy\./);
   });
 });
+
+describe('gallery', () => {
+  it.each(['onboarding-welcome', 'onboarding-voice', 'profile', 'settings', 'selftest'])('/preview/%s renders the fixture', async (name) => {
+    install(createTestServices());
+    await renderRouter(APP_DIR, { initialUrl: `/preview/${name}` });
+    expect(await screen.findByTestId('account-preview')).toBeOnTheScreen();
+  });
+});

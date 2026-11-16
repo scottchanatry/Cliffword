@@ -17,20 +17,22 @@ const FOCUS_HINTS: Readonly<Record<ProfileSkill, CatalogKey>> = {
   speaking: tKey('profile.skills.focus.speaking'),
 };
 
-/** Below this many words in every skill, the mix says it shows up later. */
+/** Until the learner has practised this many words, the mix says it shows up later. */
 const EARLY_WORDS = 20;
 
 export interface WordsCardProps {
   /** The engine's estimateVocabulary, rounded. */
   wordsKnown: number;
   skills: SkillCounts;
+  /** Words with any evidence yet. */
+  practised: number;
 }
 
 /** Words you understand (the vocabulary estimate) and the skill mix: meaning, sound, speaking. */
-export function WordsCard({ wordsKnown, skills }: WordsCardProps) {
+export function WordsCard({ wordsKnown, skills, practised }: WordsCardProps) {
   const { t, plural } = useI18n();
   const best = Math.max(1, ...PROFILE_SKILLS.map((s) => skills[s]));
-  const early = PROFILE_SKILLS.every((s) => skills[s] < EARLY_WORDS);
+  const early = practised < EARLY_WORDS;
   const focus = weakestSkill(skills, undefined, EARLY_WORDS);
   const hint = early ? t('profile.skills.early') : focus ? t(FOCUS_HINTS[focus]) : t('profile.skills.balanced');
   return (

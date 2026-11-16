@@ -4,7 +4,7 @@
  * sample read with a voice: the first sentence of the pair's starter story (target-language
  * content), at the learner's speech speed. A sample stops when the screen goes away.
  */
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { Voice } from '../../adapters/speechOut/types';
 import { normalizeLang } from '../../adapters/speechOut/voices';
 import { recognitionLocales } from '../../adapters/speechIn/locales';
@@ -58,7 +58,6 @@ export function useVoices(): VoicesView {
   const [playing, setPlaying] = useState(false);
   const live = useRef(true);
   const wanted = recognitionLocales(packs.lang.code, settings.regions);
-  const wantedKey = wanted.join('|');
 
   useEffect(() => {
     live.current = true;
@@ -86,26 +85,22 @@ export function useVoices(): VoicesView {
   const sample = packs.pair.starter?.sentences[0]?.text ?? null;
   const bias = settings.speechRateBias;
 
-  const playSample = useCallback(
-    (voiceId: string | null) => {
-      if (!sample) return;
-      const locales = wantedKey.split('|');
-      const chosen = (voiceId ? all?.find((v) => v.id === voiceId) : null) ?? autoVoice(all ?? [], locales);
-      setPlaying(true);
-      speechOut
-        .speak(sample, {
-          lang: chosen?.lang ?? locales[0] ?? packs.lang.code,
-          ...(chosen ? { voice: chosen.id } : {}),
-          rate: 1 + bias,
-          words: wordSpansOf(packs.lang, sample),
-        })
-        .catch(() => undefined)
-        .finally(() => {
-          if (live.current) setPlaying(false);
-        });
-    },
-    [sample, all, wantedKey, speechOut, packs, bias],
-  );
+  const playSample = (voiceId: string | null) => {
+    if (!sample) return;
+    const chosen = (voiceId ? all?.find((v) => v.id === voiceId) : null) ?? autoVoice(all ?? [], wanted);
+    setPlaying(true);
+    speechOut
+      .speak(sample, {
+        lang: chosen?.lang ?? wanted[0] ?? packs.lang.code,
+        ...(chosen ? { voice: chosen.id } : {}),
+        rate: 1 + bias,
+        words: wordSpansOf(packs.lang, sample),
+      })
+      .catch(() => undefined)
+      .finally(() => {
+        if (live.current) setPlaying(false);
+      });
+  };
 
   return {
     voices: all ? rankVoices(all, wanted, settings.voiceId) : null,

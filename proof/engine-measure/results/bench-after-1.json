@@ -1,0 +1,213 @@
+{
+ "when": "2026-11-16T01:57:01.836Z",
+ "mode": "after",
+ "node": "v22.23.4",
+ "load": [
+  9.82,
+  9.11,
+  7.83
+ ],
+ "cores": 4,
+ "results": [
+  {
+   "name": "pack.analyze, 40 sentence words (warm)",
+   "perStep": true,
+   "medianMs": 0.015,
+   "meanMs": 0.016,
+   "maxMs": 0.018,
+   "n": 30
+  },
+  {
+   "name": "pack.analyze, first use on a new pack (cold)",
+   "perStep": false,
+   "medianMs": 15.55,
+   "meanMs": 14.631,
+   "maxMs": 21.362,
+   "n": 5
+  },
+  {
+   "name": "createDefaultSpanishPack()",
+   "perStep": false,
+   "medianMs": 0.168,
+   "meanMs": 0.171,
+   "maxMs": 0.223,
+   "n": 5
+  },
+  {
+   "name": "pack.segment, 8 sentences",
+   "perStep": true,
+   "medianMs": 0.069,
+   "meanMs": 0.218,
+   "maxMs": 4.445,
+   "n": 30
+  },
+  {
+   "name": "pack.inflect, 40 analyses",
+   "perStep": true,
+   "medianMs": 0.599,
+   "meanMs": 1.201,
+   "maxMs": 6.962,
+   "n": 30
+  },
+  {
+   "name": "generateVariants, 8 sentences",
+   "perStep": true,
+   "medianMs": 6.487,
+   "meanMs": 7.976,
+   "maxMs": 23.972,
+   "n": 30
+  },
+  {
+   "name": "judgeSentence (mock), 1 sentence",
+   "perStep": true,
+   "medianMs": 8.359,
+   "meanMs": 9.782,
+   "maxMs": 24.585,
+   "n": 30
+  },
+  {
+   "name": "scoreWords (mock), 1 sentence",
+   "perStep": true,
+   "medianMs": 0.904,
+   "meanMs": 1.33,
+   "maxMs": 5.148,
+   "n": 30
+  },
+  {
+   "name": "slangIn + scoringContext (street), 1 sentence",
+   "perStep": true,
+   "medianMs": 0.013,
+   "meanMs": 0.03,
+   "maxMs": 0.408,
+   "n": 30
+  },
+  {
+   "name": "findSlangMatches, 8 sentences",
+   "perStep": true,
+   "medianMs": 0.154,
+   "meanMs": 0.165,
+   "maxMs": 0.218,
+   "n": 30
+  },
+  {
+   "name": "sentenceWords, 8 sentences",
+   "perStep": true,
+   "medianMs": 0.351,
+   "meanMs": 0.634,
+   "maxMs": 4.769,
+   "n": 30
+  },
+  {
+   "name": "buildSentenceView, 8 sentences",
+   "perStep": true,
+   "medianMs": 0.207,
+   "meanMs": 0.608,
+   "maxMs": 8.278,
+   "n": 30
+  },
+  {
+   "name": "estimateVocabulary (frequency list)",
+   "perStep": true,
+   "medianMs": 0.54,
+   "meanMs": 1.129,
+   "maxMs": 6.265,
+   "n": 30
+  },
+  {
+   "name": "frequencyLexemeKeys(pack)",
+   "perStep": true,
+   "medianMs": 0.067,
+   "meanMs": 0.069,
+   "maxMs": 0.091,
+   "n": 30
+  },
+  {
+   "name": "chooseTargets",
+   "perStep": true,
+   "medianMs": 0.352,
+   "meanMs": 0.695,
+   "maxMs": 6.23,
+   "n": 30
+  },
+  {
+   "name": "parseLyrics, 35 source lines",
+   "perStep": false,
+   "medianMs": 0.391,
+   "meanMs": 0.496,
+   "maxMs": 3.394,
+   "n": 30
+  },
+  {
+   "name": "StorySession canned: next + answer",
+   "perStep": true,
+   "medianMs": 1.346,
+   "meanMs": 2.409,
+   "maxMs": 5.966,
+   "n": 20
+  },
+  {
+   "name": "StorySession mock: next + answer",
+   "perStep": true,
+   "medianMs": 79.773,
+   "meanMs": 81.281,
+   "maxMs": 134.036,
+   "n": 10
+  },
+  {
+   "name": "instant model: StorySession next (sentence)",
+   "perStep": true,
+   "medianMs": 9.837,
+   "meanMs": 11.48,
+   "maxMs": 26.39,
+   "n": 26
+  },
+  {
+   "name": "instant model: StorySession tapWord",
+   "perStep": true,
+   "medianMs": 0.049,
+   "meanMs": 0.06,
+   "maxMs": 0.106,
+   "n": 13
+  },
+  {
+   "name": "instant model: StorySession answer",
+   "perStep": true,
+   "medianMs": 0.503,
+   "meanMs": 0.868,
+   "maxMs": 4.907,
+   "n": 26
+  },
+  {
+   "name": "instant model: StorySession next (chapter end)",
+   "perStep": true,
+   "medianMs": 0.171,
+   "meanMs": 0.179,
+   "maxMs": 0.229,
+   "n": 13
+  },
+  {
+   "name": "instant model: StorySession learner turn",
+   "perStep": true,
+   "medianMs": 1,
+   "meanMs": 1.014,
+   "maxMs": 1.271,
+   "n": 13
+  },
+  {
+   "name": "instant model: LyricSession next + answer",
+   "perStep": true,
+   "medianMs": 3.707,
+   "meanMs": 4.88,
+   "maxMs": 15.81,
+   "n": 20
+  },
+  {
+   "name": "LyricSession mock: next + answer",
+   "perStep": true,
+   "medianMs": 33.97,
+   "meanMs": 33.049,
+   "maxMs": 39.375,
+   "n": 10
+  }
+ ]
+}

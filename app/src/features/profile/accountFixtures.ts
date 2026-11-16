@@ -86,6 +86,7 @@ export interface ProfileFixture {
   streakDays: number;
   wordsKnown: number;
   skills: SkillCounts;
+  practised: number;
 }
 
 export const PROFILE_FIXTURES: Readonly<Record<'profile' | 'profile-new', ProfileFixture>> = {
@@ -96,6 +97,7 @@ export const PROFILE_FIXTURES: Readonly<Record<'profile' | 'profile-new', Profil
     streakDays: 4,
     wordsKnown: 412,
     skills: { meaning: 412, sound: 236, speaking: 97 },
+    practised: 186,
   },
   'profile-new': {
     spokenMs: 0,
@@ -104,6 +106,7 @@ export const PROFILE_FIXTURES: Readonly<Record<'profile' | 'profile-new', Profil
     streakDays: 0,
     wordsKnown: 38,
     skills: { meaning: 38, sound: 6, speaking: 2 },
+    practised: 0,
   },
 };
 

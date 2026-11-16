@@ -157,7 +157,53 @@ await bench('StorySession mock: next + answer', true, async (i) => {
   await s.next(T0 + 1000);
   await s.handleUtterance('mesa', T0 + 2000);
 }, 10, 1);
+// The engine's own work per step: an instant model (every token -2 nats, a fixed
+// next-token list, generation from a fixed list), so only engine code is timed.
+const STORY_LINES = ['Marta compró pan en el mercado.', 'Su hermano llegó tarde a la casa.', 'Ella vio una nota en la puerta.', 'El perro corrió hacia la calle.', 'Mi madre cocina sopa los domingos.'];
+const NEXT = [' casa', ' calle', ' puerta', ' mesa', ' pan', ' perro', ' madre', ' nota', '.', ',', ' el', ' la', ' de', ' que', ' y', ' en', ' un', ' una', ' es', ' no'];
+const instant: NOW_ENGINE.LanguageModel = {
+  id: 'instant',
+  async scoreContinuation(_c: string, t: string) {
+    return [...t.matchAll(/\s*[\p{L}\p{M}']+|\s*\d+|\s*[^\s\p{L}\p{M}\d]/gu)].map((m) => ({ text: m[0], start: m.index ?? 0, end: (m.index ?? 0) + m[0].length, logprob: -2 }));
+  },
+  async nextTokens(_c: string, k: number) {
+    return NEXT.slice(0, k).map((text, i) => ({ text, logprob: Math.log(0.3 / (i + 1)) }));
+  },
+  async generate(_p: string, o: NOW_ENGINE.GenerateOptions) {
+    return Array.from({ length: o.n }, (_, i) => ' ' + STORY_LINES[((o.seed ?? 0) + i) % STORY_LINES.length]);
+  },
+};
+const steps: Record<string, number[]> = {};
+for (let i = 0; i < Math.max(10, Math.floor(rounds / 2)); i++) {
+  const l = new E.LearnerModel({ prior: profilePrior(PROFILES.early.reach) });
+  l.apply({ type: 'read', key: 'es:casa', at: T0 - 60_000 });
+  const s = E.StorySession.create({ model: instant, pack, pair, learner: l, now: T0, seed: i + 1, options: { sentencesPerChapter: 2 } });
+  const t = async (k: string, f: () => unknown) => {
+    const t0 = performance.now();
+    await f();
+    if (i >= 2) (steps[k] ??= []).push(performance.now() - t0);
+  };
+  await t('instant model: StorySession next (sentence)', () => s.next(T0 + 1000));
+  await t('instant model: StorySession tapWord', () => s.tapWord(1, T0 + 1500));
+  await t('instant model: StorySession answer', () => s.handleUtterance('mesa', T0 + 2000));
+  await t('instant model: StorySession next (sentence)', () => s.next(T0 + 3000));
+  await t('instant model: StorySession answer', () => s.handleUtterance('casa', T0 + 4000));
+  await t('instant model: StorySession next (chapter end)', () => s.next(T0 + 5000));
+  if (s.screen.kind === 'turn') await t('instant model: StorySession learner turn', () => s.handleUtterance('Ayer yo fui al mercado con mi hermano.', T0 + 6000));
+}
+for (const [name, times] of Object.entries(steps)) {
+  times.sort((a, b) => a - b);
+  const r: Result = { name, perStep: true, medianMs: +(times[Math.floor(times.length / 2)] as number).toFixed(3), meanMs: +(times.reduce((a, b) => a + b, 0) / times.length).toFixed(3), maxMs: +(times[times.length - 1] as number).toFixed(3), n: times.length };
+  results.push(r);
+  console.log(`${name.padEnd(52)} ${r.medianMs.toFixed(3).padStart(9)} ms median  ${r.meanMs.toFixed(3).padStart(9)} mean  ${r.maxMs.toFixed(2).padStart(8)} max  (every step)`);
+}
+
 const lyrics = E.parseLyrics(SONG, pack);
+await bench('instant model: LyricSession next + answer', true, async (i) => {
+  const s = E.LyricSession.create({ model: instant, pack, pair, learner: new E.LearnerModel(), now: T0, seed: i + 1, source: { kind: 'lyrics', lyrics } });
+  await s.next(T0 + 1000);
+  await s.handleUtterance('mesa', T0 + 2000);
+}, 20, 2);
 await bench('LyricSession mock: next + answer', true, async (i) => {
   const s = E.LyricSession.create({ model, pack, pair, learner: new E.LearnerModel(), now: T0, seed: i + 1, source: { kind: 'lyrics', lyrics } });
   await s.next(T0 + 1000);

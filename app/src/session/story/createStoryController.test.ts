@@ -5,6 +5,7 @@
  */
 import {
   SKILLS,
+  StorySession,
   frequencyLexemeKeys,
   type LearnerModel,
   type PairPack,
@@ -449,6 +450,24 @@ describe('the model', () => {
     expect(h.vm().modelMode).toBe('canned');
     await act(h, (c) => c.actions.command('next'));
     expect(as(h.vm().screen, 'cliff').meta.canned).toBe(true);
+  });
+
+  it('prefetches the next sentence on the landing screen, outside the queue, and next() uses it', async () => {
+    const spy = jest.spyOn(StorySession.prototype, 'prefetch');
+    try {
+      const h = await setup();
+      await h.services.model.load('/models/qwen.gguf');
+      await h.controller.idle();
+      expect(spy).not.toHaveBeenCalled();
+      await act(h, (c) => c.actions.typeAnswer('cantante'));
+      expect(h.vm().screen?.kind).toBe('landing');
+      expect(spy).toHaveBeenCalledTimes(1);
+      await spy.mock.results[0]?.value;
+      await act(h, (c) => c.actions.next());
+      expect(as(h.vm().screen, 'cliff').meta.canned).toBe(false);
+    } finally {
+      spy.mockRestore();
+    }
   });
 });
 

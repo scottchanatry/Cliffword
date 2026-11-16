@@ -6,7 +6,7 @@ import { Text } from '../../ui';
 import { CHROME_MAX_SCALE } from './fontScale';
 
 /**
- * "Understood 6 of 7 words" after a repeat or a shadowed line, with the expected words:
+ * "Words understood: 6 of 7" after a repeat or a shadowed line, with the expected words:
  * those that landed in ink, the missed ones hollow. A count of words understood, never an
  * accent score.
  */

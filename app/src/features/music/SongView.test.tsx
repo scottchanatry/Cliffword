@@ -202,7 +202,7 @@ describe('result, no sé, answer in English, line, done', () => {
   it('no sé: plays the answer again and moves on once repeated', async () => {
     const { actions } = await renderSong(song('lyric-noSe'));
     expect(screen.getByTestId('nose-answer')).toHaveTextContent('mar');
-    expect(screen.getByText('Understood 1 of 1 words')).toBeOnTheScreen();
+    expect(screen.getByText('Words understood: 1 of 1')).toBeOnTheScreen();
     await fireEvent.press(screen.getByRole('button', { name: 'Play the answer again' }));
     expect(actions.command).toHaveBeenCalledWith('again');
     await fireEvent.press(screen.getByRole('button', { name: 'Next line' }));

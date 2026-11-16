@@ -61,7 +61,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = {
   'retell.done': 'Done',
 
   // Progress
-  'stats.understood': 'Understood {n} of {m} words',
+  'stats.understood': 'Words understood: {n} of {m}',
   'stats.spokenToday': 'Spoken today: {minutes} min',
   'stats.minutesSpoken': 'Minutes spoken',
 

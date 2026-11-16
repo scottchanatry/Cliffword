@@ -511,13 +511,17 @@ class StoryControllerImpl implements StoryControllerHandle {
   }
 
   /**
-   * HOOK (prefetch): engine/src/session/story.ts has no prefetch API yet (checked
-   * 2026-11-16). When it gains one (making the next sentence while the learner is on a
-   * landing or no-sé screen), call it from here through this.enqueue, so it never overlaps
-   * another session call.
+   * Prepare the next sentence while the learner is on a landing or no-sé screen
+   * (StorySession.prefetch). Deliberately NOT through this.enqueue and not awaited: a
+   * prefetch runs a whole step (generation plus next-word calls), and queueing it would hold
+   * the learner's next action behind it. The engine serializes the model calls itself, does
+   * not mark the session busy, and next() (or the spoken next/done commands) waits for the
+   * prefetch and reuses its answers, so the story is the same with or without it.
    */
   private prefetch(): void {
-    // Nothing to do until the engine offers prefetching.
+    const session = this.session;
+    if (!session || this.disposed) return;
+    void session.prefetch(this.deps.clock.now()).catch((e: unknown) => this.report(e));
   }
 
   /** Events, prior, session snapshot and spoken time of one step, in one transaction (persistStep). */

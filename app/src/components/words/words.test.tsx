@@ -169,10 +169,10 @@ describe('tiles and chips', () => {
 });
 
 describe('UnderstoodLine', () => {
-  it('reads "Understood 6 of 7 words" and draws the missed word hollow', async () => {
+  it('reads "Words understood: 6 of 7" and draws the missed word hollow', async () => {
     const words = ['Entonces', 'vio', 'una', 'nota', 'en', 'la', 'puerta'].map((text, i) => ({ text, landed: i !== 3 }));
     await renderWithProviders(<UnderstoodLine alignment={{ understood: 6, total: 7, ui: { key: 'stats.understood', params: { n: 6, m: 7 } }, words }} />);
-    expect(screen.getByText('Understood 6 of 7 words')).toBeOnTheScreen();
+    expect(screen.getByText('Words understood: 6 of 7')).toBeOnTheScreen();
     expect(screen.getAllByTestId(/understood-\d+-landed/)).toHaveLength(6);
     expect(screen.getByLabelText('nota, missed')).toBeOnTheScreen();
     expect(flat(screen.getByTestId('understood-3-missed').props.style).borderStyle).toBe('dashed');

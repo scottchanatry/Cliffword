@@ -215,7 +215,7 @@ describe('UI_STRINGS', () => {
       'text.hide': /hide text/i,
       'landing.likely': /landed where a spanish speaker would/i,
       'retell.round': /\{round\}.*\{rounds\}.*\{seconds\}/,
-      'stats.understood': /understood \{n\} of \{m\} words/i,
+      'stats.understood': /words understood: \{n\} of \{m\}/i,
       'stats.spokenToday': /spoken today/i,
       'tab.story': /^Story$/,
       'tab.music': /^Music$/,

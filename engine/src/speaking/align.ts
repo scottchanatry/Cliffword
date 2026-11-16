@@ -58,7 +58,7 @@ export interface AlignTranscriptOptions {
   maxSpan: number;
   /** Combining marks folded when the pack has no foldAccents. */
   marks: string;
-  /** PairPack.ui key for "Understood {n} of {m} words". */
+  /** PairPack.ui key for "Words understood: {n} of {m}". */
   uiKey: string;
 }
 
@@ -121,7 +121,7 @@ export interface Alignment {
   total: number;
   /** understood / total; 0 when there is no expected word. */
   share: number;
-  /** "Understood {n} of {m} words": { key: options.uiKey, params: { n, m } }. */
+  /** "Words understood: {n} of {m}": { key: options.uiKey, params: { n, m } }. */
   ui: UiText;
 }
 

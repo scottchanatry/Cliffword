@@ -18,7 +18,7 @@ import { VoiceDock } from './VoiceDock';
 /**
  * Where the answer landed (B2): the sentence with the answer's words lit, the headline for
  * the credit reason, the surprising -> expected line, "About N times in 100" and "X is just as
- * natural", then "Hold anywhere, say the whole line" (shadowing: "Understood N of M words").
+ * natural", then "Hold anywhere, say the whole line" (shadowing: "Words understood: N of M").
  */
 export function LandingView({ screen, vm, actions, toggleListen, openTyping }: KindViewProps<'landing'>) {
   const { t } = useI18n();

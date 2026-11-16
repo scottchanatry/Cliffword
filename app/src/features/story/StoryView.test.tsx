@@ -252,11 +252,11 @@ describe('landing (B2)', () => {
     expect(actions.command.mock.calls).toEqual([['again'], ['meaning'], ['next']]);
   });
 
-  it('after the whole line is said: "Understood N of M words", never an accent score', async () => {
+  it('after the whole line is said: "Words understood: N of M", never an accent score', async () => {
     await renderStory(fx.landing);
     const shadow = fx.landing.screen?.kind === 'landing' ? fx.landing.screen.shadow : undefined;
     expect(shadow).toBeDefined();
-    expect(screen.getByText(`Understood ${shadow?.understood} of ${shadow?.total} words`)).toBeOnTheScreen();
+    expect(screen.getByText(`Words understood: ${shadow?.understood} of ${shadow?.total}`)).toBeOnTheScreen();
     expect(screen.getAllByTestId(/understood-\d+-missed/)).toHaveLength((shadow?.total ?? 0) - (shadow?.understood ?? 0));
     expect(screen.queryByText(/accent/i)).toBeNull();
   });
@@ -268,7 +268,7 @@ describe('no sé', () => {
     expect(screen.getByTestId('nose-step-hear')).toHaveTextContent('Hear it');
     expect(screen.getByTestId('nose-answer')).toHaveTextContent('mercado');
     expect(screen.getByTestId('nose-ui')).toHaveTextContent('Now say it out loud.');
-    expect(screen.getByText('Understood 0 of 1 words')).toBeOnTheScreen();
+    expect(screen.getByText('Words understood: 0 of 1')).toBeOnTheScreen();
     await fireEvent.press(screen.getByRole('button', { name: 'Play the answer again' }));
     expect(actions.replay).toHaveBeenCalledTimes(1);
     expect(screen.getByTestId('story-canned')).toBeOnTheScreen();
@@ -415,7 +415,7 @@ describe('register switching', () => {
     expect(screen.getByTestId('register-from-to')).toHaveTextContent(task?.to === 'neutral' ? 'Street → Neutral' : 'Neutral → Street');
     expect(screen.getByTestId('register-prompt')).toHaveTextContent(task?.prompt ?? '');
     expect(screen.getByTestId('register-swap-0')).toBeOnTheScreen();
-    expect(screen.getByText(`Understood ${task?.result?.understood} of ${task?.result?.total} words`)).toBeOnTheScreen();
+    expect(screen.getByText(`Words understood: ${task?.result?.understood} of ${task?.result?.total}`)).toBeOnTheScreen();
     expect(screen.getByTestId('register-expected')).toHaveTextContent(task?.expected ?? '');
   });
 });

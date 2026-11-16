@@ -37,9 +37,11 @@ export function CommandPractice({ commands, practised, onHear, testID = 'command
             testID={`practice-${command}`}
             style={({ pressed }) => [styles.item, done && styles.itemDone, pressed && styles.pressed]}
           >
-            <View style={[styles.tick, done ? styles.tickOn : styles.tickOff]} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-              {done ? <View style={styles.tickMark} /> : null}
-            </View>
+            {done ? (
+              <View style={styles.tick} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+                <View style={styles.tickMark} />
+              </View>
+            ) : null}
             <Text style={styles.say} numberOfLines={2} maxFontSizeMultiplier={CHROME_MAX_SCALE}>
               {say}
             </Text>
@@ -62,7 +64,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     gap: spacing.xxs,
-    paddingHorizontal: spacing.xs,
+    paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderWidth: borders.hairline,
     borderColor: colors.border,
@@ -72,8 +74,16 @@ const styles = StyleSheet.create({
   itemDone: { borderColor: colors.ink, borderWidth: borders.strong },
   pressed: { backgroundColor: colors.borderSoft },
   say: { fontFamily: fontFamilies.contentSemiBold, fontSize: 16, lineHeight: 20, textAlign: 'center', color: colors.ink },
-  tick: { position: 'absolute', top: 6, right: 6, width: 14, height: 14, borderRadius: 7, alignItems: 'center', justifyContent: 'center' },
-  tickOn: { backgroundColor: colors.ink },
-  tickOff: { borderWidth: borders.hairline, borderColor: colors.border },
-  tickMark: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.onInk },
+  tick: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: colors.ink,
+  },
+  tickMark: { width: 4, height: 4, borderRadius: 2, backgroundColor: colors.onInk },
 });

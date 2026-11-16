@@ -61,7 +61,7 @@ import {
   tagFor,
 } from './prompt';
 import type { SelectCandidate, SelectContext, SelectOptions, Selection } from './select';
-import { resolveSelectOptions, selectSentence } from './select';
+import { resolveSelectOptions, seededUnit, selectSentence } from './select';
 import { isCapitalized, sentenceStartFlags, splitSentences, wholeAtLeast } from './text';
 
 /** Collaborators that stay the same from sentence to sentence. */
@@ -102,6 +102,8 @@ export interface NextSentenceTuning {
   vocabularyBelow: number;
   /** ...counting a lexeme as known from this pKnown(meaning). */
   vocabularyKnownAt: number;
+  /** Order the vocabulary line by the seed (see generateNextSentence). */
+  varyVocabulary: boolean;
 }
 
 /**
@@ -140,6 +142,7 @@ export const DEFAULT_NEXT_SENTENCE_TUNING: Readonly<NextSentenceTuning> = {
   vocabularyWords: 40,
   vocabularyBelow: 800,
   vocabularyKnownAt: 0.9,
+  varyVocabulary: true,
 };
 
 export interface NextSentenceOptions {
@@ -360,6 +363,14 @@ export function knownLexemeCount(pack: LanguagePack, learner: LearnerView, now: 
   return n;
 }
 
+/** `items` in an order that depends only on `seed` (sorted by a seeded hash of each item). */
+export function seededOrder<T extends string>(items: readonly T[], seed: number): T[] {
+  return items
+    .map((x, i) => ({ x, i, k: seededUnit(seed, x) }))
+    .sort((a, b) => a.k - b.k || a.i - b.i)
+    .map((e) => e.x);
+}
+
 /** Sentences joined with a space only where the script uses one (needsLeadingSpace). */
 function joinScriptAware(parts: readonly string[]): string {
   let out = '';
@@ -408,6 +419,10 @@ export async function generateNextSentence(
       max: t.vocabularyWords, exclude: opts.targets,
     });
   } else vocabulary = [];
+  // The vocabulary line's order follows the seed: from the same story a peaked model wrote
+  // the same sentence for every seed (Qwen3-1.7B: 13 of 15 candidates over three seeds
+  // after the starter story); a reordered line changes the prompt, not its content.
+  if (t.varyVocabulary && vocabulary.length > 1 && !opts.vocabulary) vocabulary = seededOrder(vocabulary, opts.seed);
   const extract = extractOptionsFor(pack, {
     nativeLexicon: deps.pair?.nativeLexicon,
     isTargetWord: (w: string) => pack.analyze(pack.normalize(w)).length > 0,

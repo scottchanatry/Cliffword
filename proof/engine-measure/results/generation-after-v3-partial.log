@@ -1,0 +1,18 @@
+brandNew 0 19.59s IN T  {} La familia está en el restaurante.
+brandNew 1 26.14s IN -  {"unnatural":1} El grupo está en el restaurante.
+brandNew 2 44.32s IN -  {"placeholder":1,"no_verb":1} El grupo toca la guitarra.
+brandNew 3 19.8s IN -  {"repeat":4} El grupo toca la guitarra y el piano.
+brandNew 4 38.84s out T retry {} Marta dice que el grupo toca la guitarra y el piano.
+brandNew 5 35.97s IN -  {"repeat":1} El grupo tiene un piano.
+brandNew 6 34.6s IN -  {} El grupo tiene un piano y una guitarra.
+brandNew 7 61.06s out - retry {"repeat":4} Marta dice que el grupo tiene un piano y una guitarra.
+brandNew {"runs":8,"inBand":0.75,"ownInBand":0,"targetUse":0.25,"distinct":8,"noSentence":0,"chosenFailingNewRejects":0,"rejects":{"unnatural":1,"placeholder":1,"no_verb":1,"repeat":9},"meanSeconds":35,"medianSeconds":35.97,"maxSeconds":61.06,"meanGenerateCalls":1.25,"meanScoreCalls":2.5,"meanPromptTokens":227,"meanDecodeTokens":69}
+early 0 6.15s IN/own T  {} El viejo está en la casa.
+early 1 21.58s IN/own -  {"repeat":4} El hombre está en la casa.
+early 2 28.17s IN/own T  {} El hombre es el nacional.
+early 3 14.21s IN/own T  {"too_short":1} El hombre es el único.
+early 4 18.26s IN/own T  {} El viejo es el viejo.
+early 5 15.78s IN/own T  {} El claro es el claro.
+early 6 26.08s IN/own T  {"repeat":1} El nacional es el nacional.
+early 7 24.54s IN/own T  {} El único es el único.
+early {"runs":8,"inBand":1,"ownInBand":1,"targetUse":0.88,"distinct":8,"noSentence":0,"chosenFailingNewRejects":0,"rejects":{"repeat":5,"too_short":1},"meanSeconds":19.3,"medianSeconds":21.58,"maxSeconds":28.17,"meanGenerateCalls":1,"meanScoreCalls":1.63,"meanPromptTokens":152,"meanDecodeTokens":39}

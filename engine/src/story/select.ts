@@ -28,7 +28,9 @@
  *    prompt); meta talk (a pack meta word: grammar terms); native-language words (via
  *    pair.nativeLexicon); another language (most words unknown to the pack); no verb
  *    (unless the pack says its sentences need none); too short or too long for the
- *    level; a repeat or near repeat of a recent sentence; unbalanced quotes or brackets.
+ *    level; a repeat or near repeat of a recent sentence (or a short sentence that repeats
+ *    a content word of its own, or one that opens like one of the last two sentences); unbalanced quotes or brackets; and, once the caller
+ *    scored it, a natural score below naturalFloor.
  * 5. Score accepted candidates (higher is better), in tiers so the band comes first:
  *    - band: 0 inside the band; outside, -(outOfBandPenalty + belowBandWeight x distance
  *      below or aboveBandWeight x distance above), so any in-band candidate beats any
@@ -130,6 +132,18 @@ export interface SelectOptions {
   nearRepeatContainment: number;
   nearRepeatMinWords: number;
   /**
+   * A sentence of at most this many words that uses one content lemma twice is a repeat
+   * of itself ("El viejo es el viejo."); 0 turns the check off.
+   */
+  selfRepeatMaxWords: number;
+  /**
+   * A candidate that opens with the same `sameOpeningWords` words as one of the last
+   * `sameOpeningWindow` sentences copies its frame: a repeat ("El hombre es el día." after
+   * "El hombre es el claro."). 0 turns the check off.
+   */
+  sameOpeningWords: number;
+  sameOpeningWindow: number;
+  /**
    * Model-level leak patterns, tested on accent-folded lowercase text: the English meta
    * talk of instruct models. Each pack adds its own (StoryLanguageData.leakPatterns).
    */
@@ -209,6 +223,16 @@ export const DEFAULT_SELECT_OPTIONS: Readonly<SelectOptions> = {
   nearRepeatJaccard: 0.9,
   nearRepeatContainment: 0.85,
   nearRepeatMinWords: 3,
+  // Measured on Qwen3-1.7B: a locked story produced "El claro es el claro.", "El más es
+  // el que es más." and "El saber es el que sabe." (6 to 7 words), which the natural score
+  // does not catch (a repeated word is predictable).
+  selfRepeatMaxWords: 8,
+  // Measured on Qwen3-1.7B: the early learner's story ran "El hombre es el nacional." /
+  // "El hombre es el único." / "El hombre es el día." / "El hombre es el año.", fluent to
+  // the model and under the near-repeat thresholds; three shared opening words with one of
+  // the last two sentences catches the frame.
+  sameOpeningWords: 3,
+  sameOpeningWindow: 2,
   leakPatterns: DEFAULT_LEAK_PATTERNS,
   leakNgram: 4,
   placeholderPattern: DEFAULT_PLACEHOLDER_PATTERN,
@@ -491,7 +515,8 @@ function previousSentenceWords(previous: readonly string[], pack: LanguagePack, 
  * True when the text repeats a recent sentence: the same normalized word sequence, a
  * word set whose Jaccard overlap with a recent sentence reaches `nearJaccard`, or (with
  * `nearContainment` > 0) at least that share of its words, and at least `minWords`
- * words, inside one recent sentence in order. Previous entries are split into sentences
+ * words, inside one recent sentence in order, or a recent sentence of at least
+ * `minWords` words whole inside it, in order. Previous entries are split into sentences
  * first.
  */
 export function isRepeat(
@@ -510,6 +535,8 @@ export function isRepeat(
     if (prev.join(' ') === joined) return true;
     if (jaccard(words, prev) >= nearJaccard) return true;
     if (nearContainment > 0 && words.length >= minWords && containment(words, prev) >= nearContainment) return true;
+    // The previous sentence whole inside a longer candidate ("Marta dice que" + it).
+    if (nearContainment > 0 && prev.length >= minWords && containment(prev, words) >= 1) return true;
   }
   return false;
 }
@@ -575,6 +602,41 @@ export function hasUnbalancedQuotes(text: string): boolean {
   return false;
 }
 
+const SELF_REPEAT_POS: readonly Pos[] = ['NOUN', 'VERB', 'ADJ', 'ADV'];
+
+/** True when a short sentence uses one content lemma twice ("El viejo es el viejo."). */
+export function repeatsItself(words: readonly WordInfo[], maxWords: number): boolean {
+  if (maxWords <= 0 || words.length > maxWords) return false;
+  const seen = new Set<string>();
+  for (const w of words) {
+    if (w.kind !== 'word' || w.pos === null || !SELF_REPEAT_POS.includes(w.pos)) continue;
+    if (seen.has(w.key)) return true;
+    seen.add(w.key);
+  }
+  return false;
+}
+
+/**
+ * True when the text opens with the same first `k` words (normalized) as one of the last
+ * `window` sentences of `previous` (entries split into sentences first).
+ */
+export function sameOpening(
+  text: string,
+  previous: readonly string[],
+  pack: LanguagePack,
+  k: number,
+  window: number,
+  abbreviations?: readonly string[],
+): boolean {
+  if (k <= 0 || window <= 0) return false;
+  const words = normalizedWords(text, pack);
+  if (words.length < k) return false;
+  const head = words.slice(0, k).join(' ');
+  return previousSentenceWords(previous, pack, abbreviations)
+    .slice(-window)
+    .some((p) => p.length >= k && p.slice(0, k).join(' ') === head);
+}
+
 const QUOTE_OPEN = `"“«„‘「『`;
 const QUOTE_CLOSE = `"”»“’」』`;
 
@@ -634,7 +696,13 @@ export function rejectReasons(
   if (requireVerb && !words.some((w) => w.pos !== null && o.verbPos.includes(w.pos))) out.push('no_verb');
   if (words.length < o.minWordsFactor * ctx.params.sentenceWords.min) out.push('too_short');
   if (words.length > o.hardMaxWordsFactor * ctx.params.sentenceWords.max) out.push('too_long');
-  if (isRepeat(text, ctx.previous, ctx.pack, o.nearRepeatJaccard, abbreviationsOf(ctx, o), o.nearRepeatContainment, o.nearRepeatMinWords)) out.push('repeat');
+  if (
+    isRepeat(text, ctx.previous, ctx.pack, o.nearRepeatJaccard, abbreviationsOf(ctx, o), o.nearRepeatContainment, o.nearRepeatMinWords) ||
+    repeatsItself(words, o.selfRepeatMaxWords) ||
+    sameOpening(text, ctx.previous.slice(-Math.max(0, o.sameOpeningWindow)), ctx.pack, o.sameOpeningWords, o.sameOpeningWindow, abbreviationsOf(ctx, o))
+  ) {
+    out.push('repeat');
+  }
   if (hasUnbalancedQuotes(text)) out.push('unbalanced_quotes');
   if (natural !== undefined && natural !== null && Number.isFinite(natural) && natural < o.naturalFloor) out.push('unnatural');
   return out;

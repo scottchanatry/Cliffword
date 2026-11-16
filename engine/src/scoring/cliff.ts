@@ -166,11 +166,15 @@ export const DEFAULT_CREDIT_OPTIONS: Readonly<CreditOptions> = {
   // after "la niña empezó a" (the model expects reírse 0.13) and "levantar" after "Juan no
   // quería" (levantarse 0.15; wrong without se) are the same case to it, and their own
   // probabilities are alike (0.02 and 7e-4). Any weight that lifts reír to full credit
-  // (0.38 and up) lifts levantar too (0.34 and up). So the weight stays below what can
-  // reach full credit: 0.02 x P < fullFloor, and 0.02 < fullRatio. It lifts an answer to
-  // partial when the alternative has P >= partialFloor / 0.02 = 0.005. lemmaFloor 2e-5:
-  // the most likely wrong answer of section 4 has 1.0e-5, and pronoun-less wrong forms
-  // the model rejects sit far lower (sentar 3e-7, divertir 5e-7).
+  // (0.38 and up) lifts levantar too (0.34 and up); the analysis has no enclitics either,
+  // so a wrong pronoun (verse for vernos) would match ver like vernos does. So the weight
+  // stays below what can reach full credit: 0.02 x P < fullFloor, and 0.02 < fullRatio.
+  // It lifts an answer to partial when the alternative has P >= partialFloor / 0.02 =
+  // 0.005. At partialFloor 1e-4 it changes no credit of the 111 measured answers (all
+  // natural answers with a listed form of their lexeme already have credit); at 5e-4 it
+  // keeps reír credited, at 2e-3 it would also credit levantar. lemmaFloor 2e-5: the
+  // most likely wrong answer of section 4 has 1.0e-5, and pronoun-less forms the model
+  // rejects sit far lower (sentar 3e-7, divertir 5e-7).
   lemmaWeight: 0.02,
   lemmaFloor: 2e-5,
   nextWord: {},

@@ -90,7 +90,11 @@ export function VoiceStepView(props: VoiceStepViewProps) {
             </InterfaceText>
             <Card testID="practice-card">
               <InterfaceText variant="body" tone="muted" maxFontSizeMultiplier={CHROME_MAX_SCALE}>
-                {ready ? t('onboarding.practice.body') : t('onboarding.practice.bodyTyped')}
+                {ready
+                  ? t('onboarding.practice.body')
+                  : availability?.status === 'needs-permission' && availability.permission !== 'denied'
+                    ? t('onboarding.practice.bodyAllow')
+                    : t('onboarding.practice.bodyTyped')}
               </InterfaceText>
               <CommandPractice commands={PRACTICE_COMMANDS} practised={practice.practised} onHear={practice.hear} />
               {ready ? (

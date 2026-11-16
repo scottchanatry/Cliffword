@@ -66,9 +66,12 @@ export function RetellView({ screen, vm, actions, toggleListen }: KindViewProps<
       <Text variant="title" accessibilityRole="header" maxFontSizeMultiplier={CONTENT_MAX_SCALE} testID="retell-title">
         {screen.done ? t('retell.doneTitle') : t('retell.prompt')}
       </Text>
-      <Text variant="hint" tone="muted" numberOfLines={3} maxFontSizeMultiplier={CONTENT_MAX_SCALE} style={styles.scene} testID="retell-scene">
-        {screen.scene}
-      </Text>
+      {/* The scene as a reminder before the first round only: the rounds are told from memory (B3). */}
+      {screen.scene && !screen.done && screen.round === 0 && screen.results.length === 0 && !on ? (
+        <Text variant="hint" tone="muted" numberOfLines={3} maxFontSizeMultiplier={CONTENT_MAX_SCALE} style={styles.scene} testID="retell-scene">
+          {screen.scene}
+        </Text>
+      ) : null}
       {!screen.done ? <Countdown key={`${screen.round}-${on}`} laneMs={screen.laneMs} running={on} /> : null}
       <View style={styles.lanes}>
         {lanes.map((laneMs, i) => (

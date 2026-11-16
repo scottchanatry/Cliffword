@@ -188,7 +188,8 @@ describe('selectSentence: rejections', () => {
     expect(evaluateCandidate('marta llegó tarde al mercado', 0, c).rejected).toContain('repeat');
     expect(evaluateCandidate('¡Marta llegó tarde al mercado!', 0, c).rejected).toContain('repeat');
     expect(evaluateCandidate('Buscó al señor de las frutas.', 0, c).rejected).toContain('repeat');
-    expect(evaluateCandidate('Marta llegó tarde a casa.', 0, c).rejected).not.toContain('repeat');
+    // Not a near repeat of the words; it does copy the opening (sameOpeningWords, tested below).
+    expect(evaluateCandidate('Marta llegó tarde a casa.', 0, { ...c, options: { sameOpeningWords: 0 } }).rejected).not.toContain('repeat');
   });
 
   it('rejects near repeats with the same word set', () => {
@@ -407,6 +408,23 @@ describe('selectSentence: rejects before selection', () => {
   it('rejects a near repeat contained in a recent sentence', () => {
     const previous = ['Marta compró pan y manzanas en el mercado.'];
     expect(reject('Marta compró pan y manzanas.', undefined, { previous })).toContain('repeat');
+    expect(reject('Marta volvió a casa con pan.', undefined, { previous })).not.toContain('repeat');
+  });
+
+  it('rejects a short sentence that repeats a content word, and a candidate holding the previous sentence whole', () => {
+    expect(reject('Marta compró pan y compró leche.')).toContain('repeat');
+    expect(reject('Marta compró pan y leche.')).not.toContain('repeat');
+    expect(evaluateCandidate('Marta compró pan y compró leche.', 0, ctx({ options: { selfRepeatMaxWords: 0 } })).rejected).not.toContain('repeat');
+    const previous = ['Marta compró pan.'];
+    expect(reject('Rosa dice que Marta compró pan.', undefined, { previous })).toContain('repeat');
+    expect(reject('Marta compró leche en el mercado.', undefined, { previous })).not.toContain('repeat');
+  });
+
+  it('rejects a candidate that copies the opening of one of the last two sentences', () => {
+    const previous = ['Marta llegó tarde al mercado.', 'Marta compró pan y manzanas.'];
+    expect(reject('Marta compró pan en la playa.', undefined, { previous })).toContain('repeat');
+    expect(reject('Marta llegó tarde a casa.', undefined, { previous })).toContain('repeat');
+    expect(reject('Marta llegó tarde a casa.', undefined, { previous, options: { sameOpeningWindow: 1 } })).not.toContain('repeat');
     expect(reject('Marta volvió a casa con pan.', undefined, { previous })).not.toContain('repeat');
   });
 

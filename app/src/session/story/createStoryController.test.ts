@@ -531,6 +531,25 @@ describe('settings and failures', () => {
     expect(as(c2.getSnapshot().screen, 'cliff').sentence.words.slice(0, 3).map((w) => w.display)).toEqual(['text', 'text', 'text']);
   });
 
+  it("speaks with the learner's chosen voice and listens on the device unless network recognition is allowed", async () => {
+    const h = await setup({ settings: { voiceId: 'fake.es-MX' } });
+    expect(h.services.speechOut.lastCall).toMatchObject({ voice: 'fake.es-MX', lang: 'es-MX' });
+    h.controller.actions.holdBegin();
+    h.controller.actions.holdStart();
+    await h.controller.idle();
+    expect(h.services.speechIn.currentOptions).toMatchObject({ onDevice: true });
+    h.controller.actions.holdCancel();
+    const settings = await h.storage.settings.getAll();
+    h.controller.setAppSettings({ ...settings, voiceId: null, allowNetworkRecognition: true });
+    h.controller.actions.replay();
+    await h.controller.idle();
+    expect(h.services.speechOut.lastCall).toMatchObject({ voice: 'fake.es-PR', lang: 'es-PR' });
+    h.controller.actions.holdBegin();
+    h.controller.actions.holdStart();
+    await h.controller.idle();
+    expect(h.services.speechIn.currentOptions).toMatchObject({ onDevice: false });
+  });
+
   it('writes nothing for a step that fails, keeps the screen and says so', async () => {
     const h = await setup({ model: 'ready' });
     jest.spyOn(h.services.model, 'nextTokens').mockRejectedValue(new Error('model crashed'));

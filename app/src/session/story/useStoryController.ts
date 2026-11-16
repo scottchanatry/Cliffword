@@ -10,6 +10,9 @@
  * - When the session replaces the learner (placement sets a new prior), the controller hands
  *   it to the app state, and the same controller goes on. A learner swapped in from elsewhere
  *   (the start level changed) restarts the controller on it, which restores the session.
+ * - The controller is registered with the app state (trackSession) while it lives: a reset of
+ *   progress disposes it without a write, clears the data and advances progressEpoch, and a new
+ *   controller then starts the first story afresh.
  * - `actions` is the live controller's (stable for its life); before it exists, actions that
  *   do nothing (there is no screen to act on yet).
  */
@@ -32,7 +35,7 @@ const noop = () => undefined;
 export function useStoryController(): UseStoryController {
   const services = useServices();
   const appState = useAppState();
-  const { storage, settings, learner } = appState;
+  const { storage, settings, learner, progressEpoch } = appState;
 
   // Learners the controller handed to the app state itself: those never restart it.
   const [adopted] = useState(() => new WeakSet<LearnerModel>());
@@ -70,13 +73,16 @@ export function useStoryController(): UseStoryController {
         if (!leaving) console.warn('[story] controller error', error);
       },
     });
+    const untrack = state.trackSession(c);
     setController(c);
     c.actions.start();
     return () => {
       leaving = true;
+      untrack();
+      // A controller a reset disposed has nothing to save.
       void c.suspend().finally(() => c.dispose());
     };
-  }, [services, storage, generation.n, adopted]);
+  }, [services, storage, generation.n, adopted, progressEpoch]);
 
   useEffect(() => {
     controller?.setAppSettings(settings);

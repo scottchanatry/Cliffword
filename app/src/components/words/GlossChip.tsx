@@ -7,10 +7,25 @@ import { TemplateText } from './TemplateText';
 /**
  * The first sense of a pair-pack gloss ("stall, post, position" -> "stall"). Glosses are
  * native-language text listing senses with commas or semicolons, never target-language words.
+ * A comma inside brackets is not a separator, and a closing note in brackets is left out
+ * ("to be (identity, origin, time)" -> "to be"), so the chip never shows half a note.
  */
 export function firstSense(gloss: string): string {
-  const first = gloss.split(/[;,]/)[0]?.trim();
-  return first && first.length > 0 ? first : gloss.trim();
+  let depth = 0;
+  let end = gloss.length;
+  for (let i = 0; i < gloss.length; i++) {
+    const c = gloss[i];
+    if (c === '(' || c === '[') depth += 1;
+    else if ((c === ')' || c === ']') && depth > 0) depth -= 1;
+    else if ((c === ',' || c === ';') && depth === 0) {
+      end = i;
+      break;
+    }
+  }
+  const first = gloss.slice(0, end).trim();
+  const bare = first.replace(/\s*[([][^()[\]]*[)\]]$/, '').trim();
+  if (bare.length > 0) return bare;
+  return first.length > 0 ? first : gloss.trim();
 }
 
 export interface GlossChipProps {

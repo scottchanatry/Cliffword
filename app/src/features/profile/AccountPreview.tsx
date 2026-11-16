@@ -59,15 +59,13 @@ function PreviewBody({ name }: { name: AccountFixtureName }) {
   const practice = usePreviewPractice();
 
   switch (name) {
-    case 'onboarding-welcome':
-    case 'onboarding-reset': {
+    case 'onboarding-welcome': {
       const first = packs.pair.starter?.sentences[0];
       const span = first ? locateAnswer(packs.lang, first.text, first.answer) : null;
       return (
         <WelcomeView
           language={language}
           sampleBefore={first && span ? first.text.slice(0, span.start) : null}
-          resetting={name === 'onboarding-reset'}
           saving={false}
           failed={false}
           onPlacement={none}

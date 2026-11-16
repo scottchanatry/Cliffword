@@ -84,14 +84,12 @@ export function appVersion(): { version: string; build: string | null } {
 }
 
 /**
- * Settings' data actions. Reset progress hands over to onboarding (see progress.ts): it marks the
- * reset and leaves the tabs, so no story or lyric session is live when the progress is cleared.
+ * Settings' data actions. Reset progress is the app state's (AppState.resetProgress): it stops
+ * the live story and lyric sessions, clears the progress and builds a new learner; onboarding is
+ * not shown again and the Story tab starts its first story afresh.
  */
 export function useDataActions() {
-  const { storage, updateSettings } = useAppState();
+  const { storage, resetProgress } = useAppState();
   const deleteContent = useCallback(() => deleteLyricsAndTexts(storage), [storage]);
-  const resetProgress = useCallback(async () => {
-    await updateSettings({ progressResetPending: true, onboardingStep: 'welcome', onboarded: false });
-  }, [updateSettings]);
   return { deleteContent, resetProgress };
 }

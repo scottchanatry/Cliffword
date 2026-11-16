@@ -44,9 +44,9 @@ export default function SettingsScreen() {
       music={music}
       onDeleteContent={data.deleteContent}
       onResetProgress={async () => {
-        // Back to the tabs first, so the guard swaps them for onboarding without a modal on top.
-        router.dismissTo('/');
         await data.resetProgress();
+        // Back to the Story tab, where the first story starts again.
+        router.dismissTo('/');
       }}
       version={version}
       build={build}

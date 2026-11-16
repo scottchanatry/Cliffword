@@ -12,14 +12,14 @@
  *   learner with an earlier story session or a stored placement prior; SessionSettings from
  *   the app settings (./settings.ts). A restored idle session, or a new one, takes its first
  *   step at once.
- * - Every call into the session runs through one serial queue (the session's async steps
- *   must not overlap, and its sync ones are not busy-safe); `busy` is true while queued
- *   async steps run. An action is checked against the screen when called and again when its
+ * - Every call into the session runs through one serial queue (src/session/common/queue.ts:
+ *   the session's async steps must not overlap, and its sync ones are not busy-safe); `busy`
+ *   is true while queued async steps run. An action is checked against the screen when called and again when its
  *   turn comes, so a double tap never lands on the next screen.
  * - The model: the session gets the ModelAdapter while its status is 'ready' and null
  *   (canned mode) otherwise; onStatusChange switches it, effective at the next sentence.
  *
- * After every step, in one storage transaction:
+ * After every step, in one storage transaction (src/session/common/persist.ts):
  * - events: the session runs with applyEvents false, and storage.learner.record(learner,
  *   events) applies and logs them in one step, so every event is applied exactly once and
  *   memory and the log stay in step;
@@ -31,24 +31,23 @@
  * learnerReplaced: the session's new LearnerModel becomes the learner (onLearnerReplaced
  * hands it to the app state, so every screen uses the same object).
  *
- * Speech: a step's SpeakCue plays through SpeechOut with the language pack's word spans; word
+ * Speech: a step's SpeakCue plays through the shared Speaker (src/session/common/speaker.ts: the
+ * learner's chosen voice, else picked by region) with the language pack's word spans; word
  * boundaries light the ViewWord being spoken (./speech.ts). After the sentence of an options
  * cliff, each option is read in turn (speakingOption). The no-sé answer calls
  * session.played() once it has played. Listening stops speech.
  *
- * Hold to speak: holdBegin checks the permission, holdStart listens in the pack's locale
- * (recognitionLocales) with the screen's words, options and commands as hints, publishing
- * level and partial; holdEnd stops and sends the final transcript to handleUtterance with
- * its voiced time (spokenMsOf) and word timings. typeAnswer takes the same path with no
- * duration, so the engine credits no speaking time.
+ * Hold to speak (src/session/common/hold.ts, shared with the Music tab): holdBegin checks the
+ * permission, holdStart listens in the pack's locale (recognitionLocales; on the device unless
+ * network recognition is allowed) with the screen's words, options and commands as hints,
+ * publishing level and partial; holdEnd stops and sends the final transcript to
+ * handleUtterance with its voiced time and word timings (utteranceOf). typeAnswer takes the
+ * same path with no duration, so the engine credits no speaking time.
  */
 import {
   STORY_SESSION_FORMAT,
   StorySession,
-  creditedMs,
-  localDay,
   type LanguageModel,
-  type LearnerEvent,
   type LearnerModel,
   type PriorSpec,
   type SentenceView,
@@ -59,27 +58,27 @@ import {
   type StorySessionSnapshot,
   type StoryStep,
   type TextMode,
-  type UtteranceInfo,
 } from '@cliffword/engine';
 import type { Clock } from '../../adapters/clock/types';
 import type { Haptics } from '../../adapters/haptics/types';
 import type { Unsubscribe } from '../../adapters/listeners';
 import type { ModelAdapter } from '../../adapters/model/types';
-import { recognitionLocales } from '../../adapters/speechIn/locales';
-import { speechInErrorKey } from '../../adapters/speechIn/messages';
-import { spokenMsOf } from '../../adapters/speechIn/timings';
-import type { FinalTranscript, ListenOptions, SpeechIn, SpeechInErrorCode } from '../../adapters/speechIn/types';
+import type { FinalTranscript, SpeechIn } from '../../adapters/speechIn/types';
 import type { SpeechOut } from '../../adapters/speechOut/types';
-import { normalizeLang } from '../../adapters/speechOut/voices';
 import { tKey } from '../../i18n/tKey';
 import type { ServicePacks } from '../../services/types';
 import { createId, type StorageClock } from '../../storage/clock';
 import type { AppSettings } from '../../storage/repos/settings';
-import type { SqlDatabase, SqlTransaction } from '../../storage/sql/types';
-import { createStorage, type Storage } from '../../storage/storage';
-import type { ListenState, StoryActions, StoryController, StoryViewModel } from '../contract';
+import type { Storage } from '../../storage/storage';
+import { HoldToSpeak, LISTEN_IDLE } from '../common/hold';
+import { listenOptionsFor } from '../common/listen';
+import { dayKey, persistStep, storageClockOf } from '../common/persist';
+import { SerialQueue } from '../common/queue';
+import { Speaker } from '../common/speaker';
+import { typedTranscript, utteranceOf } from '../common/utterance';
+import type { StoryActions, StoryController, StoryViewModel } from '../contract';
 import { sameSessionSettings, sessionSettingsFor, startModeFor, toAppTextMode, toEngineTextMode } from './settings';
-import { cueForScreen, hintsFor, planCue, sentenceOf, wordSpansOf, type CuePlan } from './speech';
+import { cueForScreen, planCue, sentenceOf, storyHintWords, wordSpansOf, type CuePlan } from './speech';
 
 export interface StoryControllerDeps {
   /** The language model; used while its status is 'ready', canned mode otherwise. */
@@ -120,8 +119,6 @@ export interface StoryControllerHandle extends StoryController {
   idle(): Promise<void>;
 }
 
-const IDLE: ListenState = { phase: 'idle' };
-
 /** The view model before the first step. */
 export function initialStoryViewModel(textMode: TextMode = 'auto', modelMode: StoryViewModel['modelMode'] = 'canned'): StoryViewModel {
   return {
@@ -129,7 +126,7 @@ export function initialStoryViewModel(textMode: TextMode = 'auto', modelMode: St
     speakingWord: null,
     speakingOption: null,
     textMode,
-    listen: IDLE,
+    listen: LISTEN_IDLE,
     busy: false,
     modelMode,
     meaning: null,
@@ -163,44 +160,12 @@ const NEXT_KINDS: ReadonlySet<ScreenKind> = new Set<ScreenKind>([
 
 const anyScreen: Guard = (screen) => screen !== null;
 
-/** One hold-to-speak gesture, from touch-down to the session's answer. */
-interface Hold {
-  phase: 'warming' | 'listening' | 'finishing';
-  /** The permission check started at touch-down; resolves to an error code or null. */
-  warm: Promise<SpeechInErrorCode | null>;
-  starting: boolean;
-  released: boolean;
-  cancelled: boolean;
-  gotFinal: boolean;
-  gotError: boolean;
-  unsubs: Unsubscribe[];
-}
-
-interface VoiceChoice {
-  lang: string;
-  voice?: string;
-}
-
-/** A transaction as a database for repositories: their own transactions join it. */
-function transactionDatabase(tx: SqlTransaction): SqlDatabase {
-  return {
-    exec: (sql) => tx.exec(sql),
-    run: (sql, params) => tx.run(sql, params),
-    all: (sql, params) => tx.all(sql, params),
-    get: (sql, params) => tx.get(sql, params),
-    transaction: (task) => tx.transaction(task),
-    close: () => Promise.reject(new Error('A transaction cannot be closed')),
-  };
-}
-
 /** The prior a step asks to store: its own, or the finished placement's tracker. */
 function priorOf(step: StoryStep): PriorSpec | undefined {
   if (step.prior) return step.prior;
   if (step.placement?.done && step.placement.snapshot) return { kind: 'placement', placement: step.placement.snapshot };
   return undefined;
 }
-
-const defaultTzOffset = (at: number) => -new Date(at).getTimezoneOffset();
 
 class StoryControllerImpl implements StoryControllerHandle {
   readonly actions: StoryActions;
@@ -209,35 +174,61 @@ class StoryControllerImpl implements StoryControllerHandle {
   private readonly listeners = new Set<() => void>();
   private readonly storageClock: StorageClock;
   private readonly unsubModel: Unsubscribe;
+  private readonly queue: SerialQueue;
+  private readonly hold: HoldToSpeak;
+  private readonly speaker: Speaker;
   private session: StorySession | null = null;
   private sessionId: string | null = null;
   private starting: Promise<void> | null = null;
   private current: LearnerModel;
   private settings: AppSettings;
-  private tail: Promise<unknown> = Promise.resolve();
-  private busyJobs = 0;
   private disposed = false;
-  private hold: Hold | null = null;
+  /** Advances with every cue played or stopped: callbacks of an older cue do nothing. */
   private speakToken = 0;
-  private speechPending = 0;
   private lastCue: SpeakCue | null = null;
   private cliffWordIndex: number | null = null;
   private previous: SentenceView[] = [];
   private resolved: SentenceView | null = null;
   private chapter: number | null = null;
-  private voicePick: Promise<VoiceChoice> | null = null;
   /** The "voice could not play" notice is shown once (a device without voices fails every cue). */
   private speechOutNoticed = false;
 
   constructor(private readonly deps: StoryControllerDeps) {
     this.current = deps.learner;
     this.settings = deps.settings;
-    this.storageClock = { now: () => deps.clock.now(), newId: () => createId(deps.clock.now()) };
+    this.storageClock = storageClockOf(deps.clock);
     this.vm = initialStoryViewModel(toEngineTextMode(deps.settings.textMode), this.modelMode());
+    this.queue = new SerialQueue({
+      onBusy: (busy) => this.set({ busy }),
+      onError: (e) => this.report(e),
+    });
+    this.speaker = new Speaker({
+      speechOut: deps.speechOut,
+      pack: deps.packs.lang,
+      regions: () => this.settings.regions,
+      voiceId: () => this.settings.voiceId,
+      ...(deps.deviceLocales ? { deviceLocales: deps.deviceLocales } : {}),
+      onError: (e) => this.report(e),
+    });
+    this.hold = new HoldToSpeak({
+      speechIn: deps.speechIn,
+      haptics: deps.haptics,
+      publish: (listen) => this.set({ listen }),
+      current: () => this.vm.listen,
+      canHold: () => !this.disposed && this.vm.screen !== null,
+      // Listening stops speech: never talk over the learner.
+      beforeListen: () => this.stopSpeaking(),
+      listenOptions: () =>
+        listenOptionsFor(deps.packs.lang, this.settings.regions, deps.deviceLocales ?? [], storyHintWords(deps.packs.lang, this.vm.screen), {
+          allowNetwork: this.settings.allowNetworkRecognition,
+        }),
+      onFinal: (t) => this.submit(t),
+      onError: (e) => this.report(e),
+    });
     this.unsubModel = deps.model.onStatusChange(() => {
       this.set({ modelMode: this.modelMode() });
       // The session reads the model when it makes the next sentence.
-      void this.enqueue(async () => this.session?.setModel(this.liveModel()));
+      void this.queue.enqueue(() => this.session?.setModel(this.liveModel()));
     });
     this.actions = {
       start: () => void this.start(),
@@ -252,10 +243,10 @@ class StoryControllerImpl implements StoryControllerHandle {
           (session, at) => session.startRegisterTask(at),
           { busy: true, quiet: true },
         ),
-      holdBegin: () => this.holdBegin(),
-      holdStart: () => this.holdStart(),
-      holdEnd: () => this.holdEnd(),
-      holdCancel: () => this.holdCancel(),
+      holdBegin: () => this.hold.begin(),
+      holdStart: () => this.hold.start(),
+      holdEnd: () => this.hold.end(),
+      holdCancel: () => this.hold.cancel(),
       typeAnswer: (text) => this.typeAnswer(text),
       command: (cmd, argument) => this.command(cmd, argument),
       pickOption: (index) =>
@@ -290,9 +281,9 @@ class StoryControllerImpl implements StoryControllerHandle {
 
   async suspend(): Promise<void> {
     if (this.disposed) return;
-    this.cancelHold();
+    this.hold.cancel();
     this.stopSpeaking();
-    await this.enqueue(async () => {
+    await this.queue.enqueue(async () => {
       const session = this.session;
       const id = this.sessionId;
       if (!session || !id) return;
@@ -309,9 +300,10 @@ class StoryControllerImpl implements StoryControllerHandle {
 
   dispose(): void {
     if (this.disposed) return;
-    this.cancelHold();
+    this.hold.dispose();
     this.stopSpeaking();
     this.disposed = true;
+    this.queue.close();
     this.unsubModel();
     this.listeners.clear();
   }
@@ -320,10 +312,10 @@ class StoryControllerImpl implements StoryControllerHandle {
     if (this.disposed) return;
     const before = this.settings;
     this.settings = settings;
-    if (before.regions.join() !== settings.regions.join()) this.voicePick = null;
+    if (before.regions.join() !== settings.regions.join() || before.voiceId !== settings.voiceId) this.speaker.resetVoice();
     const textMode = toEngineTextMode(settings.textMode);
     if (textMode !== this.vm.textMode) this.set({ textMode });
-    void this.enqueue(async () => {
+    void this.queue.enqueue(async () => {
       const session = this.session;
       if (!session) return;
       const want = sessionSettingsFor(settings);
@@ -333,14 +325,9 @@ class StoryControllerImpl implements StoryControllerHandle {
     });
   }
 
-  async idle(): Promise<void> {
-    for (let i = 0; i < 200; i++) {
-      const tail = this.tail;
-      await tail;
-      // Let settled speech promises run their callbacks (they may queue session.played()).
-      await new Promise((resolve) => setTimeout(resolve, 0));
-      if (tail === this.tail) return;
-    }
+  /** Every queued call and what it set off (settled speech promises may queue session.played()). */
+  idle(): Promise<void> {
+    return this.queue.idle();
   }
 
   // ---------------------------------------------------------------------------
@@ -351,32 +338,6 @@ class StoryControllerImpl implements StoryControllerHandle {
     if (this.disposed) return;
     this.vm = { ...this.vm, ...patch };
     for (const listener of [...this.listeners]) listener();
-  }
-
-  /** Run `job` after every earlier job. A busy job keeps `busy` true from now until it ends. */
-  private enqueue<T>(job: () => Promise<T>, busy = false): Promise<T | undefined> {
-    if (this.disposed) return Promise.resolve(undefined);
-    if (busy) {
-      this.busyJobs += 1;
-      if (!this.vm.busy) this.set({ busy: true });
-    }
-    const run = async (): Promise<T | undefined> => {
-      try {
-        if (this.disposed) return undefined;
-        return await job();
-      } catch (e) {
-        this.report(e);
-        return undefined;
-      } finally {
-        if (busy) {
-          this.busyJobs -= 1;
-          if (this.busyJobs === 0 && this.vm.busy) this.set({ busy: false });
-        }
-      }
-    };
-    const result = this.tail.then(run, run);
-    this.tail = result;
-    return result;
   }
 
   /**
@@ -390,7 +351,7 @@ class StoryControllerImpl implements StoryControllerHandle {
   ): Promise<void> {
     if (this.disposed || !this.session || !guard(this.vm.screen)) return Promise.resolve();
     if (opts.quiet) this.stopSpeaking();
-    return this.enqueue(async () => {
+    return this.queue.enqueue(async () => {
       const session = this.session;
       if (!session || !guard(this.vm.screen)) return;
       const at = opts.at ?? this.deps.clock.now();
@@ -430,7 +391,7 @@ class StoryControllerImpl implements StoryControllerHandle {
 
   private start(): Promise<void> {
     if (this.disposed) return Promise.resolve();
-    this.starting ??= this.enqueue(() => this.open(), true).then(() => undefined);
+    this.starting ??= this.queue.enqueue(() => this.open(), true).then(() => undefined);
     return this.starting;
   }
 
@@ -511,7 +472,7 @@ class StoryControllerImpl implements StoryControllerHandle {
     }
     let spokenTodayMs = this.vm.spokenTodayMs;
     try {
-      await this.persist(session, step.events, priorOf(step), ctx.at, ctx.credited);
+      await this.persist(session, step, ctx.at, ctx.credited);
       if (ctx.credited > 0) spokenTodayMs = await this.readSpokenToday(this.deps.clock.now());
     } catch (e) {
       this.report(e);
@@ -537,31 +498,20 @@ class StoryControllerImpl implements StoryControllerHandle {
     // Nothing to do until the engine offers prefetching.
   }
 
-  /** Events, prior, session snapshot and spoken time of one step, in one transaction. */
-  private async persist(session: StorySession, events: readonly LearnerEvent[], prior: PriorSpec | undefined, at: number, credited: number): Promise<void> {
+  /** Events, prior, session snapshot and spoken time of one step, in one transaction (persistStep). */
+  private async persist(session: StorySession, step: StoryStep, at: number, credited: number): Promise<void> {
     const id = this.sessionId;
     if (!id) return;
-    const snapshot = session.snapshot();
     const learner = this.current;
-    let applied = false;
-    try {
-      await this.deps.storage.db.transaction(async (tx) => {
-        const s = createStorage(transactionDatabase(tx), this.storageClock);
-        if (events.length > 0) {
-          // record() applies the events to the learner in this same synchronous step.
-          const logged = s.learner.record(learner, events);
-          applied = true;
-          await logged;
-        }
-        if (prior) await s.learner.saveSnapshot(learner, at, { prior });
-        await s.sessions.save({ id, kind: 'story', version: STORY_SESSION_FORMAT, snapshot, updatedAt: at });
-        if (credited > 0) await s.spokenTime.addUtterance(credited, at);
-      });
-    } catch (e) {
-      // Keep the learner in memory right even when the log could not be written.
-      if (!applied && events.length > 0) learner.applyAll(events);
-      throw e;
-    }
+    const prior = priorOf(step);
+    await persistStep(this.deps.storage, this.storageClock, {
+      learner,
+      events: step.events,
+      session: { id, kind: 'story', version: STORY_SESSION_FORMAT, snapshot: session.snapshot(), updatedAt: at },
+      creditedMs: credited,
+      at,
+      ...(prior ? { extra: async (tx: Storage) => void (await tx.learner.saveSnapshot(learner, at, { prior })) } : {}),
+    });
   }
 
   /** The chapter's resolved sentences, for the passage above the current one (vm.previous). */
@@ -581,12 +531,8 @@ class StoryControllerImpl implements StoryControllerHandle {
     if (sentence) this.resolved = sentence;
   }
 
-  private todayKey(at: number): string {
-    return localDay(at, (this.deps.tzOffsetMin ?? defaultTzOffset)(at));
-  }
-
   private readSpokenToday(at: number): Promise<number> {
-    return this.deps.storage.spokenTime.day(this.todayKey(at));
+    return this.deps.storage.spokenTime.day(dayKey(at, this.deps.tzOffsetMin));
   }
 
   private async refreshSpokenToday(at: number): Promise<void> {
@@ -617,7 +563,7 @@ class StoryControllerImpl implements StoryControllerHandle {
 
   private replay(): void {
     if (this.disposed || !this.vm.screen) return;
-    void this.enqueue(async () => {
+    void this.queue.enqueue(async () => {
       const cue = cueForScreen(this.deps.packs.lang, this.vm.screen);
       if (!cue) return;
       // The step's own cue keeps its rate ("más despacio" slows prompts too).
@@ -637,227 +583,37 @@ class StoryControllerImpl implements StoryControllerHandle {
 
   private command(cmd: SpokenCommand, argument?: string): void {
     if (this.disposed || !this.vm.screen) return;
-    this.cancelHold();
+    this.hold.cancel();
     void this.step(anyScreen, (session, at) => session.command(cmd, at, argument), { busy: true, quiet: true });
   }
 
   private typeAnswer(text: string): void {
     const trimmed = text.trim();
     if (this.disposed || !trimmed || !this.vm.screen) return;
-    this.cancelHold();
-    this.submit({ text: trimmed, durationMs: 0, source: 'typed' }, null);
+    this.hold.cancel();
+    void this.submit(typedTranscript(trimmed));
   }
 
-  /** A final transcript (spoken or typed) to the session. Typed answers carry no duration, so they earn no speaking time. */
-  private submit(t: FinalTranscript, hold: Hold | null): void {
+  /**
+   * A final transcript (spoken or typed) to the session. Typed answers carry no duration, so
+   * they earn no speaking time. A hold stays 'finishing' until this resolves.
+   */
+  private submit(t: FinalTranscript): Promise<void> {
+    const u = utteranceOf(t);
     const at = this.deps.clock.now();
-    const typed = t.source === 'typed';
-    const durationMs = typed ? 0 : spokenMsOf(t);
-    const info: UtteranceInfo = typed
-      ? {}
-      : {
-          durationMs,
-          ...(t.words && t.words.length > 0 ? { words: t.words.map((w) => ({ text: w.text, startMs: w.startMs, endMs: w.endMs })) } : {}),
-        };
     this.stopSpeaking();
-    void this.step(anyScreen, (session) => session.handleUtterance(t.text, at, info), {
-      busy: true,
-      at,
-      credited: typed ? 0 : creditedMs(durationMs),
-    }).finally(() => {
-      if (hold && this.hold === hold) {
-        this.hold = null;
-        this.set({ listen: IDLE });
-      }
-    });
-  }
-
-  // ---------------------------------------------------------------------------
-  // Hold to speak
-  // ---------------------------------------------------------------------------
-
-  private holdBegin(): void {
-    if (this.disposed || !this.vm.screen || this.hold) return;
-    this.hold = {
-      phase: 'warming',
-      warm: this.warm(),
-      starting: false,
-      released: false,
-      cancelled: false,
-      gotFinal: false,
-      gotError: false,
-      unsubs: [],
-    };
-    this.set({ listen: { phase: 'warming' } });
-  }
-
-  /** The permission check of touch-down: asks once when undecided. */
-  private async warm(): Promise<SpeechInErrorCode | null> {
-    const { speechIn } = this.deps;
-    try {
-      let permission = await speechIn.permissionStatus();
-      if (permission === 'undetermined') permission = await speechIn.requestPermission();
-      return permission === 'denied' ? 'not-allowed' : null;
-    } catch {
-      // start() reports what is wrong.
-      return null;
-    }
-  }
-
-  private holdStart(): void {
-    if (!this.hold) this.holdBegin();
-    const hold = this.hold;
-    if (!hold || hold.phase !== 'warming' || hold.starting) return;
-    hold.starting = true;
-    void this.listen(hold);
-  }
-
-  private async listen(hold: Hold): Promise<void> {
-    const { speechIn, haptics } = this.deps;
-    const error = await hold.warm;
-    if (this.hold !== hold || hold.cancelled || this.disposed) return;
-    if (error) {
-      this.failHold(hold, error);
-      return;
-    }
-    if (hold.released) {
-      // Let go before listening began: a tap, not a hold.
-      this.endHold(hold, IDLE);
-      return;
-    }
-    this.stopSpeaking();
-    haptics.play('tap');
-    hold.unsubs.push(
-      speechIn.onPartial((text) => {
-        if (this.hold === hold && hold.phase === 'listening' && this.vm.listen.phase === 'listening') {
-          this.set({ listen: { ...this.vm.listen, partial: text } });
-        }
-      }),
-      speechIn.onMeter((level) => {
-        if (this.hold === hold && hold.phase === 'listening' && this.vm.listen.phase === 'listening') {
-          this.set({ listen: { ...this.vm.listen, level } });
-        }
-      }),
-      speechIn.onFinal((transcript) => {
-        if (this.hold !== hold || hold.gotFinal || hold.cancelled) return;
-        hold.gotFinal = true;
-        if (hold.phase === 'listening') haptics.play('selection');
-        hold.phase = 'finishing';
-        this.set({ listen: { phase: 'finishing' } });
-        this.submit(transcript, hold);
-      }),
-      speechIn.onError((e) => {
-        if (this.hold !== hold || hold.cancelled) return;
-        hold.gotError = true;
-        this.failHold(hold, e.code);
-      }),
-      speechIn.onEnd(() => {
-        for (const unsub of hold.unsubs.splice(0)) unsub();
-        if (this.hold !== hold || hold.gotFinal || hold.gotError || hold.cancelled) return;
-        // Ended with nothing recognized.
-        this.failHold(hold, 'no-speech');
-      }),
-    );
-    hold.phase = 'listening';
-    this.set({ listen: { phase: 'listening', level: 0, partial: '' } });
-    await speechIn.start(this.listenOptions());
-    if (this.hold === hold && hold.released && hold.phase === 'listening' && speechIn.isListening) await this.release(hold);
-  }
-
-  private holdEnd(): void {
-    const hold = this.hold;
-    if (!hold) return;
-    if (hold.phase === 'warming' && !hold.starting) {
-      this.endHold(hold, IDLE);
-      return;
-    }
-    hold.released = true;
-    if (hold.phase === 'listening') void this.release(hold);
-  }
-
-  private async release(hold: Hold): Promise<void> {
-    hold.phase = 'finishing';
-    this.deps.haptics.play('selection');
-    this.set({ listen: { phase: 'finishing' } });
-    try {
-      await this.deps.speechIn.stop();
-    } catch (e) {
-      this.report(e);
-      this.failHold(hold, 'unknown');
-    }
-  }
-
-  private holdCancel(): void {
-    this.cancelHold();
-  }
-
-  /** Drop the current hold (and its utterance, unless the final already arrived). */
-  private cancelHold(): void {
-    const hold = this.hold;
-    if (!hold) return;
-    if (hold.gotFinal) return;
-    hold.cancelled = true;
-    if (hold.phase !== 'warming' || hold.starting) {
-      if (this.deps.speechIn.isListening) this.deps.speechIn.abort();
-    }
-    this.endHold(hold, IDLE);
-  }
-
-  private failHold(hold: Hold, code: SpeechInErrorCode): void {
-    if (this.hold !== hold) return;
-    this.deps.haptics.play('error');
-    this.endHold(hold, { phase: 'error', messageKey: speechInErrorKey(code) });
-  }
-
-  private endHold(hold: Hold, listen: ListenState): void {
-    if (this.hold === hold) this.hold = null;
-    if (!this.deps.speechIn.isListening) for (const unsub of hold.unsubs.splice(0)) unsub();
-    this.set({ listen });
-  }
-
-  private listenOptions(): ListenOptions {
-    const pack = this.deps.packs.lang;
-    const locales = recognitionLocales(pack.code, this.settings.regions, this.deps.deviceLocales ?? []);
-    return {
-      lang: locales[0] ?? pack.code,
-      langFallbacks: locales.slice(1),
-      onDevice: true,
-      interim: true,
-      continuous: true,
-      hints: hintsFor(pack, this.vm.screen),
-    };
+    return this.step(anyScreen, (session) => session.handleUtterance(u.text, at, u.info), { busy: true, at, credited: u.credited });
   }
 
   // ---------------------------------------------------------------------------
   // Speech out
   // ---------------------------------------------------------------------------
 
-  /** The voice for the target language: the first installed one in the learner's region order. */
-  private voice(): Promise<VoiceChoice> {
-    this.voicePick ??= (async (): Promise<VoiceChoice> => {
-      const pack = this.deps.packs.lang;
-      const wanted = recognitionLocales(pack.code, this.settings.regions, this.deps.deviceLocales ?? []);
-      try {
-        const voices = await this.deps.speechOut.voices(pack.code);
-        for (const lang of wanted) {
-          const v = voices.find((x) => normalizeLang(x.lang) === normalizeLang(lang));
-          if (v) return { lang: v.lang, voice: v.id };
-        }
-        const first = voices[0];
-        if (first) return { lang: first.lang, voice: first.id };
-      } catch {
-        // The platform default voice for the language.
-      }
-      return { lang: wanted[0] ?? pack.code };
-    })();
-    return this.voicePick;
-  }
-
   /** Play a cue (not awaited to the end): lights tiles, then reads options or reports played(). */
   private async play(cue: SpeakCue, opts: { hearIndex?: number } = {}): Promise<void> {
     if (this.disposed) return;
     if (cue.what !== 'word') this.lastCue = cue;
-    if (this.hold && this.hold.phase !== 'finishing') {
+    if (this.hold.holding) {
       // The learner is about to speak or speaking: do not talk over them; a no-sé answer still moves on.
       this.afterPlayed(cue, true, this.speakToken);
       return;
@@ -872,38 +628,30 @@ class StoryControllerImpl implements StoryControllerHandle {
       plan = planCue(pack, cue.text, sentenceOf(this.vm.screen)?.text ?? null, cue.what === 'answer' ? this.cliffWordIndex : 0);
     }
     if (this.vm.speakingWord !== null || this.vm.speakingOption !== null) this.set({ speakingWord: null, speakingOption: null });
-    const voice = await this.voice();
+    // The voice is picked once; once it is known, the cue starts on the next tick.
+    await this.speaker.voice();
     if (token !== this.speakToken || this.disposed) return;
-    this.speechPending += 1;
-    void this.deps.speechOut
-      .speak(cue.text, {
-        ...voice,
+    void this.speaker
+      .say(cue.text, {
         rate: cue.rate,
         words: plan.spans,
-        onWordBoundary: (b) => {
+        onWord: (b) => {
           if (token === this.speakToken) this.set({ speakingWord: plan.viewIndex[b.index] ?? null });
         },
       })
-      .then(
-        (result) => {
-          if (token !== this.speakToken) return;
-          this.set({ speakingWord: null });
-          this.afterPlayed(cue, result.completed, token);
-        },
-        (e: unknown) => {
-          this.report(e);
-          if (token !== this.speakToken) return;
-          this.set({ speakingWord: null });
+      .then((outcome) => {
+        if (token !== this.speakToken || this.disposed) return;
+        if (this.vm.speakingWord !== null) this.set({ speakingWord: null });
+        if (outcome === 'failed') {
           if (!this.speechOutNoticed) {
             this.speechOutNoticed = true;
             this.set({ notice: { key: tKey('story.notice.speechOut') } });
           }
           // The learner can read the answer: the no-sé flow still moves on.
           this.afterPlayed(cue, true, token, true);
-        },
-      )
-      .finally(() => {
-        this.speechPending -= 1;
+          return;
+        }
+        this.afterPlayed(cue, outcome === 'completed', token);
       });
   }
 
@@ -921,21 +669,14 @@ class StoryControllerImpl implements StoryControllerHandle {
 
   /** The options rung: each option spoken in turn, its chip lit (speakingOption). */
   private async readOptions(options: readonly { index: number; text: string }[], rate: number, token: number): Promise<void> {
-    const pack = this.deps.packs.lang;
-    this.speechPending += 1;
     try {
       for (const option of options) {
-        if (token !== this.speakToken || this.disposed) return;
+        if (token !== this.speakToken || this.disposed || this.hold.holding) return;
         this.set({ speakingOption: option.index });
-        const voice = await this.voice();
-        if (token !== this.speakToken) return;
-        const result = await this.deps.speechOut.speak(option.text, { ...voice, rate, words: wordSpansOf(pack, option.text) });
-        if (!result.completed) return;
+        const outcome = await this.speaker.say(option.text, { rate });
+        if (outcome !== 'completed') return;
       }
-    } catch (e) {
-      this.report(e);
     } finally {
-      this.speechPending -= 1;
       if (token === this.speakToken && this.vm.speakingOption !== null) this.set({ speakingOption: null });
     }
   }
@@ -944,6 +685,6 @@ class StoryControllerImpl implements StoryControllerHandle {
   private stopSpeaking(): void {
     this.speakToken += 1;
     if (this.vm.speakingWord !== null || this.vm.speakingOption !== null) this.set({ speakingWord: null, speakingOption: null });
-    if (this.speechPending > 0) void this.deps.speechOut.stop().catch((e: unknown) => this.report(e));
+    this.speaker.stop();
   }
 }

@@ -163,6 +163,11 @@ export interface LyricViewModel extends CommonViewState {
    * not scored (no model yet), the text is drawn unshaded.
    */
   surprise?: readonly SurpriseUnit[] | null;
+  /**
+   * Optional (added in the stage 3 review): the song's genre as its source gives it (Apple Music),
+   * for A3's "artist · genre · region" line. Absent or null: no genre shown.
+   */
+  genre?: string | null;
 }
 
 export interface LyricActions extends CommonActions {

@@ -18,7 +18,6 @@ import type { MusicAccess } from './SettingsView';
 
 export const ACCOUNT_FIXTURE_NAMES = [
   'onboarding-welcome',
-  'onboarding-reset',
   'onboarding-model',
   'onboarding-model-downloading',
   'onboarding-model-error',

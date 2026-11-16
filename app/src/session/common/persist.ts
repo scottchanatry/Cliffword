@@ -10,7 +10,7 @@
  * - Spoken time: the engine's creditedMs of the voiced time (typed answers earn none), to the
  *   local day of `at` (spoken_time).
  *
- * Same as the story controller's persist(); shared so both controllers write the same way.
+ * Used by both session controllers, so they write the same way.
  */
 import { localDay, type LearnerEvent, type LearnerModel } from '@cliffword/engine';
 import type { Clock } from '../../adapters/clock/types';

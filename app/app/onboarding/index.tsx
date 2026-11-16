@@ -24,7 +24,6 @@ export default function WelcomeScreen() {
     <WelcomeView
       language={languageName(t, pair.target)}
       sampleBefore={first && span ? first.text.slice(0, span.start) : null}
-      resetting={onboarding.settings.progressResetPending}
       saving={onboarding.saving}
       failed={onboarding.failed}
       onPlacement={() => void onboarding.chooseStart('placement')}

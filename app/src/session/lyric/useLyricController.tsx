@@ -12,6 +12,9 @@
  *   suspends it (speech and listening stop, the session is stored).
  * - A learner swapped in from elsewhere (placement on the Story tab) builds a new controller on
  *   it, which restores the stored session.
+ * - Every controller in use is registered with the app state (trackSession), so a reset of
+ *   progress disposes it without a write before the data is cleared; the new learner and
+ *   progressEpoch then build a fresh one.
  * - Before the controller exists, actions that do nothing.
  */
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from 'react';
@@ -121,7 +124,7 @@ export function useLyricController(target: LyricTarget | null, overrides: Partia
   const services = useServices();
   const appState = useAppState();
   const registry = useContext(RegistryContext);
-  const { storage, settings, learner } = appState;
+  const { storage, settings, learner, progressEpoch } = appState;
   const key = target ? targetKey(target) : null;
 
   const latest = useRef({ appState, target, overrides });
@@ -165,13 +168,15 @@ export function useLyricController(target: LyricTarget | null, overrides: Partia
       c = make();
       c.actions.start();
     }
+    const untrack = state.trackSession(c);
     setController(c);
     return () => {
       leaving = true;
+      untrack();
       if (registry) registry.release(c);
       else void c.suspend().finally(() => c.dispose());
     };
-  }, [key, services, storage, learner, registry]);
+  }, [key, services, storage, learner, registry, progressEpoch]);
 
   useEffect(() => {
     controller?.setAppSettings(settings);

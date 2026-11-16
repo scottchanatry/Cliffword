@@ -1,8 +1,8 @@
 /**
  * Profile, settings, licenses and the self-test through the real router and root layout: the
  * numbers from stored minutes and the learner, settings written and seen by the other tabs, the
- * model card, Apple Music, deleting lyrics and texts, reset progress (through onboarding's start
- * choice), and named 44 dp controls on every screen.
+ * model card, Apple Music, deleting lyrics and texts, reset progress (the story starts again,
+ * onboarding is not shown), and named 44 dp controls on every screen.
  */
 import path from 'path';
 import { StyleSheet } from 'react-native';
@@ -211,7 +211,7 @@ describe('settings', () => {
     expect(left.map((s) => s.id)).toContain('story-1');
   });
 
-  it('resets progress through the start choice: learner, sessions, stories and minutes go; settings, songs and the model stay', async () => {
+  it('resets progress: learner, sessions, stories and minutes go; settings, songs and the model stay; the story starts again', async () => {
     const services = install(createTestServices());
     const storage = await onboarded(services);
     await storage.settings.update({ register: 'street', regions: ['CU'] });
@@ -227,18 +227,17 @@ describe('settings', () => {
 
     await renderRouter(APP_DIR, { initialUrl: '/' });
     expect(await screen.findByTestId('story-screen')).toBeOnTheScreen();
+    expect(await screen.findByTestId('cliff-card')).toBeOnTheScreen();
     await fireEvent.press(screen.getByRole('button', { name: 'Open profile and settings' }));
     await fireEvent.press(await screen.findByRole('link', { name: 'Settings' }));
     await fireEvent.press(await screen.findByRole('button', { name: 'Reset progress' }));
     expect(await screen.findByText('Reset your progress?')).toBeOnTheScreen();
     await fireEvent.press(screen.getByTestId('confirm-sheet-confirm'));
 
-    // The tabs are gone (the story session let go); the start choice clears the progress.
-    expect(await screen.findByTestId('welcome-reset')).toBeOnTheScreen();
-    expect(screen).toHavePathname('/onboarding');
-    expect(await storage.settings.get('progressResetPending')).toBe(true);
-    await fireEvent.press(screen.getByRole('button', { name: 'I’m brand new' }));
-    expect(await screen.findByTestId('story-screen')).toBeOnTheScreen();
+    // Back on the Story tab (no onboarding), where the first story starts again.
+    await waitFor(() => expect(screen).toHavePathname('/'));
+    expect(screen.queryByTestId('onboarding-screen')).toBeNull();
+    expect(await screen.findByTestId('cliff-options')).toBeOnTheScreen();
 
     expect(await storage.learner.eventsForKey('es:mercado')).toEqual([]);
     expect(await storage.spokenTime.total()).toBe(0);
@@ -248,7 +247,6 @@ describe('settings', () => {
     expect(await storage.settings.getAll()).toMatchObject({
       onboarded: true,
       onboardingStep: 'done',
-      progressResetPending: false,
       register: 'street',
       regions: ['CU'],
       startLevel: 'brandNew',

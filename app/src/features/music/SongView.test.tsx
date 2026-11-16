@@ -45,7 +45,7 @@ describe('song page (A3)', () => {
   it('shows the song, its lines with slang underlined at the engine spans, and the notes', async () => {
     await renderSong(song('a3'));
     expect(screen.getByTestId('song-header-title')).toHaveTextContent('Luna de Santurce');
-    expect(screen.getByTestId('song-header-meta')).toHaveTextContent('Rayo K. · Puerto Rico');
+    expect(screen.getByTestId('song-header-meta')).toHaveTextContent('Rayo K. · reggaetón · Puerto Rico');
     expect(screen.getByText('From your library')).toBeOnTheScreen();
     // Line 2 is "el corillo ya 'tá listo pa' janguear.": corillo, 'tá, pa' and janguear are slang, "ya" and "listo" are not.
     for (const i of [1, 3, 5, 6]) expect(screen.getByTestId(`lyric-1-slang-${i}`)).toBeOnTheScreen();
@@ -182,7 +182,7 @@ describe('lyric cliff (C1)', () => {
 describe('result, no sé, answer in English, line, done', () => {
   it('shows where a scored answer landed, with the song word lit, and sings the line back', async () => {
     const { actions } = await renderSong(song('lyric-result-scored'));
-    expect(screen.getByTestId('result-headline')).toHaveTextContent('That’s exactly what the story said.');
+    expect(screen.getByTestId('result-headline')).toHaveTextContent('That’s exactly what the song says.');
     expect(screen.getByTestId('result-landing-line')).toBeOnTheScreen();
     expect(screen.getByTestId('result-notes')).toHaveTextContent('“mercado” is just as natural.');
     expect(screen.getByTestId('result-line-lit-5')).toHaveTextContent('sol');

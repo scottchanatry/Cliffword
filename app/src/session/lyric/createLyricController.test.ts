@@ -381,6 +381,7 @@ describe('playback', () => {
   it('timed mode: the track runs up to the cliff, pauses at pauseAtMs, and resumes only on the next action', async () => {
     const h = await setup({ song: 'apple', lyrics: LUNA_LRC });
     expect(h.controller.getSource()).toMatchObject({ status: 'ready', linked: true, genre: 'Reggaeton' });
+    expect(h.vm().genre).toBe('Reggaeton');
     expect(h.vm().playback).toMatchObject({ available: true, playing: false });
     await act(h, (c) => c.actions.next());
     const cliff = as(h.vm().screen, 'cliff');

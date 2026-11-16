@@ -168,7 +168,7 @@ export async function musicFixtures({ lang, pair, model }: MusicFixtureDeps): Pr
 
   // A3: the song page in street register (the model loaded), the track playing; and without a player, in canned mode.
   const page = session({ speaking: 0.1, register: 'street', model });
-  song.a3 = lyricViewModel(page.screen, { register: 'street' });
+  song.a3 = lyricViewModel(page.screen, { register: 'street', genre: 'reggaetón' });
   const street = session({ speaking: 0.1, register: 'street' });
   song['a3-manual'] = lyricViewModel(street.screen, { register: 'street', playback: NO_PLAYER });
   const clean = session({ speaking: 0.1, register: 'neutral', showExplicit: false });

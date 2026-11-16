@@ -1,0 +1,16 @@
+brandNew 0 29.19s IN T  {} La familia está en el restaurante.
+brandNew 1 39.2s IN -  {"repeat":1,"unnatural":1} El grupo está en el restaurante.
+brandNew 2 26.39s IN -  {"placeholder":1,"no_verb":1} El grupo toca la guitarra.
+brandNew 3 25.37s IN - retry {"repeat":5} El grupo toca en un concierto.
+brandNew 4 28.98s IN T  {"repeat":2} El grupo dice.
+brandNew 5 26.18s IN T  {} El grupo toca más.
+brandNew 6 19.3s IN T  {} El grupo hace más.
+brandNew 7 13.93s IN T  {"no_verb":4} El grupo puede hacer más.
+brandNew {"runs":8,"inBand":1,"ownInBand":0,"targetUse":0.63,"distinct":8,"noSentence":0,"chosenFailingNewRejects":0,"rejects":{"repeat":8,"unnatural":1,"placeholder":1,"no_verb":5},"meanSeconds":26.1,"medianSeconds":26.39,"maxSeconds":39.2,"meanGenerateCalls":1.13,"meanScoreCalls":2.5,"meanPromptTokens":200,"meanDecodeTokens":51}
+early 0 27.86s IN/own T  {} El viejo está en la casa.
+early 1 12.56s IN/own -  {"repeat":4} El hombre está en la casa.
+early 2 26.66s IN/own T  {} El hombre es el nacional.
+early 3 13.28s IN/own T  {"too_short":1} El hombre es el único.
+early 4 24.08s IN/own - retry {"repeat":6} El hombre es el día.
+early 5 13.65s IN/own T  {} El hombre es el claro.
+early 6 21.89s IN/own - retry {"repeat":5} El hombre es el año.

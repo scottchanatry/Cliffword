@@ -303,5 +303,8 @@ describe('next helpers', () => {
     const listed = { ...pack, frequencyList: ['el', 'mercado', 'casa', 'playa'] };
     expect(['casa', 'playa']).toContain(safeTagFor({ ...base, pack: listed, seed: 3, vocabulary: [] }));
     expect(safeTagFor({ ...base, seed: 0, vocabulary: ['mercado'] })).toBeUndefined();
+    // Nouns before other content words.
+    expect(safeTagFor({ ...base, seed: 0, vocabulary: ['comprar', 'casa'] })).toBe('casa');
+    expect(safeTagFor({ ...base, seed: 0, vocabulary: ['comprar'] })).toBe('comprar');
   });
 });

@@ -54,7 +54,9 @@ export {
   knownShareOf,
   packLeakPatterns,
   rankEvaluations,
+  repeatsItself,
   resolveSelectOptions,
+  sameOpening,
   selectSentence,
 } from './story/select';
 export type {

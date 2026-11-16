@@ -2,13 +2,13 @@ import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import type { LyricMeta } from '@cliffword/engine';
 import { CommandChips } from '../../components/voice/CommandChips';
+import { CliffGap } from '../../components/words/CliffGap';
 import { CHROME_MAX_SCALE } from '../../components/words/fontScale';
 import { useI18n, type Translator } from '../../i18n';
 import { useServices } from '../../services/ServicesProvider';
 import { borders, colors, radii, spacing } from '../../theme';
 import { Button, Text } from '../../ui';
 import { ExplicitPill } from './ExplicitPill';
-import { LyricGap } from './LyricGap';
 import { LyricLine } from './LyricLine';
 import { rawLineWords } from './lyricWords';
 import { ManualModeNote, NowPlayingBar } from './NowPlayingBar';
@@ -50,7 +50,7 @@ export function LyricCliffView({ screen, vm, actions, toggleListen, openTyping }
       <View style={styles.spacer} />
       <View style={styles.lines} testID="lyric-cliff-lines">
         {previous.length > 0 ? <LyricLine words={previous} look="musicPrev" testID="lyric-previous" /> : null}
-        <LyricLine words={before} look="music" after={<LyricGap words={screen.gapLength} />} testID="lyric-current" />
+        <LyricLine words={before} look="music" after={<CliffGap variant="song" words={screen.gapLength} testID="lyric-gap" />} testID="lyric-current" />
       </View>
       {screen.rung !== 'options' || options.length === 0 ? (
         <Text variant="body" tone="muted" maxFontSizeMultiplier={CHROME_MAX_SCALE} testID="lyric-rung">

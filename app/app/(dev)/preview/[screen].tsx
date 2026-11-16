@@ -1,22 +1,27 @@
+import type { ComponentType } from 'react';
 import { Redirect, useLocalSearchParams } from 'expo-router';
-import { isMusicFixtureName } from '../../../src/features/music/fixtures';
-import { MusicPreview } from '../../../src/features/music/MusicPreview';
-import { isAccountFixtureName } from '../../../src/features/profile/accountFixtures';
-import { AccountPreview } from '../../../src/features/profile/AccountPreview';
-import { StoryPreview } from '../../../src/features/story/StoryPreview';
 import { PREVIEW_ENABLED } from '../../../src/preview/enabled';
 
 /**
- * /preview/main, /preview/b1, ... (story) and /preview/a3, /preview/c1, /preview/c2, /preview/b4,
- * /preview/c3, /preview/paste, /preview/text, ... (music) and /preview/onboarding-welcome,
- * /preview/profile, /preview/settings, ... (onboarding and profile, ACCOUNT_FIXTURE_NAMES): one
- * fixture full screen, for screenshots (dev and preview exports only).
+ * The gallery (src/preview/Gallery.tsx), required only when previews are on. The condition is
+ * written out here rather than imported: in a store build `__DEV__` is false and
+ * EXPO_PUBLIC_PREVIEW is inlined as undefined, so constant folding removes the require before
+ * Metro collects dependencies, and no fixture or preview code reaches the bundle.
+ */
+const Gallery: ComponentType<{ name: string }> | null =
+  __DEV__ || process.env.EXPO_PUBLIC_PREVIEW === '1'
+    ? // eslint-disable-next-line @typescript-eslint/no-require-imports
+      (require('../../../src/preview/Gallery') as typeof import('../../../src/preview/Gallery')).PreviewGallery
+    : null;
+
+/**
+ * /preview/main, /preview/b1, ... (story), /preview/a3, /preview/c1, ... (music) and
+ * /preview/onboarding-welcome, /preview/profile, ... (onboarding and profile): one fixture full
+ * screen, for screenshots; any other name lists them all. Development builds and preview exports
+ * only (src/preview/enabled.ts); otherwise it redirects home.
  */
 export default function PreviewScreen() {
   const { screen } = useLocalSearchParams<{ screen: string }>();
-  if (!PREVIEW_ENABLED) return <Redirect href="/" />;
-  const name = String(screen ?? '');
-  if (isMusicFixtureName(name)) return <MusicPreview name={name} />;
-  if (isAccountFixtureName(name)) return <AccountPreview name={name} />;
-  return <StoryPreview name={name} />;
+  if (!PREVIEW_ENABLED || !Gallery) return <Redirect href="/" />;
+  return <Gallery name={String(screen ?? '')} />;
 }

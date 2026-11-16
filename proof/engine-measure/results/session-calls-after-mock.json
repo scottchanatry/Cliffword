@@ -1,12 +1,12 @@
 {
- "when": "2026-11-16T01:35:42.008Z",
+ "when": "2026-11-16T02:02:21.200Z",
  "mode": "after",
  "model": "mock",
  "sentences": 4,
  "load": [
-  8.36,
-  6.36,
-  6.25
+  8.49,
+  8.53,
+  7.96
  ],
  "cores": 4,
  "summary": {
@@ -23,8 +23,8 @@
     "generate": 2
    },
    "seconds": {
-    "mean": 0.249,
-    "max": 0.412
+    "mean": 0.245,
+    "max": 0.47
    }
   },
   "answer:alternative": {
@@ -40,8 +40,8 @@
     "generate": 0
    },
    "seconds": {
-    "mean": 0.008,
-    "max": 0.013
+    "mean": 0.005,
+    "max": 0.009
    }
   },
   "answer:wrong": {
@@ -58,7 +58,7 @@
    },
    "seconds": {
     "mean": 0.011,
-    "max": 0.016
+    "max": 0.019
    }
   },
   "answer:form": {
@@ -74,8 +74,8 @@
     "generate": 0
    },
    "seconds": {
-    "mean": 0.01,
-    "max": 0.018
+    "mean": 0.008,
+    "max": 0.011
    }
   },
   "answer:actual": {
@@ -125,8 +125,8 @@
     "generate": 0
    },
    "seconds": {
-    "mean": 0.049,
-    "max": 0.049
+    "mean": 0.044,
+    "max": 0.044
    }
   },
   "retell": {
@@ -159,8 +159,8 @@
     "generate": 0
    },
    "seconds": {
-    "mean": 0.096,
-    "max": 0.13
+    "mean": 0.101,
+    "max": 0.127
    }
   },
   "lyric answer:alternative": {
@@ -176,8 +176,8 @@
     "generate": 0
    },
    "seconds": {
-    "mean": 0.004,
-    "max": 0.008
+    "mean": 0.006,
+    "max": 0.009
    }
   },
   "lyric answer:wrong": {
@@ -193,8 +193,8 @@
     "generate": 0
    },
    "seconds": {
-    "mean": 0.009,
-    "max": 0.014
+    "mean": 0.011,
+    "max": 0.017
    }
   },
   "lyric answer:actual": {
@@ -210,7 +210,7 @@
     "generate": 0
    },
    "seconds": {
-    "mean": 0.002,
+    "mean": 0.003,
     "max": 0.006
    }
   },
@@ -227,7 +227,7 @@
     "generate": 0
    },
    "seconds": {
-    "mean": 0.002,
+    "mean": 0.001,
     "max": 0.003
    }
   }
@@ -241,8 +241,8 @@
     "generate": 2
    },
    "total": 53,
-   "ms": 412,
-   "modelMs": 107.8,
+   "ms": 470.3,
+   "modelMs": 122.2,
    "screen": "cliff",
    "hash": "10a4809db3bb"
   },
@@ -254,8 +254,8 @@
     "generate": 0
    },
    "total": 2,
-   "ms": 13,
-   "modelMs": 2.7,
+   "ms": 8.6,
+   "modelMs": 2.1,
    "screen": "landing",
    "hash": "d82aca62331a",
    "note": "madre partial plausible p=3.30e-1"
@@ -268,8 +268,8 @@
     "generate": 0
    },
    "total": 4,
-   "ms": 10,
-   "modelMs": 3.9,
+   "ms": 13.9,
+   "modelMs": 6.1,
    "screen": "landing",
    "hash": "53790d18028d",
    "note": "mesa none unlikely p=1.62e-3"
@@ -282,8 +282,8 @@
     "generate": 0
    },
    "total": 4,
-   "ms": 6.2,
-   "modelMs": 4.4,
+   "ms": 9.7,
+   "modelMs": 8.3,
    "screen": "landing",
    "hash": "e368ff33f742",
    "note": "madres partial form p=7.64e-9"
@@ -296,7 +296,7 @@
     "generate": 0
    },
    "total": 0,
-   "ms": 4.3,
+   "ms": 3.9,
    "modelMs": 0,
    "screen": "landing",
    "hash": "b7de441e88e2",
@@ -310,10 +310,10 @@
     "generate": 2
    },
    "total": 58,
-   "ms": 152.4,
-   "modelMs": 124.2,
+   "ms": 163.7,
+   "modelMs": 127,
    "screen": "cliff",
-   "hash": "a2ea5ba463f7"
+   "hash": "29874f86cc0c"
   },
   {
    "step": "answer:alternative",
@@ -323,10 +323,10 @@
     "generate": 0
    },
    "total": 0,
-   "ms": 2.4,
+   "ms": 1,
    "modelMs": 0,
    "screen": "landing",
-   "hash": "a46515985034",
+   "hash": "84415c81514c",
    "note": "la partial plausible p=2.25e-2"
   },
   {
@@ -337,10 +337,10 @@
     "generate": 0
    },
    "total": 2,
-   "ms": 6.1,
-   "modelMs": 3.5,
+   "ms": 3.9,
+   "modelMs": 2.9,
    "screen": "landing",
-   "hash": "843dba33b22c",
+   "hash": "b4ac2a0e4d3a",
    "note": "mesa partial plausible p=2.43e-3"
   },
   {
@@ -351,11 +351,11 @@
     "generate": 0
    },
    "total": 2,
-   "ms": 5.1,
-   "modelMs": 2.9,
+   "ms": 5,
+   "modelMs": 3.4,
    "screen": "landing",
-   "hash": "5f519b43dd2c",
-   "note": "tardes partial form p=1.15e-8"
+   "hash": "fa8d92a33d02",
+   "note": "frutas partial plausible p=2.44e-3"
   },
   {
    "step": "answer:actual",
@@ -368,8 +368,8 @@
    "ms": 0.4,
    "modelMs": 0,
    "screen": "landing",
-   "hash": "33c82e31c50a",
-   "note": "tarde full actual p=1.80e-1"
+   "hash": "9c5aa86c0d9a",
+   "note": "fruta full actual p=2.17e-1"
   },
   {
    "step": "next",
@@ -379,10 +379,10 @@
     "generate": 2
    },
    "total": 58,
-   "ms": 214.3,
-   "modelMs": 188.1,
+   "ms": 159.9,
+   "modelMs": 135.1,
    "screen": "cliff",
-   "hash": "da539bb3ef8c"
+   "hash": "5b8a5b454d26"
   },
   {
    "step": "answer:alternative",
@@ -392,10 +392,10 @@
     "generate": 0
    },
    "total": 2,
-   "ms": 9.1,
-   "modelMs": 5.8,
+   "ms": 4.4,
+   "modelMs": 3.4,
    "screen": "landing",
-   "hash": "17d3fb7bc1d3",
+   "hash": "93355db72b61",
    "note": "alta partial plausible p=1.79e-1"
   },
   {
@@ -406,10 +406,10 @@
     "generate": 0
    },
    "total": 4,
-   "ms": 16.4,
-   "modelMs": 13.4,
+   "ms": 8.1,
+   "modelMs": 7.1,
    "screen": "landing",
-   "hash": "8e5f0395fd1a",
+   "hash": "7aceb8b84c92",
    "note": "mesa none unlikely p=2.43e-3"
   },
   {
@@ -420,10 +420,10 @@
     "generate": 0
    },
    "total": 4,
-   "ms": 17.6,
-   "modelMs": 14.8,
+   "ms": 8,
+   "modelMs": 7.1,
    "screen": "landing",
-   "hash": "b5affff607c2",
+   "hash": "6b01e1755648",
    "note": "altas partial form p=5.14e-8"
   },
   {
@@ -434,10 +434,10 @@
     "generate": 0
    },
    "total": 0,
-   "ms": 0.4,
+   "ms": 0.3,
    "modelMs": 0,
    "screen": "landing",
-   "hash": "d16d42ef0c24",
+   "hash": "4540dc04c021",
    "note": "alta por full actual p=-"
   },
   {
@@ -448,10 +448,10 @@
     "generate": 2
    },
    "total": 59,
-   "ms": 216,
-   "modelMs": 199.9,
+   "ms": 184.8,
+   "modelMs": 164.8,
    "screen": "cliff",
-   "hash": "17c2570e9c74"
+   "hash": "1ebe4affbe8e"
   },
   {
    "step": "answer:alternative",
@@ -461,10 +461,10 @@
     "generate": 0
    },
    "total": 2,
-   "ms": 6.8,
-   "modelMs": 4.6,
+   "ms": 6,
+   "modelMs": 5,
    "screen": "landing",
-   "hash": "51fc88e54301",
+   "hash": "ce202536d4d9",
    "note": "tarde partial plausible p=3.13e-1"
   },
   {
@@ -475,10 +475,10 @@
     "generate": 0
    },
    "total": 4,
-   "ms": 13.2,
-   "modelMs": 11.6,
+   "ms": 18.6,
+   "modelMs": 17.7,
    "screen": "landing",
-   "hash": "2661fe749610",
+   "hash": "b7e1d7e9ff68",
    "note": "mesa none unlikely p=1.82e-3"
   },
   {
@@ -489,10 +489,10 @@
     "generate": 0
    },
    "total": 4,
-   "ms": 10.1,
-   "modelMs": 8.8,
+   "ms": 10.7,
+   "modelMs": 9.8,
    "screen": "landing",
-   "hash": "ad018e62d280",
+   "hash": "75c16e970822",
    "note": "tardes partial form p=8.60e-9"
   },
   {
@@ -503,10 +503,10 @@
     "generate": 0
    },
    "total": 0,
-   "ms": 0.2,
+   "ms": 0.3,
    "modelMs": 0,
    "screen": "landing",
-   "hash": "f54da7afccb0",
+   "hash": "6907a4411127",
    "note": "tarde al full actual p=-"
   },
   {
@@ -517,10 +517,10 @@
     "generate": 0
    },
    "total": 0,
-   "ms": 0.2,
+   "ms": 0.3,
    "modelMs": 0,
    "screen": "turn",
-   "hash": "858abc20a79f"
+   "hash": "295377b26f6f"
   },
   {
    "step": "turn",
@@ -530,8 +530,8 @@
     "generate": 0
    },
    "total": 10,
-   "ms": 48.8,
-   "modelMs": 41.1,
+   "ms": 43.8,
+   "modelMs": 34.5,
    "screen": "repair",
    "hash": "0c695c84c573"
   },
@@ -543,7 +543,7 @@
     "generate": 0
    },
    "total": 0,
-   "ms": 0.1,
+   "ms": 0.2,
    "modelMs": 0,
    "screen": "upNext",
    "hash": "2c6cd99a9ef5"
@@ -559,7 +559,7 @@
    "ms": 0.2,
    "modelMs": 0,
    "screen": "retell",
-   "hash": "917f4bc12dfc"
+   "hash": "63dee9f50963"
   },
   {
    "step": "retell",
@@ -569,10 +569,10 @@
     "generate": 0
    },
    "total": 0,
-   "ms": 1.1,
+   "ms": 1.3,
    "modelMs": 0,
    "screen": "retell",
-   "hash": "a7ebf3019d0b"
+   "hash": "718e29803569"
   },
   {
    "step": "lyric next",
@@ -582,8 +582,8 @@
     "generate": 0
    },
    "total": 33,
-   "ms": 66.3,
-   "modelMs": 300.8,
+   "ms": 72,
+   "modelMs": 67.6,
    "screen": "cliff",
    "hash": "f32d5f3406df"
   },
@@ -595,8 +595,8 @@
     "generate": 0
    },
    "total": 2,
-   "ms": 7.8,
-   "modelMs": 2.8,
+   "ms": 9.3,
+   "modelMs": 3,
    "screen": "result",
    "hash": "9a913a6f9036",
    "note": "a partial plausible p=2.78e-1"
@@ -609,8 +609,8 @@
     "generate": 0
    },
    "total": 4,
-   "ms": 7.4,
-   "modelMs": 6.2,
+   "ms": 12.8,
+   "modelMs": 11.3,
    "screen": "result",
    "hash": "3d0dda2ec66b",
    "note": "mesa none unlikely p=1.82e-3"
@@ -623,8 +623,8 @@
     "generate": 0
    },
    "total": 2,
-   "ms": 3.3,
-   "modelMs": 3,
+   "ms": 3.9,
+   "modelMs": 3.2,
    "screen": "result",
    "hash": "5fc17297eaa8",
    "note": "a bailar full actual p=2.54e-4"
@@ -637,7 +637,7 @@
     "generate": 0
    },
    "total": 0,
-   "ms": 1.8,
+   "ms": 1.6,
    "modelMs": 0,
    "screen": "echo",
    "hash": "1c5e7433144d"
@@ -650,8 +650,8 @@
     "generate": 0
    },
    "total": 50,
-   "ms": 129.7,
-   "modelMs": 662.4,
+   "ms": 126.6,
+   "modelMs": 122,
    "screen": "cliff",
    "hash": "3cc07de907bd"
   },
@@ -663,8 +663,8 @@
     "generate": 0
    },
    "total": 2,
-   "ms": 4.8,
-   "modelMs": 3.9,
+   "ms": 8.8,
+   "modelMs": 4.8,
    "screen": "result",
    "hash": "476a22ac0fef",
    "note": "la partial plausible p=3.00e-2"
@@ -677,8 +677,8 @@
     "generate": 0
    },
    "total": 4,
-   "ms": 10.5,
-   "modelMs": 9.3,
+   "ms": 16.5,
+   "modelMs": 11.4,
    "screen": "result",
    "hash": "18afee75b463",
    "note": "mesa partial plausible p=3.24e-3"
@@ -691,8 +691,8 @@
     "generate": 0
    },
    "total": 2,
-   "ms": 5.8,
-   "modelMs": 5.3,
+   "ms": 6.4,
+   "modelMs": 5.7,
    "screen": "result",
    "hash": "b3a1f5cdeef0",
    "note": "la fiesta full actual p=3.54e-10"
@@ -705,7 +705,7 @@
     "generate": 0
    },
    "total": 0,
-   "ms": 2.9,
+   "ms": 3.2,
    "modelMs": 0,
    "screen": "echo",
    "hash": "a1bbdfd0cb22"
@@ -718,8 +718,8 @@
     "generate": 0
    },
    "total": 34,
-   "ms": 95.8,
-   "modelMs": 444,
+   "ms": 112.2,
+   "modelMs": 109,
    "screen": "cliff",
    "hash": "db46c9351275"
   },
@@ -731,7 +731,7 @@
     "generate": 0
    },
    "total": 0,
-   "ms": 0.8,
+   "ms": 0.7,
    "modelMs": 0,
    "screen": "result",
    "hash": "da2b757858b6",
@@ -745,7 +745,7 @@
     "generate": 0
    },
    "total": 0,
-   "ms": 4.4,
+   "ms": 0.6,
    "modelMs": 0,
    "screen": "result",
    "hash": "91dfab829ae1",
@@ -759,7 +759,7 @@
     "generate": 0
    },
    "total": 0,
-   "ms": 0.5,
+   "ms": 0.4,
    "modelMs": 0,
    "screen": "result",
    "hash": "be4ddeace67b",
@@ -773,7 +773,7 @@
     "generate": 0
    },
    "total": 0,
-   "ms": 0.8,
+   "ms": 0.6,
    "modelMs": 0,
    "screen": "echo",
    "hash": "68f9ef45134a"
@@ -786,8 +786,8 @@
     "generate": 0
    },
    "total": 38,
-   "ms": 90.3,
-   "modelMs": 421.8,
+   "ms": 94.3,
+   "modelMs": 90.7,
    "screen": "cliff",
    "hash": "5d6ba137bc06"
   },
@@ -799,8 +799,8 @@
     "generate": 0
    },
    "total": 17,
-   "ms": 14.2,
-   "modelMs": 49.6,
+   "ms": 14.8,
+   "modelMs": 9.7,
    "screen": "result",
    "hash": "edc241764542",
    "note": "mesa partial plausible p=2.43e-3"
@@ -813,7 +813,7 @@
     "generate": 0
    },
    "total": 0,
-   "ms": 0.2,
+   "ms": 0.3,
    "modelMs": 0,
    "screen": "result",
    "hash": "bb1697874006",
@@ -827,7 +827,7 @@
     "generate": 0
    },
    "total": 0,
-   "ms": 0.8,
+   "ms": 0.5,
    "modelMs": 0,
    "screen": "echo",
    "hash": "aaa12e9b75f5"

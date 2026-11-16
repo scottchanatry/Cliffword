@@ -3,8 +3,7 @@
  * overlap, and its sync ones are not busy-safe. A busy job counts from the moment it is queued
  * until it ends, so the view shows a calm waiting state while model calls run.
  *
- * Shared by the session controllers (src/session/lyric; the story controller can adopt it: it
- * is the same queue as StoryControllerImpl.enqueue).
+ * Shared by the session controllers (src/session/story, src/session/lyric).
  */
 export interface SerialQueueOptions {
   /** Called when the busy count goes from 0 to more, or back to 0. */

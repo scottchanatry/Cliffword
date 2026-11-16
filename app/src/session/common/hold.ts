@@ -13,8 +13,8 @@
  * - Errors publish { phase: 'error', messageKey: speechInErrorKey(code) }; a recognizer that ends
  *   with nothing is 'no-speech'.
  *
- * This is the hold plumbing of StoryControllerImpl (src/session/story), lifted out unchanged in
- * behaviour so both controllers can use it.
+ * Used by both session controllers (src/session/story, src/session/lyric) and onboarding's
+ * hold practice.
  */
 import type { Haptics } from '../../adapters/haptics/types';
 import type { Unsubscribe } from '../../adapters/listeners';

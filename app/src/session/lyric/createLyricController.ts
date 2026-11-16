@@ -222,6 +222,7 @@ class LyricControllerImpl implements LyricControllerHandle {
       speechOut: deps.speechOut,
       pack: deps.packs.lang,
       regions: () => this.settings.regions,
+      voiceId: () => this.settings.voiceId,
       ...(deps.deviceLocales ? { deviceLocales: deps.deviceLocales } : {}),
       onError: (e) => this.report(e),
     });
@@ -237,7 +238,9 @@ class LyricControllerImpl implements LyricControllerHandle {
         await this.track?.pauseIfPlaying();
       },
       listenOptions: () =>
-        listenOptionsFor(deps.packs.lang, this.settings.regions, deps.deviceLocales ?? [], lyricHintWords(deps.packs.lang, this.vm.screen)),
+        listenOptionsFor(deps.packs.lang, this.settings.regions, deps.deviceLocales ?? [], lyricHintWords(deps.packs.lang, this.vm.screen), {
+          allowNetwork: this.settings.allowNetworkRecognition,
+        }),
       onFinal: (t) => this.submit(t),
       onError: (e) => this.report(e),
     });
@@ -348,7 +351,7 @@ class LyricControllerImpl implements LyricControllerHandle {
     if (this.disposed) return;
     const before = this.settings;
     this.settings = settings;
-    if (before.regions.join() !== settings.regions.join()) this.speaker.resetVoice();
+    if (before.regions.join() !== settings.regions.join() || before.voiceId !== settings.voiceId) this.speaker.resetVoice();
     const patch: Partial<LyricViewModel> = {};
     if (this.vm.showExplicit !== settings.showExplicit) patch.showExplicit = settings.showExplicit;
     if ((this.vm.regions ?? []).join() !== settings.regions.join()) patch.regions = settings.regions;
@@ -553,6 +556,7 @@ class LyricControllerImpl implements LyricControllerHandle {
       this.track = track;
     }
     this.setSource(load.state);
+    if ((this.vm.genre ?? null) !== loaded.genre) this.set({ genre: loaded.genre });
     this.refreshPlayback();
     const want = sessionSettingsFor(this.settings);
     if (!sameSessionSettings(session.settings, want)) {

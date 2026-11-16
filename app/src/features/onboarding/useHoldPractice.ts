@@ -76,7 +76,7 @@ export class PracticeSession {
       listenOptions: () => {
         const s = deps.settings();
         const phrases = PRACTICE_COMMANDS.flatMap((c) => deps.pack.commands?.find((e) => e.command === c)?.phrases ?? []);
-        return { ...listenOptionsFor(deps.pack, s.regions, [], phrases), onDevice: !s.allowNetworkRecognition };
+        return listenOptionsFor(deps.pack, s.regions, [], phrases, { allowNetwork: s.allowNetworkRecognition });
       },
     });
     this.actions = {

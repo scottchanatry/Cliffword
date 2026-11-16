@@ -442,8 +442,11 @@ fallback.
   aliases of the Spanish data; `DEFAULT_LEAK_PATTERNS` and `DEFAULT_EXTRACT_OPTIONS` now
   hold only the model's own English meta talk, and `extractOptionsFor(pack)` adds the
   pack's labels. `buildContinuationPrompt` without pack wording has no instruction lines.
-- `RejectCode` gained placeholder, list, heading, bare_quote, meta, foreign, no_verb and
-  too_short; `Selection.rejectCounts`; `SelectContext.names` (characters are names at a
+- `RejectCode` gained placeholder, list, heading, bare_quote, meta, foreign, no_verb,
+  too_short and unnatural (a scored candidate below `naturalFloor`, mean log-probability
+  per token); repeat also covers a short sentence that repeats a content word of its own
+  (`repeatsItself`), a candidate holding a recent sentence whole, and one that opens with
+  the same three words as one of the last two sentences (`sameOpening`); `Selection.rejectCounts`; `SelectContext.names` (characters are names at a
   sentence start too) and `familiar` (counted at least `familiarCredit`); selection takes
   `{ text, raw, natural }` candidates; `ScoreParts` gained novelty, continuity, natural;
   the band term carries `outOfBandPenalty` so any in-band candidate comes first.

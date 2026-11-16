@@ -8,7 +8,7 @@ import type { ListenState } from '../contract';
 import { HoldToSpeak, LISTEN_IDLE } from './hold';
 import { listenOptionsFor } from './listen';
 import { SerialQueue } from './queue';
-import { Speaker } from './speaker';
+import { Speaker, VOICE_LIST_TIMEOUT_MS } from './speaker';
 import { typedTranscript, utteranceOf } from './utterance';
 
 const { lang } = defaultPacks();
@@ -56,6 +56,39 @@ describe('Speaker', () => {
     expect(await second).toBe('completed');
     s.stop();
     expect(s.speaking).toBe(false);
+  });
+});
+
+describe('voice and listen settings', () => {
+  it("uses the learner's chosen voice when it is installed, else picks by region", async () => {
+    const speechOut = new FakeSpeechOut();
+    let chosen: string | null = 'fake.es-MX';
+    const s = new Speaker({ speechOut, pack: lang, regions: () => ['PR'], voiceId: () => chosen });
+    expect(await s.voice()).toEqual({ lang: 'es-MX', voice: 'fake.es-MX' });
+    chosen = 'not-installed';
+    s.resetVoice();
+    expect(await s.voice()).toEqual({ lang: 'es-PR', voice: 'fake.es-PR' });
+  });
+
+  it('falls back to the platform default voice when the voice list never comes (a browser without voices)', async () => {
+    jest.useFakeTimers();
+    try {
+      const speechOut = new FakeSpeechOut();
+      speechOut.voices = () => new Promise(() => undefined);
+      const s = new Speaker({ speechOut, pack: lang, regions: () => ['PR'] });
+      const pick = s.voice();
+      await jest.advanceTimersByTimeAsync(VOICE_LIST_TIMEOUT_MS);
+      expect(await pick).toEqual({ lang: 'es-PR' });
+      expect(jest.getTimerCount()).toBe(0);
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('listens on the device unless network recognition is allowed', () => {
+    expect(listenOptionsFor(lang, ['PR'], [], []).onDevice).toBe(true);
+    expect(listenOptionsFor(lang, ['PR'], [], [], { allowNetwork: false }).onDevice).toBe(true);
+    expect(listenOptionsFor(lang, ['PR'], [], [], { allowNetwork: true }).onDevice).toBe(false);
   });
 });
 

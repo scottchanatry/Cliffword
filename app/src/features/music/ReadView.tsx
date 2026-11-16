@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import type { LyricLineView } from '@cliffword/engine';
 import { MicGlyph } from '../../components/voice/MicGlyph';
@@ -25,7 +26,7 @@ export function ReadView({ screen, vm, actions, nav }: LyricKindProps<'read'>) {
   const region = mainRegion(screen.notes);
   return (
     <>
-      <SongHeader meta={screen.meta} region={region} eyebrow={t('music.fromLibrary')} busy={vm.busy} />
+      <SongHeader meta={screen.meta} region={region} genre={vm.genre ?? null} eyebrow={t('music.fromLibrary')} busy={vm.busy} />
       {vm.modelMode === 'canned' ? <CannedNote /> : null}
       {screen.lines.length === 0 ? (
         <EmptyLines />
@@ -57,8 +58,14 @@ export function ReadFooter({ vm, actions }: Pick<LyricKindProps<'read'>, 'vm' | 
   );
 }
 
-/** One line of the song page: tap it to open it (play it, or show it in manual mode). */
-export function SongLine({ line, onOpen }: { line: LyricLineView; onOpen: (index: number) => void }) {
+/**
+ * One line of the song page: tap it to open it (play it, or show it in manual mode). Memoized:
+ * the page re-renders with the player's position while the track plays; a line only changes
+ * with its own data.
+ */
+export const SongLine = memo(SongLineView);
+
+function SongLineView({ line, onOpen }: { line: LyricLineView; onOpen: (index: number) => void }) {
   const { t } = useI18n();
   const { packs } = useServices();
   const words = lineViewWords(packs.lang, line);

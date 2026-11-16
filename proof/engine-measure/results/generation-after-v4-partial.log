@@ -1,0 +1,23 @@
+brandNew 0 24.49s IN T  {} La familia está en el restaurante.
+brandNew 1 37.94s IN -  {"repeat":1,"unnatural":1} El grupo está en el restaurante.
+brandNew 2 30.45s IN -  {"placeholder":1,"no_verb":1} El grupo toca la guitarra.
+brandNew 3 36.85s IN - retry {"repeat":5} Importante es el concierto.
+brandNew 4 45.21s out T retry {"repeat":1} Marta dice que el concierto es muy importante.
+brandNew 5 20.3s IN -  {"repeat":4,"too_long":1} El grupo está en el parque.
+brandNew 6 28.39s IN T  {} El grupo está haciendo un concierto.
+brandNew 7 29.3s IN T  {"repeat":2} El grupo necesita poder.
+brandNew {"runs":8,"inBand":0.88,"ownInBand":0,"targetUse":0.5,"distinct":8,"noSentence":0,"chosenFailingNewRejects":0,"rejects":{"repeat":13,"unnatural":1,"placeholder":1,"no_verb":1,"too_long":1},"meanSeconds":31.6,"medianSeconds":30.45,"maxSeconds":45.21,"meanGenerateCalls":1.25,"meanScoreCalls":2.63,"meanPromptTokens":226,"meanDecodeTokens":66}
+early 0 29.38s IN/own T  {} El viejo está en la casa.
+early 1 15.06s IN/own -  {"repeat":4} El hombre está en la casa.
+early 2 37.14s IN/own T  {} El hombre es el nacional.
+early 3 9.32s IN/own T  {"too_short":1} El hombre es el único.
+early 4 28.23s IN/own - retry {"repeat":6} El hombre es la vez.
+early 5 20.83s IN/own T  {} El hombre es claro.
+early 6 36.67s IN/own - retry {"repeat":5} El hombre es estar.
+early 7 24.76s IN/own - retry {"repeat":5} El hombre es saber.
+early {"runs":8,"inBand":1,"ownInBand":1,"targetUse":0.5,"distinct":8,"noSentence":0,"chosenFailingNewRejects":0,"rejects":{"repeat":20,"too_short":1},"meanSeconds":25.2,"medianSeconds":28.23,"maxSeconds":37.14,"meanGenerateCalls":1.38,"meanScoreCalls":1.5,"meanPromptTokens":205,"meanDecodeTokens":47}
+reader 0 26.5s IN/own T  {"too_short":2} Yo, el otro día, ayudé a un hombre a encontrar un trabajo.
+reader 1 41.9s IN/own T  {} También, en la tienda de ropa, ayudé a un cliente a elegir un vestido.
+reader 2 29.68s IN/own -  {} También, en un parque, ayudé a un niño a caminar.
+reader 3 27.24s IN/own T  {} También, en el año 2003, ayudé a un hombre a encontrar un trabajo.
+reader 4 24.44s IN/own -  {"too_short":2,"repeat":1} Puedo ayudarte a encontrar trabajo o a elegir ropa.

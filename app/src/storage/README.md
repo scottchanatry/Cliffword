@@ -29,6 +29,7 @@ await storage.learner.record(learner, events); // apply + log, in step
 | `schema.ts` | `MIGRATIONS`, the versioned schema. |
 | `migrate.ts` | `migrate(db, migrations)` with `PRAGMA user_version`. |
 | `repos/*.ts` | One repository per area (below). |
+| `progress.ts` | Settings' data actions, one transaction each: `clearProgress` (learner events and snapshots, every session, stories, minutes spoken) and `deleteLyricsAndTexts`. Reset progress calls `clearProgress` through `AppState.resetProgress`, which stops the live session controllers first. |
 | `StorageProvider.tsx` | `StorageProvider` and `useStorage()`. `AppBootstrap` (src/bootstrap) puts the opened storage here. |
 | `testing/` | Test-only helpers: `openTestStorage()`, `openTestDatabase({ to })`, `createTestClock()`, a fake expo-sqlite connection over sql.js, and the shared driver contract suite. Never imported by app code. |
 
@@ -95,7 +96,7 @@ fallback (null, or the setting's default), never as a crash.
 
 | Repository | Calls |
 |---|---|
-| `settings` | `get(key)`, `getAll()`, `set(key, value)`, `update(patch)`, `reset(key?)`. Defaults: register `neutral`, regions `['PR','CARIB']`, showExplicit `true`, textMode `auto` (`text`/`tiles` force), nativeLanguage `en`, targetLanguage `es`, onboarded `false`, startLevel `brandNew` (`placement` after "I know some"; picks the learner prior), speechRateBias `0` (clamped to ±0.5), nativeAnswersAllowed `true`. Invalid writes throw `InvalidSettingError`; invalid stored values read as the default. |
+| `settings` | `get(key)`, `getAll()`, `set(key, value)`, `update(patch)`, `reset(key?)`. Defaults: register `neutral`, regions `['PR','CARIB']`, showExplicit `true`, textMode `auto` (`text`/`tiles` force), nativeLanguage `en`, targetLanguage `es`, onboarded `false`, startLevel `brandNew` (`placement` after "I know some"; picks the learner prior), speechRateBias `0` (clamped to ±0.5), nativeAnswersAllowed `true`, onboardingStep `welcome` (`model`, `voice`, `slang`, `done`: where onboarding resumes), voiceId `null` (a SpeechOut voice id), modelDeclined `false`, allowNetworkRecognition `false` (on-device recognition only), progressResetPending `false` (no longer written; reset progress runs at once through `AppState.resetProgress`). Invalid writes throw `InvalidSettingError`; invalid stored values read as the default. |
 | `learner` | `appendEvents(events)`, `record(learner, events)`, `eventsSince(afterId?, limit?)`, `eventsForKey(key)`, `countEvents()`, `saveSnapshot(learner, at, { keep, prior })` (keeps 3 by default; `prior` is the engine's PriorSpec, kept from the newest row when omitted), `latestPrior()`, `latestSnapshot()`, `loadLearner({ prior, params?, evidence? })`. |
 | `sessions` | `save({ id?, kind, version, snapshot, active? })` (active by default; deactivates the others of its kind), `get(id)`, `active(kind)`, `list({ kind?, limit? })`, `deactivate(id)`, `remove(id)`. |
 | `stories` | `create`, `get`, `list` (newest first), `rename`, `remove` (with sentences), `appendSentence(storyId, text, data)`, `putSentence(storyId, idx, text, data)`, `sentences(storyId)`, `truncate(storyId, fromIdx)`. |

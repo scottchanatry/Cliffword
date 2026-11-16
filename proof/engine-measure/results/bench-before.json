@@ -1,0 +1,213 @@
+{
+ "when": "2026-11-16T02:01:31.107Z",
+ "mode": "before",
+ "node": "v22.23.4",
+ "load": [
+  7.88,
+  8.47,
+  7.9
+ ],
+ "cores": 4,
+ "results": [
+  {
+   "name": "pack.analyze, 40 sentence words (warm)",
+   "perStep": true,
+   "medianMs": 0.224,
+   "meanMs": 0.414,
+   "maxMs": 4.922,
+   "n": 40
+  },
+  {
+   "name": "pack.analyze, first use on a new pack (cold)",
+   "perStep": false,
+   "medianMs": 9.207,
+   "meanMs": 9.15,
+   "maxMs": 11.376,
+   "n": 5
+  },
+  {
+   "name": "createDefaultSpanishPack()",
+   "perStep": false,
+   "medianMs": 0.143,
+   "meanMs": 0.157,
+   "maxMs": 0.206,
+   "n": 5
+  },
+  {
+   "name": "pack.segment, 8 sentences",
+   "perStep": true,
+   "medianMs": 0.053,
+   "meanMs": 0.141,
+   "maxMs": 3.486,
+   "n": 40
+  },
+  {
+   "name": "pack.inflect, 40 analyses",
+   "perStep": true,
+   "medianMs": 0.611,
+   "meanMs": 1.126,
+   "maxMs": 5.581,
+   "n": 40
+  },
+  {
+   "name": "generateVariants, 8 sentences",
+   "perStep": true,
+   "medianMs": 3.604,
+   "meanMs": 6.013,
+   "maxMs": 34.176,
+   "n": 40
+  },
+  {
+   "name": "judgeSentence (mock), 1 sentence",
+   "perStep": true,
+   "medianMs": 4.417,
+   "meanMs": 7.446,
+   "maxMs": 19.027,
+   "n": 40
+  },
+  {
+   "name": "scoreWords (mock), 1 sentence",
+   "perStep": true,
+   "medianMs": 0.846,
+   "meanMs": 0.968,
+   "maxMs": 4.823,
+   "n": 40
+  },
+  {
+   "name": "slangIn + scoringContext (street), 1 sentence",
+   "perStep": true,
+   "medianMs": 0.101,
+   "meanMs": 0.124,
+   "maxMs": 0.379,
+   "n": 40
+  },
+  {
+   "name": "findSlangMatches, 8 sentences",
+   "perStep": true,
+   "medianMs": 1.053,
+   "meanMs": 1.434,
+   "maxMs": 5.415,
+   "n": 40
+  },
+  {
+   "name": "sentenceWords, 8 sentences",
+   "perStep": true,
+   "medianMs": 4.418,
+   "meanMs": 5.314,
+   "maxMs": 8.817,
+   "n": 40
+  },
+  {
+   "name": "buildSentenceView, 8 sentences",
+   "perStep": true,
+   "medianMs": 0.22,
+   "meanMs": 0.353,
+   "maxMs": 4.446,
+   "n": 40
+  },
+  {
+   "name": "estimateVocabulary (frequency list)",
+   "perStep": true,
+   "medianMs": 0.437,
+   "meanMs": 0.709,
+   "maxMs": 4.813,
+   "n": 40
+  },
+  {
+   "name": "frequencyLexemeKeys(pack)",
+   "perStep": true,
+   "medianMs": 0.064,
+   "meanMs": 0.069,
+   "maxMs": 0.129,
+   "n": 40
+  },
+  {
+   "name": "chooseTargets",
+   "perStep": true,
+   "medianMs": 0.343,
+   "meanMs": 0.453,
+   "maxMs": 5.114,
+   "n": 40
+  },
+  {
+   "name": "parseLyrics, 35 source lines",
+   "perStep": false,
+   "medianMs": 0.389,
+   "meanMs": 0.503,
+   "maxMs": 5.231,
+   "n": 40
+  },
+  {
+   "name": "StorySession canned: next + answer",
+   "perStep": true,
+   "medianMs": 1.447,
+   "meanMs": 2.267,
+   "maxMs": 6.678,
+   "n": 20
+  },
+  {
+   "name": "StorySession mock: next + answer",
+   "perStep": true,
+   "medianMs": 97.669,
+   "meanMs": 87.97,
+   "maxMs": 116.555,
+   "n": 10
+  },
+  {
+   "name": "instant model: StorySession next (sentence)",
+   "perStep": true,
+   "medianMs": 11.612,
+   "meanMs": 12.186,
+   "maxMs": 28.971,
+   "n": 36
+  },
+  {
+   "name": "instant model: StorySession tapWord",
+   "perStep": true,
+   "medianMs": 0.037,
+   "meanMs": 0.039,
+   "maxMs": 0.066,
+   "n": 18
+  },
+  {
+   "name": "instant model: StorySession answer",
+   "perStep": true,
+   "medianMs": 1.375,
+   "meanMs": 1.95,
+   "maxMs": 8.828,
+   "n": 36
+  },
+  {
+   "name": "instant model: StorySession next (chapter end)",
+   "perStep": true,
+   "medianMs": 0.078,
+   "meanMs": 0.525,
+   "maxMs": 4.097,
+   "n": 18
+  },
+  {
+   "name": "instant model: StorySession learner turn",
+   "perStep": true,
+   "medianMs": 0.875,
+   "meanMs": 0.89,
+   "maxMs": 1.2,
+   "n": 18
+  },
+  {
+   "name": "instant model: LyricSession next + answer",
+   "perStep": true,
+   "medianMs": 37.243,
+   "meanMs": 37.272,
+   "maxMs": 47.022,
+   "n": 20
+  },
+  {
+   "name": "LyricSession mock: next + answer",
+   "perStep": true,
+   "medianMs": 72.87,
+   "meanMs": 75.021,
+   "maxMs": 89.521,
+   "n": 10
+  }
+ ]
+}

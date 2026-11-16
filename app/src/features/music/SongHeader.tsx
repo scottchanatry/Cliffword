@@ -1,7 +1,7 @@
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import type { LyricMeta } from '@cliffword/engine';
 import { CHROME_MAX_SCALE, CONTENT_MAX_SCALE } from '../../components/words/fontScale';
-import { useI18n } from '../../i18n';
+import { useI18n, type Translator } from '../../i18n';
 import { colors, spacing } from '../../theme';
 import { MusicHeading, Text } from '../../ui';
 import { regionLabel } from './regionNames';
@@ -10,6 +10,8 @@ export interface SongHeaderProps {
   meta: LyricMeta;
   /** Where most of the song's slang is heard (region code), or null. */
   region?: string | null;
+  /** The song's genre (A3: "artist · genre · region"), or null. */
+  genre?: string | null;
   /** The eyebrow above the title ("From your library"); none when omitted. */
   eyebrow?: string;
   /** Replaces the artist line ("Rayo K. · playing in Apple Music"). */
@@ -20,11 +22,17 @@ export interface SongHeaderProps {
   testID?: string;
 }
 
+/** "Rayo K. · reggaetón · Puerto Rico", or as many of the three as there are. */
+function songMetaLine(t: Translator['t'], artist: string, genre: string, region: string): string {
+  if (artist && genre && region) return t('music.songMetaGenre', { artist, genre, region });
+  const parts = [artist, genre, region].filter((p) => p.length > 0);
+  return parts.length > 1 ? t('music.songMeta', { artist: parts[0] ?? '', region: parts[1] ?? '' }) : (parts[0] ?? '');
+}
+
 /** "Luna de Santurce" in Newsreader with "Rayo K. · Puerto Rico" under it (A3, B4). */
-export function SongHeader({ meta, region = null, eyebrow, subtitle, size = 'page', busy = false, testID = 'song-header' }: SongHeaderProps) {
+export function SongHeader({ meta, region = null, genre = null, eyebrow, subtitle, size = 'page', busy = false, testID = 'song-header' }: SongHeaderProps) {
   const { t } = useI18n();
-  const parts = [meta.artist.trim(), region ? regionLabel(t, region) : ''].filter((p) => p.length > 0);
-  const line = subtitle ?? (parts.length > 1 ? t('music.songMeta', { artist: parts[0] ?? '', region: parts[1] ?? '' }) : parts[0] ?? '');
+  const line = subtitle ?? songMetaLine(t, meta.artist.trim(), genre?.trim() ?? '', region ? regionLabel(t, region) : '');
   const title = meta.title.trim() || t(meta.source === 'text' ? 'text.untitled' : 'music.untitled');
   return (
     <View style={styles.box} testID={testID}>

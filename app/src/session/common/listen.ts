@@ -1,6 +1,7 @@
 /**
- * Listen options for hold to speak: on-device recognition in the pack's locale for the
- * learner's regions (recognitionLocales: PR, DO and CU prefer es-US), interim results,
+ * Listen options for hold to speak: recognition in the pack's locale for the learner's regions
+ * (recognitionLocales: PR, DO and CU prefer es-US), on the device unless the learner allowed
+ * network recognition (settings.allowNetworkRecognition, off by default), interim results,
  * continuous until release, and the screen's words plus the pack's spoken commands as hints.
  */
 import type { LanguagePack } from '@cliffword/engine';
@@ -27,12 +28,13 @@ export function listenOptionsFor(
   regions: readonly string[],
   deviceLocales: readonly string[],
   words: readonly (string | null | undefined)[],
+  opts: { allowNetwork?: boolean } = {},
 ): ListenOptions {
   const locales = recognitionLocales(pack.code, regions, deviceLocales);
   return {
     lang: locales[0] ?? pack.code,
     langFallbacks: locales.slice(1),
-    onDevice: true,
+    onDevice: opts.allowNetwork !== true,
     interim: true,
     continuous: true,
     hints: withCommandHints(pack, words),

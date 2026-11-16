@@ -11,7 +11,7 @@
  * - voice (B1, mostly tiles): one block of tiles per sentence, oldest lightest; shown words
  *   are ink chips; the cliff is the dashed orange tile; words not heard yet are dashed outlines.
  */
-import type { ReactNode } from 'react';
+import { memo, type ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { leadAfter, type SentenceView, type ViewWord } from '@cliffword/engine';
 import { spacing } from '../../theme';
@@ -58,7 +58,33 @@ export interface WordFlowProps {
   testID?: string;
 }
 
-export function WordFlow({ sentence, previous = [], look, speakingWord = null, highlight = null, onHear, onReveal, testID = 'word-flow' }: WordFlowProps) {
+const NO_SENTENCES: readonly SentenceView[] = [];
+
+/**
+ * Same drawing for the same props. The screens re-render many times a second while the learner
+ * speaks (listen level and partial); the passage only changes with its sentence, look, spoken
+ * word or highlight, so it skips those renders. Arrays and spans compare by content.
+ */
+export function sameWordFlowProps(a: WordFlowProps, b: WordFlowProps): boolean {
+  const pa = a.previous ?? NO_SENTENCES;
+  const pb = b.previous ?? NO_SENTENCES;
+  return (
+    a.sentence === b.sentence &&
+    a.look === b.look &&
+    (a.speakingWord ?? null) === (b.speakingWord ?? null) &&
+    (a.highlight?.wordIndex ?? -1) === (b.highlight?.wordIndex ?? -1) &&
+    (a.highlight?.length ?? 0) === (b.highlight?.length ?? 0) &&
+    a.onHear === b.onHear &&
+    a.onReveal === b.onReveal &&
+    a.testID === b.testID &&
+    pa.length === pb.length &&
+    pa.every((sentence, i) => sentence === pb[i])
+  );
+}
+
+export const WordFlow = memo(WordFlowView, sameWordFlowProps);
+
+function WordFlowView({ sentence, previous = NO_SENTENCES, look, speakingWord = null, highlight = null, onHear, onReveal, testID = 'word-flow' }: WordFlowProps) {
   const earlier = previous.slice(-2);
   if (look === 'voice') {
     return (

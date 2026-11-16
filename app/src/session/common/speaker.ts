@@ -4,12 +4,11 @@
  * spans. A newer say() or stop() supersedes the one before (its token goes stale), so a
  * controller never acts on a cue the learner already moved past.
  *
- * Same behaviour as the story controller's voice() / play() / stopSpeaking() plumbing, shared so
- * both controllers can use it.
+ * Used by both session controllers (src/session/story, src/session/lyric).
  */
 import type { LanguagePack } from '@cliffword/engine';
 import { recognitionLocales } from '../../adapters/speechIn/locales';
-import type { SpeechOut, WordBoundary, WordSpan } from '../../adapters/speechOut/types';
+import type { SpeechOut, Voice, WordBoundary, WordSpan } from '../../adapters/speechOut/types';
 import { normalizeLang } from '../../adapters/speechOut/voices';
 
 export interface VoiceChoice {
@@ -25,6 +24,38 @@ export function wordSpansOf(pack: Pick<LanguagePack, 'segment'>, text: string): 
     .map((s) => ({ text: s.text, start: s.start, end: s.end }));
 }
 
+/**
+ * How long the installed-voice list may take. A browser without speech voices never answers
+ * (expo-speech on the web waits for 'voiceschanged'); after this the platform default voice for
+ * the language is used, so a cue never blocks the session queue.
+ */
+export const VOICE_LIST_TIMEOUT_MS = 1500;
+
+/** The voice list, or null when it did not come within VOICE_LIST_TIMEOUT_MS (the timer is always cleared). */
+async function voicesWithin(speechOut: SpeechOut, lang: string, ms: number): Promise<Voice[] | null> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const late = new Promise<null>((resolve) => {
+    timer = setTimeout(() => resolve(null), ms);
+  });
+  try {
+    return await Promise.race([speechOut.voices(lang), late]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+/**
+ * The installed voices for a language, or none when the platform does not answer within
+ * VOICE_LIST_TIMEOUT_MS or fails (the voice pickers of onboarding and Settings use it too).
+ */
+export async function installedVoices(speechOut: SpeechOut, lang: string): Promise<Voice[]> {
+  try {
+    return (await voicesWithin(speechOut, lang, VOICE_LIST_TIMEOUT_MS)) ?? [];
+  } catch {
+    return [];
+  }
+}
+
 /** completed: played to the end; stopped: superseded or stopped; failed: the voice could not play. */
 export type SayOutcome = 'completed' | 'stopped' | 'failed';
 
@@ -33,6 +64,8 @@ export interface SpeakerDeps {
   pack: Pick<LanguagePack, 'code' | 'segment'>;
   /** The learner's slang regions (settings.regions), for the voice's locale order. */
   regions: () => readonly string[];
+  /** The voice the learner chose (settings.voiceId); null or not installed: picked by region. */
+  voiceId?: () => string | null;
   deviceLocales?: readonly string[];
   onError?: (error: unknown) => void;
 }
@@ -49,18 +82,26 @@ export class Speaker {
     return this.pending > 0;
   }
 
-  /** The regions changed: pick the voice again at the next say(). */
+  /** The regions or the chosen voice changed: pick the voice again at the next say(). */
   resetVoice(): void {
     this.pick = null;
   }
 
-  /** The voice for the target language: the first installed one in the learner's region order. */
+  /**
+   * The voice for the target language: the learner's chosen one (settings.voiceId) when it is
+   * installed, else the first installed one in the learner's region order ("Automatic", the
+   * same pick as useVoices' autoVoice). Without an answer from the platform in
+   * VOICE_LIST_TIMEOUT_MS: the platform default for the first locale.
+   */
   voice(): Promise<VoiceChoice> {
     this.pick ??= (async (): Promise<VoiceChoice> => {
       const { pack, speechOut } = this.deps;
       const wanted = recognitionLocales(pack.code, this.deps.regions(), this.deps.deviceLocales ?? []);
       try {
-        const voices = await speechOut.voices(pack.code);
+        const voices = (await voicesWithin(speechOut, pack.code, VOICE_LIST_TIMEOUT_MS)) ?? [];
+        const chosenId = this.deps.voiceId?.() ?? null;
+        const chosen = chosenId ? voices.find((x) => x.id === chosenId) : undefined;
+        if (chosen) return { lang: chosen.lang, voice: chosen.id };
         for (const lang of wanted) {
           const v = voices.find((x) => normalizeLang(x.lang) === normalizeLang(lang));
           if (v) return { lang: v.lang, voice: v.id };

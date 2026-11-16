@@ -1,5 +1,5 @@
 import type { LandingPoint } from '@cliffword/engine';
-import { placePoints, spreadPositions } from './LandingLine';
+import { labelCenter, placePoints, spreadPositions } from './LandingLine';
 
 const point = (text: string, x: number, answer = false): LandingPoint => ({ text, prob: x, x, answer, actual: false });
 
@@ -25,5 +25,14 @@ describe('landing line layout', () => {
     const labelled = placed.filter((p) => p.slot !== null && p.slot !== 'answer');
     expect(labelled.length).toBeLessThan(4);
     expect(new Set(placed.map((p) => Math.round(p.left * 342))).size).toBe(5);
+  });
+
+  it('keeps a label near either end inside the line', () => {
+    // "janguear" over a dot 21 dp from the right edge of a 342 dp line: moved in to fit.
+    const center = labelCenter(321, 'janguear', true, 342);
+    expect(center + (8 * 10 + 8) / 2).toBeLessThanOrEqual(342);
+    expect(labelCenter(4, 'leer', false, 342)).toBeGreaterThanOrEqual((4 * 7.5 + 8) / 2);
+    // A label with room stays over its dot.
+    expect(labelCenter(171, 'leer', false, 342)).toBe(171);
   });
 });

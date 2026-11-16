@@ -60,8 +60,8 @@ export interface AppSettings {
    */
   allowNetworkRecognition: boolean;
   /**
-   * "Reset progress" was confirmed: onboarding's start choice clears the learner, sessions,
-   * stories and minutes spoken (src/features/profile/progress.ts), then finishes onboarding.
+   * No longer written: reset progress now runs at once (AppState.resetProgress). Kept so a
+   * stored value still reads and validates.
    */
   progressResetPending: boolean;
 }

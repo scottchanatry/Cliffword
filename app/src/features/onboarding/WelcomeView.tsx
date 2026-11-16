@@ -3,7 +3,7 @@ import { CliffGap } from '../../components/words/CliffGap';
 import { CHROME_MAX_SCALE, CONTENT_MAX_SCALE } from '../../components/words/fontScale';
 import { useI18n } from '../../i18n';
 import { spacing } from '../../theme';
-import { Button, Card, ContentText, InterfaceText, Screen } from '../../ui';
+import { Button, ContentText, InterfaceText, Screen } from '../../ui';
 import { StepHeader } from './StepHeader';
 
 export interface WelcomeViewProps {
@@ -14,8 +14,6 @@ export interface WelcomeViewProps {
    * the ink gap as a taste of the app; null when the pair has no starter.
    */
   sampleBefore: string | null;
-  /** Progress was reset in Settings: this choice starts over. */
-  resetting: boolean;
   saving: boolean;
   failed: boolean;
   /** "Start the first story": placement (the first story finds the level). */
@@ -25,7 +23,7 @@ export interface WelcomeViewProps {
 }
 
 /** Welcome: what Cliffword does, and how to start (placement is the first story; no test). */
-export function WelcomeView({ language, sampleBefore, resetting, saving, failed, onPlacement, onBrandNew }: WelcomeViewProps) {
+export function WelcomeView({ language, sampleBefore, saving, failed, onPlacement, onBrandNew }: WelcomeViewProps) {
   const { t } = useI18n();
   return (
     <Screen scroll edges={['top', 'left', 'right', 'bottom']} contentStyle={styles.content} testID="onboarding-screen">
@@ -49,13 +47,6 @@ export function WelcomeView({ language, sampleBefore, resetting, saving, failed,
       <InterfaceText tone="muted" maxFontSizeMultiplier={CHROME_MAX_SCALE}>
         {t('onboarding.body')}
       </InterfaceText>
-      {resetting ? (
-        <Card tone="soft" testID="welcome-reset">
-          <InterfaceText variant="body" maxFontSizeMultiplier={CHROME_MAX_SCALE}>
-            {t('onboarding.reset')}
-          </InterfaceText>
-        </Card>
-      ) : null}
       <View style={styles.spacer} />
       {failed ? (
         <InterfaceText tone="accent" accessibilityRole="alert" accessibilityLiveRegion="polite" maxFontSizeMultiplier={CHROME_MAX_SCALE}>

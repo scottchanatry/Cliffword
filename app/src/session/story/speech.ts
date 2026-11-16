@@ -6,14 +6,11 @@
  */
 import type { LanguagePack, SentenceView, SpeakCue, StoryScreen } from '@cliffword/engine';
 import type { WordSpan } from '../../adapters/speechOut/types';
+import { withCommandHints } from '../common/listen';
+import { wordSpansOf } from '../common/speaker';
 
-/** The word and number segments of a text as spans, in order. */
-export function wordSpansOf(pack: Pick<LanguagePack, 'segment'>, text: string): WordSpan[] {
-  return pack
-    .segment(text)
-    .filter((s) => s.kind === 'word' || s.kind === 'number')
-    .map((s) => ({ text: s.text, start: s.start, end: s.end }));
-}
+/** The word and number segments of a text as spans, in order (src/session/common/speaker.ts). */
+export { wordSpansOf };
 
 /** The words to pass to SpeechOut for a cue, and the ViewWord index each one speaks (or null). */
 export interface CuePlan {
@@ -100,28 +97,28 @@ export function cueForScreen(pack: Pick<LanguagePack, 'segment'>, screen: StoryS
   }
 }
 
-/** At most this many recognizer hints (iOS contextual strings are meant to be a short list). */
-export const MAX_HINTS = 100;
+/**
+ * Words and phrases the recognizer should expect on this screen, before the pack's commands:
+ * the visible words of the sentence, the options, the answer or target to repeat, the
+ * character's question, the expected repair or register answer.
+ */
+export function storyHintWords(pack: Pick<LanguagePack, 'segment'>, screen: StoryScreen | null): (string | null | undefined)[] {
+  const out: (string | null | undefined)[] = [];
+  const sentence = sentenceOf(screen);
+  for (const w of sentence?.words ?? []) if (w.display !== 'masked') out.push(w.text);
+  if (screen?.kind === 'cliff') for (const o of screen.cliff.options ?? []) out.push(o.text);
+  if (screen?.kind === 'noSe') out.push(screen.answer);
+  if (screen?.kind === 'nativeReply') out.push(screen.target);
+  if (screen?.kind === 'turn' || screen?.kind === 'repair') for (const w of wordSpansOf(pack, screen.prompt.line)) out.push(w.text);
+  if (screen?.kind === 'repair') out.push(screen.expected);
+  if (screen?.kind === 'register') out.push(screen.task.expected);
+  return out;
+}
 
 /**
- * Words and phrases the recognizer should expect on this screen: the visible words of the
- * sentence, the options, the answer or target to repeat, the character's question, and the
- * spoken commands of the pack.
+ * The recognizer hints of a screen: its words (storyHintWords) and the pack's spoken commands,
+ * without repeats, capped at MAX_HINTS (src/session/common/listen.ts).
  */
 export function hintsFor(pack: Pick<LanguagePack, 'segment' | 'commands'>, screen: StoryScreen | null): string[] {
-  const out: string[] = [];
-  const add = (text: string | null | undefined) => {
-    const t = text?.trim();
-    if (t && !out.includes(t)) out.push(t);
-  };
-  const sentence = sentenceOf(screen);
-  for (const w of sentence?.words ?? []) if (w.display !== 'masked') add(w.text);
-  if (screen?.kind === 'cliff') for (const o of screen.cliff.options ?? []) add(o.text);
-  if (screen?.kind === 'noSe') add(screen.answer);
-  if (screen?.kind === 'nativeReply') add(screen.target);
-  if (screen?.kind === 'turn' || screen?.kind === 'repair') for (const w of wordSpansOf(pack, screen.prompt.line)) add(w.text);
-  if (screen?.kind === 'repair') add(screen.expected);
-  if (screen?.kind === 'register') add(screen.task.expected);
-  for (const entry of pack.commands ?? []) for (const phrase of entry.phrases) add(phrase);
-  return out.slice(0, MAX_HINTS);
+  return withCommandHints(pack, storyHintWords(pack, screen));
 }

@@ -7,17 +7,12 @@
  * onboarding opens; the welcome screen forwards to it once, and going back to the welcome screen
  * later stays there.
  *
- * Reset progress (Settings) arrives here with settings.progressResetPending: the start choice then
- * clears the progress (src/features/profile/progress.ts), builds a new learner with the chosen
- * prior and finishes onboarding at once (model, voice and slang were set up before).
+ * Reset progress (Settings) does not come back here: AppState.resetProgress restarts the story.
  */
 import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
 import { usePathname, useRouter } from 'expo-router';
 import { useAppState } from '../../appState/AppStateProvider';
-import { learnerPrior } from '../../learner/prior';
-import { useServices } from '../../services/ServicesProvider';
 import type { AppSettings, StartLevel } from '../../storage/repos/settings';
-import { clearProgress } from '../profile/progress';
 import { nextStep, previousStep, resumeRoute, STEP_ROUTES, type OnboardingScreenStep } from './flow';
 
 /** The stored step's route when onboarding opened, until a step screen opened. */
@@ -56,8 +51,7 @@ export interface Onboarding {
 
 export function useOnboarding(): Onboarding {
   const router = useRouter();
-  const { settings, updateSettings, storage, replaceLearner } = useAppState();
-  const { packs } = useServices();
+  const { settings, updateSettings } = useAppState();
   const [saving, setSaving] = useState(false);
   const [failed, setFailed] = useState(false);
 
@@ -92,18 +86,7 @@ export function useOnboarding(): Onboarding {
     [store, updateSettings, router],
   );
 
-  const chooseStart = useCallback(
-    (startLevel: StartLevel) => {
-      if (!settings.progressResetPending) return advance('welcome', { startLevel });
-      return store(async () => {
-        await clearProgress(storage);
-        const { learner } = await storage.learner.loadLearner({ prior: learnerPrior(packs, startLevel, null) });
-        replaceLearner(learner);
-        await updateSettings({ startLevel, progressResetPending: false, onboardingStep: 'done', onboarded: true });
-      });
-    },
-    [settings.progressResetPending, advance, store, storage, packs, replaceLearner, updateSettings],
-  );
+  const chooseStart = useCallback((startLevel: StartLevel) => advance('welcome', { startLevel }), [advance]);
 
   const back = useCallback(
     (from: OnboardingScreenStep) => {

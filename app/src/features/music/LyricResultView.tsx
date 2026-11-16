@@ -3,7 +3,7 @@ import { locateAnswer, looseText, type UiText } from '@cliffword/engine';
 import { CommandChips } from '../../components/voice/CommandChips';
 import { MicGlyph } from '../../components/voice/MicGlyph';
 import { CHROME_MAX_SCALE, CONTENT_MAX_SCALE } from '../../components/words/fontScale';
-import { useI18n } from '../../i18n';
+import { tKey, useI18n } from '../../i18n';
 import { useServices } from '../../services/ServicesProvider';
 import { spacing } from '../../theme';
 import { Button, Text } from '../../ui';
@@ -13,6 +13,14 @@ import { LyricLine } from './LyricLine';
 import { rawLineWords } from './lyricWords';
 import { SongHeader } from './SongHeader';
 import type { LyricKindProps } from './viewTypes';
+
+/**
+ * The engine's landing headlines speak of the story ("That's exactly what the story said."); on
+ * a song the exact match says so of the song instead. Other headlines fit both.
+ */
+export function songHeadlineKey(key: string): string {
+  return key === 'landing.actual' ? tKey('music.result.actual') : key;
+}
 
 /**
  * Where a lyric answer landed (the story's landing look, B2): the line with the song's own
@@ -44,7 +52,7 @@ export function LyricResultView({ screen, vm, actions }: LyricKindProps<'result'
         </Text>
       ) : null}
       <Text variant="headline" accessibilityRole="header" maxFontSizeMultiplier={CONTENT_MAX_SCALE} testID="result-headline">
-        {t(outcome.headline.key, outcome.headline.params)}
+        {t(songHeadlineKey(outcome.headline.key), outcome.headline.params)}
       </Text>
       {outcome.points.length > 0 ? <LandingLine points={outcome.points} testID="result-landing-line" /> : null}
       {notes.length > 0 || outcome.bounded ? (

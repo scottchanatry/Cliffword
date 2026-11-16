@@ -313,9 +313,10 @@ export function vocabularyFor(v: VocabularyInput): string[] {
 }
 
 /**
- * The safe round's tag: a content word the learner knows (from `vocabulary`, else the
- * known content words of the frequency list) that the recent story does not use, picked
- * by `seed` among the first `pool`; undefined when there is none.
+ * The safe round's tag: a noun the learner knows (from `vocabulary`, else the known
+ * content words of the frequency list; another content word only when no noun is left)
+ * that the recent story does not use, picked by `seed` among the first `pool`; undefined
+ * when there is none.
  */
 export function safeTagFor(i: {
   pack: LanguagePack;
@@ -341,8 +342,13 @@ export function safeTagFor(i: {
   }
   const words = i.vocabulary.length
     ? i.vocabulary
-    : vocabularyFor({ pack, learner: i.learner, now: i.now, story: [], knownAt: i.knownAt, max: i.pool ?? 30, exclude: i.exclude });
-  const fresh = words.filter((w) => !used.has(pack.normalize(w))).slice(0, i.pool ?? 30);
+    : vocabularyFor({ pack, learner: i.learner, now: i.now, story: [], knownAt: i.knownAt, max: 4 * (i.pool ?? 30), exclude: i.exclude });
+  const unused = words.filter((w) => !used.has(pack.normalize(w)));
+  // Nouns first: a verb, adverb or adjective as the tag of a locked story gave "El hombre
+  // es estar." and "El hombre es la vez." (fluent to the model, -2.1 to -2.8 nats per
+  // token, so the natural floor keeps them); a noun gave "El hombre está en la casa.".
+  const nouns = unused.filter((w) => pack.analyze(pack.normalize(w))[0]?.pos === 'NOUN');
+  const fresh = (nouns.length ? nouns : unused).slice(0, i.pool ?? 30);
   if (!fresh.length) return undefined;
   return fresh[(((i.seed % fresh.length) + fresh.length) % fresh.length)];
 }

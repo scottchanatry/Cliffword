@@ -2,14 +2,14 @@
  * The story voice: the installed voices for the target language (the ones in the learner's
  * region order first, enhanced before default, at most MAX_VOICES plus the chosen one), and a
  * sample read with a voice: the first sentence of the pair's starter story (target-language
- * content), at the learner's speech speed. A sample stops when the screen goes away.
+ * content), at the learner's speech speed. A sample still playing stops when the screen goes away.
  */
 import { useEffect, useRef, useState } from 'react';
 import type { Voice } from '../../adapters/speechOut/types';
 import { normalizeLang } from '../../adapters/speechOut/voices';
 import { recognitionLocales } from '../../adapters/speechIn/locales';
 import { useAppState } from '../../appState/AppStateProvider';
-import { wordSpansOf } from '../../session/common/speaker';
+import { installedVoices, wordSpansOf } from '../../session/common/speaker';
 import { useServices } from '../../services/ServicesProvider';
 
 /** Voices listed before "more" would be needed: phones carry many novelty voices. */
@@ -57,26 +57,24 @@ export function useVoices(): VoicesView {
   const [all, setAll] = useState<Voice[] | null>(null);
   const [playing, setPlaying] = useState(false);
   const live = useRef(true);
+  /** A sample of ours is playing (the screen stops only its own sample when it goes away). */
+  const sampling = useRef(false);
   const wanted = recognitionLocales(packs.lang.code, settings.regions);
 
   useEffect(() => {
     live.current = true;
     return () => {
       live.current = false;
-      void speechOut.stop().catch(() => undefined);
+      if (sampling.current) void speechOut.stop().catch(() => undefined);
     };
   }, [speechOut]);
 
   useEffect(() => {
     let current = true;
-    speechOut.voices(packs.lang.code).then(
-      (list) => {
-        if (current) setAll(list);
-      },
-      () => {
-        if (current) setAll([]);
-      },
-    );
+    // Bounded: a browser without speech voices never answers (then the list is empty).
+    void installedVoices(speechOut, packs.lang.code).then((list) => {
+      if (current) setAll(list);
+    });
     return () => {
       current = false;
     };
@@ -89,6 +87,7 @@ export function useVoices(): VoicesView {
     if (!sample) return;
     const chosen = (voiceId ? all?.find((v) => v.id === voiceId) : null) ?? autoVoice(all ?? [], wanted);
     setPlaying(true);
+    sampling.current = true;
     speechOut
       .speak(sample, {
         lang: chosen?.lang ?? wanted[0] ?? packs.lang.code,
@@ -98,6 +97,7 @@ export function useVoices(): VoicesView {
       })
       .catch(() => undefined)
       .finally(() => {
+        sampling.current = false;
         if (live.current) setPlaying(false);
       });
   };

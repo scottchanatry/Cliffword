@@ -22,9 +22,18 @@ export interface PlacedPoint {
   slot: Slot | 'answer' | null;
 }
 
-/** Rough label width in dp (Inter 14 / Newsreader 20), for collision checks only. */
+/** Rough label width in dp (Inter 14 / Newsreader 20), for collision checks and edge clamping. */
 function labelWidth(text: string, answer: boolean): number {
   return text.length * (answer ? 10 : 7.5) + 8;
+}
+
+/**
+ * Where a label's center goes (dp): over its dot, moved in just enough that the label stays
+ * inside the line's width (a dot near either end keeps its label on screen).
+ */
+export function labelCenter(dot: number, text: string, answer: boolean, width: number): number {
+  const half = Math.min(labelWidth(text, answer), width) / 2;
+  return Math.min(Math.max(dot, half), width - half);
 }
 
 /** Dots closer than this (dp) are nudged apart, keeping their order. */
@@ -111,7 +120,7 @@ export function LandingLine({ points, testID = 'landing-line' }: { points: reado
           <View key={`${point.text}-${point.answer}`} style={StyleSheet.absoluteFill} pointerEvents="none" testID={`landing-point-${point.text}`}>
             <View style={[point.answer ? styles.answerDot : styles.dot, { left: pct }]} />
             {slot ? (
-              <View style={[styles.labelBox, { left: pct, top: slot === 'answer' ? 10 : SLOT_TOP[slot] }]}>
+              <View style={[styles.labelBox, { left: labelCenter(left * width, point.text, point.answer, width), top: slot === 'answer' ? 10 : SLOT_TOP[slot] }]}>
                 <Text
                   style={point.answer ? styles.answerLabel : styles.label}
                   numberOfLines={1}

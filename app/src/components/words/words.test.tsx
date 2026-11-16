@@ -156,6 +156,9 @@ describe('tiles and chips', () => {
   it('shows the gloss chip with the first sense', async () => {
     expect(firstSense('stall, post, position')).toBe('stall');
     expect(firstSense('late; afternoon')).toBe('late');
+    expect(firstSense('to be (identity, origin, time)')).toBe('to be');
+    expect(firstSense('(slang) dude, buddy')).toBe('(slang) dude');
+    expect(firstSense('(slang)')).toBe('(slang)');
     await renderWithProviders(<GlossChip word="puesto" gloss="stall, post, position" />);
     expect(screen.getByText('puesto · stall · new for you')).toBeOnTheScreen();
   });

@@ -5,6 +5,7 @@ import {
   generateNextSentence,
   knownLexemeCount,
   maxTokensFor,
+  safeTagFor,
   storyNames,
   targetWordsFromKeys,
   vocabularyFor,
@@ -267,5 +268,18 @@ describe('next helpers', () => {
   it('knownLexemeCount counts frequency-list lexemes at the threshold', () => {
     const p = { ...pack, frequencyList: ['el', 'casa', 'perro'] };
     expect(knownLexemeCount(p, stubLearner({ 'es:el': 0.95, 'es:casa': 0.9 }, 0), 0, 0.9)).toBe(2);
+  });
+
+  it('safeTagFor picks a known content word the recent story has not used, by seed', () => {
+    const learner = stubLearner({ 'es:mercado': 0.97, 'es:casa': 0.97, 'es:playa': 0.97 }, 0);
+    const base = { pack, learner, now: 0, story: ['Marta llegó tarde al mercado.'], knownAt: 0.9 };
+    const vocabulary = ['mercado', 'casa', 'playa'];
+    expect(safeTagFor({ ...base, seed: 0, vocabulary })).toBe('casa');
+    expect(safeTagFor({ ...base, seed: 1, vocabulary })).toBe('playa');
+    expect(safeTagFor({ ...base, seed: 7, vocabulary })).toBe(safeTagFor({ ...base, seed: 7, vocabulary }));
+    // Without a vocabulary line: the known content words of the frequency list.
+    const listed = { ...pack, frequencyList: ['el', 'mercado', 'casa', 'playa'] };
+    expect(['casa', 'playa']).toContain(safeTagFor({ ...base, pack: listed, seed: 3, vocabulary: [] }));
+    expect(safeTagFor({ ...base, seed: 0, vocabulary: ['mercado'] })).toBeUndefined();
   });
 });

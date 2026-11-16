@@ -97,6 +97,7 @@ export {
   generateNextSentence,
   knownLexemeCount,
   maxTokensFor,
+  safeTagFor,
   storyNames,
   targetWordsFromKeys,
   vocabularyFor,

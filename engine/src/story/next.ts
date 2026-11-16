@@ -21,9 +21,14 @@
  *    continuity, length, unknown words), with the raw completion for the placeholder,
  *    list and heading checks.
  * 5. Round 2 (safe): when no accepted candidate is inside the band and retry is on, the
- *    same prompt prefix ends with a safe tag instead (the caller's safeTag, else the main
- *    character, else the last line's tag), `retryN` completions with seeds seed + n ...,
- *    at retryTemperature. Selection runs over both rounds together.
+ *    same prompt prefix ends with a safe tag instead (safeTagFor: the caller's safeTag,
+ *    else a content word the learner knows that the recent story has not used, picked by
+ *    the seed, else the main character), `retryN` completions with seeds seed + n ...,
+ *    at retryTemperature. Selection runs over both rounds together. Measured on
+ *    Qwen3-1.7B: a running story locks into one pattern ("El X está en la casa."), every
+ *    candidate becomes a near repeat, and a safe round tagged with the main character at
+ *    a lower temperature repeated it again (2 of 8 early steps and 3 of 8 heritage steps
+ *    ended with no sentence); a fresh known word moves the story on.
  * 6. Natural score: the `naturalTop` best accepted candidates (distinct texts) are scored
  *    by the model after the story (scoringContext) and their log-probability per word
  *    enters the selection score (SelectOptions.naturalWeight); 0 turns it off.
@@ -97,7 +102,9 @@ export interface NextSentenceTuning {
  * Defaults, measured on Qwen3-1.7B through proof/model_server.py (proof/ENGINE_REAL_MODEL.md,
  * "Story generation at every level"):
  * - n 5, retryN 4: with 5 candidates at least one landed in the band in most steps for
- *   every simulated learner; the safe round rescues most of the rest.
+ *   every simulated learner; the safe round rescues most of the rest. retryTemperature 1:
+ *   the safe round runs when the first one gave repeats or out-of-band words, and a
+ *   hotter round with a fresh known word as its tag breaks the repeats (see step 5).
  * - temperature 0.9: at 0.8 the beginner prompts repeated one sentence in up to 6 of 12
  *   candidates; a little more temperature spreads them, and llama.cpp's min-p filter
  *   (applied before the temperature) keeps out the unlikely tokens. Judgement.
@@ -114,7 +121,7 @@ export const DEFAULT_NEXT_SENTENCE_TUNING: Readonly<NextSentenceTuning> = {
   n: 5,
   retryN: 4,
   temperature: 0.9,
-  retryTemperature: 0.7,
+  retryTemperature: 1,
   retry: true,
   stop: ['. ', '? ', '! ', '\n'],
   tokensPerWord: 2,
@@ -297,6 +304,41 @@ export function vocabularyFor(v: VocabularyInput): string[] {
   return out;
 }
 
+/**
+ * The safe round's tag: a content word the learner knows (from `vocabulary`, else the
+ * known content words of the frequency list) that the recent story does not use, picked
+ * by `seed` among the first `pool`; undefined when there is none.
+ */
+export function safeTagFor(i: {
+  pack: LanguagePack;
+  learner: LearnerView;
+  now: number;
+  seed: number;
+  story: readonly string[];
+  vocabulary: readonly string[];
+  knownAt: number;
+  exclude?: readonly string[];
+  pool?: number;
+}): string | undefined {
+  const { pack } = i;
+  const used = new Set<string>();
+  for (const s of i.story) {
+    for (const seg of pack.segment(s)) {
+      if (seg.kind !== 'word') continue;
+      const norm = seg.norm || pack.normalize(seg.text);
+      used.add(norm);
+      const a = pack.analyze(norm)[0];
+      if (a) used.add(pack.normalize(a.lemma));
+    }
+  }
+  const words = i.vocabulary.length
+    ? i.vocabulary
+    : vocabularyFor({ pack, learner: i.learner, now: i.now, story: [], knownAt: i.knownAt, max: i.pool ?? 30, exclude: i.exclude });
+  const fresh = words.filter((w) => !used.has(pack.normalize(w))).slice(0, i.pool ?? 30);
+  if (!fresh.length) return undefined;
+  return fresh[(((i.seed % fresh.length) + fresh.length) % fresh.length)];
+}
+
 /** Lexemes of the pack's frequency list the learner knows at `knownAt` or above. */
 export function knownLexemeCount(pack: LanguagePack, learner: LearnerView, now: number, knownAt: number): number {
   let n = 0;
@@ -410,7 +452,10 @@ export async function generateNextSentence(
   let retried = false;
   if (t.retry && wholeAtLeast(t.retryN, 0) > 0 && !selection.ranked.some((e) => e.accepted && e.inBand)) {
     retried = true;
-    const safe = opts.safeTag ?? names[0] ?? lines[lines.length - 1]?.tag ?? tagFor(pack, texts[texts.length - 1] ?? '', names);
+    const safe = opts.safeTag ?? safeTagFor({
+      pack, learner, now: opts.now, seed: opts.seed, story: texts.slice(-t.contextSentences), vocabulary,
+      knownAt: t.vocabularyKnownAt, exclude: opts.targets,
+    }) ?? names[0] ?? lines[lines.length - 1]?.tag ?? tagFor(pack, texts[texts.length - 1] ?? '', names);
     selection = await runRound(safe || firstTag, true, wholeAtLeast(t.retryN), t.retryTemperature);
   }
 

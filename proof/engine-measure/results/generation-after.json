@@ -1,0 +1,3985 @@
+{
+ "meta": {
+  "date": "2026-11-16T01:28:47.294Z",
+  "mode": "after",
+  "steps": 8,
+  "seedBase": 1,
+  "cpus": 4,
+  "loadavg": [
+   5.24,
+   4.16,
+   6.08
+  ],
+  "server": "http://127.0.0.1:8771"
+ },
+ "summary": {
+  "brandNew": {
+   "runs": 8,
+   "inBand": 1,
+   "ownInBand": 0,
+   "targetUse": 0.63,
+   "distinct": 8,
+   "noSentence": 0,
+   "chosenFailingNewRejects": 0,
+   "rejects": {
+    "placeholder": 1,
+    "repeat": 1
+   },
+   "meanSeconds": 6.1,
+   "medianSeconds": 6.24,
+   "maxSeconds": 8.35,
+   "meanGenerateCalls": 1,
+   "meanScoreCalls": 2,
+   "meanPromptTokens": 176,
+   "meanDecodeTokens": 48
+  },
+  "early": {
+   "runs": 8,
+   "inBand": 0.75,
+   "ownInBand": 0.75,
+   "targetUse": 0.38,
+   "distinct": 6,
+   "noSentence": 2,
+   "chosenFailingNewRejects": 0,
+   "rejects": {
+    "repeat": 35,
+    "too_short": 2
+   },
+   "meanSeconds": 6.7,
+   "medianSeconds": 7.6,
+   "maxSeconds": 8.42,
+   "meanGenerateCalls": 1.63,
+   "meanScoreCalls": 2,
+   "meanPromptTokens": 250,
+   "meanDecodeTokens": 67
+  },
+  "reader": {
+   "runs": 8,
+   "inBand": 1,
+   "ownInBand": 1,
+   "targetUse": 0.75,
+   "distinct": 8,
+   "noSentence": 0,
+   "chosenFailingNewRejects": 0,
+   "rejects": {
+    "too_short": 4,
+    "repeat": 3,
+    "empty": 1
+   },
+   "meanSeconds": 9.4,
+   "medianSeconds": 9.12,
+   "maxSeconds": 12.54,
+   "meanGenerateCalls": 1,
+   "meanScoreCalls": 2.88,
+   "meanPromptTokens": 96,
+   "meanDecodeTokens": 85
+  },
+  "advanced": {
+   "runs": 8,
+   "inBand": 1,
+   "ownInBand": 1,
+   "targetUse": 0.63,
+   "distinct": 8,
+   "noSentence": 0,
+   "chosenFailingNewRejects": 0,
+   "rejects": {
+    "too_short": 3,
+    "no_verb": 3,
+    "repeat": 14,
+    "unbalanced_quotes": 1
+   },
+   "meanSeconds": 9.3,
+   "medianSeconds": 9.22,
+   "maxSeconds": 12.94,
+   "meanGenerateCalls": 1.13,
+   "meanScoreCalls": 2.63,
+   "meanPromptTokens": 106,
+   "meanDecodeTokens": 85
+  },
+  "heritage": {
+   "runs": 8,
+   "inBand": 0.63,
+   "ownInBand": 0.63,
+   "targetUse": 0.5,
+   "distinct": 5,
+   "noSentence": 3,
+   "chosenFailingNewRejects": 0,
+   "rejects": {
+    "too_short": 3,
+    "repeat": 35
+   },
+   "meanSeconds": 10.5,
+   "medianSeconds": 12.06,
+   "maxSeconds": 15.59,
+   "meanGenerateCalls": 1.5,
+   "meanScoreCalls": 1.5,
+   "meanPromptTokens": 124,
+   "meanDecodeTokens": 103
+  }
+ },
+ "rows": [
+  {
+   "profile": "brandNew",
+   "step": 0,
+   "seed": 1,
+   "vocab": 225,
+   "sentenceWords": {
+    "min": 4.245181026308491,
+    "max": 8.628715499984592
+   },
+   "targets": [
+    "es:estar"
+   ],
+   "sentence": "La familia está en el restaurante.",
+   "inBand": true,
+   "ownInBand": false,
+   "ownShare": 0.201,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {},
+   "candidates": 5,
+   "accepted": 5,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 2,
+   "seconds": 6.57,
+   "promptTokens": 181,
+   "decodeTokens": 57,
+   "bridge": true,
+   "ranked": [
+    {
+     "text": "La familia está en el restaurante.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": [
+      "es:estar"
+     ]
+    },
+    {
+     "text": "Marta y su familia están en el restaurante.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": [
+      "es:estar"
+     ]
+    },
+    {
+     "text": "Marta y su familia están en el restaurante.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": [
+      "es:estar"
+     ]
+    },
+    {
+     "text": "Marta y su familia están en el restaurante.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": [
+      "es:estar"
+     ]
+    },
+    {
+     "text": "Marta y su familia están en el restaurante.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": [
+      "es:estar"
+     ]
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: tocar, guitarra, piano, música, ser, fantástico, momento, perfecto, después, ir, restaurante, familia, muy, no, tener, artista, importante, hoy, concierto, parque, parte, existir, entrar, persona, ocurrir, terminar, permitir, servir, necesitar, gobierno, problema, presentar, crear, considerar, historia, aceptar, explicar, grupo, idea, general.\n\n[piano] Marta toca la guitarra y el piano.\n[fantástica] La música es fantástica.\n[perfecto] Es un momento perfecto.\n[restaurante] Después, Marta va a un restaurante con su familia.\n[estar]"
+   ]
+  },
+  {
+   "profile": "brandNew",
+   "step": 1,
+   "seed": 1001,
+   "vocab": 225,
+   "sentenceWords": {
+    "min": 4.245181026308491,
+    "max": 8.628715499984592
+   },
+   "targets": [
+    "es:más"
+   ],
+   "sentence": "El grupo es más importante.",
+   "inBand": true,
+   "ownInBand": false,
+   "ownShare": 0.251,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {},
+   "candidates": 5,
+   "accepted": 5,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 3,
+   "seconds": 6.87,
+   "promptTokens": 180,
+   "decodeTokens": 56,
+   "bridge": true,
+   "ranked": [
+    {
+     "text": "El grupo es más importante.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": [
+      "es:más"
+     ]
+    },
+    {
+     "text": "El grupo está en el restaurante.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "La familia está en el restaurante, y más tarde van al parque.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.802,
+     "rejected": [],
+     "targets": [
+      "es:más"
+     ]
+    },
+    {
+     "text": "El grupo de Marta está más cerca de su casa.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.735,
+     "rejected": [],
+     "targets": [
+      "es:más"
+     ]
+    },
+    {
+     "text": "El tiempo es más importante que el trabajo.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.561,
+     "rejected": [],
+     "targets": [
+      "es:más"
+     ]
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: música, ser, fantástico, momento, perfecto, después, ir, restaurante, familia, estar, muy, no, tener, artista, guitarra, importante, hoy, concierto, parque, tocar, piano, parte, existir, entrar, persona, ocurrir, terminar, permitir, servir, necesitar, gobierno, problema, presentar, crear, considerar, historia, aceptar, explicar, grupo, idea.\n\n[fantástica] La música es fantástica.\n[perfecto] Es un momento perfecto.\n[restaurante] Después, Marta va a un restaurante con su familia.\n[restaurante] La familia está en el restaurante.\n[más]"
+   ]
+  },
+  {
+   "profile": "brandNew",
+   "step": 2,
+   "seed": 2001,
+   "vocab": 225,
+   "sentenceWords": {
+    "min": 4.245181026308491,
+    "max": 8.628715499984592
+   },
+   "targets": [
+    "es:hacer"
+   ],
+   "sentence": "El grupo toca la guitarra.",
+   "inBand": true,
+   "ownInBand": false,
+   "ownShare": 0.201,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "placeholder": 1
+   },
+   "candidates": 5,
+   "accepted": 4,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 2,
+   "seconds": 6.24,
+   "promptTokens": 178,
+   "decodeTokens": 55,
+   "bridge": true,
+   "ranked": [
+    {
+     "text": "El grupo toca la guitarra.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El grupo tocará en el parque.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El grupo tocará en el parque.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El grupo quiere tocar en el parque.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.84,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El grupo tiene que la guitarra.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.817,
+     "rejected": [
+      "placeholder"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: ser, momento, perfecto, después, ir, restaurante, familia, estar, grupo, más, importante, muy, no, tener, artista, guitarra, hoy, concierto, parque, tocar, piano, música, fantástico, parte, existir, entrar, persona, ocurrir, terminar, permitir, servir, necesitar, gobierno, problema, presentar, crear, considerar, historia, aceptar, explicar.\n\n[perfecto] Es un momento perfecto.\n[restaurante] Después, Marta va a un restaurante con su familia.\n[restaurante] La familia está en el restaurante.\n[importante] El grupo es más importante.\n[hacer]"
+   ]
+  },
+  {
+   "profile": "brandNew",
+   "step": 3,
+   "seed": 3001,
+   "vocab": 225,
+   "sentenceWords": {
+    "min": 4.245181026308491,
+    "max": 8.628715499984592
+   },
+   "targets": [
+    "es:poder"
+   ],
+   "sentence": "El grupo tiene el poder de crear música.",
+   "inBand": true,
+   "ownInBand": false,
+   "ownShare": 0.215,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {},
+   "candidates": 5,
+   "accepted": 5,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 2,
+   "seconds": 4.82,
+   "promptTokens": 180,
+   "decodeTokens": 38,
+   "bridge": true,
+   "ranked": [
+    {
+     "text": "El grupo tiene el poder de crear música.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": [
+      "es:poder"
+     ]
+    },
+    {
+     "text": "El grupo tiene poder.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": [
+      "es:poder"
+     ]
+    },
+    {
+     "text": "El grupo tiene poder.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": [
+      "es:poder"
+     ]
+    },
+    {
+     "text": "El grupo tiene poder.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": [
+      "es:poder"
+     ]
+    },
+    {
+     "text": "El grupo puede tocar la guitarra.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": [
+      "es:poder"
+     ]
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: después, ir, restaurante, familia, estar, grupo, ser, más, importante, tocar, guitarra, muy, no, tener, artista, hoy, concierto, parque, piano, música, fantástico, momento, perfecto, parte, existir, entrar, persona, ocurrir, terminar, permitir, servir, necesitar, gobierno, problema, presentar, crear, considerar, historia, aceptar, explicar.\n\n[restaurante] Después, Marta va a un restaurante con su familia.\n[restaurante] La familia está en el restaurante.\n[importante] El grupo es más importante.\n[guitarra] El grupo toca la guitarra.\n[poder]"
+   ]
+  },
+  {
+   "profile": "brandNew",
+   "step": 4,
+   "seed": 4001,
+   "vocab": 225,
+   "sentenceWords": {
+    "min": 4.245181026308491,
+    "max": 8.628715499984592
+   },
+   "targets": [
+    "es:decir"
+   ],
+   "sentence": "El grupo presenta la música.",
+   "inBand": true,
+   "ownInBand": false,
+   "ownShare": 0.301,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {},
+   "candidates": 5,
+   "accepted": 5,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 2,
+   "seconds": 8.35,
+   "promptTokens": 175,
+   "decodeTokens": 44,
+   "bridge": true,
+   "ranked": [
+    {
+     "text": "El grupo presenta la música.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El grupo presenta la música.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "Marta dice que el grupo es muy importante.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.817,
+     "rejected": [],
+     "targets": [
+      "es:decir"
+     ]
+    },
+    {
+     "text": "Marta dice que el grupo es muy importante.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.817,
+     "rejected": [],
+     "targets": [
+      "es:decir"
+     ]
+    },
+    {
+     "text": "La familia dice \"¡Hola!\".",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.654,
+     "rejected": [],
+     "targets": [
+      "es:decir"
+     ]
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: familia, estar, restaurante, grupo, ser, más, importante, tocar, guitarra, tener, poder, crear, música, muy, no, artista, hoy, concierto, parque, piano, fantástico, momento, perfecto, después, ir, parte, existir, entrar, persona, ocurrir, terminar, permitir, servir, necesitar, gobierno, problema, presentar, considerar, historia, aceptar.\n\n[restaurante] La familia está en el restaurante.\n[importante] El grupo es más importante.\n[guitarra] El grupo toca la guitarra.\n[música] El grupo tiene el poder de crear música.\n[decir]"
+   ]
+  },
+  {
+   "profile": "brandNew",
+   "step": 5,
+   "seed": 5001,
+   "vocab": 225,
+   "sentenceWords": {
+    "min": 4.245181026308491,
+    "max": 8.628715499984592
+   },
+   "targets": [
+    "es:ya"
+   ],
+   "sentence": "El grupo está en el parque.",
+   "inBand": true,
+   "ownInBand": false,
+   "ownShare": 0.168,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {},
+   "candidates": 5,
+   "accepted": 5,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 1,
+   "seconds": 5.44,
+   "promptTokens": 171,
+   "decodeTokens": 45,
+   "bridge": true,
+   "ranked": [
+    {
+     "text": "El grupo está en el parque.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El grupo está en el parque.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El grupo está en el parque.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El grupo está en el parque.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El grupo está en el parque.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: grupo, ser, más, importante, tocar, guitarra, tener, poder, crear, música, presentar, muy, no, artista, hoy, concierto, parque, piano, fantástico, momento, perfecto, después, ir, restaurante, familia, estar, parte, existir, entrar, persona, ocurrir, terminar, permitir, servir, necesitar, gobierno, problema, considerar, historia, aceptar.\n\n[importante] El grupo es más importante.\n[guitarra] El grupo toca la guitarra.\n[música] El grupo tiene el poder de crear música.\n[música] El grupo presenta la música.\n[ya]"
+   ]
+  },
+  {
+   "profile": "brandNew",
+   "step": 6,
+   "seed": 6001,
+   "vocab": 225,
+   "sentenceWords": {
+    "min": 4.245181026308491,
+    "max": 8.628715499984592
+   },
+   "targets": [
+    "es:hacer"
+   ],
+   "sentence": "El grupo está haciendo la música.",
+   "inBand": true,
+   "ownInBand": false,
+   "ownShare": 0.201,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {
+    "repeat": 1
+   },
+   "candidates": 5,
+   "accepted": 4,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 3,
+   "seconds": 6.15,
+   "promptTokens": 173,
+   "decodeTokens": 49,
+   "bridge": true,
+   "ranked": [
+    {
+     "text": "El grupo está haciendo la música.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": [
+      "es:hacer"
+     ]
+    },
+    {
+     "text": "El grupo está en el parque y quiere hacer una actividad.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.882,
+     "rejected": [],
+     "targets": [
+      "es:hacer"
+     ]
+    },
+    {
+     "text": "El grupo tiene que estar en el parque.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.858,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El grupo está haciendo algo.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.735,
+     "rejected": [],
+     "targets": [
+      "es:hacer"
+     ]
+    },
+    {
+     "text": "El grupo está en el parque.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: grupo, tocar, guitarra, tener, poder, crear, música, presentar, estar, parque, ser, muy, no, artista, importante, hoy, concierto, piano, fantástico, momento, perfecto, después, ir, restaurante, familia, más, parte, existir, entrar, persona, ocurrir, terminar, permitir, servir, necesitar, gobierno, problema, considerar, historia, aceptar.\n\n[guitarra] El grupo toca la guitarra.\n[música] El grupo tiene el poder de crear música.\n[música] El grupo presenta la música.\n[parque] El grupo está en el parque.\n[hacer]"
+   ]
+  },
+  {
+   "profile": "brandNew",
+   "step": 7,
+   "seed": 7001,
+   "vocab": 225,
+   "sentenceWords": {
+    "min": 4.245181026308491,
+    "max": 8.628715499984592
+   },
+   "targets": [
+    "es:ver"
+   ],
+   "sentence": "El grupo está ver.",
+   "inBand": true,
+   "ownInBand": false,
+   "ownShare": 0.168,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {},
+   "candidates": 5,
+   "accepted": 5,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 1,
+   "seconds": 4.49,
+   "promptTokens": 171,
+   "decodeTokens": 37,
+   "bridge": true,
+   "ranked": [
+    {
+     "text": "El grupo está ver.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": [
+      "es:ver"
+     ]
+    },
+    {
+     "text": "El grupo está ver.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": [
+      "es:ver"
+     ]
+    },
+    {
+     "text": "El grupo está ver.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": [
+      "es:ver"
+     ]
+    },
+    {
+     "text": "El grupo está ver la música.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": [
+      "es:ver"
+     ]
+    },
+    {
+     "text": "El grupo tiene el poder de ser artista.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: grupo, tener, poder, crear, música, presentar, estar, parque, hacer, ser, muy, no, artista, guitarra, importante, hoy, concierto, tocar, piano, fantástico, momento, perfecto, después, ir, restaurante, familia, más, parte, existir, entrar, persona, ocurrir, terminar, permitir, servir, necesitar, gobierno, problema, considerar, historia.\n\n[música] El grupo tiene el poder de crear música.\n[música] El grupo presenta la música.\n[parque] El grupo está en el parque.\n[música] El grupo está haciendo la música.\n[ver]"
+   ]
+  },
+  {
+   "profile": "early",
+   "step": 0,
+   "seed": 1,
+   "vocab": 503,
+   "sentenceWords": {
+    "min": 5.153623904784062,
+    "max": 10.546539354544134
+   },
+   "targets": [
+    "es:viejo"
+   ],
+   "sentence": "El viejo está en la casa.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.968,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {},
+   "candidates": 5,
+   "accepted": 5,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 3,
+   "seconds": 5.2,
+   "promptTokens": 151,
+   "decodeTokens": 44,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El viejo está en la casa.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.968,
+     "rejected": [],
+     "targets": [
+      "es:viejo"
+     ]
+    },
+    {
+     "text": "El viejo es muy grande.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:viejo"
+     ]
+    },
+    {
+     "text": "El viejo quiere ser un hombre grande.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:viejo"
+     ]
+    },
+    {
+     "text": "El viejo es muy grande.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:viejo"
+     ]
+    },
+    {
+     "text": "El viejo es muy sabio.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.728,
+     "rejected": [],
+     "targets": [
+      "es:viejo"
+     ]
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: vivir, casa, ir, ser, no, estar, tener, más, hacer, poder, decir, ya, ver, dar, muy, vez, saber, mismo, también, año, querer, así, primero, grande, llegar, pasar, tiempo, sí, día, bien, deber, entonces, poner, cosa, hombre, parecer, tan, donde, ahora, parte.\n\n[casa] La niña vive en una casa pequeña.\n[pequeña] Marta vive en una casa pequeña.\n[hermano] Hoy ella va al mercado con su hermano.\n[viejo]"
+   ]
+  },
+  {
+   "profile": "early",
+   "step": 1,
+   "seed": 1001,
+   "vocab": 503,
+   "sentenceWords": {
+    "min": 5.153623904784062,
+    "max": 10.546539354544134
+   },
+   "targets": [
+    "es:claro"
+   ],
+   "sentence": "El claro está en el claro.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {},
+   "candidates": 5,
+   "accepted": 5,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 3,
+   "seconds": 4.72,
+   "promptTokens": 151,
+   "decodeTokens": 39,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El claro está en el claro.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:claro"
+     ]
+    },
+    {
+     "text": "El claro es muy grande.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:claro"
+     ]
+    },
+    {
+     "text": "El claro es muy claro.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:claro"
+     ]
+    },
+    {
+     "text": "El claro está en el patio.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.776,
+     "rejected": [],
+     "targets": [
+      "es:claro"
+     ]
+    },
+    {
+     "text": "El clarito está en la casa.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.807,
+     "rejected": [],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: vivir, casa, ir, estar, ser, no, tener, más, hacer, poder, decir, ya, ver, dar, muy, vez, saber, mismo, también, año, querer, así, primero, grande, llegar, pasar, tiempo, sí, día, bien, deber, entonces, poner, cosa, hombre, parecer, tan, donde, ahora, parte.\n\n[pequeña] Marta vive en una casa pequeña.\n[hermano] Hoy ella va al mercado con su hermano.\n[viejo] El viejo está en la casa.\n[claro]"
+   ]
+  },
+  {
+   "profile": "early",
+   "step": 2,
+   "seed": 2001,
+   "vocab": 503,
+   "sentenceWords": {
+    "min": 5.153623904784062,
+    "max": 10.546539354544134
+   },
+   "targets": [
+    "es:nacional"
+   ],
+   "sentence": "El nacional es el de la casa.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.969,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {},
+   "candidates": 5,
+   "accepted": 5,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 3,
+   "seconds": 4.62,
+   "promptTokens": 161,
+   "decodeTokens": 41,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El nacional es el de la casa.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [],
+     "targets": [
+      "es:nacional"
+     ]
+    },
+    {
+     "text": "El nacional es en la casa.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.968,
+     "rejected": [],
+     "targets": [
+      "es:nacional"
+     ]
+    },
+    {
+     "text": "El nacional está en el nacional.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:nacional"
+     ]
+    },
+    {
+     "text": "El nacional está en el nacional.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:nacional"
+     ]
+    },
+    {
+     "text": "El nacional es en el nacional.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:nacional"
+     ]
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: vivir, casa, ir, estar, ser, no, tener, más, hacer, poder, decir, ya, ver, dar, muy, vez, saber, mismo, también, año, querer, así, primero, grande, llegar, pasar, tiempo, sí, día, bien, deber, entonces, poner, cosa, hombre, parecer, tan, donde, ahora, parte.\n\n[pequeña] Marta vive en una casa pequeña.\n[hermano] Hoy ella va al mercado con su hermano.\n[viejo] El viejo está en la casa.\n[claro] El claro está en el claro.\n[nacional]"
+   ]
+  },
+  {
+   "profile": "early",
+   "step": 3,
+   "seed": 3001,
+   "vocab": 503,
+   "sentenceWords": {
+    "min": 5.153623904784062,
+    "max": 10.546539354544134
+   },
+   "targets": [
+    "es:único"
+   ],
+   "sentence": "Marta es la de la casa.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.968,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "repeat": 6
+   },
+   "candidates": 9,
+   "accepted": 3,
+   "retried": true,
+   "generateCalls": 2,
+   "scoreCalls": 3,
+   "seconds": 7.6,
+   "promptTokens": 317,
+   "decodeTokens": 84,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "Marta es la de la casa.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.968,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "Marta no está en la casa.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.968,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El martes, Marta va a la casa.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.808,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El único es el de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:único"
+     ]
+    },
+    {
+     "text": "El único es el de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:único"
+     ]
+    },
+    {
+     "text": "El único es el de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:único"
+     ]
+    },
+    {
+     "text": "El único es el de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:único"
+     ]
+    },
+    {
+     "text": "El único es el de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:único"
+     ]
+    },
+    {
+     "text": "El hombre es el de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: ir, estar, casa, ser, no, tener, más, hacer, poder, decir, ya, ver, dar, muy, vez, saber, mismo, también, año, querer, así, primero, grande, llegar, pasar, tiempo, sí, día, bien, deber, entonces, poner, cosa, hombre, parecer, tan, donde, ahora, parte, después.\n\n[hermano] Hoy ella va al mercado con su hermano.\n[viejo] El viejo está en la casa.\n[claro] El claro está en el claro.\n[nacional] El nacional es el de la casa.\n[único]",
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: ir, estar, casa, ser, no, tener, más, hacer, poder, decir, ya, ver, dar, muy, vez, saber, mismo, también, año, querer, así, primero, grande, llegar, pasar, tiempo, sí, día, bien, deber, entonces, poner, cosa, hombre, parecer, tan, donde, ahora, parte, después.\n\n[hermano] Hoy ella va al mercado con su hermano.\n[viejo] El viejo está en la casa.\n[claro] El claro está en el claro.\n[nacional] El nacional es el de la casa.\n[Marta]"
+   ]
+  },
+  {
+   "profile": "early",
+   "step": 4,
+   "seed": 4001,
+   "vocab": 503,
+   "sentenceWords": {
+    "min": 5.153623904784062,
+    "max": 10.546539354544134
+   },
+   "targets": [
+    "es:viejo"
+   ],
+   "sentence": null,
+   "inBand": false,
+   "ownInBand": false,
+   "ownShare": null,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "repeat": 8,
+    "too_short": 1
+   },
+   "candidates": 9,
+   "accepted": 0,
+   "retried": true,
+   "generateCalls": 2,
+   "scoreCalls": 0,
+   "seconds": 7.5,
+   "promptTokens": 307,
+   "decodeTokens": 84,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El viejo está en la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.968,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:viejo"
+     ]
+    },
+    {
+     "text": "El viejo está en la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.968,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:viejo"
+     ]
+    },
+    {
+     "text": "El viejo está en la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.968,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:viejo"
+     ]
+    },
+    {
+     "text": "El viejo está en la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.968,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:viejo"
+     ]
+    },
+    {
+     "text": "El viejo es el de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:viejo"
+     ]
+    },
+    {
+     "text": "Marta es la de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.968,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "Marta, ¿dónde estás?",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.513,
+     "rejected": [
+      "too_short"
+     ],
+     "targets": []
+    },
+    {
+     "text": "Marta es la de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.968,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "Marta es la de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.968,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: estar, casa, ser, no, tener, más, hacer, poder, decir, ir, ya, ver, dar, muy, vez, saber, mismo, también, año, querer, así, primero, grande, llegar, pasar, tiempo, sí, día, bien, deber, entonces, poner, cosa, hombre, parecer, tan, donde, ahora, parte, después.\n\n[viejo] El viejo está en la casa.\n[claro] El claro está en el claro.\n[nacional] El nacional es el de la casa.\n[casa] Marta es la de la casa.\n[viejo]",
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: estar, casa, ser, no, tener, más, hacer, poder, decir, ir, ya, ver, dar, muy, vez, saber, mismo, también, año, querer, así, primero, grande, llegar, pasar, tiempo, sí, día, bien, deber, entonces, poner, cosa, hombre, parecer, tan, donde, ahora, parte, después.\n\n[viejo] El viejo está en la casa.\n[claro] El claro está en el claro.\n[nacional] El nacional es el de la casa.\n[casa] Marta es la de la casa.\n[Marta]"
+   ]
+  },
+  {
+   "profile": "early",
+   "step": 5,
+   "seed": 5001,
+   "vocab": 503,
+   "sentenceWords": {
+    "min": 5.153623904784062,
+    "max": 10.546539354544134
+   },
+   "targets": [
+    "es:claro"
+   ],
+   "sentence": null,
+   "inBand": false,
+   "ownInBand": false,
+   "ownShare": null,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "repeat": 9
+   },
+   "candidates": 9,
+   "accepted": 0,
+   "retried": true,
+   "generateCalls": 2,
+   "scoreCalls": 0,
+   "seconds": 8.03,
+   "promptTokens": 307,
+   "decodeTokens": 81,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El claro es el de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:claro"
+     ]
+    },
+    {
+     "text": "El claro es el de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:claro"
+     ]
+    },
+    {
+     "text": "El claro es el de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:claro"
+     ]
+    },
+    {
+     "text": "El claro es el de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:claro"
+     ]
+    },
+    {
+     "text": "El claro es el de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:claro"
+     ]
+    },
+    {
+     "text": "Marta es la de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.968,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "Marta es la de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.968,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "Marta es la de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.968,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "Marta es la de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.968,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: estar, casa, ser, no, tener, más, hacer, poder, decir, ir, ya, ver, dar, muy, vez, saber, mismo, también, año, querer, así, primero, grande, llegar, pasar, tiempo, sí, día, bien, deber, entonces, poner, cosa, hombre, parecer, tan, donde, ahora, parte, después.\n\n[viejo] El viejo está en la casa.\n[claro] El claro está en el claro.\n[nacional] El nacional es el de la casa.\n[casa] Marta es la de la casa.\n[claro]",
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: estar, casa, ser, no, tener, más, hacer, poder, decir, ir, ya, ver, dar, muy, vez, saber, mismo, también, año, querer, así, primero, grande, llegar, pasar, tiempo, sí, día, bien, deber, entonces, poner, cosa, hombre, parecer, tan, donde, ahora, parte, después.\n\n[viejo] El viejo está en la casa.\n[claro] El claro está en el claro.\n[nacional] El nacional es el de la casa.\n[casa] Marta es la de la casa.\n[Marta]"
+   ]
+  },
+  {
+   "profile": "early",
+   "step": 6,
+   "seed": 6001,
+   "vocab": 503,
+   "sentenceWords": {
+    "min": 5.153623904784062,
+    "max": 10.546539354544134
+   },
+   "targets": [
+    "es:nacional"
+   ],
+   "sentence": "Marta es muy grande.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "repeat": 7,
+    "too_short": 1
+   },
+   "candidates": 9,
+   "accepted": 1,
+   "retried": true,
+   "generateCalls": 2,
+   "scoreCalls": 1,
+   "seconds": 8.42,
+   "promptTokens": 306,
+   "decodeTokens": 81,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "Marta es muy grande.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El nacional es el de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:nacional"
+     ]
+    },
+    {
+     "text": "El nacional es el de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:nacional"
+     ]
+    },
+    {
+     "text": "El nacional es el de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:nacional"
+     ]
+    },
+    {
+     "text": "El nacional es el de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:nacional"
+     ]
+    },
+    {
+     "text": "El nacional es el de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:nacional"
+     ]
+    },
+    {
+     "text": "Marta, ¿dónde estás?",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.513,
+     "rejected": [
+      "too_short"
+     ],
+     "targets": []
+    },
+    {
+     "text": "Marta es la de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.968,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "Marta es la de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.968,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: estar, casa, ser, no, tener, más, hacer, poder, decir, ir, ya, ver, dar, muy, vez, saber, mismo, también, año, querer, así, primero, grande, llegar, pasar, tiempo, sí, día, bien, deber, entonces, poner, cosa, hombre, parecer, tan, donde, ahora, parte, después.\n\n[viejo] El viejo está en la casa.\n[claro] El claro está en el claro.\n[nacional] El nacional es el de la casa.\n[casa] Marta es la de la casa.\n[nacional]",
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: estar, casa, ser, no, tener, más, hacer, poder, decir, ir, ya, ver, dar, muy, vez, saber, mismo, también, año, querer, así, primero, grande, llegar, pasar, tiempo, sí, día, bien, deber, entonces, poner, cosa, hombre, parecer, tan, donde, ahora, parte, después.\n\n[viejo] El viejo está en la casa.\n[claro] El claro está en el claro.\n[nacional] El nacional es el de la casa.\n[casa] Marta es la de la casa.\n[Marta]"
+   ]
+  },
+  {
+   "profile": "early",
+   "step": 7,
+   "seed": 7001,
+   "vocab": 503,
+   "sentenceWords": {
+    "min": 5.153623904784062,
+    "max": 10.546539354544134
+   },
+   "targets": [
+    "es:único"
+   ],
+   "sentence": "Marta es una mujer.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.967,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "repeat": 5
+   },
+   "candidates": 9,
+   "accepted": 4,
+   "retried": true,
+   "generateCalls": 2,
+   "scoreCalls": 3,
+   "seconds": 7.76,
+   "promptTokens": 303,
+   "decodeTokens": 78,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "Marta es una mujer.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.967,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "Marta es un hombre.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El único es el que no tiene un hermano.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.872,
+     "rejected": [],
+     "targets": [
+      "es:único"
+     ]
+    },
+    {
+     "text": "Es una mujer muy interesante.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.874,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El único es el de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:único"
+     ]
+    },
+    {
+     "text": "El único es el de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:único"
+     ]
+    },
+    {
+     "text": "El único es el de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:único"
+     ]
+    },
+    {
+     "text": "El único es el de la casa.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:único"
+     ]
+    },
+    {
+     "text": "Marta es muy grande.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: estar, ser, casa, muy, grande, no, tener, más, hacer, poder, decir, ir, ya, ver, dar, vez, saber, mismo, también, año, querer, así, primero, llegar, pasar, tiempo, sí, día, bien, deber, entonces, poner, cosa, hombre, parecer, tan, donde, ahora, parte, después.\n\n[claro] El claro está en el claro.\n[nacional] El nacional es el de la casa.\n[casa] Marta es la de la casa.\n[grande] Marta es muy grande.\n[único]",
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: estar, ser, casa, muy, grande, no, tener, más, hacer, poder, decir, ir, ya, ver, dar, vez, saber, mismo, también, año, querer, así, primero, llegar, pasar, tiempo, sí, día, bien, deber, entonces, poner, cosa, hombre, parecer, tan, donde, ahora, parte, después.\n\n[claro] El claro está en el claro.\n[nacional] El nacional es el de la casa.\n[casa] Marta es la de la casa.\n[grande] Marta es muy grande.\n[Marta]"
+   ]
+  },
+  {
+   "profile": "reader",
+   "step": 0,
+   "seed": 1,
+   "vocab": 1703,
+   "sentenceWords": {
+    "min": 7.192046941072609,
+    "max": 14.84987687559773
+   },
+   "targets": [
+    "es:yo"
+   ],
+   "sentence": "Yo, el otro día, ayudé a un hombre a encontrar un trabajo.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {
+    "too_short": 2
+   },
+   "candidates": 5,
+   "accepted": 3,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 3,
+   "seconds": 6.81,
+   "promptTokens": 61,
+   "decodeTokens": 58,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "Yo, el otro día, ayudé a un hombre a encontrar un trabajo.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:yo"
+     ]
+    },
+    {
+     "text": "Pregunté a Marta si ella vendía frutas, pero ella no respondió.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "¿Puedes ayudarme a encontrar trabajo?",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "Estoy aquí.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "too_short"
+     ],
+     "targets": []
+    },
+    {
+     "text": "Voy al mercado.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "too_short"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel B1).\nPersonajes: Marta.\n\n[casa] La niña vive en una casa pequeña.\n[mercado] Marta llegó tarde al mercado.\n[cerrado] Buscó al señor de las frutas, pero su puesto estaba cerrado.\n[yo]"
+   ]
+  },
+  {
+   "profile": "reader",
+   "step": 1,
+   "seed": 1001,
+   "vocab": 1703,
+   "sentenceWords": {
+    "min": 7.192046941072609,
+    "max": 14.84987687559773
+   },
+   "targets": [
+    "es:también"
+   ],
+   "sentence": "También, en la tienda de ropa, ayudé a un cliente a elegir un vestido.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {},
+   "candidates": 5,
+   "accepted": 5,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 3,
+   "seconds": 9.12,
+   "promptTokens": 71,
+   "decodeTokens": 91,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "También, en la tienda de ropa, ayudé a un cliente a elegir un vestido.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:también"
+     ]
+    },
+    {
+     "text": "También, en el mercado, vio un hombre que se llevaba un vaso de agua.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:también"
+     ]
+    },
+    {
+     "text": "También me ayudó a una señora a encontrar un trabajo.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:también"
+     ]
+    },
+    {
+     "text": "También, ayer, ayudé a una mujer a encontrar un trabajo.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:también"
+     ]
+    },
+    {
+     "text": "También, el otro día, ayudé a una mujer a encontrar un trabajo.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:también"
+     ]
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel B1).\nPersonajes: Marta.\n\n[mercado] Marta llegó tarde al mercado.\n[cerrado] Buscó al señor de las frutas, pero su puesto estaba cerrado.\n[ayudé] Yo, el otro día, ayudé a un hombre a encontrar un trabajo.\n[también]"
+   ]
+  },
+  {
+   "profile": "reader",
+   "step": 2,
+   "seed": 2001,
+   "vocab": 1703,
+   "sentenceWords": {
+    "min": 7.192046941072609,
+    "max": 14.84987687559773
+   },
+   "targets": [
+    "es:hasta"
+   ],
+   "sentence": "También, en un parque, ayudé a un niño a caminar.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {},
+   "candidates": 5,
+   "accepted": 5,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 3,
+   "seconds": 8.12,
+   "promptTokens": 95,
+   "decodeTokens": 81,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "También, en un parque, ayudé a un niño a caminar.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "Ayudé a un niño a caminar a la escuela.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "¡Vamos a la tienda de ropa!",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "Hasta la parroquia, ayudé a un niño a cruzar el puente.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.867,
+     "rejected": [],
+     "targets": [
+      "es:hasta"
+     ]
+    },
+    {
+     "text": "Estuve en un taller de pintura y hasta pinté un cuadro.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.773,
+     "rejected": [],
+     "targets": [
+      "es:hasta"
+     ]
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel B1).\nPersonajes: Marta.\n\n[mercado] Marta llegó tarde al mercado.\n[cerrado] Buscó al señor de las frutas, pero su puesto estaba cerrado.\n[ayudé] Yo, el otro día, ayudé a un hombre a encontrar un trabajo.\n[cliente] También, en la tienda de ropa, ayudé a un cliente a elegir un vestido.\n[hasta]"
+   ]
+  },
+  {
+   "profile": "reader",
+   "step": 3,
+   "seed": 3001,
+   "vocab": 1703,
+   "sentenceWords": {
+    "min": 7.192046941072609,
+    "max": 14.84987687559773
+   },
+   "targets": [
+    "es:año"
+   ],
+   "sentence": "También, en el año 2003, ayudé a un hombre a encontrar un trabajo.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {},
+   "candidates": 5,
+   "accepted": 5,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 3,
+   "seconds": 8.72,
+   "promptTokens": 104,
+   "decodeTokens": 77,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "También, en el año 2003, ayudé a un hombre a encontrar un trabajo.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:año"
+     ]
+    },
+    {
+     "text": "También, en un año, ayudé a más de 200 personas.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:año"
+     ]
+    },
+    {
+     "text": "También, en un año, ayudé a muchos personas.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:año"
+     ]
+    },
+    {
+     "text": "¿De qué año es el documento?",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.964,
+     "rejected": [],
+     "targets": [
+      "es:año"
+     ]
+    },
+    {
+     "text": "El año pasado, ayudé a un anciano a caminar.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.849,
+     "rejected": [],
+     "targets": [
+      "es:año"
+     ]
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel B1).\nPersonajes: Marta.\n\n[cerrado] Buscó al señor de las frutas, pero su puesto estaba cerrado.\n[ayudé] Yo, el otro día, ayudé a un hombre a encontrar un trabajo.\n[cliente] También, en la tienda de ropa, ayudé a un cliente a elegir un vestido.\n[parque] También, en un parque, ayudé a un niño a caminar.\n[año]"
+   ]
+  },
+  {
+   "profile": "reader",
+   "step": 4,
+   "seed": 4001,
+   "vocab": 1703,
+   "sentenceWords": {
+    "min": 7.192046941072609,
+    "max": 14.84987687559773
+   },
+   "targets": [
+    "es:yo"
+   ],
+   "sentence": "Puedo ayudarte a encontrar trabajo o a elegir ropa.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "too_short": 2,
+    "repeat": 1
+   },
+   "candidates": 5,
+   "accepted": 2,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 2,
+   "seconds": 7.35,
+   "promptTokens": 110,
+   "decodeTokens": 67,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "Puedo ayudarte a encontrar trabajo o a elegir ropa.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "Me gustaría ayudar a un chico en el parque.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "¿A qué te refieres?",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "too_short"
+     ],
+     "targets": []
+    },
+    {
+     "text": "En la tienda de ropa, ayudé a un cliente a elegir un vestido.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "¿Cómo es el trabajo?",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "too_short"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel B1).\nPersonajes: Marta.\n\n[ayudé] Yo, el otro día, ayudé a un hombre a encontrar un trabajo.\n[cliente] También, en la tienda de ropa, ayudé a un cliente a elegir un vestido.\n[parque] También, en un parque, ayudé a un niño a caminar.\n[ayudé] También, en el año 2003, ayudé a un hombre a encontrar un trabajo.\n[yo]"
+   ]
+  },
+  {
+   "profile": "reader",
+   "step": 5,
+   "seed": 5001,
+   "vocab": 1703,
+   "sentenceWords": {
+    "min": 7.192046941072609,
+    "max": 14.84987687559773
+   },
+   "targets": [
+    "es:también"
+   ],
+   "sentence": "También, en el año 2004, ayudé a un cliente a elegir ropa.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {
+    "repeat": 1
+   },
+   "candidates": 5,
+   "accepted": 4,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 3,
+   "seconds": 11.53,
+   "promptTokens": 108,
+   "decodeTokens": 103,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "También, en el año 2004, ayudé a un cliente a elegir ropa.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:también"
+     ]
+    },
+    {
+     "text": "También, en el año 2000, ayudé a una señora a encontrar trabajo.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:también"
+     ]
+    },
+    {
+     "text": "También, en la plaza, ayudé a una señora a encontrar un par de zapatos.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.892,
+     "rejected": [],
+     "targets": [
+      "es:también"
+     ]
+    },
+    {
+     "text": "También, en la biblioteca, ayudé a un anciano a buscar una libreta.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.792,
+     "rejected": [],
+     "targets": [
+      "es:también"
+     ]
+    },
+    {
+     "text": "También, en el parque, ayudé a un niño a caminar.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:también"
+     ]
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel B1).\nPersonajes: Marta.\n\n[cliente] También, en la tienda de ropa, ayudé a un cliente a elegir un vestido.\n[parque] También, en un parque, ayudé a un niño a caminar.\n[ayudé] También, en el año 2003, ayudé a un hombre a encontrar un trabajo.\n[ropa] Puedo ayudarte a encontrar trabajo o a elegir ropa.\n[también]"
+   ]
+  },
+  {
+   "profile": "reader",
+   "step": 6,
+   "seed": 6001,
+   "vocab": 1703,
+   "sentenceWords": {
+    "min": 7.192046941072609,
+    "max": 14.84987687559773
+   },
+   "targets": [
+    "es:hasta"
+   ],
+   "sentence": "Hasta 2023, he ayudado a más de 300 clientes.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.969,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {},
+   "candidates": 5,
+   "accepted": 5,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 3,
+   "seconds": 10.74,
+   "promptTokens": 107,
+   "decodeTokens": 94,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "Hasta 2023, he ayudado a más de 300 clientes.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [],
+     "targets": [
+      "es:hasta"
+     ]
+    },
+    {
+     "text": "Hasta 2023, he ayudado a muchos clientes.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [],
+     "targets": [
+      "es:hasta"
+     ]
+    },
+    {
+     "text": "Hasta el año 2011, ayudé a muchos clientes.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.969,
+     "rejected": [],
+     "targets": [
+      "es:hasta"
+     ]
+    },
+    {
+     "text": "Hasta el año 2012, puedo ayudarte a elegir ropa.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:hasta"
+     ]
+    },
+    {
+     "text": "Hasta el año 2005, ayudé a un cliente a caminar.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:hasta"
+     ]
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel B1).\nPersonajes: Marta.\n\n[parque] También, en un parque, ayudé a un niño a caminar.\n[ayudé] También, en el año 2003, ayudé a un hombre a encontrar un trabajo.\n[ropa] Puedo ayudarte a encontrar trabajo o a elegir ropa.\n[cliente] También, en el año 2004, ayudé a un cliente a elegir ropa.\n[hasta]"
+   ]
+  },
+  {
+   "profile": "reader",
+   "step": 7,
+   "seed": 7001,
+   "vocab": 1703,
+   "sentenceWords": {
+    "min": 7.192046941072609,
+    "max": 14.84987687559773
+   },
+   "targets": [
+    "es:año"
+   ],
+   "sentence": "El año 2023, me gustaría ayudar a un cliente a encontrar un trabajo.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {
+    "repeat": 1,
+    "empty": 1
+   },
+   "candidates": 5,
+   "accepted": 3,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 3,
+   "seconds": 12.54,
+   "promptTokens": 110,
+   "decodeTokens": 109,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El año 2023, me gustaría ayudar a un cliente a encontrar un trabajo.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:año"
+     ]
+    },
+    {
+     "text": "En 2020, un cliente me pidió ayuda en un momento difícil.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.967,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "¿Cuándo empezaste a ayudar a los clientes?",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "En 2003, ayudé a un hombre a encontrar un trabajo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "",
+     "accepted": false,
+     "inBand": false,
+     "share": 1,
+     "rejected": [
+      "empty"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel B1).\nPersonajes: Marta.\n\n[ayudé] También, en el año 2003, ayudé a un hombre a encontrar un trabajo.\n[ropa] Puedo ayudarte a encontrar trabajo o a elegir ropa.\n[cliente] También, en el año 2004, ayudé a un cliente a elegir ropa.\n[clientes] Hasta 2023, he ayudado a más de 300 clientes.\n[año]"
+   ]
+  },
+  {
+   "profile": "advanced",
+   "step": 0,
+   "seed": 1,
+   "vocab": 1734,
+   "sentenceWords": {
+    "min": 7.225170306717943,
+    "max": 14.919803980848991
+   },
+   "targets": [
+    "es:el"
+   ],
+   "sentence": "El señor de las frutas estaba en la puerta, pero no le hacía caso.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {
+    "too_short": 2,
+    "no_verb": 1,
+    "repeat": 1
+   },
+   "candidates": 5,
+   "accepted": 3,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 3,
+   "seconds": 9.22,
+   "promptTokens": 72,
+   "decodeTokens": 79,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El señor de las frutas estaba en la puerta, pero no le hacía caso.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:el"
+     ]
+    },
+    {
+     "text": "El de las frutas es un hombre de pelo corto y de ojos azules.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:el"
+     ]
+    },
+    {
+     "text": "El perro del señor de las frutas, que se llamaba Pablo, estaba en el jardín.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:el"
+     ]
+    },
+    {
+     "text": "El se llamaba Luis.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "too_short"
+     ],
+     "targets": [
+      "es:el"
+     ]
+    },
+    {
+     "text": "Señor de las frutas.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "no_verb",
+      "too_short",
+      "repeat"
+     ],
+     "targets": [
+      "es:el"
+     ]
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel B1).\nPersonajes: Marta.\n\n[mercado] Marta llegó tarde al mercado.\n[cerrado] Buscó al señor de las frutas, pero su puesto estaba cerrado.\n[nota] Entonces vio una nota en la puerta y empezó a leerla en voz alta.\n[el]"
+   ]
+  },
+  {
+   "profile": "advanced",
+   "step": 1,
+   "seed": 1001,
+   "vocab": 1734,
+   "sentenceWords": {
+    "min": 7.225170306717943,
+    "max": 14.919803980848991
+   },
+   "targets": [
+    "es:de"
+   ],
+   "sentence": "El señor de las frutas se puso de pie y se fue.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {},
+   "candidates": 5,
+   "accepted": 5,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 3,
+   "seconds": 10.91,
+   "promptTokens": 95,
+   "decodeTokens": 97,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El señor de las frutas se puso de pie y se fue.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:de"
+     ]
+    },
+    {
+     "text": "El señor de las frutas se dio la vuelta y se fue.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:de"
+     ]
+    },
+    {
+     "text": "El señor de las frutas le dio a Marta un pedazo de fruta.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:de"
+     ]
+    },
+    {
+     "text": "El señor de las frutas estaba de pie, con las manos en la caja, mirando el cielo.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:de"
+     ]
+    },
+    {
+     "text": "El señor de las frutas se acercó al vendedor que estaba en la tienda.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.896,
+     "rejected": [],
+     "targets": [
+      "es:de"
+     ]
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel B1).\nPersonajes: Marta.\n\n[mercado] Marta llegó tarde al mercado.\n[cerrado] Buscó al señor de las frutas, pero su puesto estaba cerrado.\n[nota] Entonces vio una nota en la puerta y empezó a leerla en voz alta.\n[frutas] El señor de las frutas estaba en la puerta, pero no le hacía caso.\n[de]"
+   ]
+  },
+  {
+   "profile": "advanced",
+   "step": 2,
+   "seed": 2001,
+   "vocab": 1734,
+   "sentenceWords": {
+    "min": 7.225170306717943,
+    "max": 14.919803980848991
+   },
+   "targets": [
+    "es:que"
+   ],
+   "sentence": "El señor de las frutas se fue y se fue de la tienda.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "repeat": 1,
+    "too_short": 1
+   },
+   "candidates": 5,
+   "accepted": 3,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 3,
+   "seconds": 8.38,
+   "promptTokens": 102,
+   "decodeTokens": 80,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El señor de las frutas se fue y se fue de la tienda.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El señor de las frutas se fue y no volvió.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "La notificación de la frutería estuvo en el suelo y se puso a caminar.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.832,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El señor de las frutas se puso de pie y se fue.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "Marta, ¿qué pasó?",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "too_short"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel B1).\nPersonajes: Marta.\n\n[cerrado] Buscó al señor de las frutas, pero su puesto estaba cerrado.\n[nota] Entonces vio una nota en la puerta y empezó a leerla en voz alta.\n[frutas] El señor de las frutas estaba en la puerta, pero no le hacía caso.\n[pie] El señor de las frutas se puso de pie y se fue.\n[que]"
+   ]
+  },
+  {
+   "profile": "advanced",
+   "step": 3,
+   "seed": 3001,
+   "vocab": 1734,
+   "sentenceWords": {
+    "min": 7.225170306717943,
+    "max": 14.919803980848991
+   },
+   "targets": [
+    "es:y"
+   ],
+   "sentence": "La gente se acercó y se le quedaron mirando.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {
+    "repeat": 1
+   },
+   "candidates": 5,
+   "accepted": 4,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 3,
+   "seconds": 7.18,
+   "promptTokens": 101,
+   "decodeTokens": 67,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "La gente se acercó y se le quedaron mirando.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:y"
+     ]
+    },
+    {
+     "text": "El mensaje de la frutas fue leído y se puso de pie.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:y"
+     ]
+    },
+    {
+     "text": "La tienda de frutas se cerró.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El gato se puso de pie.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El señor de las frutas se fue de la tienda.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel B1).\nPersonajes: Marta.\n\n[nota] Entonces vio una nota en la puerta y empezó a leerla en voz alta.\n[frutas] El señor de las frutas estaba en la puerta, pero no le hacía caso.\n[pie] El señor de las frutas se puso de pie y se fue.\n[frutas] El señor de las frutas se fue y se fue de la tienda.\n[y]"
+   ]
+  },
+  {
+   "profile": "advanced",
+   "step": 4,
+   "seed": 4001,
+   "vocab": 1734,
+   "sentenceWords": {
+    "min": 7.225170306717943,
+    "max": 14.919803980848991
+   },
+   "targets": [
+    "es:el"
+   ],
+   "sentence": "El señor de las frutas se acercó a la gente.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {
+    "repeat": 1
+   },
+   "candidates": 5,
+   "accepted": 4,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 2,
+   "seconds": 8.71,
+   "promptTokens": 98,
+   "decodeTokens": 79,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El señor de las frutas se acercó a la gente.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:el"
+     ]
+    },
+    {
+     "text": "El señor de las frutas se acercó a Marta.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:el"
+     ]
+    },
+    {
+     "text": "El señor de las frutas se acercó a Marta.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:el"
+     ]
+    },
+    {
+     "text": "El señor de las frutas se acercó y se quedó de pie.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:el"
+     ]
+    },
+    {
+     "text": "El señor de las frutas se puso de pie y se fue.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:el"
+     ]
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel B1).\nPersonajes: Marta.\n\n[frutas] El señor de las frutas estaba en la puerta, pero no le hacía caso.\n[pie] El señor de las frutas se puso de pie y se fue.\n[frutas] El señor de las frutas se fue y se fue de la tienda.\n[acercó] La gente se acercó y se le quedaron mirando.\n[el]"
+   ]
+  },
+  {
+   "profile": "advanced",
+   "step": 5,
+   "seed": 5001,
+   "vocab": 1734,
+   "sentenceWords": {
+    "min": 7.225170306717943,
+    "max": 14.919803980848991
+   },
+   "targets": [
+    "es:de"
+   ],
+   "sentence": "Marta se acercó a la tienda y se quedó de pie.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {
+    "no_verb": 2,
+    "repeat": 5,
+    "unbalanced_quotes": 1
+   },
+   "candidates": 9,
+   "accepted": 3,
+   "retried": true,
+   "generateCalls": 2,
+   "scoreCalls": 3,
+   "seconds": 12.94,
+   "promptTokens": 188,
+   "decodeTokens": 134,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "Marta se acercó a la tienda y se quedó de pie.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:de"
+     ]
+    },
+    {
+     "text": "Marta se acercó al señor de las frutas.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:de"
+     ]
+    },
+    {
+     "text": "Marta, ¿dónde está el señor de las frutas?",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:de"
+     ]
+    },
+    {
+     "text": "El señor de las frutas se de la tienda.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "no_verb",
+      "repeat"
+     ],
+     "targets": [
+      "es:de"
+     ]
+    },
+    {
+     "text": "El señor de las frutas se dejo y se fue.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:de"
+     ]
+    },
+    {
+     "text": "El señor de las frutas se acercó a la gente.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:de"
+     ]
+    },
+    {
+     "text": "El señor de las frutas se acercó a la gente.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:de"
+     ]
+    },
+    {
+     "text": "El señor de las frutas se de la tienda.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "no_verb",
+      "repeat"
+     ],
+     "targets": [
+      "es:de"
+     ]
+    },
+    {
+     "text": "Marta se acercó a él y le dijo: “¡Hola.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "unbalanced_quotes"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel B1).\nPersonajes: Marta.\n\n[pie] El señor de las frutas se puso de pie y se fue.\n[frutas] El señor de las frutas se fue y se fue de la tienda.\n[acercó] La gente se acercó y se le quedaron mirando.\n[acercó] El señor de las frutas se acercó a la gente.\n[de]",
+    "Cuento en español (nivel B1).\nPersonajes: Marta.\n\n[pie] El señor de las frutas se puso de pie y se fue.\n[frutas] El señor de las frutas se fue y se fue de la tienda.\n[acercó] La gente se acercó y se le quedaron mirando.\n[acercó] El señor de las frutas se acercó a la gente.\n[Marta]"
+   ]
+  },
+  {
+   "profile": "advanced",
+   "step": 6,
+   "seed": 6001,
+   "vocab": 1734,
+   "sentenceWords": {
+    "min": 7.225170306717943,
+    "max": 14.919803980848991
+   },
+   "targets": [
+    "es:que"
+   ],
+   "sentence": "Marta se quedó de pie y miró al señor de las frutas.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "repeat": 1
+   },
+   "candidates": 5,
+   "accepted": 4,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 3,
+   "seconds": 9.53,
+   "promptTokens": 98,
+   "decodeTokens": 81,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "Marta se quedó de pie y miró al señor de las frutas.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "La gente le preguntó a Marta: \"¿Por qué se fue el señor de las frutas?\"",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "La gente se quedó mirando a la fruta.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El señor de las frutas se quedó quieto.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.849,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El señor de las frutas se quedó de pie.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel B1).\nPersonajes: Marta.\n\n[frutas] El señor de las frutas se fue y se fue de la tienda.\n[acercó] La gente se acercó y se le quedaron mirando.\n[acercó] El señor de las frutas se acercó a la gente.\n[acercó] Marta se acercó a la tienda y se quedó de pie.\n[que]"
+   ]
+  },
+  {
+   "profile": "advanced",
+   "step": 7,
+   "seed": 7001,
+   "vocab": 1734,
+   "sentenceWords": {
+    "min": 7.225170306717943,
+    "max": 14.919803980848991
+   },
+   "targets": [
+    "es:y"
+   ],
+   "sentence": "Marta miró a la gente.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "repeat": 4
+   },
+   "candidates": 5,
+   "accepted": 1,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 1,
+   "seconds": 7.72,
+   "promptTokens": 97,
+   "decodeTokens": 66,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "Marta miró a la gente.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "Marta miró al señor de las frutas.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "Marta se quedó de pie y miró al señor de las frutas.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:y"
+     ]
+    },
+    {
+     "text": "Marta miró al señor de las frutas.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "El señor de las frutas se acercó a Marta.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel B1).\nPersonajes: Marta.\n\n[acercó] La gente se acercó y se le quedaron mirando.\n[acercó] El señor de las frutas se acercó a la gente.\n[acercó] Marta se acercó a la tienda y se quedó de pie.\n[pie] Marta se quedó de pie y miró al señor de las frutas.\n[y]"
+   ]
+  },
+  {
+   "profile": "heritage",
+   "step": 0,
+   "seed": 1,
+   "vocab": 1724,
+   "sentenceWords": {
+    "min": 7.21399794760401,
+    "max": 14.896217889386243
+   },
+   "targets": [
+    "es:garaje"
+   ],
+   "sentence": "El coche del abuelo está en el garaje.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {},
+   "candidates": 5,
+   "accepted": 5,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 3,
+   "seconds": 7.42,
+   "promptTokens": 60,
+   "decodeTokens": 65,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El coche del abuelo está en el garaje.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:garaje"
+     ]
+    },
+    {
+     "text": "El garaje está en la parte de atrás de la casa.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:garaje"
+     ]
+    },
+    {
+     "text": "El garaje de la casa está en la calle 5.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:garaje"
+     ]
+    },
+    {
+     "text": "En el garaje, había un coche y un perro.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:garaje"
+     ]
+    },
+    {
+     "text": "La casa tiene un garaje.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:garaje"
+     ]
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel B1).\n\n[casa] La niña vive en una casa pequeña.\n[domingos] Mi abuela siempre cocinaba los domingos.\n[temprano] Toda la familia llegaba temprano a su casa.\n[garaje]"
+   ]
+  },
+  {
+   "profile": "heritage",
+   "step": 1,
+   "seed": 1001,
+   "vocab": 1724,
+   "sentenceWords": {
+    "min": 7.21399794760401,
+    "max": 14.896217889386243
+   },
+   "targets": [
+    "es:gas"
+   ],
+   "sentence": "El gas del abuelo estaba en la cocina.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {
+    "too_short": 1
+   },
+   "candidates": 5,
+   "accepted": 4,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 2,
+   "seconds": 5.75,
+   "promptTokens": 64,
+   "decodeTokens": 56,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El gas del abuelo estaba en la cocina.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:gas"
+     ]
+    },
+    {
+     "text": "El gas del abuelo estaba en el gas.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:gas"
+     ]
+    },
+    {
+     "text": "El gas del abuelo estaba en el gas.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:gas"
+     ]
+    },
+    {
+     "text": "El gas del coche está en el gas.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:gas"
+     ]
+    },
+    {
+     "text": "El abuelo pide gas.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "too_short"
+     ],
+     "targets": [
+      "es:gas"
+     ]
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel B1).\n\n[domingos] Mi abuela siempre cocinaba los domingos.\n[temprano] Toda la familia llegaba temprano a su casa.\n[garaje] El coche del abuelo está en el garaje.\n[gas]"
+   ]
+  },
+  {
+   "profile": "heritage",
+   "step": 2,
+   "seed": 2001,
+   "vocab": 1724,
+   "sentenceWords": {
+    "min": 7.21399794760401,
+    "max": 14.896217889386243
+   },
+   "targets": [
+    "es:geografía"
+   ],
+   "sentence": "El abuelo siempre hacía una geografía en el jardín.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {
+    "too_short": 2
+   },
+   "candidates": 5,
+   "accepted": 3,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 3,
+   "seconds": 6.91,
+   "promptTokens": 79,
+   "decodeTokens": 63,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El abuelo siempre hacía una geografía en el jardín.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:geografía"
+     ]
+    },
+    {
+     "text": "El bosque se llama el bosque de la montaña.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "En el centro de la ciudad hay un parque grande.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El abuelo enseñaba geografía.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "too_short"
+     ],
+     "targets": [
+      "es:geografía"
+     ]
+    },
+    {
+     "text": "La tierra es plana.",
+     "accepted": false,
+     "inBand": false,
+     "share": 0.728,
+     "rejected": [
+      "too_short"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel B1).\n\n[domingos] Mi abuela siempre cocinaba los domingos.\n[temprano] Toda la familia llegaba temprano a su casa.\n[garaje] El coche del abuelo está en el garaje.\n[gas] El gas del abuelo estaba en la cocina.\n[geografía]"
+   ]
+  },
+  {
+   "profile": "heritage",
+   "step": 3,
+   "seed": 3001,
+   "vocab": 1724,
+   "sentenceWords": {
+    "min": 7.21399794760401,
+    "max": 14.896217889386243
+   },
+   "targets": [
+    "es:gimnasio"
+   ],
+   "sentence": "El gimnasio de la abuela es el más bonito del mundo.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {},
+   "candidates": 5,
+   "accepted": 5,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 3,
+   "seconds": 7.89,
+   "promptTokens": 83,
+   "decodeTokens": 73,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El gimnasio de la abuela es el más bonito del mundo.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:gimnasio"
+     ]
+    },
+    {
+     "text": "El gimnasio está en el segundo piso.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:gimnasio"
+     ]
+    },
+    {
+     "text": "El gimnasio está en la casa del abuelo.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:gimnasio"
+     ]
+    },
+    {
+     "text": "El abuelo siempre hacía un gimnasio en el jardín.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:gimnasio"
+     ]
+    },
+    {
+     "text": "El gimnasio está en el sótano.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.776,
+     "rejected": [],
+     "targets": [
+      "es:gimnasio"
+     ]
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel B1).\n\n[temprano] Toda la familia llegaba temprano a su casa.\n[garaje] El coche del abuelo está en el garaje.\n[gas] El gas del abuelo estaba en la cocina.\n[geografía] El abuelo siempre hacía una geografía en el jardín.\n[gimnasio]"
+   ]
+  },
+  {
+   "profile": "heritage",
+   "step": 4,
+   "seed": 4001,
+   "vocab": 1724,
+   "sentenceWords": {
+    "min": 7.21399794760401,
+    "max": 14.896217889386243
+   },
+   "targets": [
+    "es:garaje"
+   ],
+   "sentence": "El gimnasio del abuelo es el más barato del mundo.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.967,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "repeat": 8
+   },
+   "candidates": 9,
+   "accepted": 1,
+   "retried": true,
+   "generateCalls": 2,
+   "scoreCalls": 1,
+   "seconds": 13.68,
+   "promptTokens": 171,
+   "decodeTokens": 138,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El gimnasio del abuelo es el más barato del mundo.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.967,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "El coche del abuelo está en el garaje.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:garaje"
+     ]
+    },
+    {
+     "text": "El coche del abuelo está en el garaje.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:garaje"
+     ]
+    },
+    {
+     "text": "El coche del abuelo está en el garaje.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:garaje"
+     ]
+    },
+    {
+     "text": "El coche del abuelo está en el garaje.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:garaje"
+     ]
+    },
+    {
+     "text": "El coche del abuelo está en el garaje.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:garaje"
+     ]
+    },
+    {
+     "text": "El gimnasio de la abuela es el más bonito del mundo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.967,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "El gimnasio de la abuela es el más bonito del mundo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.967,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "El gimnasio de la abuela es el más bonito del mundo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.967,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel B1).\n\n[garaje] El coche del abuelo está en el garaje.\n[gas] El gas del abuelo estaba en la cocina.\n[geografía] El abuelo siempre hacía una geografía en el jardín.\n[gimnasio] El gimnasio de la abuela es el más bonito del mundo.\n[garaje]",
+    "Cuento en español (nivel B1).\n\n[garaje] El coche del abuelo está en el garaje.\n[gas] El gas del abuelo estaba en la cocina.\n[geografía] El abuelo siempre hacía una geografía en el jardín.\n[gimnasio] El gimnasio de la abuela es el más bonito del mundo.\n[gimnasio]"
+   ]
+  },
+  {
+   "profile": "heritage",
+   "step": 5,
+   "seed": 5001,
+   "vocab": 1724,
+   "sentenceWords": {
+    "min": 7.21399794760401,
+    "max": 14.896217889386243
+   },
+   "targets": [
+    "es:gas"
+   ],
+   "sentence": null,
+   "inBand": false,
+   "ownInBand": false,
+   "ownShare": null,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "repeat": 9
+   },
+   "candidates": 9,
+   "accepted": 0,
+   "retried": true,
+   "generateCalls": 2,
+   "scoreCalls": 0,
+   "seconds": 12.06,
+   "promptTokens": 178,
+   "decodeTokens": 126,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El gas del abuelo estaba en la cocina.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:gas"
+     ]
+    },
+    {
+     "text": "El gas del abuelo estaba en la cocina.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:gas"
+     ]
+    },
+    {
+     "text": "El gas del abuelo estaba en la cocina.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:gas"
+     ]
+    },
+    {
+     "text": "El gas del abuelo estaba en la cocina.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:gas"
+     ]
+    },
+    {
+     "text": "El gas del abuelo estaba en la cocina.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:gas"
+     ]
+    },
+    {
+     "text": "El gimnasio del abuelo es el más bonito del mundo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.967,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "El gimnasio del abuela es el más bonito del mundo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.967,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "El gimnasio del abuela es el más barato del mundo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.967,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "El gimnasio del abuelo es el más bonito del mundo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.967,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel B1).\n\n[gas] El gas del abuelo estaba en la cocina.\n[geografía] El abuelo siempre hacía una geografía en el jardín.\n[gimnasio] El gimnasio de la abuela es el más bonito del mundo.\n[gimnasio] El gimnasio del abuelo es el más barato del mundo.\n[gas]",
+    "Cuento en español (nivel B1).\n\n[gas] El gas del abuelo estaba en la cocina.\n[geografía] El abuelo siempre hacía una geografía en el jardín.\n[gimnasio] El gimnasio de la abuela es el más bonito del mundo.\n[gimnasio] El gimnasio del abuelo es el más barato del mundo.\n[gimnasio]"
+   ]
+  },
+  {
+   "profile": "heritage",
+   "step": 6,
+   "seed": 6001,
+   "vocab": 1724,
+   "sentenceWords": {
+    "min": 7.21399794760401,
+    "max": 14.896217889386243
+   },
+   "targets": [
+    "es:geografía"
+   ],
+   "sentence": null,
+   "inBand": false,
+   "ownInBand": false,
+   "ownShare": null,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "repeat": 9
+   },
+   "candidates": 9,
+   "accepted": 0,
+   "retried": true,
+   "generateCalls": 2,
+   "scoreCalls": 0,
+   "seconds": 15.59,
+   "promptTokens": 179,
+   "decodeTokens": 151,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El abuelo siempre hacía una geografía en el jardín.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:geografía"
+     ]
+    },
+    {
+     "text": "El abuelo siempre hacía una geografía en el jardín.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:geografía"
+     ]
+    },
+    {
+     "text": "El abuelo siempre hacía una geografía en el jardín.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:geografía"
+     ]
+    },
+    {
+     "text": "El abuelo siempre hacía una geografía en el jardín.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:geografía"
+     ]
+    },
+    {
+     "text": "El abuelo siempre hacía una geografía en el jardín.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:geografía"
+     ]
+    },
+    {
+     "text": "El gimnasio del abuelo es el más barato del mundo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.967,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "El gimnasio del abuela es el más bonito del mundo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.967,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "El gimnasio del abuela es el más bonito del mundo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.967,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    },
+    {
+     "text": "El gimnasio de la abuela es el más bonito del mundo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.967,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel B1).\n\n[gas] El gas del abuelo estaba en la cocina.\n[geografía] El abuelo siempre hacía una geografía en el jardín.\n[gimnasio] El gimnasio de la abuela es el más bonito del mundo.\n[gimnasio] El gimnasio del abuelo es el más barato del mundo.\n[geografía]",
+    "Cuento en español (nivel B1).\n\n[gas] El gas del abuelo estaba en la cocina.\n[geografía] El abuelo siempre hacía una geografía en el jardín.\n[gimnasio] El gimnasio de la abuela es el más bonito del mundo.\n[gimnasio] El gimnasio del abuelo es el más barato del mundo.\n[gimnasio]"
+   ]
+  },
+  {
+   "profile": "heritage",
+   "step": 7,
+   "seed": 7001,
+   "vocab": 1724,
+   "sentenceWords": {
+    "min": 7.21399794760401,
+    "max": 14.896217889386243
+   },
+   "targets": [
+    "es:gimnasio"
+   ],
+   "sentence": null,
+   "inBand": false,
+   "ownInBand": false,
+   "ownShare": null,
+   "targetUsed": false,
+   "newRejects": [],
+   "rejects": {
+    "repeat": 9
+   },
+   "candidates": 9,
+   "accepted": 0,
+   "retried": true,
+   "generateCalls": 2,
+   "scoreCalls": 0,
+   "seconds": 14.72,
+   "promptTokens": 180,
+   "decodeTokens": 152,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El gimnasio del abuelo es el más bonito del mundo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:gimnasio"
+     ]
+    },
+    {
+     "text": "El gimnasio del abuelo es el más bonito del mundo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:gimnasio"
+     ]
+    },
+    {
+     "text": "El gimnasio de la abuela es el más bonito del mundo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:gimnasio"
+     ]
+    },
+    {
+     "text": "El gimnasio del abuelo es el más barato del mundo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:gimnasio"
+     ]
+    },
+    {
+     "text": "El gimnasio del abuelo es el más bonito del mundo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:gimnasio"
+     ]
+    },
+    {
+     "text": "El gimnasio del abuelo es el más bonito del mundo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:gimnasio"
+     ]
+    },
+    {
+     "text": "El gimnasio del abuelo es el más barato del mundo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:gimnasio"
+     ]
+    },
+    {
+     "text": "El gimnasio de la abuela es el más bonito del mundo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:gimnasio"
+     ]
+    },
+    {
+     "text": "El gimnasio del abuela es el más bonito del mundo.",
+     "accepted": false,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [
+      "repeat"
+     ],
+     "targets": [
+      "es:gimnasio"
+     ]
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel B1).\n\n[gas] El gas del abuelo estaba en la cocina.\n[geografía] El abuelo siempre hacía una geografía en el jardín.\n[gimnasio] El gimnasio de la abuela es el más bonito del mundo.\n[gimnasio] El gimnasio del abuelo es el más barato del mundo.\n[gimnasio]",
+    "Cuento en español (nivel B1).\n\n[gas] El gas del abuelo estaba en la cocina.\n[geografía] El abuelo siempre hacía una geografía en el jardín.\n[gimnasio] El gimnasio de la abuela es el más bonito del mundo.\n[gimnasio] El gimnasio del abuelo es el más barato del mundo.\n[gimnasio]"
+   ]
+  }
+ ]
+}

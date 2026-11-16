@@ -79,7 +79,7 @@ describe('onboarding', () => {
     expect(await screen.findByTestId('onboarding-model')).toBeOnTheScreen();
     expect(screen).toHavePathname('/onboarding/model');
     expect(screen.getByTestId('model-size')).toHaveTextContent('1.1 GB');
-    expect(screen.getByTestId('model-free-space')).toHaveTextContent('23.4 GB free on this phone · the model needs 1.1 GB');
+    expect(screen.getByTestId('model-free-space')).toHaveTextContent('23.4 GB free on this phone');
     expect(screen.getByTestId('model-wifi-note')).toHaveTextContent(/Wi-Fi/);
     expectAccessibleControls();
     const storage = await services.storage.open();

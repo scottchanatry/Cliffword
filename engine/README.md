@@ -60,7 +60,14 @@ Import from `src/index.ts` (the package `main`).
   word as a cliff. `scoreCliffAnswer(model, pack, contextBeforeCliff, answer, actual)`
   returns a `CliffResult`: credit `full | partial | none` with reason `actual | likely |
   plausible | form | unlikely`, the scored form and the alternatives. An answer shorter
-  than a multi-word cliff earns at most partial credit.
+  than a multi-word cliff earns at most partial credit. Pass `{ alternatives }` (the
+  `CliffPosition.alternatives` cliffPositions found at the same cliff; check with
+  `alternativesReusable(cliffOpts, creditOpts)`) and, when known, `{ actualLogprob }` to
+  skip the next-word search: an answer then costs at most 2 model calls (4 for several
+  words) with the same result. Lemma credit (`lemmaWeight`, `lemmaFloor`): an answer that
+  is the same inflection of the same lexeme as an alternative (`sameLexemeForm`: reír and
+  reírse) is credited at `lemmaWeight` x P(alternative) when that is more (at most
+  partial with the defaults); `CliffResult.lemmaMatch` names the alternative.
 - **Corrections.** `judgeSentence(model, pack, context, text, { register })` returns a
   `Judgement`: verdict `ok | hint | assert`, the best variant with its edit span and word
   index, the margin, and the `explainKey` to look up in `pair.explanations`. Token
@@ -108,8 +115,16 @@ Import from `src/index.ts` (the package `main`).
   `startEcho` and `setRegister`. Every step returns `{ screen, events, speak?, ... }`;
   events are already applied to the session's learner unless `applyEvents: false`.
   Display text is always a `UiText` (`{ key, params }`) to look up in `pair.ui`;
-  `SESSION_UI_KEYS` lists every key a screen can carry. Async steps must not overlap
-  (a second one throws). `StorySession.prefetch(at)` prepares the next step while the
+  `SESSION_UI_KEYS` lists every key a screen can carry. One step at a time: while an
+  async step waits for the model, every other step call (sync ones included: `tapWord`,
+  `revealWord`, `played`, `setSettings`, `markLine`, `setRegister`, `startEcho`,
+  `showSong`) is refused, not queued: it returns at once `{ screen, events: [], refused:
+  'busy' }` with the screen from before the running step and changes nothing (a queued
+  call would land on whatever screen that step ends on). `isBusy` says so beforehand;
+  `snapshot()`, `screen` and `settings` read the state from before the running step;
+  `setModel()` waits for the step to end; a step that throws leaves the session as it
+  was, so the app can retry it. A cliff answer reuses the alternatives cliff selection
+  found (no next-word search). `StorySession.prefetch(at)` prepares the next step while the
   learner is on the landing or no-sé screen (next() then replays the model's answers);
   `stageAt(at)` says whether the next sentence comes from the starter, the bridge or free
   generation; `modelStats` counts model calls and replays.
@@ -224,8 +239,12 @@ In more detail:
 Model calls per step (defaults): generation 1 or 2 plus up to 3 scoring calls for the
 natural score (`naturalTop`); cliff positions 1 plus at most 50 per
 analysed position (a next-word search of at most 49 calls and one boundary call; pass
-`positions` to analyse a few); an answer 1 next-word search plus up to 2 calls; a judgement
-1 plus one per variant (at most 16).
+`positions` to analyse a few); an answer 1 next-word search plus up to 2 calls, or with
+precomputed `alternatives` (what sessions pass) none for an answer among them and 2 for
+another word (4 for several words; a slang cliff whose answer is judged in neutral form
+also searches at the neutral context); a judgement 1 plus one per variant (at most 16).
+Measured per session step on the mock and on Qwen3-1.7B: `proof/ENGINE_REAL_MODEL.md`,
+"Answer speed, lemma credit and session robustness".
 
 ## Thresholds from the proof test
 
@@ -442,6 +461,30 @@ fallback.
   after the starter before it cycles. `proof/model_server.py` `/generate` reuses the KV
   cache of the prompt prefix shared with the previous request (identical texts).
 
+## Contract decisions made for answer speed and session robustness (round 3)
+
+- `CreditOptions.alternatives` and `actualLogprob` (precomputed at the cliff),
+  `alternativesReusable(cliff, credit)`; `LyricAnswerTarget.alternatives` and
+  `actualLogprob` (used for the answer as given, never for the neutral rescoring).
+  `StorySession` passes them for model sentences, `LyricSession` for cliffs the model rated
+  (`LyricCliffState.rated`, absent in older snapshots, which then search as before).
+- Lemma credit: `CreditOptions.lemmaWeight` (0.02) and `lemmaFloor` (2e-5),
+  `sameLexemeForm(pack, a, b)`, `CliffResult.lemmaMatch`. Measured in
+  `proof/ENGINE_REAL_MODEL.md`: no weight separates a natural pronoun-less form (reír for
+  reírse) from a wrong one (levantar for levantarse), so the default weight can lift an
+  answer to partial credit and never to full.
+- Sessions: `StepRefusal` ('busy'), `StoryStep.refused`, `LyricStep.refused`,
+  `StorySession.isBusy`, `LyricSession.isBusy`. Async steps that overlap no longer throw:
+  they are refused like the sync calls. A step that throws rolls the session state back.
+- `parseLyrics` rejects LRC times whose seconds are 60 or more (`[99:99.99]`, `<01:75>`):
+  removed from the line, no time. `estimateDurationMs` gives 0 ms for text with no
+  letter or number. `anchorFormOf` is exported from the corrections barrel (and so from
+  `src/index.ts`); `boundedWords` already was, through `scoring/wordScores`.
+- Lookups behind every step are cached: the Spanish analyzer keeps the analyses of up to
+  `DEFAULT_ANALYZE_OPTIONS.cacheSize` (20000) words and returns copies; `slangIn` and
+  `slangExemption` segment each register pack's forms once per pack; `findSlangMatches`
+  builds its index once per pack and option set.
+
 ## Known limits
 
 - Corrections never restore a missing accent (by design, so ser/estar is not credited for
@@ -520,6 +563,13 @@ fallback.
   no stall or early repeat with or without a model) and `src/session/prefetch.test.ts`
   (same story with and without prefetch, snapshot / restore, learner and model changes,
   serialized model calls).
+- Answer speed and robustness: `src/scoring/cliffReuse.test.ts` (precomputed alternatives
+  give the search's results, lemma credit and its guards), `src/session/answerCalls.test.ts`
+  (a session answer makes no next-word search), `src/session/busy.test.ts` (every call
+  during a pending model call is refused and changes nothing, refusals resolve first, a
+  snapshot taken while busy restores to the state before the step, a failed step rolls
+  back, setModel waits) and `src/lyrics/lookupCache.test.ts` (the lookup caches equal the
+  uncached answers).
 - `test/language-neutral.test.ts`: a toy Japanese pack (Intl.Segmenter words, and a
   dictionary segmenter) through scoreWords, generateVariants, judgeSentence,
   matchCommand, alignTranscript and StorySession steps with the mock model; no space is

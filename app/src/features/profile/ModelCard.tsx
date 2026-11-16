@@ -31,6 +31,13 @@ export function ModelStatus({ file, availability, descriptor, freeBytes }: Model
     case 'load-failed':
       line = t('error.modelLoad');
       break;
+    case 'missing':
+      // Fresh: the screens around it already say what the model is and how big.
+      if (file.progress.bytesWritten === 0) {
+        line = t('model.status.missing');
+        break;
+      }
+    // falls through: a paused download says where it stopped
     default: {
       const message = modelFileMessage(file, descriptor, t);
       line = t(message.key, message.vars);
@@ -57,7 +64,7 @@ export function ModelStatus({ file, availability, descriptor, freeBytes }: Model
       ) : null}
       {freeBytes !== null && availability !== 'ready' ? (
         <InterfaceText variant="caption" tone="muted" maxFontSizeMultiplier={CHROME_MAX_SCALE} testID="model-free-space">
-          {t('model.freeSpace', { free: formatBytes(freeBytes, t), size: formatBytes(descriptor.bytes, t) })}
+          {t('model.freeSpace', { free: formatBytes(freeBytes, t) })}
         </InterfaceText>
       ) : null}
     </View>

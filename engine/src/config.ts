@@ -29,6 +29,8 @@
  * | DEFAULT_CLIFF_PICK_OPTIONS      | probFloor              | 0.02           | checked against the proof's next-word lists                   |
  * | DEFAULT_CREDIT_OPTIONS          | partialFloor           | 1e-4           | measured on the real model: credits 40/40 natural, 0/23 wrong |
  * | DEFAULT_CREDIT_OPTIONS          | fullRatio, fullFloor   | 0.25, 0.05     | consistent with the lists; calibrate from learner answers     |
+ * | DEFAULT_CREDIT_OPTIONS          | lemmaWeight, lemmaFloor| 0.02, 2e-5     | measured: lifts to partial at most (reír vs levantar)         |
+ * | DEFAULT_ANALYZE_OPTIONS (es)    | cacheSize              | 20000 words    | judgement: a few MB; lookups 7x faster (bench.ts)             |
  * | DEFAULT_VARIANT_OPTIONS         | maxVariants            | 16             | 1.9 s for 1 + 6 on 4 CPU cores; measure on device             |
  * | DEFAULT_NEXT_SENTENCE_TUNING    | tokensPerWord          | 2              | measured 1.6 for Qwen3, plus headroom                         |
  * | DEFAULT_NEXT_SENTENCE_TUNING    | n, retryN              | 5, 4           | measured: in-band candidate in most steps at every level      |

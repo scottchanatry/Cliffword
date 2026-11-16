@@ -38,3 +38,26 @@ Story generation at every level (2026-11-16, see the dated section of
 - `session-prefetch.ts`: `StorySession.prefetch` on the real model, next() with and
   without a prefetch; results in `results/session-prefetch-*.json`.
 
+
+Answer speed, lemma credit and session robustness (2026-11-16, see the dated section of
+`proof/ENGINE_REAL_MODEL.md`). Run from `engine/`; "before" runs import the engine named
+by `CLIFFWORD_ENGINE_BEFORE` (the working tree with this round's files restored from
+commit 20ca71a):
+
+- `session-calls.ts`: a counting wrapper between a StorySession / LyricSession and the
+  model books every call and its time under the step being run (next, answer per kind,
+  learner turn, retell, lyric next and answer, echo), on the mock or the real model;
+  every step's result is hashed so before and after runs compare step by step
+  (`npx vite-node ../proof/engine-measure/session-calls.ts -- <before|after> <mock|real> [sentences] [label]`);
+  results in `results/session-calls-*.json`.
+- `credit-lemma.ts`: scoreCliffAnswer on the six cliff sets of section 4 and a
+  supplementary lemma-credit set (pronominal and clitic forms, natural and wrong),
+  with a sweep of lemmaWeight and partialFloor over the same alternatives
+  (`npx vite-node ../proof/engine-measure/credit-lemma.ts -- <before|after> [label]`);
+  results in `results/credit-lemma-*.json`; `credit-summary.py before after` prints the
+  tables and checks that the after engine with lemma credit off equals the before one.
+- `bench.ts`: micro-benchmark of the engine's own hot paths with the mock model and an
+  instant model (lexicon lookups, variants, scoreWords, slang matching, sentence views,
+  learner-wide work, parseLyrics, whole session steps)
+  (`npx vite-node ../proof/engine-measure/bench.ts -- <before|after> [label] [rounds]`);
+  results in `results/bench-*.json`.

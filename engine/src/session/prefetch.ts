@@ -28,7 +28,25 @@ export class ModelGate {
   /** Calls made by recording views (prefetch). */
   recordedCalls = 0;
 
-  constructor(readonly model: LanguageModel) {}
+  /**
+   * `after`: the calls of a gate this one replaces (StorySession.setModel while a prefetch
+   * still runs on the old gate) finish before this gate's first call starts, so model calls
+   * never overlap across the switch either.
+   */
+  constructor(
+    readonly model: LanguageModel,
+    after?: Promise<unknown>,
+  ) {
+    if (after) this.queue = after.then(
+      () => undefined,
+      () => undefined,
+    );
+  }
+
+  /** Settles when every call queued so far has finished. */
+  idle(): Promise<unknown> {
+    return this.queue;
+  }
 
   /** Run `fn` after every call queued before it. */
   private serial<T>(fn: () => Promise<T>): Promise<T> {
@@ -37,7 +55,21 @@ export class ModelGate {
     return p;
   }
 
+  /**
+   * Stop this gate (its session switched models): calls that have not started yet fail
+   * instead of reaching the model, so a prefetch still running on it ends at once (a
+   * failed prefetch only costs the replay) and the replacing gate, which starts after
+   * this one's queue, never runs a call beside it.
+   */
+  retire(): void {
+    this.retired = true;
+    this.recorded.clear();
+  }
+
+  private retired = false;
+
   private call<T>(method: Method, args: unknown[], invoke: () => Promise<T>, mode: 'record' | 'replay'): Promise<T> {
+    if (this.retired) return Promise.reject(new Error('ModelGate: the model was replaced'));
     const key = JSON.stringify([method, args]);
     if (mode === 'replay') {
       const hit = this.recorded.get(key);
@@ -47,6 +79,7 @@ export class ModelGate {
       }
     }
     const p = this.serial(() => {
+      if (this.retired) return Promise.reject(new Error('ModelGate: the model was replaced'));
       this.calls += 1;
       if (mode === 'record') this.recordedCalls += 1;
       return invoke();

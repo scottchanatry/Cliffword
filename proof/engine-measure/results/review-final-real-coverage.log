@@ -1,0 +1,18 @@
+
+ RUN  v2.1.9 /home/user/cliffword/engine
+
+stdout | test/real-coverage.test.ts > correction coverage on the held-out sets (real model) > held-out pairs: no correct sentence asserted, most errors asserted with the exact fix
+[real-coverage] held-out: 64/83 asserted with the exact fix; 0 false asserts, 3 false hints
+
+stdout | test/real-coverage.test.ts > correction coverage on the held-out sets (real model) > held-out street sentences: no variant on a slang word, no slang word shaded, few asserts
+[real-coverage] held-out street: 0/27 asserts
+
+ ✓ test/real-coverage.test.ts (2 tests) 81601ms
+   ✓ correction coverage on the held-out sets (real model) > held-out pairs: no correct sentence asserted, most errors asserted with the exact fix 72318ms
+   ✓ correction coverage on the held-out sets (real model) > held-out street sentences: no variant on a slang word, no slang word shaded, few asserts 9282ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  04:27:24
+   Duration  82.65s (transform 614ms, setup 0ms, collect 842ms, tests 81.60s, environment 0ms, prepare 44ms)
+

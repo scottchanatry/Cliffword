@@ -120,7 +120,8 @@ describe('generateNextSentence with the mock model', () => {
       n: 3,
       maxTokens: 8 * 2 + DEFAULT_NEXT_SENTENCE_TUNING.extraTokens,
       temperature: DEFAULT_NEXT_SENTENCE_TUNING.temperature,
-      stop: DEFAULT_NEXT_SENTENCE_TUNING.stop,
+      // The pack's sentence-end stops (StoryLanguageData.stop), not the core default.
+      stop: [...(pack.story?.stop ?? [])],
       seed: 7,
     });
   });

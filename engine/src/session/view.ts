@@ -67,7 +67,7 @@ export const DEFAULT_VIEW_OPTIONS: Readonly<ViewOptions> = {
  */
 export function sentenceWords(pack: LanguagePack, text: string, opts: { register: Register; regions: readonly string[] }): SentenceWord[] {
   const segments = pack.segment(text);
-  const starts = sentenceStartFlags(segments);
+  const starts = sentenceStartFlags(segments, pack.abbreviations ?? []);
   const chosen = new Map(chooseAnalysesInText(pack, segments, starts).map((c) => [c.segIndex, c]));
   const matches = findSlangMatches(pack, text, { regions: opts.regions, alsoStandard: opts.register === 'street' });
   const out: SentenceWord[] = [];

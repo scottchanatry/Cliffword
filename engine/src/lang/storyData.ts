@@ -117,4 +117,13 @@ export interface StoryLanguageData {
    * to false.
    */
   readonly requireVerb?: boolean;
+  /**
+   * Generation stop strings: where the first sentence of a completion ends in this
+   * language's writing. The runtime cuts the stop string off, so a pack lists only ends
+   * whose mark it can restore (Spanish: ". ", and "? " / "! ", restored from the opening
+   * ¿ / ¡). Absent: NextSentenceTuning.stop's default, a line break, which any script
+   * ends a line with (a language without spaces after its sentence ends, or without an
+   * opening question mark, would lose the end mark with ". "-style stops).
+   */
+  readonly stop?: readonly string[];
 }

@@ -237,12 +237,12 @@ export const DEFAULT_COVERAGE_OPTIONS: Readonly<CoverageOptions> = {
  */
 export function contentLemmas(
   text: string,
-  pack: Pick<LanguagePack, 'segment' | 'normalize' | 'analyze' | 'chooseAnalysis'>,
+  pack: Pick<LanguagePack, 'segment' | 'normalize' | 'analyze' | 'chooseAnalysis' | 'abbreviations'>,
   opts: Partial<CoverageOptions> = {},
 ): string[] {
   const o: CoverageOptions = { ...DEFAULT_COVERAGE_OPTIONS, ...opts };
   const segments = pack.segment(text);
-  const chosen = chooseAnalysesInText(pack, segments, sentenceStartFlags(segments));
+  const chosen = chooseAnalysesInText(pack, segments, sentenceStartFlags(segments, pack.abbreviations ?? []));
   const out: string[] = [];
   for (const c of chosen) {
     let lemma: string | undefined;
@@ -276,7 +276,7 @@ export interface RetellCoverage {
 export function retellCoverage(
   said: string | readonly TimedWord[],
   story: string | Iterable<string>,
-  pack: Pick<LanguagePack, 'segment' | 'normalize' | 'analyze' | 'chooseAnalysis' | 'foldAccents'>,
+  pack: Pick<LanguagePack, 'segment' | 'normalize' | 'analyze' | 'chooseAnalysis' | 'foldAccents' | 'abbreviations'>,
   opts: Partial<CoverageOptions> = {},
 ): RetellCoverage {
   const o: CoverageOptions = { ...DEFAULT_COVERAGE_OPTIONS, ...opts };
@@ -285,7 +285,7 @@ export function retellCoverage(
   const texts = typeof said === 'string' ? [said] : said.map((w) => w.text);
   for (const text of texts) {
     const segments = pack.segment(text);
-    for (const c of chooseAnalysesInText(pack, segments, sentenceStartFlags(segments))) {
+    for (const c of chooseAnalysesInText(pack, segments, sentenceStartFlags(segments, pack.abbreviations ?? []))) {
       saidKeys.add(looseKey(pack, c.chosen?.lemma ?? c.norm, o.marks));
       // Any reading of the word counts: a retold "comida" covers the story's noun even
       // when the retell's context picks another analysis.

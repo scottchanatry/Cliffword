@@ -15,7 +15,7 @@
  * 3. Round 1 (targets): the continuation prompt ends with the target words as the next
  *    tag (buildStoryPrompt). `n` completions are sampled in one model call; completion i
  *    uses seed + i, so the whole step is reproducible from `seed`. Generation stops at
- *    the first sentence end (tuning.stop).
+ *    the first sentence end (the pack's StoryLanguageData.stop, else a line break).
  * 4. Every completion is cleaned to one sentence (extractSentence with the pack's labels)
  *    and selectSentence ranks them (rejects first, then band, targets, novelty,
  *    continuity, length, unknown words), with the raw completion for the placeholder,
@@ -83,7 +83,11 @@ export interface NextSentenceTuning {
   retryTemperature: number;
   /** Run the safe round when nothing accepted lands in the band. */
   retry: boolean;
-  /** Generation stops at these strings: the first sentence end. */
+  /**
+   * Generation stops at these strings. Default: a line break (one tagged line, any
+   * script). The pack's StoryLanguageData.stop (the first sentence end in its writing)
+   * replaces the default unless the caller sets stop.
+   */
   stop: string[];
   /** maxTokens = ceil(maxWords x tokensPerWord) + extraTokens. */
   tokensPerWord: number;
@@ -116,8 +120,9 @@ export interface NextSentenceTuning {
  * - temperature 0.9: at 0.8 the beginner prompts repeated one sentence in up to 6 of 12
  *   candidates; a little more temperature spreads them, and llama.cpp's min-p filter
  *   (applied before the temperature) keeps out the unlikely tokens. Judgement.
- * - stop at the first sentence end (". ", "? ", "! " or a line break): about 10 to 14
- *   tokens per candidate instead of the 24 to 36 of a full maxTokens run.
+ * - stop: a line break, the only end every script shares; the Spanish pack stops at the
+ *   first sentence end (StoryLanguageData.stop: ". ", "? ", "! " or a line break), about
+ *   10 to 14 tokens per candidate instead of the 24 to 36 of a full maxTokens run.
  * - tokensPerWord 2: Qwen3 uses about 1.6 tokens per Spanish word, punctuation included;
  *   extraTokens 4 leaves room for the stop string.
  * - naturalTop 3, naturalMaxCalls 6: three to six scoring calls of about 0.1 s each; a
@@ -132,7 +137,7 @@ export const DEFAULT_NEXT_SENTENCE_TUNING: Readonly<NextSentenceTuning> = {
   temperature: 0.9,
   retryTemperature: 1,
   retry: true,
-  stop: ['. ', '? ', '! ', '\n'],
+  stop: ['\n'],
   tokensPerWord: 2,
   extraTokens: 4,
   contextSentences: DEFAULT_CONTEXT_SENTENCES,
@@ -398,8 +403,12 @@ export async function generateNextSentence(
   deps: NextSentenceDeps,
   opts: NextSentenceOptions,
 ): Promise<NextSentenceResult> {
-  const t: NextSentenceTuning = { ...DEFAULT_NEXT_SENTENCE_TUNING, ...opts.tuning };
   const { pack, learner } = deps;
+  const t: NextSentenceTuning = {
+    ...DEFAULT_NEXT_SENTENCE_TUNING,
+    ...(pack.story?.stop ? { stop: [...pack.story.stop] } : {}),
+    ...opts.tuning,
+  };
   const n = wholeAtLeast(t.n);
   const register = opts.register ?? 'neutral';
   const targetWords = (opts.targetWords ?? targetWordsFromKeys(opts.targets)).map((w) => w.trim()).filter(Boolean);

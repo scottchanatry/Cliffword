@@ -292,7 +292,7 @@ async function rankUnit(
   for (const m of matches) for (let j = 0; j < m.wordCount; j++) slangAt.set(m.wordIndex + j, m);
 
   // One analysis per word in context, for names, numbers and learner keys.
-  const choices = new Map(chooseAnalysesInText(pack, segs, sentenceStartFlags(segs)).map((c) => [c.segIndex, c]));
+  const choices = new Map(chooseAnalysesInText(pack, segs, sentenceStartFlags(segs, pack.abbreviations ?? [])).map((c) => [c.segIndex, c]));
   const excludedPos = new Set(o.excludePos);
   const keyOf = (w: number): string => {
     const m = slangAt.get(w);

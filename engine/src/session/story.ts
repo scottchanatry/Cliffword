@@ -396,9 +396,16 @@ export class StorySession {
     if (opts.gated !== false) this.useModel(deps.model);
   }
 
-  /** Route the model through a fresh gate (null: canned mode). */
+  /**
+   * Route the model through a fresh gate (null: canned mode). The old gate is retired (a
+   * prefetch still running on it fails at its next call) and the new one starts after the
+   * old one's queue, so model calls never overlap across a model switch.
+   */
   private useModel(model: LanguageModel | null): void {
-    this.gate = model ? new ModelGate(model) : null;
+    // A prefetch still running on the old gate stops at its next call.
+    this.gate?.retire();
+    const previous = this.gate?.idle();
+    this.gate = model ? new ModelGate(model, previous) : null;
     this.deps = { ...this.deps, model: this.gate ? this.gate.replay() : null };
   }
 
@@ -572,14 +579,20 @@ export class StorySession {
 
   /** Move on: the next sentence, the next activity, or the next chapter (see the module comment). */
   async next(at: number): Promise<StoryStep> {
-    return this.run(async () => {
-      if (this.prefetching) await this.prefetching;
-      try {
-        return await this.advance(at);
-      } finally {
-        this.gate?.clear();
-      }
-    });
+    return this.run(async () => this.advanceStep(at));
+  }
+
+  /**
+   * advance() for the session's own steps (next, and the next / done commands): after a
+   * running prefetch, replaying its answers, which are dropped afterwards.
+   */
+  private async advanceStep(at: number): Promise<StoryStep> {
+    if (this.prefetching) await this.prefetching;
+    try {
+      return await this.advance(at);
+    } finally {
+      this.gate?.clear();
+    }
   }
 
   /**
@@ -1198,18 +1211,23 @@ export class StorySession {
       },
     );
     let tries = 0;
-    for (const cand of next.ranked) {
-      if (!cand.accepted) continue;
+    const usable = next.ranked.filter((c) => c.accepted);
+    for (const [k, cand] of usable.entries()) {
       const words = sentenceWords(pack, cand.text, this.regOpts());
       if (!settings.showExplicit && words.some((w) => w.explicit)) continue;
       if (tries >= this.o.candidateTries) break;
-      const cur = await this.cutCliff(model, cand.text, words, joinSentences(story), forced ? [forced.key] : cand.targetsHit, targets, params, at, forced);
+      // The band comes first: the last in-band candidate the session will try takes its best
+      // rated cliff even below the plausibility floor rather than leave the band (the
+      // options rung and "no sé" keep a hard cliff fair; a sentence outside the band is not).
+      const lastInBand = cand.inBand && (tries + 1 >= this.o.candidateTries || !usable.slice(k + 1).some((c) => c.inBand));
+      const cur = await this.cutCliff(model, cand.text, words, joinSentences(story), forced ? [forced.key] : cand.targetsHit, targets, params, at, forced, lastInBand);
       if (cur === 'no_position') continue;
       tries += 1;
       if (cur) {
         const keep = Math.max(0, Math.floor({ ...DEFAULT_HANDOVER_OPTIONS, ...this.o.handover }.introducedKeep));
         const introduced = this.state.introduced.filter((k) => !cand.targetsHit.includes(k));
-        this.state.introduced = [...introduced, ...cand.targetsHit].slice(-keep);
+        // slice(-0) would keep everything: introducedKeep 0 keeps none.
+        this.state.introduced = keep > 0 ? [...introduced, ...cand.targetsHit].slice(-keep) : [];
         return cur;
       }
     }
@@ -1222,7 +1240,9 @@ export class StorySession {
    * positions worth a next-word search; cliffPositions rates them, a batch at a time (two
    * batches at most), and pickCliff chooses. A forced probe word is the only position,
    * with no plausibility floor (placement measures whether the learner knows the word).
-   * 'no_position' when no word can be a cliff at all (no model call was made).
+   * With `relax`, when no rated position clears the floor, the best rated one is picked
+   * without it (no further model call). 'no_position' when no word can be a cliff at all
+   * (no model call was made).
    */
   private async cutCliff(
     model: LanguageModel,
@@ -1234,6 +1254,7 @@ export class StorySession {
     params: DifficultyParams,
     at: number,
     forced?: { key: string; rank: number },
+    relax = false,
   ): Promise<CurrentSentence | null | 'no_position'> {
     const pack = this.deps.pack;
     const lead = leadAfter(storyText);
@@ -1264,9 +1285,15 @@ export class StorySession {
     let pick = null as ReturnType<typeof pickCliff>;
     let positions: CliffPosition[] = [];
     const batch = Math.max(1, Math.floor(this.o.cliffPositions));
+    const rated: CliffPosition[] = [];
     for (let from = 0; from < Math.min(candidatesIdx.length, batch * 2) && !pick; from += batch) {
       positions = await cliffPositions(model, pack, context, sentenceText, { positions: candidatesIdx.slice(from, from + batch) });
+      rated.push(...positions);
       pick = pickCliff(positions, pickCtx);
+    }
+    if (!pick && relax && !forced && rated.length) {
+      positions = rated;
+      pick = pickCliff(rated, { ...pickCtx, options: { ...this.o.cliffPick, probFloor: 0 } });
     }
     if (!pick || (forced && pick.key !== forced.key)) return null;
     const start = pick.start - lead.length;
@@ -1466,7 +1493,7 @@ export class StorySession {
       case 'meaning':
         return { ...this.meaning(at, argument), ...tag };
       case 'next':
-        return { ...(await this.advance(at)), ...tag };
+        return { ...(await this.advanceStep(at)), ...tag };
       case 'dont_know': {
         if (s.phase === 'cliff') return { ...this.startNoSeFlow(at), ...tag };
         if ((s.phase === 'turn' || s.phase === 'repair') && s.turn) return { ...this.giveUp(at), ...tag };
@@ -1481,7 +1508,7 @@ export class StorySession {
       case 'done': {
         if (s.phase === 'retell') return { ...this.retellRound('', info, true), ...tag };
         if (this.placementActive() || s.phase === 'upNext' || s.phase === 'placementDone' || s.chapterSentences.length === 0) {
-          return { ...(await this.advance(at)), ...tag };
+          return { ...(await this.advanceStep(at)), ...tag };
         }
         // Finish the chapter now: the learner turn and the retell come next.
         const events: LearnerEvent[] = [];

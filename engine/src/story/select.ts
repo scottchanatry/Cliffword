@@ -29,7 +29,7 @@
  *    pair.nativeLexicon); another language (most words unknown to the pack); no verb
  *    (unless the pack says its sentences need none); too short or too long for the
  *    level; a repeat or near repeat of a recent sentence (or a short sentence that repeats
- *    a content word of its own, or one that opens like one of the last two sentences); unbalanced quotes or brackets; and, once the caller
+ *    a content word of its own, or one that copies the opening frame of one of the last two sentences); unbalanced quotes or brackets; and, once the caller
  *    scored it, a natural score below naturalFloor.
  * 5. Score accepted candidates (higher is better), in tiers so the band comes first:
  *    - band: 0 inside the band; outside, -(outOfBandPenalty + belowBandWeight x distance
@@ -145,6 +145,15 @@ export interface SelectOptions {
   sameOpeningWords: number;
   sameOpeningWindow: number;
   /**
+   * ...and the shared opening (the longest common run of first words) reaches a verb
+   * (verbPos, by the analysis chosen in context): a copied frame ("El hombre es el día."
+   * after "El hombre es el claro.", "Marta compró pan en la playa." after "Marta compró
+   * pan y manzanas."), not a sentence that only starts with the same subject ("El señor de
+   * las frutas le pidió un vaso de agua." after "El señor de las frutas se acercó.").
+   * false checks the first sameOpeningWords words alone.
+   */
+  sameOpeningNeedsVerb: boolean;
+  /**
    * Model-level leak patterns, tested on accent-folded lowercase text: the English meta
    * talk of instruct models. Each pack adds its own (StoryLanguageData.leakPatterns).
    */
@@ -240,6 +249,12 @@ export const DEFAULT_SELECT_OPTIONS: Readonly<SelectOptions> = {
   // the last two sentences catches the frame.
   sameOpeningWords: 3,
   sameOpeningWindow: 2,
+  // Review of the round-3 real-model logs (proof/ENGINE_REAL_MODEL.md, "Engine round 3:
+  // review"): every frame this check was written for shares its verb ("El hombre es el
+  // ..."); the advanced learner's story lost two whole steps (9 of 9 and 5 of 9
+  // candidates rejected) to sentences that only open with its character, "El señor de las
+  // frutas", a five-word subject with no verb.
+  sameOpeningNeedsVerb: true,
   leakPatterns: DEFAULT_LEAK_PATTERNS,
   leakNgram: 4,
   placeholderPattern: DEFAULT_PLACEHOLDER_PATTERN,
@@ -644,7 +659,10 @@ export function repeatsItself(words: readonly WordInfo[], maxWords: number): boo
 
 /**
  * True when the text opens with the same first `k` words (normalized) as one of the last
- * `window` sentences of `previous` (entries split into sentences first).
+ * `window` sentences of `previous` (entries split into sentences first). With `verbPos`,
+ * the shared opening (the longest common run of first words) must also hold a word whose
+ * analysis chosen in context (lang/choose.ts) has one of those parts of speech: the
+ * sentence copies a frame, not just its subject.
  */
 export function sameOpening(
   text: string,
@@ -653,14 +671,34 @@ export function sameOpening(
   k: number,
   window: number,
   abbreviations?: readonly string[],
+  verbPos?: readonly Pos[],
 ): boolean {
   if (k <= 0 || window <= 0) return false;
-  const words = normalizedWords(text, pack);
+  const abbr = abbreviations ?? pack.abbreviations ?? [];
+  const segments = pack.segment(text);
+  const content = contentSegments(segments);
+  const words = content.map((x) => x.norm || pack.normalize(x.text));
   if (words.length < k) return false;
-  const head = words.slice(0, k).join(' ');
-  return previousSentenceWords(previous, pack, abbreviations)
+  let posOf: (i: number) => Pos | undefined = () => undefined;
+  if (verbPos) {
+    const starts = sentenceStartFlags(segments, abbr);
+    const chosen = new Map(chooseAnalysesInText(pack, segments, starts).map((c) => [c.segIndex, c.chosen?.pos]));
+    const indexOf = new Map(content.map((x, i) => [x, segments.indexOf(x)]));
+    posOf = (i) => chosen.get(indexOf.get(content[i] as (typeof content)[number]) ?? -1);
+  }
+  return previousSentenceWords(previous, pack, abbr)
     .slice(-window)
-    .some((p) => p.length >= k && p.slice(0, k).join(' ') === head);
+    .some((p) => {
+      let shared = 0;
+      while (shared < words.length && shared < p.length && words[shared] === p[shared]) shared++;
+      if (shared < k) return false;
+      if (!verbPos) return true;
+      for (let i = 0; i < shared; i++) {
+        const pos = posOf(i);
+        if (pos !== undefined && verbPos.includes(pos)) return true;
+      }
+      return false;
+    });
 }
 
 const QUOTE_OPEN = `"“«„‘「『`;
@@ -672,22 +710,31 @@ function isWholeQuote(raw: string): boolean {
   return s.length >= 2 && QUOTE_OPEN.includes(s[0] as string) && QUOTE_CLOSE.includes(s[s.length - 1] as string);
 }
 
-/** True for a heading: a markdown heading, a line ending in a colon, or a short title without end punctuation. */
-function isHeading(raw: string): boolean {
+/** Word segments of a text, through the pack's segmenter (never by spaces). */
+function wordSegments(text: string, pack: LanguagePack): string[] {
+  return pack.segment(text).filter((x) => x.kind === 'word').map((x) => x.text);
+}
+
+/**
+ * True for a heading: a markdown heading, a line ending in a colon, or a short title
+ * without end punctuation (at most four words, by the pack's segmenter, each capitalized,
+ * or all in capitals in a script that has case; a caseless script is never all capitals).
+ */
+function isHeading(raw: string, pack: LanguagePack): boolean {
   const s = raw.trim();
   if (!s) return false;
   if (/^#{1,6}\s/u.test(s) || /[:：]$/u.test(s)) return true;
   if (/[.!?…。！？"”»'’)]$/u.test(s)) return false;
-  const words = s.split(/\s+/u).filter((w) => /\p{L}/u.test(w));
+  const words = wordSegments(s, pack);
   if (!words.length || words.length > 4) return false;
-  return words.every((w) => isCapitalized(w)) || s === s.toUpperCase();
+  return words.every((w) => isCapitalized(w)) || (s === s.toUpperCase() && s !== s.toLowerCase());
 }
 
-/** True for a comma list of single words ("el, que, lo, que, el"). */
-function isCommaList(text: string, minCommas: number): boolean {
+/** True for a comma list of single words ("el, que, lo, que, el"); words counted by the pack's segmenter. */
+function isCommaList(text: string, minCommas: number, pack: LanguagePack): boolean {
   const pieces = text.split(/[,،、，]/u);
   if (pieces.length - 1 < minCommas) return false;
-  const single = pieces.filter((p) => p.trim().split(/\s+/u).filter(Boolean).length <= 1).length;
+  const single = pieces.filter((p) => wordSegments(p, pack).length <= 1).length;
   return single / pieces.length >= 0.6;
 }
 
@@ -708,8 +755,8 @@ export function rejectReasons(
   const story = ctx.pack.story;
   const rawText = raw ?? text;
   if (o.placeholderPattern.test(text) || o.placeholderPattern.test(rawText)) out.push('placeholder');
-  if (o.listPattern.test(rawText) || o.listPattern.test(text) || isCommaList(text, o.listCommas)) out.push('list');
-  if (raw !== undefined && isHeading(raw)) out.push('heading');
+  if (o.listPattern.test(rawText) || o.listPattern.test(text) || isCommaList(text, o.listCommas, ctx.pack)) out.push('list');
+  if (raw !== undefined && isHeading(raw, ctx.pack)) out.push('heading');
   if (raw !== undefined && isWholeQuote(raw) && words.length < o.bareQuoteFactor * ctx.params.sentenceWords.min) out.push('bare_quote');
   if (detectPromptLeak(text, ctx.pack, [...o.leakPatterns, ...packLeakPatterns(ctx.pack)], ctx.instructions, o.leakNgram)) out.push('prompt_leak');
   const meta = new Set((story?.metaWords ?? []).map(foldForMatch));
@@ -725,7 +772,15 @@ export function rejectReasons(
   if (
     isRepeat(text, ctx.previous, ctx.pack, o.nearRepeatJaccard, abbreviationsOf(ctx, o), o.nearRepeatContainment, o.nearRepeatMinWords) ||
     repeatsItself(words, o.selfRepeatMaxWords) ||
-    sameOpening(text, ctx.previous.slice(-Math.max(0, o.sameOpeningWindow)), ctx.pack, o.sameOpeningWords, o.sameOpeningWindow, abbreviationsOf(ctx, o))
+    sameOpening(
+      text,
+      ctx.previous.slice(-Math.max(0, o.sameOpeningWindow)),
+      ctx.pack,
+      o.sameOpeningWords,
+      o.sameOpeningWindow,
+      abbreviationsOf(ctx, o),
+      o.sameOpeningNeedsVerb ? o.verbPos : undefined,
+    )
   ) {
     out.push('repeat');
   }

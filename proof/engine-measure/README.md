@@ -61,3 +61,19 @@ commit 20ca71a):
   learner-wide work, parseLyrics, whole session steps)
   (`npx vite-node ../proof/engine-measure/bench.ts -- <before|after> [label] [rounds]`);
   results in `results/bench-*.json`.
+
+Engine round 3 review (2026-11-16, see "Engine round 3: review and summary" in
+`proof/ENGINE_REAL_MODEL.md`). Run from `engine/` with
+`CLIFFWORD_MODEL_URL=http://127.0.0.1:<port>`:
+
+- The three real-model suites in full: `npm run test:real`,
+  `npx vitest run test/real-engine.test.ts`, `npx vitest run test/real-coverage.test.ts`;
+  logs in `results/review-real-model.log`, `results/review-real-engine.log`,
+  `results/review-real-coverage.log`, and the generation tests again after the review's
+  fixes in `results/review-real-generation-after-fixes.log`.
+- `generation.ts` takes `CLIFFWORD_SELECT` (JSON selection options) for "after" runs, so
+  one setting is measured against another on the same engine and seeds:
+  `CLIFFWORD_SELECT='{"sameOpeningNeedsVerb":false}' npx vite-node ../proof/engine-measure/generation.ts after early,reader,advanced 8 1 review-opening-before`
+  and the same without the variable and with the label `review-opening-after`; results in
+  `results/generation-review-opening-*.json`, tables with
+  `python3 generation_table.py review-opening-before review-opening-after`.

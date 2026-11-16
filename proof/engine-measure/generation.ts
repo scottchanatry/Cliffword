@@ -6,6 +6,8 @@
  * Usage, from engine/ with proof/model_server.py listening:
  *   CLIFFWORD_MODEL_URL=http://127.0.0.1:8771 npx vite-node ../proof/engine-measure/generation.ts \
  *     <after|before> [profiles] [steps] [seedBase] [label]
+ * CLIFFWORD_SELECT (JSON) passes selection options to "after" runs, so one setting can be
+ * measured against another on the same engine.
  * "before" imports the engine from CLIFFWORD_ENGINE_BEFORE (a directory holding the old
  * engine/src, e.g. `git archive HEAD engine/src | tar -x -C /tmp/before`) and runs it with
  * the tuning of the previous measurement (n = 4).
@@ -39,6 +41,8 @@ const label = process.argv[6] ?? mode;
 const BASE = process.env.CLIFFWORD_MODEL_URL ?? 'http://127.0.0.1:8771';
 const http = new HttpLanguageModel({ baseUrl: BASE, timeoutMs: 900_000 });
 const NOW = Date.UTC(2026, 10, 15, 9, 0, 0);
+/** Optional selection options for "after" runs (JSON), e.g. CLIFFWORD_SELECT='{"sameOpeningNeedsVerb":false}'. */
+const SELECT = process.env.CLIFFWORD_SELECT ? JSON.parse(process.env.CLIFFWORD_SELECT) : undefined;
 
 type Engine = typeof NOW_ENGINE;
 const E: Engine = mode === 'before' ? await import(`${process.env.CLIFFWORD_ENGINE_BEFORE}/index.ts`) : NOW_ENGINE;
@@ -101,6 +105,7 @@ for (const id of profiles) {
       ? await E.generateNextSentence(model, { pack, learner, pair }, { story, targets, params, now: NOW, seed, tuning: { n: 4 } })
       : await E.generateNextSentence(model, { pack, learner, pair }, {
           story, targets, params, now: NOW, seed, vocab, names: id === 'heritage' ? [] : ['Marta'], ...(familiar.length ? { familiar } : {}),
+          ...(SELECT ? { select: SELECT } : {}),
         });
     const ms = performance.now() - t0;
     const rejects: Record<string, number> = {};

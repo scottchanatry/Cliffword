@@ -649,7 +649,7 @@ export class LyricSession {
     const content = segs.filter((x) => x.kind === 'word' || x.kind === 'number');
     if (content.length < 2) return null;
     const matches = findSlangMatches(pack, unit.text, { regions }).filter((m) => showExplicit || !m.entry.explicit);
-    const chosen = new Map(chooseAnalysesInText(pack, segs, sentenceStartFlags(segs)).map((c) => [c.segIndex, c]));
+    const chosen = new Map(chooseAnalysesInText(pack, segs, sentenceStartFlags(segs, pack.abbreviations ?? [])).map((c) => [c.segIndex, c]));
     const segIndex = (x: Segment) => segs.indexOf(x);
     let span: { first: number; length: number; key: string; slang: boolean } | null = null;
     if (register === 'street') {

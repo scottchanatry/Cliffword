@@ -47,3 +47,26 @@ stdout | test/real-engine.test.ts > the engine on the real model > generateNextS
 stdout | test/real-engine.test.ts > the engine on the real model > generateNextSentence: a brand-new learner on the bridge gets real, in-band sentences
 [real-engine] generate (seed 1): "La familia está en el parque." for es:estar; in band true, target true, retried false, rejects {}, 6948 ms
 
+stdout | test/real-engine.test.ts > the engine on the real model > generateNextSentence: a brand-new learner on the bridge gets real, in-band sentences
+[real-engine] generate (seed 1001): "Marta está con su familia en el restaurante." for es:estar; in band true, target true, retried false, rejects {}, 6140 ms
+
+stdout | test/real-engine.test.ts > the engine on the real model > generateNextSentence: a brand-new learner on the bridge gets real, in-band sentences
+[real-engine] generate (seed 2001): "Marta está con su familia en el restaurante." for es:estar; in band true, target true, retried false, rejects {}, 8776 ms
+
+stdout | test/real-engine.test.ts > the engine on the real model > top-10 forced decoding (llama.rn limit): no assert or credit rests on a bounded token
+[real-engine] top-10: 1 asserts and 17 bounded judgements over 18 sentences
+
+ ✓ test/real-engine.test.ts (7 tests) 309512ms
+   ✓ the engine on the real model > judgeSentence on the 93 proof pairs: no false assert from a margin, most errors asserted with the right fix 81208ms
+   ✓ the engine on the real model > street register: no variant edits slang, no slang shaded, few asserts and none on slang 19613ms
+   ✓ the engine on the real model > scoreWords: heat reaches most error words and rarely shades a correct sentence strongly 22498ms
+   ✓ the engine on the real model > scoreCliffAnswer at a story cliff: natural answers earn credit, wrong answers do not 47727ms
+   ✓ the engine on the real model > generateNextSentence: early and intermediate learners get varied in-band sentences that use their targets 50099ms
+   ✓ the engine on the real model > generateNextSentence: a brand-new learner on the bridge gets real, in-band sentences 21882ms
+   ✓ the engine on the real model > top-10 forced decoding (llama.rn limit): no assert or credit rests on a bounded token 66485ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  03:49:17
+   Duration  310.58s (transform 615ms, setup 0ms, collect 870ms, tests 309.51s, environment 0ms, prepare 59ms)
+

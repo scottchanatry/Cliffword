@@ -68,13 +68,13 @@ export interface NativeReply {
   ui: UiText | null;
 }
 
-type Pack = Pick<LanguagePack, 'code' | 'segment' | 'normalize' | 'analyze' | 'chooseAnalysis' | 'frequencyRank' | 'foldAccents'>;
+type Pack = Pick<LanguagePack, 'code' | 'segment' | 'normalize' | 'analyze' | 'chooseAnalysis' | 'frequencyRank' | 'foldAccents' | 'abbreviations'>;
 
 /** Lemmas (and normalized forms) of the expected words, for matching gap candidates. */
 function expectedLemmas(pack: Pack, expected: string): Set<string> {
   const segments = pack.segment(expected);
   const out = new Set<string>();
-  for (const c of chooseAnalysesInText(pack, segments, sentenceStartFlags(segments))) {
+  for (const c of chooseAnalysesInText(pack, segments, sentenceStartFlags(segments, pack.abbreviations ?? []))) {
     out.add(c.norm);
     if (c.chosen) out.add(c.chosen.lemma);
     for (const a of c.analyses) out.add(a.lemma);

@@ -139,4 +139,9 @@ export const SPANISH_STORY_DATA: StoryLanguageData = {
   labels: SPANISH_STORY_LABELS,
   preambleWords: SPANISH_PREAMBLE_WORDS,
   requireVerb: true,
+  // Measured on Qwen3-1.7B (proof/ENGINE_REAL_MODEL.md, "Story generation at every
+  // level"): stopping at the first sentence end decodes about 12.8 tokens per candidate
+  // against 15.8 with the line-end stop. The cut "?" and "!" come back from ¿ and ¡
+  // (extractSentence's final punctuation).
+  stop: ['. ', '? ', '! ', '\n'],
 };

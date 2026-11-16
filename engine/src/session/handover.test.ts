@@ -165,7 +165,7 @@ describe('a brand-new learner with a model', () => {
         nextTokens: (c, k) => mock.nextTokens(c, k),
         async generate(prompt, o) {
           const tag = (/\[([^\]]+)\]$/u.exec(prompt)?.[1] ?? 'casa').split(', ')[0];
-          return Array.from({ length: o.n }, () => `Marta ve ${tag} en la casa.`);
+          return Array.from({ length: o.n }, () => `Marta toca ${tag} en el parque.`);
         },
       };
     };

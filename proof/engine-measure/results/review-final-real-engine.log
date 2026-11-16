@@ -1,0 +1,72 @@
+
+ RUN  v2.1.9 /home/user/cliffword/engine
+
+stdout | test/real-engine.test.ts > the engine on the real model > judgeSentence on the 93 proof pairs: no false assert from a margin, most errors asserted with the right fix
+[real-engine]   flagged correct: La fiesta es en mi casa esta noche. -> hint La fiesta está en mi casa esta noche. (1.34)
+
+stdout | test/real-engine.test.ts > the engine on the real model > judgeSentence on the 93 proof pairs: no false assert from a margin, most errors asserted with the right fix
+[real-engine] judge: 74/93 asserted (70 with the right fix), 83/93 flagged with the right fix, 86/93 right rule; correct sentences: 0 false asserts, 1 false hints; 450 ms per judgement
+[real-engine]   not flagged with the fix: [ser_estar] *La fiesta está en mi casa esta noche.* -> ok La fiesta es en mi casa esta noche. (-1.34)
+[real-engine]   not flagged with the fix: [por_para] *Trabajo para la mañana.* -> ok Trabajo para mañana. (0.96)
+[real-engine]   not flagged with the fix: [por_para] *Tengo que terminar esto por mañana.* -> assert Tengo que terminar esto por la mañana. (4.47)
+[real-engine]   not flagged with the fix: [number] *Ellos quiere comer ahora.* -> ok Ellos quieren comer ahora. (0.58)
+[real-engine]   not flagged with the fix: [subjunctive_wish] *Deseo que eres muy feliz.* -> ok Deseo que seas muy feliz. (0.71)
+[real-engine]   not flagged with the fix: [personal_a] *Visitamos nuestros primos en Ponce.* -> ok Visitamos a nuestros primos en Ponce. (-0.38)
+[real-engine]   not flagged with the fix: [articles] *Español es fácil.* -> ok Español está fácil. (-1.20)
+[real-engine]   not flagged with the fix: [pronoun_placement] *Quiero te ver mañana.* -> assert Te quiero ver mañana. (6.60)
+[real-engine]   not flagged with the fix: [pronoun_placement] *Estoy lo leyendo ahora.* -> assert Lo estoy leyendo ahora. (9.56)
+[real-engine]   not flagged with the fix: [pronoun_placement] *¿Puedes me ayudar?* -> assert ¿Me puedes ayudar? (5.46)
+
+stdout | test/real-engine.test.ts > the engine on the real model > street register: no variant edits slang, no slang shaded, few asserts and none on slang
+[real-engine] street: 0 asserts, 0 variants touching slang, 65 slang words (mean surprisal 11.5 neutral -> 5.3 street prefix), 0 shaded
+
+stdout | test/real-engine.test.ts > the engine on the real model > scoreWords: heat reaches most error words and rarely shades a correct sentence strongly
+[real-engine] heat: error word or next at heat >= 2 in 42/93; correct sentences with a heat-3 word: 3/93
+
+stdout | test/real-engine.test.ts > the engine on the real model > scoreCliffAnswer at a story cliff: natural answers earn credit, wrong answers do not
+[real-engine] cliff answers: 3896 ms per answer
+
+stdout | test/real-engine.test.ts > the engine on the real model > generateNextSentence: early and intermediate learners get varied in-band sentences that use their targets
+[real-engine] generate (seed 1): "El viejo está en la casa." for es:viejo; in band true, target true, retried false, rejects {"repeat":1}, 5646 ms
+
+stdout | test/real-engine.test.ts > the engine on the real model > generateNextSentence: early and intermediate learners get varied in-band sentences that use their targets
+[real-engine] generate (seed 1001): "El viejo se queda en casa." for es:viejo; in band true, target true, retried false, rejects {}, 5085 ms
+
+stdout | test/real-engine.test.ts > the engine on the real model > generateNextSentence: early and intermediate learners get varied in-band sentences that use their targets
+[real-engine] generate (seed 2001): "El viejo está en la casa." for es:viejo; in band true, target true, retried false, rejects {}, 5466 ms
+
+stdout | test/real-engine.test.ts > the engine on the real model > generateNextSentence: early and intermediate learners get varied in-band sentences that use their targets
+[real-engine] generate (seed 1): "Agarró una fruta y la tiró al mercado." for es:agarrar; in band true, target true, retried false, rejects {}, 8073 ms
+
+stdout | test/real-engine.test.ts > the engine on the real model > generateNextSentence: early and intermediate learners get varied in-band sentences that use their targets
+[real-engine] generate (seed 1001): "Agarró una fruta y se la dio a un niño." for es:agarrar; in band true, target true, retried false, rejects {"repeat":1}, 9027 ms
+
+stdout | test/real-engine.test.ts > the engine on the real model > generateNextSentence: early and intermediate learners get varied in-band sentences that use their targets
+[real-engine] generate (seed 2001): "Se agarró a la señora, pero no se movió." for es:agarrar; in band true, target true, retried false, rejects {}, 9683 ms
+
+stdout | test/real-engine.test.ts > the engine on the real model > generateNextSentence: a brand-new learner on the bridge gets real, in-band sentences
+[real-engine] generate (seed 1): "Marta está con su familia en el parque." for es:estar; in band true, target true, retried false, rejects {}, 6093 ms
+
+stdout | test/real-engine.test.ts > the engine on the real model > generateNextSentence: a brand-new learner on the bridge gets real, in-band sentences
+[real-engine] generate (seed 1001): "Marta está en el parque." for es:estar; in band true, target true, retried false, rejects {}, 5997 ms
+
+stdout | test/real-engine.test.ts > the engine on the real model > generateNextSentence: a brand-new learner on the bridge gets real, in-band sentences
+[real-engine] generate (seed 2001): "Marta está con su familia en el restaurante." for es:estar; in band true, target true, retried false, rejects {}, 7423 ms
+
+stdout | test/real-engine.test.ts > the engine on the real model > top-10 forced decoding (llama.rn limit): no assert or credit rests on a bounded token
+[real-engine] top-10: 1 asserts and 17 bounded judgements over 18 sentences
+
+ ✓ test/real-engine.test.ts (7 tests) 288314ms
+   ✓ the engine on the real model > judgeSentence on the 93 proof pairs: no false assert from a margin, most errors asserted with the right fix 83717ms
+   ✓ the engine on the real model > street register: no variant edits slang, no slang shaded, few asserts and none on slang 17407ms
+   ✓ the engine on the real model > scoreWords: heat reaches most error words and rarely shades a correct sentence strongly 22409ms
+   ✓ the engine on the real model > scoreCliffAnswer at a story cliff: natural answers earn credit, wrong answers do not 46752ms
+   ✓ the engine on the real model > generateNextSentence: early and intermediate learners get varied in-band sentences that use their targets 42993ms
+   ✓ the engine on the real model > generateNextSentence: a brand-new learner on the bridge gets real, in-band sentences 19532ms
+   ✓ the engine on the real model > top-10 forced decoding (llama.rn limit): no assert or credit rests on a bounded token 55504ms
+
+ Test Files  1 passed (1)
+      Tests  7 passed (7)
+   Start at  04:22:34
+   Duration  289.43s (transform 651ms, setup 0ms, collect 925ms, tests 288.31s, environment 0ms, prepare 45ms)
+

@@ -21,6 +21,7 @@ import {
   LearnerModel,
   PlacementTracker,
   StorySession,
+  bridgeFamiliar,
   chooseTargets,
   cliffRungFor,
   cognateLexemeKeys,
@@ -37,7 +38,7 @@ import {
   showText,
   slangLexemeKeys,
 } from '../src';
-import type { CandidateEvaluation, DifficultyParams, LearnerEvent, PriorFn, RecentStats, Skill } from '../src';
+import type { CandidateEvaluation, DifficultyParams, LanguageModel, LearnerEvent, PriorFn, RecentStats, Skill } from '../src';
 
 const HOUR = 3_600_000;
 const DAY = 24 * HOUR;
@@ -419,4 +420,106 @@ describe('simulated learners: skill mix', () => {
     const shownToReader = byEar.slice(200, 1200).filter((k) => showText(reader, k, NOW, readerParams));
     expect(shownToReader.length).toBe(1000);
   });
+});
+
+/**
+ * The brief's checks over a running session, not one selection: each profile drives a
+ * StorySession whose model offers candidates from a fixed graded pool (rotated by the
+ * step's seed), and every generated sentence the session shows is checked against what
+ * it was offered. Events are not applied (applyEvents false), so each learner stays the
+ * profile it was built as and the check can recompute the band exactly.
+ */
+describe('simulated learners: a running session per profile', () => {
+  /** Graded candidates: starter-word and cognate sentences first, then common to rare vocabulary. */
+  const SESSION_POOL = [
+    'La familia tiene una guitarra.',
+    'El piano es muy importante.',
+    'Su familia es fantástica.',
+    'El concierto es en el parque.',
+    'La artista tiene un piano.',
+    'El restaurante es muy popular.',
+    'Mi madre está en casa.',
+    'Mi padre va al trabajo.',
+    'Hoy hace buen tiempo.',
+    'Ellos viven en una casa grande.',
+    'Ella habla con su amiga.',
+    'El hombre abre la puerta.',
+    'La gente vive en la ciudad.',
+    'El agua está fría.',
+    'Mi hermano trabaja en un banco.',
+    'Los niños juegan en el parque.',
+    'Ella escribe una carta larga.',
+    'El perro come pan.',
+    'La economía del país crece despacio.',
+    'El viento mueve los árboles.',
+    'Los científicos investigan el problema.',
+    'El pueblo celebra la fiesta en verano.',
+    'Su vecino arregla la bicicleta.',
+    'El ministro anunció una reforma polémica.',
+  ];
+
+  /** The mock for scoring and next words; generations from the pool, recorded per call. */
+  function poolModel(): LanguageModel & { offered: string[][] } {
+    const mock = createMockModel();
+    const offered: string[][] = [];
+    return {
+      id: 'pool-mock',
+      offered,
+      scoreContinuation: (c, t) => mock.scoreContinuation(c, t),
+      nextTokens: (c, k) => mock.nextTokens(c, k),
+      async generate(_prompt, o) {
+        const out = Array.from({ length: o.n }, (_, j) => SESSION_POOL[((o.seed ?? 0) * 5 + j * 7) % SESSION_POOL.length] as string);
+        offered.push(out);
+        return out;
+      },
+    };
+  }
+
+  const STEPS = 6;
+  for (const id of PROFILE_IDS) {
+    it(`shows an in-band sentence whenever one was offered, and always has a next step and targets: ${PROFILES[id].name}`, async () => {
+      const profile = PROFILES[id];
+      const learner = id === 'brandNew' ? new LearnerModel({ prior: profilePrior(profile.reach) }) : buildLearner(profile);
+      const model = poolModel();
+      const s = StorySession.create({
+        model, pack, pair, learner, now: NOW, seed: 31, applyEvents: false,
+        startMode: id === 'brandNew' ? 'brand_new' : 'continue',
+        // The n-gram mock is no judge of naturalness.
+        options: { generation: { naturalTop: 0 } },
+      });
+      let t = NOW;
+      let generated = 0;
+      let offeredInBand = 0;
+      for (let i = 0; i < 60 && generated < STEPS; i++) {
+        const before = s.snapshot().state;
+        const calls = model.offered.length;
+        const stage = s.stageAt(t + 1000);
+        const step = await s.next((t += 1000));
+        // Always a next step: never an error screen, at every level.
+        expect(step.screen.kind).not.toBe('error');
+        const cur = s.snapshot().state.current;
+        if (step.screen.kind !== 'cliff' || cur?.source !== 'model') continue;
+        generated += 1;
+        // New material never runs out: every generated sentence was asked for with targets.
+        expect(cur.targets.length, `${id} targets`).toBeGreaterThan(0);
+        const ctx = {
+          pack, learner, now: t, targets: cur.targets, params: cur.params, previous: before.story.slice(-4), pair,
+          names: pair.starter?.character ? [pair.starter.character] : [],
+          // On the bridge the band counts the starter's words, cognates and introduced words.
+          familiar: stage === 'bridge' ? bridgeFamiliar(pack, pair, before.introduced) : [],
+        };
+        const offered = model.offered.slice(calls).flat();
+        const sel = selectSentence(offered, ctx);
+        const shown = selectSentence([cur.text], ctx).ranked[0];
+        if (sel.ranked.some((e) => e.accepted && e.inBand)) {
+          offeredInBand += 1;
+          expect(shown?.inBand, `${id}: "${cur.text}" out of band although an in-band candidate was offered`).toBe(true);
+        }
+        expect(shown?.accepted, `${id}: "${cur.text}" ${shown?.rejected.join(',')}`).toBe(true);
+      }
+      expect(generated).toBe(STEPS);
+      // The pool holds in-band material for every profile (on the bridge for the brand-new learner).
+      expect(offeredInBand, `${id} steps with an in-band offer`).toBeGreaterThan(0);
+    });
+  }
 });

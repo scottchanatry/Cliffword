@@ -65,7 +65,7 @@ export function splitTextUnits(pack: LanguagePack, text: string, opts: Partial<S
   const seen = new Set<string>();
   for (const b of blocks) {
     let cursor = 0;
-    for (const piece of splitSentences(b.text, o.abbreviations)) {
+    for (const piece of splitSentences(b.text, o.abbreviations ?? pack.abbreviations ?? [])) {
       const at = b.text.indexOf(piece, cursor);
       const local = at >= 0 ? at : cursor;
       cursor = local + piece.length;

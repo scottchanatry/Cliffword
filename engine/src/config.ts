@@ -34,11 +34,13 @@
  * | DEFAULT_VARIANT_OPTIONS         | maxVariants            | 16             | 1.9 s for 1 + 6 on 4 CPU cores; measure on device             |
  * | DEFAULT_NEXT_SENTENCE_TUNING    | tokensPerWord          | 2              | measured 1.6 for Qwen3, plus headroom                         |
  * | DEFAULT_NEXT_SENTENCE_TUNING    | n, retryN              | 5, 4           | measured: in-band candidate in most steps at every level      |
- * | DEFAULT_NEXT_SENTENCE_TUNING    | stop                   | sentence ends  | measured: about 11 tokens per candidate instead of 26 to 36   |
+ * | DEFAULT_NEXT_SENTENCE_TUNING    | stop                   | line break     | any script; packs set sentence ends (StoryLanguageData.stop)  |
+ * | SPANISH_STORY_DATA.stop (es)    | stop                   | . ? ! + space  | measured: 12.8 decoded tokens per candidate instead of 15.8   |
  * | DEFAULT_NEXT_SENTENCE_TUNING    | naturalTop             | 3              | three scoring calls of about 0.1 s each                       |
  * | DEFAULT_STORY_PROMPT_OPTIONS    | tags, minLines         | [ ], 3         | measured: tagged lines made the target used (12/12 vs 2/12)   |
  * | DEFAULT_SELECT_OPTIONS          | outOfBandPenalty       | 20             | the band comes first                                          |
  * | DEFAULT_SELECT_OPTIONS          | hardMax / minWords     | 1.6, 0.6       | measured: run-ons and one-word answers                        |
+ * | DEFAULT_SELECT_OPTIONS          | sameOpening*           | 3, 2, verb     | real-model logs: frames share the verb, not just the subject  |
  * | DEFAULT_HANDOVER_OPTIONS        | strictFrom, knownAt    | 150, 0.9       | judgement between measured profiles; see session/handover.ts  |
  * | EVENT_EVIDENCE (learner/model)  | cliff_answer.partial   | weights        | judgement; calibrate from learner logs                        |
  * | EVENT_EVIDENCE (learner/model)  | spoke_error            | weight 0.6     | asserts had no false flags; kept moderate                     |

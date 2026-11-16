@@ -153,7 +153,7 @@ export function isRepairFinal(state: Pick<RepairState, 'phase'>): boolean {
   return FINAL_REPAIR_PHASES.includes(state.phase);
 }
 
-type Pack = Pick<LanguagePack, 'code' | 'segment' | 'normalize' | 'analyze' | 'chooseAnalysis' | 'foldAccents' | 'registers' | 'streetEndings'>;
+type Pack = Pick<LanguagePack, 'code' | 'segment' | 'normalize' | 'analyze' | 'chooseAnalysis' | 'foldAccents' | 'registers' | 'streetEndings' | 'abbreviations'>;
 
 interface WordInfo {
   wordIndex: number;
@@ -168,7 +168,7 @@ interface WordInfo {
 /** Word segments of a text with the analysis chosen in context (lang/choose.ts). */
 function wordInfos(pack: Pack, text: string): WordInfo[] {
   const segments = pack.segment(text);
-  const chosen = new Map(chooseAnalysesInText(pack, segments, sentenceStartFlags(segments)).map((c) => [c.segIndex, c]));
+  const chosen = new Map(chooseAnalysesInText(pack, segments, sentenceStartFlags(segments, pack.abbreviations ?? [])).map((c) => [c.segIndex, c]));
   const out: WordInfo[] = [];
   segments.forEach((seg, i) => {
     if (seg.kind !== 'word') return;

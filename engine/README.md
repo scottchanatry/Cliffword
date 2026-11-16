@@ -125,9 +125,13 @@ Import from `src/index.ts` (the package `main`).
   `setModel()` waits for the step to end; a step that throws leaves the session as it
   was, so the app can retry it. A cliff answer reuses the alternatives cliff selection
   found (no next-word search). `StorySession.prefetch(at)` prepares the next step while the
-  learner is on the landing or no-sé screen (next() then replays the model's answers);
-  `stageAt(at)` says whether the next sentence comes from the starter, the bridge or free
-  generation; `modelStats` counts model calls and replays.
+  learner is on the landing or no-sé screen (next() then replays the model's answers). A
+  prefetch does not make the session busy: other steps run during it and their model calls
+  wait behind its calls (one at a time); next() and the next / done commands wait for it and
+  replay it; `setModel()` stops it. Call it without awaiting it, outside any queue that
+  would hold the learner's next action behind it. `stageAt(at)` says whether the next
+  sentence comes from the starter, the bridge or free generation; `modelStats` counts model
+  calls and replays.
 - **Model adapters.** `new HttpLanguageModel({ baseUrl })` for `proof/model_server.py`;
   `new TopNBoundedModel(model, { n })` reports tokens outside the top N as upper bounds
   (`TokenScore.upperBound`), and the engine never lets a bound raise a verdict or credit
@@ -200,16 +204,18 @@ In more detail:
    A1). Frases cortas.", the characters, a vocabulary line for small vocabularies), then
    the last story sentences one per line after their key word in brackets, ending with
    the target as the next tag (`[viejo]`). It samples `n` candidates in one model call,
-   stopping at the first sentence end, cleans each to one sentence, and rejects
+   stopping at the first sentence end (the pack's `StoryLanguageData.stop`; a line break
+   for a pack without one), cleans each to one sentence, and rejects
    placeholders, lists, headings, bare quotes, prompt leaks, meta talk, native or foreign
    words, verbless fragments, sentences far outside the level's length and near repeats
    (`REJECT_CODES`, counted per reason). `selectSentence` ranks the rest: the known-word
    band first, then target words, novelty, continuity, length and unknown words. If
    nothing lands in the band, a safe round ends the same prompt with a familiar tag (the
    main character); then the best few are scored by the model and the most natural wins
-   among them. Target words are left out of the band check, because they are the new
-   material the band allows. A zero-knowledge learner hears the pair's starter story
-   first and then generates on a bridge vocabulary (session/handover.ts).
+   among them, always after the in-band ones. Target words are left out of the band
+   check, because they are the new material the band allows. A zero-knowledge learner
+   hears the pair's starter story first and then generates on a bridge vocabulary (see
+   "Round 3 at a glance" for the hand-over rule).
 3. **Pick the cliff.** `cliffPositions` scores the sentence once and runs the whole-word
    next-word search at each position. `pickCliff` excludes the first word of a sentence,
    names, numbers and implausible words, prefers target words and words the learner
@@ -313,7 +319,9 @@ asserts and 2 false hints on the correct sentences, 2 asserts on the 26 street
 sentences, none on slang. After the correction coverage round (2026-11-16): 74/93
 asserted (70 with the exact fix), 0 false asserts and 1 false hint, 0 street asserts; on
 83 held-out pairs written before the round 64 asserted with the exact fix (was 43), 0
-false asserts (was 1); `test/real-coverage.test.ts` checks the held-out sets. Top-N forced decoding loses too much (top-10: 4 asserts), so
+false asserts (was 1); `test/real-coverage.test.ts` checks the held-out sets (see "Held-out
+sets" below). The review run of 2026-11-16 repeated all three suites with the same
+results. Top-N forced decoding loses too much (top-10: 4 asserts), so
 the device needs a native method that scores a supplied text; keep top-50 only as a
 fallback.
 
@@ -490,6 +498,117 @@ fallback.
   `slangExemption` segment each register pack's forms once per pack; `findSlangMatches`
   builds its index once per pack and option set.
 
+## Round 3 at a glance
+
+What changed in round 3 (story generation, correction coverage, answer speed and session
+robustness) and in its review, by topic. Measurements: `proof/ENGINE_REAL_MODEL.md`, the
+three dated 2026-11-16 sections and "Engine round 3: review and summary".
+
+- **Generation prompt data.** Every word the story module writes into a prompt or looks
+  for in model output is pack data (`LanguagePack.story`, `StoryLanguageData`): header,
+  level names by vocabulary, length hints, example lines, characters, scene and
+  vocabulary lines, street line and region names, leak patterns, meta words, answer
+  labels, preamble words, `requireVerb`, and the generation `stop` strings (Spanish: ". ",
+  "? ", "! " and a line break; the cut "?" and "!" come back from ¿ and ¡; a pack without
+  stops stops at a line break). `LanguagePack.abbreviations` lists words after which a
+  period does not end a sentence. `story/` holds no words of any language
+  (`src/story/neutral.test.ts`), and the Japanese toy pack gets a bare tagged prompt.
+- **The prompt.** Plain continuation: the header, then the last story sentences one per
+  line after their key word in brackets ("[mercado] Marta llegó tarde al mercado."), and
+  the target as the next tag ("[viejo]"). Only this format made Qwen3-1.7B use a
+  content-word target reliably (12 of 12 against 2 of 8).
+- **Hand-over rule** (`session/handover.ts`, `DEFAULT_HANDOVER_OPTIONS`). A zero-knowledge
+  learner (startMode `brand_new`, or no evidence at all) hears the pair's starter story
+  (`starterSentences`: all 8 in en-es). Then, with a model, generation runs on the bridge
+  while the learner knows fewer than `strictFrom` (150) frequency-list lexemes at
+  pKnown(meaning) >= `knownAt` (0.9): the starter's taught words, every word of its
+  sentences, the pair's cognates and the words introduced since (`introducedKeep`, 200)
+  count as known in the band check (`familiarCredit` 0.98) and fill the vocabulary line,
+  and the targets are content words (`bridgeTargetPos`). From 150 known lexemes on,
+  generation is free (the band on pKnown alone). Without a model the session stays on
+  canned sentences. A step with no usable sentence falls back to unused starter
+  sentences, then unused placement-ladder sentences, then the starter again (least
+  recently used): never an error screen, never an early repeat.
+- **Rejects** (`REJECT_CODES`, counted per step in `rejectCounts`): empty, placeholder,
+  list, heading, bare_quote, prompt_leak, meta, native_words, foreign, no_verb,
+  too_short, too_long, repeat (the same or a near-same sentence, a recent sentence held
+  whole, a short sentence that repeats a content word, a copied opening frame: the same
+  first three words as one of the last two sentences, reaching a verb), unbalanced_quotes
+  and unnatural (a scored candidate below -4.4 nats per token). Word counts for the
+  heading and list checks come from the pack's segmenter.
+- **Selection and the natural pass.** Band first (any in-band candidate beats any
+  out-of-band one), then targets, novelty, continuity, length, unknown words, the natural
+  score and a seeded jitter below one point (`varietyJitter`). The natural pass scores
+  accepted candidates in rank order until three pass the floor (at most six calls per
+  step); candidates scored in the first round count where they rank after the safe round,
+  and the final order keeps in-band candidates first. In a session, the last in-band
+  candidate it will try takes its best rated cliff even below the cliff plausibility
+  floor rather than leave the band.
+- **Prefetch.** `StorySession.prefetch(at)` runs the next step on a copy of the session
+  through a recording view of the model (`ModelGate`); the real step recomputes everything
+  and replays only answers to identical requests, so the story is the same with or
+  without it. Model calls of a session (its steps and its prefetch) run one at a time; a
+  model switch retires the old gate and the new one starts after it. Snapshots never hold
+  prefetched answers.
+- **Busy behaviour.** While an async step waits for the model, every other step call is
+  refused at once with `refused: 'busy'`, the screen from before the step and no events;
+  reads (`snapshot()`, `screen`, `settings`, `prior`, `stageAt()`) see the state from
+  before the step; `setModel()` waits for the step to end; a step that throws leaves the
+  session as it was. The same holds for `LyricSession`.
+- **Cliff-answer alternatives.** `cliffPositions` already ran the next-word search at the
+  cliff, so sessions pass its alternatives (and P(actual) for a one-word cliff) to
+  `scoreCliffAnswer` / `scoreLyricAnswer` (`CreditOptions.alternatives`,
+  `actualLogprob`; check with `alternativesReusable`): an answer costs 0 to 4 model calls
+  instead of about 20, with the same result. Lemma credit (`lemmaWeight` 0.02) can lift a
+  pronoun-less form (reír for reírse) to partial credit, never to full.
+- **New correction rules** (29 Spanish rules, was 22): subject-verb agreement (subject
+  before the verb; gustar-type verbs with the noun after; never breaking an agreement that
+  holds), a + el = al and de + el = del both ways, articles at a sentence start and before
+  clock hours, possessive to article with body parts and clothes, personal a across an
+  adverb and before nadie/alguien, a mood cue after que/si/cuando..., pronoun placement
+  after haber and doubled pronouns, ser/estar skipped before a slang predicate; new rule
+  kinds `agree` and `contract`. Slang inflections (bacana, panas, bregamos) are protected
+  and never shaded.
+- **Held-out sets.** Written before the correction work and never tuned on:
+  `proof/pairs_holdout.jsonl` (83 pairs, 12 families) and `proof/slang_holdout.jsonl` (27
+  street sentences: PR, DO, CU, CO); three changes were prompted by them (each with a
+  matching case in the original sets), so a second blind set, `proof/pairs_holdout2.jsonl`
+  (36 pairs) and `proof/slang_holdout2.jsonl` (10 sentences), was written after the code
+  was done and run once. Held-out: 64 of 83 errors asserted with the exact fix (was 43), 0
+  false asserts (was 1); blind: 31 of 36, 0 false asserts, 0 false hints; no street
+  assert and no slang touched or shaded in any set. `test/real-coverage.test.ts` checks the
+  held-out sets on the real model.
+
+## Contract decisions made in the round-3 review
+
+- `StoryLanguageData.stop` (optional): the pack's generation stop strings.
+  `DEFAULT_NEXT_SENTENCE_TUNING.stop` is now a line break (was ". ", "? ", "! " and a line
+  break, which the Spanish pack now supplies): a ". " stop is cut by the runtime, and a
+  language without an opening question mark (English) or without a space after its
+  sentence end (Japanese) would lose or never reach the end mark. `tuning.stop` still
+  overrides both.
+- `SelectOptions.sameOpeningNeedsVerb` (true) and `sameOpening(..., verbPos?)`: a copied
+  opening is a repeat only when the shared opening reaches a verb. In the real-model run
+  the old check threw out every sentence of the advanced story that started with its
+  five-word character, "El señor de las frutas": two of eight steps without a sentence;
+  with the new check the same run has 8 of 8 in band (was 6), the reader 8 of 8 (was 7),
+  and the early learner's story is unchanged.
+- The natural pass counts already scored candidates where they rank now, and ranks
+  in-band candidates first: an out-of-band candidate scored in the first round could beat
+  the safe round's in-band one (a candidate scored in round one used up the count).
+- `StorySession`: the last in-band candidate takes its best rated cliff below the
+  plausibility floor (no extra model call) before an out-of-band one is tried;
+  `introducedKeep: 0` keeps no introduced word (it kept all); the next and done commands
+  wait for a running prefetch and replay it, as next() does; `setModel()` during a prefetch
+  retires the old gate (`ModelGate.retire()`, `ModelGate.idle()`; the constructor takes
+  the gate it replaces) so model calls never overlap across the switch.
+- Every engine module passes `LanguagePack.abbreviations` to sentence splitting (brought
+  text, lyric cliffs, gaps, retell, repair, native replies, sentence views): "Sr. García"
+  no longer splits a brought text into two sentences.
+- The heading and comma-list rejects count words with the pack's segmenter and the
+  all-capitals test applies only to scripts with case: a Japanese sentence cut at its stop
+  string is not a heading, and one with several 、 is not a list.
+
 ## Known limits
 
 - Corrections never restore a missing accent (by design, so ser/estar is not credited for
@@ -513,10 +632,9 @@ fallback.
   `nextWords` (`opts.classify`); none exists yet, so next-word lists and cliff
   alternatives are whole token runs there. `test/language-neutral.test.ts` runs scoring,
   corrections, commands, alignment and sessions on a toy Japanese pack.
-- Sentence splitting outside `story/` (lyrics, speaking, gaps, the session view) calls
-  `splitSentences` / `sentenceStartFlags` without abbreviations, which now default to
-  none (`LanguagePack.abbreviations` holds Spanish's list): "Sr. García" counts as two
-  sentences there until those modules pass the pack's list.
+- `splitSentences` / `sentenceStartFlags` called directly without a list know no
+  abbreviations (`NO_ABBREVIATIONS`); every engine module passes
+  `LanguagePack.abbreviations` (Spanish: `SPANISH_ABBREVIATIONS`).
 - The bridge (session/handover.ts) holds the known-word band on the starter's words,
   cognates and introduced words, because the learner model gains meaning evidence slowly
   (eight starter sentences leave the taught words below 0.7). Calibrate `strictFrom` and
@@ -585,4 +703,11 @@ fallback.
   speaking, advanced and heritage profiles built from priors and study events. Checks that
   the known-word band holds, that selection picks an in-band or the closest sentence, that a
   brand-new learner always has a next step, that new material never runs out at the top,
-  and that rungs and tiles follow each skill mix.
+  and that rungs and tiles follow each skill mix; and, over a running `StorySession` per
+  profile (a graded candidate pool behind the mock), that every generated sentence is in
+  band whenever an in-band candidate was offered (on the bridge for the brand-new
+  learner), that every step has a next screen and that every generated sentence was asked
+  for with targets.
+- `test/round3-review.test.ts`: the round-3 review regressions (pack stop strings,
+  segmenter-based heading and list rejects, abbreviations in brought text, prefetch with
+  the next command and with a model switch, the copied-opening frame).

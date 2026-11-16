@@ -208,7 +208,7 @@ export function findNativeGaps(
   const o = resolve(options);
   const always = new Set(o.alwaysNative);
   const segments = pack.segment(text);
-  const starts = sentenceStartFlags(segments);
+  const starts = sentenceStartFlags(segments, pack.abbreviations ?? []);
   const gaps: NativeGap[] = [];
   let current: NativeGapWord[] = [];
   /** Whether the separators seen since the last native word still allow joining. */

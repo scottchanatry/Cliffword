@@ -295,7 +295,7 @@ and, in tests, deterministic (`test-1`, `test-2`, ...).
 | Service | Interface | iOS / Android now | Web preview | Tests (`createTestServices`) | Later stage |
 |---|---|---|---|---|---|
 | `storage` | `StorageService` (`open`, `close`, `backend`) | **real**: expo-sqlite, file `cliffword.db`, WAL, migrated | sql.js in memory (`open.web.ts`), lost on reload | sql.js in memory, fresh for each container, ids `test-n` | persistent web DB (needs `.wasm` in Metro + COOP/COEP) |
-| `model` | `ModelAdapter` (engine `LanguageModel` + `load`, `unload`, `status`, `info`, `onStatusChange`) | **real**: `LlamaModelAdapter` (llama.rn, Qwen3-1.7B), `'unloaded'` until `keepModelLoaded` loads the verified file | `MockModelAdapter` | `MockModelAdapter`; `LlamaModelAdapter` tests use the llama.rn fake | none |
+| `model` | `ModelAdapter` (engine `LanguageModel` + `load`, `unload`, `status`, `info`, `onStatusChange`) | **real**: `LlamaModelAdapter` (llama.rn, Qwen3-1.7B), `'unloaded'` until `keepModelLoaded` loads the verified file; one context at a time; on iOS, loads and calls wait while the app is in the background | `MockModelAdapter` | `MockModelAdapter`; `LlamaModelAdapter` tests use the llama.rn fake | none |
 | `modelManager` | `ModelManager` (`status()`, `progress()`, `snapshot()`, `startDownload()`, `cancel()`, `delete()`, `filePath`, `onChange`) | **real**: `ExpoModelManager` (expo-file-system download into the document directory, size and SHA-256 check, `model_files` row) | `FakeModelManager` (ready) | `FakeModelManager` (instant or manual); `ExpoModelManager` tests use `src/testing/fakeExpoFileSystem.ts` | none |
 | `speechOut` | `SpeechOut` (`speak` with word boundaries, `stop`, `voices`, `isSpeaking`) | **real**: `ExpoSpeechOut` | `ExpoSpeechOut` (speechSynthesis) | `FakeSpeechOut` | none |
 | `speechIn` | `SpeechIn` (sessions, `submitTyped`, events, levels and meter, permission, `availability`, `downloadLanguage`) | **real**: `ExpoSpeechIn` (expo-speech-recognition, on-device; `TypedSpeechIn` if the binary lacks the module) | `BrowserSpeechIn` when the browser has SpeechRecognition, else `TypedSpeechIn` | `FakeSpeechIn`; `ExpoSpeechIn` tests drive `FakeSpeechRecognitionModule` | none |
@@ -320,7 +320,11 @@ Contract rules (each `types.ts` documents the full contract):
   `info.scoring` says how scores are made. `'native'` means exact, from the llama.rn patch.
   `'forced-decoding'` means tokens outside llama.rn's top N are `upperBound`. Show the model's
   state with `modelAvailability(modelManager.snapshot(), model.status)`, for example `'missing'`
-  before the download.
+  before the download. Only one llama.rn context exists at a time: a `load()` that overtakes a
+  running one waits for its `initLlama` and the release of what it made. On iOS
+  `createDeviceModel` wires `setInBackground()` to `AppState`: while the app is in the background
+  (iOS refuses Metal work there, and the background memory limit is far lower), a `load()` and
+  calls that have not started wait for the foreground; a call already running finishes or fails.
 - **Model file.** `ExpoModelManager` (`src/adapters/model/ExpoModelManager.ts`, built by
   `createModelManager`) keeps the model in `<documents>/models/` (never the cache, which the OS
   purges); `filePath` is a plain path there. The header of that file has the full behavior:
@@ -371,12 +375,16 @@ Contract rules (each `types.ts` documents the full contract):
     with `spokenMsOf(transcript)` (voiced time).
   - **Levels.** `onLevel` gives dBFS; `onMeter` gives a smoothed 0..1 for the hold animation, at
     most every 50 ms, ending at 0.
-  - **iOS audio session.** Each session sets `playAndRecord`, mode `default`, options
-    `defaultToSpeaker` and `allowBluetoothA2DP`, and leaves the session active afterwards, so
-    text to speech right after a hold plays from the speaker at full volume (the module's own
-    default, mode `measurement`, would make it quiet). Pause Apple Music before listening; the
-    music feature switches the category back when it resumes playback. The reasons are in the
-    header of `ExpoSpeechIn.ts`.
+  - **iOS audio session.** At start `createNativeSpeechIn` sets the category to `playback`, mode
+    `default` (`IOS_STARTUP_AUDIO_SESSION`): iOS starts an app in `soloAmbient`, which the
+    Ring/Silent switch mutes, so the story's text to speech would be silent on a phone set to
+    silent until the first hold; `playback` cannot bring up the microphone prompt early, as
+    `playAndRecord` could. Each recognition session then sets `playAndRecord`, mode `default`,
+    options `defaultToSpeaker` and `allowBluetoothA2DP`, and leaves the session active
+    afterwards, so text to speech right after a hold plays from the speaker at full volume (the
+    module's own default, mode `measurement`, would make it quiet). Stop text to speech and pause
+    Apple Music before listening (the controllers' job; there is no audio coordinator yet). The
+    reasons are in the header of `ExpoSpeechIn.ts`.
 - **Music.** Call `authorize()` first. `'unsupported'` means there is no Apple Music here (web,
   Android); every other call then rejects with `MusicPlayerError('unsupported')`. See "Apple
   Music" for the iOS adapter and `pauseAt`.

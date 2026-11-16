@@ -17,8 +17,10 @@
  *   rarely shades a correct sentence strongly;
  * - scoreCliffAnswer at a story cliff: every natural answer earns credit, wrong answers
  *   do not;
- * - generateNextSentence: an in-band sentence without leaks for an intermediate learner;
- *   the brand-new learner's broken generation is pinned with it.fails (open issue);
+ * - generateNextSentence: early and intermediate learners get distinct in-band sentences
+ *   without placeholders or prompt words over three seeds, using their targets at least
+ *   once; a brand-new learner on the bridge (after the starter story) gets real in-band
+ *   sentences too;
  * - TopNBoundedModel (the llama.rn limit): no assert and no cliff credit ever rests on a
  *   bounded token.
  *
@@ -31,6 +33,7 @@ import raw17 from '../../proof/raw_qwen3-1.7b.json';
 import {
   LearnerModel,
   PlacementTracker,
+  bridgeFamiliar,
   chooseTargets,
   cognateLexemeKeys,
   createDefaultPairPack,
@@ -298,57 +301,89 @@ describe.skipIf(!BASE_URL)('the engine on the real model', () => {
 
   const at = Date.UTC(2026, 10, 15, 9, 0, 0);
   const keys = frequencyLexemeKeys(pack);
+  const rank = new Map(keys.map((k, i) => [k, i + 1]));
+  const cognates = PlacementTracker.brandNew(cognateLexemeKeys(pair));
+  /** Knows each skill up to a frequency rank (a steep logistic, as in the simulated learners), cognates at least as the brand-new prior. */
+  const reaching = (reach: Record<Skill, number>): LearnerModel => {
+    const prior: PriorFn = (key, skill) =>
+      Math.max(reach[skill] <= 0 ? 0.002 : 0.002 + 0.968 / (1 + Math.pow((rank.get(lexemeOf(key)) ?? 50_000) / reach[skill], 6)), cognates(key, skill));
+    return new LearnerModel({ prior });
+  };
   const story = [
     'Marta llegó tarde al mercado.',
     'Buscó al señor de las frutas, pero su puesto estaba cerrado.',
     'Entonces vio una nota en la puerta y empezó a leerla en voz alta.',
   ];
-  const generate = async (learner: LearnerModel, storySoFar: string[]) => {
-    const params = deriveParams({ vocab: estimateVocabulary(learner, at, keys) });
-    const targets = chooseTargets({ learner, now: at, frequencyKeys: keys, options: { count: 2 } });
+  const starterStory = (pair.starter?.sentences ?? []).map((x) => x.text);
+  const CONTENT = new Set(['NOUN', 'VERB', 'ADJ', 'ADV']);
+  /**
+   * One next sentence the way the session asks for it: one target (two from
+   * newWordsPerSentence 1.5), the default tuning, the main character named. With
+   * `bridge`, the brand-new learner's bridge (session/handover.ts): the starter's words,
+   * cognates and introduced words count as known, and the target is a content word.
+   */
+  const generate = async (learner: LearnerModel, storySoFar: string[], seed: number, bridge = false) => {
+    const vocab = estimateVocabulary(learner, at, keys);
+    const params = deriveParams({ vocab });
+    const familiar = bridge ? bridgeFamiliar(pack, pair) : [];
+    const targets = chooseTargets({
+      learner, now: at, frequencyKeys: keys, exclude: familiar,
+      ...(bridge ? { accept: (k: string) => CONTENT.has(pack.analyze(pack.normalize(k.slice(3)))[0]?.pos ?? '') } : {}),
+      options: { count: params.newWordsPerSentence >= 1.5 ? 2 : 1 },
+    });
     const t0 = now();
     const r = await generateNextSentence(model, { pack, learner, pair }, {
-      story: storySoFar,
-      targets: targets.map((t) => t.key),
-      params,
-      now: at,
-      seed: 1,
-      tuning: { n: 4 },
+      story: storySoFar, targets: targets.map((t) => t.key), params, now: at, seed, vocab, names: ['Marta'], ...(bridge ? { familiar } : {}),
     });
-    log(`generate: "${r.sentence}" for targets ${targets.map((t) => t.key).join(', ')}; in band ${r.diagnostics.inBand}, retried ${r.diagnostics.retried}, ${(now() - t0).toFixed(0)} ms`);
+    log(`generate (seed ${seed}): "${r.sentence}" for ${targets.map((t) => t.key).join(', ')}; in band ${r.diagnostics.inBand}, target ${r.diagnostics.targetUsed}, retried ${r.diagnostics.retried}, rejects ${JSON.stringify(r.rejectCounts)}, ${(now() - t0).toFixed(0)} ms`);
     return { r, params };
   };
+  const SEEDS = [1, 1001, 2001];
+  const JUNK = /\n|_|\.\.|…|\[|\]|<|>|Cuento|Personajes|Palabras|Historia|Siguiente|oración/u;
 
-  // The measured setup (seed 1, the three-sentence story): every seed gave an in-band
-  // sentence. With only the first two sentences, seed 1 fell out of band ("La niña se
-  // agarró al de la caja."), so this pins the measured case, not a general guarantee.
-  it('generateNextSentence: an intermediate learner gets an in-band sentence with no prompt leak', async () => {
-    // Knows meaning up to about frequency rank 1200 (a steep logistic on rank, as in the
-    // simulated learners), sound and speaking less, cognates at least as the brand-new prior.
-    const rank = new Map(keys.map((k, i) => [k, i + 1]));
-    const reach: Record<Skill, number> = { meaning: 1200, written: 1200, sound: 700, speaking: 300 };
-    const cognates = PlacementTracker.brandNew(cognateLexemeKeys(pair));
-    const prior: PriorFn = (key, skill) =>
-      Math.max(0.002 + 0.968 / (1 + Math.pow((rank.get(lexemeOf(key)) ?? 50_000) / reach[skill], 6)), cognates(key, skill));
-    const learner = new LearnerModel({ prior });
-    const { r } = await generate(learner, story);
-    expect(r.sentence).not.toBeNull();
-    expect(r.diagnostics.inBand).toBe(true);
-    expect(r.best?.rejected ?? []).toEqual([]);
-    expect(r.sentence ?? '').not.toMatch(/\n|_|Historia|Siguiente|oración|palabras/u);
+  // Measured on 2026-11-16 (proof/ENGINE_REAL_MODEL.md, "Story generation at every level").
+  // Each profile: three seeds over the same story. In band, no placeholder or prompt
+  // words, a real sentence of the level's length, the target used at least once, and
+  // three different sentences.
+  it('generateNextSentence: early and intermediate learners get distinct in-band sentences that use their targets', async () => {
+    const profiles: [string, LearnerModel][] = [
+      ['early', reaching({ meaning: 300, written: 300, sound: 200, speaking: 80 })],
+      ['intermediate', reaching({ meaning: 1200, written: 1200, sound: 700, speaking: 300 })],
+    ];
+    for (const [name, learner] of profiles) {
+      const runs = [];
+      for (const seed of SEEDS) runs.push(await generate(learner, story, seed));
+      const sentences = runs.map((x) => x.r.sentence);
+      for (const { r, params } of runs) {
+        expect(r.sentence, name).not.toBeNull();
+        expect(r.best?.rejected ?? ['none'], name).toEqual([]);
+        expect(r.sentence ?? '', name).not.toMatch(JUNK);
+        expect(r.best?.wordCount ?? 0, name).toBeGreaterThanOrEqual(Math.floor(params.sentenceWords.min * 0.6));
+      }
+      expect(runs.filter((x) => x.r.diagnostics.inBand).length, `${name} in band`).toBeGreaterThanOrEqual(2);
+      expect(runs.filter((x) => x.r.diagnostics.targetUsed).length, `${name} targets`).toBeGreaterThanOrEqual(1);
+      expect(new Set(sentences).size, `${name} distinct`).toBe(SEEDS.length);
+    }
   }, LONG_MS);
 
-  // Known open issue (proof/ENGINE_REAL_MODEL.md, "Generation"): for a brand-new learner
-  // chooseTargets picks the function words el and de, the prompt asks to "use" them, and
-  // Qwen3-1.7B answers with fill-in templates ("El y de _______.") or one word ("El."),
-  // which selection accepts because no candidate can reach the band at zero knowledge.
-  // it.fails passes while the defect is there; turn it into it() once story/ is fixed.
-  it.fails('generateNextSentence: a brand-new learner gets a real sentence (fails today)', async () => {
+  // Was it.fails until 2026-11-16: chooseTargets gave el and de, the prompt asked the
+  // model to "use" them, Qwen3-1.7B wrote "El y de _______." and selection accepted it.
+  // Now the brand-new learner generates on the bridge (after the starter story): content
+  // targets as the next line's tag, the starter's words and cognates as the known words.
+  it('generateNextSentence: a brand-new learner on the bridge gets a real, in-band sentence', async () => {
     const learner = new LearnerModel({ prior: PlacementTracker.brandNew(cognateLexemeKeys(pair)) });
-    const { r, params } = await generate(learner, story.slice(0, 1));
-    const words = pack.segment(r.sentence ?? '').filter((x) => x.kind === 'word').length;
-    expect(words).toBeGreaterThanOrEqual(Math.floor(params.sentenceWords.min));
-    expect(r.sentence ?? '').not.toMatch(/_|\.\.\.|…/u);
+    const runs = [];
+    for (const seed of SEEDS) runs.push(await generate(learner, starterStory, seed, true));
+    for (const { r, params } of runs) {
+      expect(r.sentence).not.toBeNull();
+      const words = pack.segment(r.sentence ?? '').filter((x) => x.kind === 'word').length;
+      expect(words).toBeGreaterThanOrEqual(Math.floor(params.sentenceWords.min * 0.6));
+      expect(r.sentence ?? '').not.toMatch(JUNK);
+      expect(r.best?.rejected ?? ['none']).toEqual([]);
+    }
+    expect(runs.filter((x) => x.r.diagnostics.inBand).length).toBeGreaterThanOrEqual(2);
+    expect(runs.filter((x) => x.r.diagnostics.targetUsed).length).toBeGreaterThanOrEqual(1);
+    expect(new Set(runs.map((x) => x.r.sentence)).size).toBe(SEEDS.length);
   }, LONG_MS);
 
   it('top-10 forced decoding (llama.rn limit): no assert or credit rests on a bounded token', async () => {

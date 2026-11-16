@@ -1,0 +1,8604 @@
+{
+ "meta": {
+  "when": "2026-11-16T00:43:17.398Z",
+  "load": [
+   2.55,
+   4.51,
+   5.73
+  ],
+  "cores": 4,
+  "offline": false
+ },
+ "label": "after",
+ "pairs": [
+  {
+   "id": 1,
+   "rule": "ser_estar",
+   "kind": "incorrect",
+   "text": "Mi hermano es enfermo hoy.",
+   "verdict": "assert",
+   "margin": 7.193997484664095,
+   "best": "Mi hermano está enfermo hoy.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 7.194,
+   "ms": 747
+  },
+  {
+   "id": 1,
+   "rule": "ser_estar",
+   "kind": "correct",
+   "text": "Mi hermano está enfermo hoy.",
+   "verdict": "ok",
+   "margin": -7.193997484664095,
+   "best": "Mi hermano es enfermo hoy.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 455
+  },
+  {
+   "id": 2,
+   "rule": "ser_estar",
+   "kind": "incorrect",
+   "text": "Madrid es en España.",
+   "verdict": "hint",
+   "margin": 2.198446468137359,
+   "best": "Madrid está en España.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 2.198,
+   "ms": 252
+  },
+  {
+   "id": 2,
+   "rule": "ser_estar",
+   "kind": "correct",
+   "text": "Madrid está en España.",
+   "verdict": "ok",
+   "margin": -2.198446468137359,
+   "best": "Madrid es en España.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 102
+  },
+  {
+   "id": 3,
+   "rule": "ser_estar",
+   "kind": "incorrect",
+   "text": "Yo estoy profesora de historia.",
+   "verdict": "assert",
+   "margin": 11.235149997551328,
+   "best": "Yo soy profesora de historia.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 8,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 11.235,
+   "ms": 1079
+  },
+  {
+   "id": 3,
+   "rule": "ser_estar",
+   "kind": "correct",
+   "text": "Yo soy profesora de historia.",
+   "verdict": "ok",
+   "margin": 0.8322558442766237,
+   "best": "Yo soy una profesora de historia.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.una",
+   "variants": 8,
+   "dropped": 0,
+   "ms": 987
+  },
+  {
+   "id": 4,
+   "rule": "ser_estar",
+   "kind": "incorrect",
+   "text": "Somos muy cansados después del viaje.",
+   "verdict": "assert",
+   "margin": 7.426144709943252,
+   "best": "Estamos muy cansados después del viaje.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 7.426,
+   "ms": 671
+  },
+  {
+   "id": 4,
+   "rule": "ser_estar",
+   "kind": "correct",
+   "text": "Estamos muy cansados después del viaje.",
+   "verdict": "ok",
+   "margin": -7.426144709943252,
+   "best": "Somos muy cansados después del viaje.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 4,
+   "dropped": 0,
+   "ms": 648
+  },
+  {
+   "id": 5,
+   "rule": "ser_estar",
+   "kind": "incorrect",
+   "text": "La fiesta está en mi casa esta noche.",
+   "verdict": "ok",
+   "margin": -1.3404177903008616,
+   "best": "La fiesta es en mi casa esta noche.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": -1.34,
+   "ms": 399
+  },
+  {
+   "id": 5,
+   "rule": "ser_estar",
+   "kind": "correct",
+   "text": "La fiesta es en mi casa esta noche.",
+   "verdict": "hint",
+   "margin": 1.3404177903008616,
+   "best": "La fiesta está en mi casa esta noche.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 415
+  },
+  {
+   "id": 6,
+   "rule": "ser_estar",
+   "kind": "incorrect",
+   "text": "Hoy está lunes.",
+   "verdict": "assert",
+   "margin": 10.88398629044854,
+   "best": "Hoy es lunes.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 10.884,
+   "ms": 402
+  },
+  {
+   "id": 6,
+   "rule": "ser_estar",
+   "kind": "correct",
+   "text": "Hoy es lunes.",
+   "verdict": "ok",
+   "margin": -1.758737375264964,
+   "best": "Hoy es un lunes.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.un",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 394
+  },
+  {
+   "id": 7,
+   "rule": "ser_estar",
+   "kind": "incorrect",
+   "text": "Mi madre está de Colombia.",
+   "verdict": "assert",
+   "margin": 12.097855675413616,
+   "best": "Mi madre es de Colombia.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 12.098,
+   "ms": 230
+  },
+  {
+   "id": 7,
+   "rule": "ser_estar",
+   "kind": "correct",
+   "text": "Mi madre es de Colombia.",
+   "verdict": "ok",
+   "margin": -12.097855675413616,
+   "best": "Mi madre está de Colombia.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 101
+  },
+  {
+   "id": 8,
+   "rule": "ser_estar",
+   "kind": "incorrect",
+   "text": "El café es muy caliente ahora.",
+   "verdict": "hint",
+   "margin": 2.245387475441774,
+   "best": "El café está muy caliente ahora.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 2.245,
+   "ms": 457
+  },
+  {
+   "id": 8,
+   "rule": "ser_estar",
+   "kind": "correct",
+   "text": "El café está muy caliente ahora.",
+   "verdict": "ok",
+   "margin": -2.245387475441774,
+   "best": "El café es muy caliente ahora.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 530
+  },
+  {
+   "id": 9,
+   "rule": "ser_estar",
+   "kind": "incorrect",
+   "text": "¿Dónde son las llaves?",
+   "verdict": "assert",
+   "margin": 6.981482091567255,
+   "best": "¿Dónde están las llaves?",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 6.981,
+   "ms": 3262
+  },
+  {
+   "id": 9,
+   "rule": "ser_estar",
+   "kind": "correct",
+   "text": "¿Dónde están las llaves?",
+   "verdict": "ok",
+   "margin": -6.981482091567255,
+   "best": "¿Dónde son las llaves?",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 369
+  },
+  {
+   "id": 10,
+   "rule": "ser_estar",
+   "kind": "incorrect",
+   "text": "Están las tres de la tarde.",
+   "verdict": "assert",
+   "margin": 11.033098432501482,
+   "best": "Son las tres de la tarde.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 5,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 11.033,
+   "ms": 758
+  },
+  {
+   "id": 10,
+   "rule": "ser_estar",
+   "kind": "correct",
+   "text": "Son las tres de la tarde.",
+   "verdict": "ok",
+   "margin": -7.062407754041104,
+   "best": "Son tres de la tarde.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 5,
+   "dropped": 0,
+   "ms": 859
+  },
+  {
+   "id": 11,
+   "rule": "por_para",
+   "kind": "incorrect",
+   "text": "Gracias para tu ayuda.",
+   "verdict": "assert",
+   "margin": 9.138787530796307,
+   "best": "Gracias por tu ayuda.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 9.139,
+   "ms": 238
+  },
+  {
+   "id": 11,
+   "rule": "por_para",
+   "kind": "correct",
+   "text": "Gracias por tu ayuda.",
+   "verdict": "ok",
+   "margin": -9.138787530796307,
+   "best": "Gracias para tu ayuda.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 140
+  },
+  {
+   "id": 12,
+   "rule": "por_para",
+   "kind": "incorrect",
+   "text": "Caminamos para la playa toda la tarde.",
+   "verdict": "assert",
+   "margin": 7.913735038628364,
+   "best": "Caminamos por la playa toda la tarde.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 7.914,
+   "ms": 766
+  },
+  {
+   "id": 12,
+   "rule": "por_para",
+   "kind": "correct",
+   "text": "Caminamos por la playa toda la tarde.",
+   "verdict": "ok",
+   "margin": -7.913735038628364,
+   "best": "Caminamos para la playa toda la tarde.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 4,
+   "dropped": 0,
+   "ms": 2468
+  },
+  {
+   "id": 13,
+   "rule": "por_para",
+   "kind": "incorrect",
+   "text": "Te llamo para teléfono esta noche.",
+   "verdict": "assert",
+   "margin": 10.601559559274094,
+   "best": "Te llamo por teléfono esta noche.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 10.602,
+   "ms": 460
+  },
+  {
+   "id": 13,
+   "rule": "por_para",
+   "kind": "correct",
+   "text": "Te llamo por teléfono esta noche.",
+   "verdict": "ok",
+   "margin": -4.215567781392526,
+   "best": "Te llamo por el teléfono esta noche.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.el",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 417
+  },
+  {
+   "id": 14,
+   "rule": "por_para",
+   "kind": "incorrect",
+   "text": "Necesito el informe por el lunes.",
+   "verdict": "assert",
+   "margin": 3.9917269629441954,
+   "best": "Necesito el informe para el lunes.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 5,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 3.992,
+   "ms": 686
+  },
+  {
+   "id": 14,
+   "rule": "por_para",
+   "kind": "correct",
+   "text": "Necesito el informe para el lunes.",
+   "verdict": "ok",
+   "margin": -1.7154293272901278,
+   "best": "Necesito el informe para lunes.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 5,
+   "dropped": 0,
+   "ms": 671
+  },
+  {
+   "id": 15,
+   "rule": "por_para",
+   "kind": "incorrect",
+   "text": "Voy al mercado por comprar pan.",
+   "verdict": "assert",
+   "margin": 7.928448859856456,
+   "best": "Voy al mercado para comprar pan.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 6,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 7.928,
+   "ms": 830
+  },
+  {
+   "id": 15,
+   "rule": "por_para",
+   "kind": "correct",
+   "text": "Voy al mercado para comprar pan.",
+   "verdict": "ok",
+   "margin": -0.2840295272466058,
+   "best": "Voy al mercado para comprar el pan.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.el",
+   "variants": 6,
+   "dropped": 0,
+   "ms": 790
+  },
+  {
+   "id": 16,
+   "rule": "por_para",
+   "kind": "incorrect",
+   "text": "Trabajo para la mañana.",
+   "verdict": "ok",
+   "margin": 0.9608423134846049,
+   "best": "Trabajo para mañana.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": -0.871,
+   "ms": 393
+  },
+  {
+   "id": 16,
+   "rule": "por_para",
+   "kind": "correct",
+   "text": "Trabajo por la mañana.",
+   "verdict": "ok",
+   "margin": 0.8706834752820534,
+   "best": "Trabajo para la mañana.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 293
+  },
+  {
+   "id": 17,
+   "rule": "por_para",
+   "kind": "incorrect",
+   "text": "Lo hice para primera vez.",
+   "verdict": "assert",
+   "margin": 5.623072918155518,
+   "best": "Lo hice por primera vez.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.623,
+   "ms": 409
+  },
+  {
+   "id": 17,
+   "rule": "por_para",
+   "kind": "correct",
+   "text": "Lo hice por primera vez.",
+   "verdict": "ok",
+   "margin": -5.469427096526278,
+   "best": "Lo hacía por primera vez.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 368
+  },
+  {
+   "id": 18,
+   "rule": "por_para",
+   "kind": "incorrect",
+   "text": "Para favor, cierra la puerta.",
+   "verdict": "assert",
+   "margin": 5.871791703326885,
+   "best": "Por favor, cierra la puerta.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 5,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.872,
+   "ms": 876
+  },
+  {
+   "id": 18,
+   "rule": "por_para",
+   "kind": "correct",
+   "text": "Por favor, cierra la puerta.",
+   "verdict": "ok",
+   "margin": -5.871791703326885,
+   "best": "Para favor, cierra la puerta.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 5,
+   "dropped": 0,
+   "ms": 911
+  },
+  {
+   "id": 19,
+   "rule": "por_para",
+   "kind": "incorrect",
+   "text": "Tengo que terminar esto por mañana.",
+   "verdict": "assert",
+   "margin": 4.474538305345675,
+   "best": "Tengo que terminar esto por la mañana.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.la",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 3.118,
+   "ms": 552
+  },
+  {
+   "id": 19,
+   "rule": "por_para",
+   "kind": "correct",
+   "text": "Tengo que terminar esto para mañana.",
+   "verdict": "ok",
+   "margin": -3.1178106739794558,
+   "best": "Tengo que terminar esto por mañana.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 5,
+   "dropped": 0,
+   "ms": 2968
+  },
+  {
+   "id": 20,
+   "rule": "por_para",
+   "kind": "incorrect",
+   "text": "Lo mandé para correo.",
+   "verdict": "assert",
+   "margin": 9.763798230697635,
+   "best": "Lo mandé por correo.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 9.764,
+   "ms": 5897
+  },
+  {
+   "id": 20,
+   "rule": "por_para",
+   "kind": "correct",
+   "text": "Lo mandé por correo.",
+   "verdict": "ok",
+   "margin": -6.491433761411102,
+   "best": "Lo mandaba por correo.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 295
+  },
+  {
+   "id": 21,
+   "rule": "gender",
+   "kind": "incorrect",
+   "text": "La casa blanco es grande.",
+   "verdict": "assert",
+   "margin": 6.708186105664922,
+   "best": "La casa blanca es grande.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 6.708,
+   "ms": 558
+  },
+  {
+   "id": 21,
+   "rule": "gender",
+   "kind": "correct",
+   "text": "La casa blanca es grande.",
+   "verdict": "ok",
+   "margin": -4.3408487261536095,
+   "best": "Casa blanca es grande.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 421
+  },
+  {
+   "id": 22,
+   "rule": "gender",
+   "kind": "incorrect",
+   "text": "La problema es difícil.",
+   "verdict": "assert",
+   "margin": 7.288742449680555,
+   "best": "El problema es difícil.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 7.289,
+   "ms": 558
+  },
+  {
+   "id": 22,
+   "rule": "gender",
+   "kind": "correct",
+   "text": "El problema es difícil.",
+   "verdict": "ok",
+   "margin": -3.256471085595077,
+   "best": "El problema está difícil.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 450
+  },
+  {
+   "id": 23,
+   "rule": "gender",
+   "kind": "incorrect",
+   "text": "Tengo un mano fría.",
+   "verdict": "hint",
+   "margin": 2.897249199367284,
+   "best": "Tengo una mano fría.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 2.897,
+   "ms": 337
+  },
+  {
+   "id": 23,
+   "rule": "gender",
+   "kind": "correct",
+   "text": "Tengo una mano fría.",
+   "verdict": "ok",
+   "margin": -5.997259476432518,
+   "best": "Tengo mano fría.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 195
+  },
+  {
+   "id": 24,
+   "rule": "gender",
+   "kind": "incorrect",
+   "text": "Las flores son bonitos.",
+   "verdict": "assert",
+   "margin": 7.128403731664569,
+   "best": "Las flores son bonitas.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 7.128,
+   "ms": 528
+  },
+  {
+   "id": 24,
+   "rule": "gender",
+   "kind": "correct",
+   "text": "Las flores son bonitas.",
+   "verdict": "ok",
+   "margin": -2.464155177480155,
+   "best": "Flores son bonitas.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 4,
+   "dropped": 0,
+   "ms": 537
+  },
+  {
+   "id": 25,
+   "rule": "gender",
+   "kind": "incorrect",
+   "text": "Mi hermana es alto.",
+   "verdict": "assert",
+   "margin": 3.301498203883888,
+   "best": "Mi hermana es alta.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 3.301,
+   "ms": 361
+  },
+  {
+   "id": 25,
+   "rule": "gender",
+   "kind": "correct",
+   "text": "Mi hermana es alta.",
+   "verdict": "ok",
+   "margin": -3.301498203883888,
+   "best": "Mi hermana es alto.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 432
+  },
+  {
+   "id": 26,
+   "rule": "gender",
+   "kind": "incorrect",
+   "text": "El agua está frío.",
+   "verdict": "assert",
+   "margin": 13.958480261515184,
+   "best": "El agua está fría.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 5,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 13.958,
+   "ms": 737
+  },
+  {
+   "id": 26,
+   "rule": "gender",
+   "kind": "correct",
+   "text": "El agua está fría.",
+   "verdict": "ok",
+   "margin": -2.3036002274629084,
+   "best": "El agua es fría.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 5,
+   "dropped": 0,
+   "ms": 729
+  },
+  {
+   "id": 27,
+   "rule": "gender",
+   "kind": "incorrect",
+   "text": "Compré una camisa nuevo.",
+   "verdict": "assert",
+   "margin": 5.674726239638247,
+   "best": "Compré una camisa nueva.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.675,
+   "ms": 472
+  },
+  {
+   "id": 27,
+   "rule": "gender",
+   "kind": "correct",
+   "text": "Compré una camisa nueva.",
+   "verdict": "ok",
+   "margin": -9.291900383655019,
+   "best": "Compré camisa nueva.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 351
+  },
+  {
+   "id": 28,
+   "rule": "gender",
+   "kind": "incorrect",
+   "text": "La mapa está en la mesa.",
+   "verdict": "hint",
+   "margin": 2.3573926584181386,
+   "best": "El mapa está en la mesa.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 2.357,
+   "ms": 678
+  },
+  {
+   "id": 28,
+   "rule": "gender",
+   "kind": "correct",
+   "text": "El mapa está en la mesa.",
+   "verdict": "ok",
+   "margin": -4.5875253723792575,
+   "best": "El mapa está en mesa.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 511
+  },
+  {
+   "id": 29,
+   "rule": "gender",
+   "kind": "incorrect",
+   "text": "Es una ciudad muy antiguo.",
+   "verdict": "assert",
+   "margin": 11.949151538664257,
+   "best": "Es una ciudad muy antigua.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 11.949,
+   "ms": 645
+  },
+  {
+   "id": 29,
+   "rule": "gender",
+   "kind": "correct",
+   "text": "Es una ciudad muy antigua.",
+   "verdict": "ok",
+   "margin": -6.370460264999135,
+   "best": "Es una ciudad muy antiguas.",
+   "bestKey": "es.number",
+   "bestRule": "es.number",
+   "variants": 4,
+   "dropped": 0,
+   "ms": 611
+  },
+  {
+   "id": 30,
+   "rule": "gender",
+   "kind": "incorrect",
+   "text": "Las días son largos en verano.",
+   "verdict": "assert",
+   "margin": 7.48555304068104,
+   "best": "Los días son largos en verano.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 8,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 7.486,
+   "ms": 1259
+  },
+  {
+   "id": 30,
+   "rule": "gender",
+   "kind": "correct",
+   "text": "Los días son largos en verano.",
+   "verdict": "ok",
+   "margin": 0.27887302291508576,
+   "best": "Los días son largos en el verano.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.el",
+   "variants": 7,
+   "dropped": 0,
+   "ms": 1005
+  },
+  {
+   "id": 31,
+   "rule": "number",
+   "kind": "incorrect",
+   "text": "Los niños juega en el parque.",
+   "verdict": "assert",
+   "margin": 10.128846965488982,
+   "best": "Los niños juegan en el parque.",
+   "bestKey": "es.verb_agreement",
+   "bestRule": "es.verb_agreement.subject",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 10.129,
+   "ms": 498
+  },
+  {
+   "id": 31,
+   "rule": "number",
+   "kind": "correct",
+   "text": "Los niños juegan en el parque.",
+   "verdict": "ok",
+   "margin": -3.27348271631109,
+   "best": "Niños juegan en el parque.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 376
+  },
+  {
+   "id": 32,
+   "rule": "number",
+   "kind": "incorrect",
+   "text": "Mis amigos son simpático.",
+   "verdict": "assert",
+   "margin": 12.195147809045483,
+   "best": "Mis amigos son simpáticos.",
+   "bestKey": "es.number",
+   "bestRule": "es.number",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 12.195,
+   "ms": 453
+  },
+  {
+   "id": 32,
+   "rule": "number",
+   "kind": "correct",
+   "text": "Mis amigos son simpáticos.",
+   "verdict": "ok",
+   "margin": -4.138386838898871,
+   "best": "Mis amigos están simpáticos.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 303
+  },
+  {
+   "id": 33,
+   "rule": "number",
+   "kind": "incorrect",
+   "text": "Las casas son cara.",
+   "verdict": "assert",
+   "margin": 3.0659244899674185,
+   "best": "Las casas son caras.",
+   "bestKey": "es.number",
+   "bestRule": "es.number",
+   "variants": 5,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 3.066,
+   "ms": 686
+  },
+  {
+   "id": 33,
+   "rule": "number",
+   "kind": "correct",
+   "text": "Las casas son caras.",
+   "verdict": "ok",
+   "margin": -1.9462100898572636,
+   "best": "Casas son caras.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 4,
+   "dropped": 0,
+   "ms": 547
+  },
+  {
+   "id": 34,
+   "rule": "number",
+   "kind": "incorrect",
+   "text": "Nosotros vive en Madrid.",
+   "verdict": "assert",
+   "margin": 5.323250784041154,
+   "best": "Nosotros vivimos en Madrid.",
+   "bestKey": "es.verb_agreement",
+   "bestRule": "es.verb_agreement.subject",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.323,
+   "ms": 227
+  },
+  {
+   "id": 34,
+   "rule": "number",
+   "kind": "correct",
+   "text": "Nosotros vivimos en Madrid.",
+   "verdict": "ok",
+   "margin": -5.595540995359791,
+   "best": "Nosotros vivíamos en Madrid.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 128
+  },
+  {
+   "id": 35,
+   "rule": "number",
+   "kind": "incorrect",
+   "text": "Tengo dos perro negros.",
+   "verdict": "assert",
+   "margin": 6.659255943663869,
+   "best": "Tengo dos perros negros.",
+   "bestKey": "es.number",
+   "bestRule": "es.number",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 6.659,
+   "ms": 338
+  },
+  {
+   "id": 35,
+   "rule": "number",
+   "kind": "correct",
+   "text": "Tengo dos perros negros.",
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestKey": null,
+   "bestRule": null,
+   "variants": 0,
+   "dropped": 0,
+   "ms": 114
+  },
+  {
+   "id": 36,
+   "rule": "number",
+   "kind": "incorrect",
+   "text": "Ellos quiere comer ahora.",
+   "verdict": "ok",
+   "margin": 0.5833984614217087,
+   "best": "Ellos quieren comer ahora.",
+   "bestKey": "es.verb_agreement",
+   "bestRule": "es.verb_agreement.subject",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 0.583,
+   "ms": 227
+  },
+  {
+   "id": 36,
+   "rule": "number",
+   "kind": "correct",
+   "text": "Ellos quieren comer ahora.",
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestKey": null,
+   "bestRule": null,
+   "variants": 0,
+   "dropped": 0,
+   "ms": 8
+  },
+  {
+   "id": 37,
+   "rule": "number",
+   "kind": "incorrect",
+   "text": "Los libros está en la mesa.",
+   "verdict": "assert",
+   "margin": 4.6425971018698675,
+   "best": "Los libros están en la mesa.",
+   "bestKey": "es.verb_agreement",
+   "bestRule": "es.verb_agreement.subject",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 4.643,
+   "ms": 576
+  },
+  {
+   "id": 37,
+   "rule": "number",
+   "kind": "correct",
+   "text": "Los libros están en la mesa.",
+   "verdict": "ok",
+   "margin": -1.4510251425340783,
+   "best": "Libros están en la mesa.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 460
+  },
+  {
+   "id": 38,
+   "rule": "number",
+   "kind": "incorrect",
+   "text": "Esas mujeres trabaja mucho.",
+   "verdict": "assert",
+   "margin": 7.029476982560414,
+   "best": "Esas mujeres trabajan mucho.",
+   "bestKey": "es.verb_agreement",
+   "bestRule": "es.verb_agreement.subject",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 7.029,
+   "ms": 235
+  },
+  {
+   "id": 38,
+   "rule": "number",
+   "kind": "correct",
+   "text": "Esas mujeres trabajan mucho.",
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestKey": null,
+   "bestRule": null,
+   "variants": 0,
+   "dropped": 0,
+   "ms": 7
+  },
+  {
+   "id": 39,
+   "rule": "number",
+   "kind": "incorrect",
+   "text": "Me gusta las manzanas.",
+   "verdict": "hint",
+   "margin": 1.11474468817201,
+   "best": "Me gustan las manzanas.",
+   "bestKey": "es.verb_agreement",
+   "bestRule": "es.verb_agreement.gustar",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 1.115,
+   "ms": 359
+  },
+  {
+   "id": 39,
+   "rule": "number",
+   "kind": "correct",
+   "text": "Me gustan las manzanas.",
+   "verdict": "ok",
+   "margin": -5.345393358527655,
+   "best": "Me gustan manzanas.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 230
+  },
+  {
+   "id": 40,
+   "rule": "number",
+   "kind": "incorrect",
+   "text": "Hay muchas persona aquí.",
+   "verdict": "assert",
+   "margin": 7.036740915747874,
+   "best": "Hay muchas personas aquí.",
+   "bestKey": "es.number",
+   "bestRule": "es.number",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 7.037,
+   "ms": 377
+  },
+  {
+   "id": 40,
+   "rule": "number",
+   "kind": "correct",
+   "text": "Hay muchas personas aquí.",
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestKey": null,
+   "bestRule": null,
+   "variants": 0,
+   "dropped": 0,
+   "ms": 6
+  },
+  {
+   "id": 41,
+   "rule": "preterite_imperfect",
+   "kind": "incorrect",
+   "text": "Cuando fui niño, vivía en Cuba.",
+   "verdict": "hint",
+   "margin": 2.7993309925573975,
+   "best": "Cuando era niño, vivía en Cuba.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 9,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 2.799,
+   "ms": 1291
+  },
+  {
+   "id": 41,
+   "rule": "preterite_imperfect",
+   "kind": "correct",
+   "text": "Cuando era niño, vivía en Cuba.",
+   "verdict": "ok",
+   "margin": -1.2138442882529787,
+   "best": "Cuando era niño, viví en Cuba.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 11,
+   "dropped": 0,
+   "ms": 1630
+  },
+  {
+   "id": 42,
+   "rule": "preterite_imperfect",
+   "kind": "incorrect",
+   "text": "De niña, siempre jugué en la calle.",
+   "verdict": "assert",
+   "margin": 5.61080209895054,
+   "best": "De niña, siempre jugaba en la calle.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 5,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.611,
+   "ms": 908
+  },
+  {
+   "id": 42,
+   "rule": "preterite_imperfect",
+   "kind": "correct",
+   "text": "De niña, siempre jugaba en la calle.",
+   "verdict": "ok",
+   "margin": -5.61080209895054,
+   "best": "De niña, siempre jugué en la calle.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 6,
+   "dropped": 0,
+   "ms": 947
+  },
+  {
+   "id": 43,
+   "rule": "preterite_imperfect",
+   "kind": "incorrect",
+   "text": "Mientras yo cociné, sonó el teléfono.",
+   "verdict": "assert",
+   "margin": 5.589493548311463,
+   "best": "Mientras yo cocinaba, sonó el teléfono.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.589,
+   "ms": 500
+  },
+  {
+   "id": 43,
+   "rule": "preterite_imperfect",
+   "kind": "correct",
+   "text": "Mientras yo cocinaba, sonó el teléfono.",
+   "verdict": "ok",
+   "margin": -4.184534312193183,
+   "best": "Mientras yo cocinaba, sonaba el teléfono.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 5,
+   "dropped": 0,
+   "ms": 730
+  },
+  {
+   "id": 44,
+   "rule": "preterite_imperfect",
+   "kind": "incorrect",
+   "text": "El año pasado viajaba a México una vez.",
+   "verdict": "assert",
+   "margin": 10.181693236492059,
+   "best": "El año pasado viajé a México una vez.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 9,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 10.182,
+   "ms": 1178
+  },
+  {
+   "id": 44,
+   "rule": "preterite_imperfect",
+   "kind": "correct",
+   "text": "El año pasado viajé a México una vez.",
+   "verdict": "ok",
+   "margin": -2.5732782976186357,
+   "best": "Año pasado viajé a México una vez.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 9,
+   "dropped": 0,
+   "ms": 1206
+  },
+  {
+   "id": 45,
+   "rule": "preterite_imperfect",
+   "kind": "incorrect",
+   "text": "Fueron las diez cuando salimos.",
+   "verdict": "hint",
+   "margin": 1.8641293726648414,
+   "best": "Eran las diez cuando salimos.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 7,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 1.864,
+   "ms": 1109
+  },
+  {
+   "id": 45,
+   "rule": "preterite_imperfect",
+   "kind": "correct",
+   "text": "Eran las diez cuando salimos.",
+   "verdict": "ok",
+   "margin": 0.0413025607987727,
+   "best": "Eran diez cuando salimos.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 7,
+   "dropped": 0,
+   "ms": 1143
+  },
+  {
+   "id": 46,
+   "rule": "preterite_imperfect",
+   "kind": "incorrect",
+   "text": "Ella tuvo el pelo largo cuando la conocí.",
+   "verdict": "hint",
+   "margin": 2.2031814835520436,
+   "best": "Ella tenía el pelo largo cuando la conocí.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 2.203,
+   "ms": 549
+  },
+  {
+   "id": 46,
+   "rule": "preterite_imperfect",
+   "kind": "correct",
+   "text": "Ella tenía el pelo largo cuando la conocí.",
+   "verdict": "ok",
+   "margin": -2.2031814835520436,
+   "best": "Ella tuvo el pelo largo cuando la conocí.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 4,
+   "dropped": 0,
+   "ms": 670
+  },
+  {
+   "id": 47,
+   "rule": "preterite_imperfect",
+   "kind": "incorrect",
+   "text": "Nacía en 1990.",
+   "verdict": "assert",
+   "margin": 8.102685467801447,
+   "best": "Nací en 1990.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 8.103,
+   "ms": 423
+  },
+  {
+   "id": 47,
+   "rule": "preterite_imperfect",
+   "kind": "correct",
+   "text": "Nací en 1990.",
+   "verdict": "ok",
+   "margin": -8.102685467801447,
+   "best": "Nacía en 1990.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 283
+  },
+  {
+   "id": 48,
+   "rule": "preterite_imperfect",
+   "kind": "incorrect",
+   "text": "Hace dos años terminaba la universidad.",
+   "verdict": "assert",
+   "margin": 3.900432633671297,
+   "best": "Hace dos años terminé la universidad.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 3.9,
+   "ms": 609
+  },
+  {
+   "id": 48,
+   "rule": "preterite_imperfect",
+   "kind": "correct",
+   "text": "Hace dos años terminé la universidad.",
+   "verdict": "ok",
+   "margin": -3.900432633671297,
+   "best": "Hace dos años terminaba la universidad.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 483
+  },
+  {
+   "id": 49,
+   "rule": "preterite_imperfect",
+   "kind": "incorrect",
+   "text": "¿Qué hora fue cuando llegaste?",
+   "verdict": "assert",
+   "margin": 3.7424944268174443,
+   "best": "¿Qué hora era cuando llegaste?",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 3.742,
+   "ms": 644
+  },
+  {
+   "id": 49,
+   "rule": "preterite_imperfect",
+   "kind": "correct",
+   "text": "¿Qué hora era cuando llegaste?",
+   "verdict": "ok",
+   "margin": -3.7424944268174443,
+   "best": "¿Qué hora fue cuando llegaste?",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 5,
+   "dropped": 0,
+   "ms": 678
+  },
+  {
+   "id": 50,
+   "rule": "preterite_imperfect",
+   "kind": "incorrect",
+   "text": "Ayer de repente empezaba a llover.",
+   "verdict": "assert",
+   "margin": 8.588254674266622,
+   "best": "Ayer de repente empezó a llover.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 8.588,
+   "ms": 404
+  },
+  {
+   "id": 50,
+   "rule": "preterite_imperfect",
+   "kind": "correct",
+   "text": "Ayer de repente empezó a llover.",
+   "verdict": "ok",
+   "margin": -8.588254674266622,
+   "best": "Ayer de repente empezaba a llover.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 127
+  },
+  {
+   "id": 51,
+   "rule": "subjunctive_wish",
+   "kind": "incorrect",
+   "text": "Quiero que vienes a mi fiesta.",
+   "verdict": "assert",
+   "margin": 5.122626016175644,
+   "best": "Quiero que vengas a mi fiesta.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.123,
+   "ms": 394
+  },
+  {
+   "id": 51,
+   "rule": "subjunctive_wish",
+   "kind": "correct",
+   "text": "Quiero que vengas a mi fiesta.",
+   "verdict": "ok",
+   "margin": -5.122626016175644,
+   "best": "Quiero que vienes a mi fiesta.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 394
+  },
+  {
+   "id": 52,
+   "rule": "subjunctive_wish",
+   "kind": "incorrect",
+   "text": "Espero que tienes un buen día.",
+   "verdict": "assert",
+   "margin": 3.9408071501897908,
+   "best": "Espero que tengas un buen día.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 3.941,
+   "ms": 340
+  },
+  {
+   "id": 52,
+   "rule": "subjunctive_wish",
+   "kind": "correct",
+   "text": "Espero que tengas un buen día.",
+   "verdict": "ok",
+   "margin": -3.9408071501897908,
+   "best": "Espero que tienes un buen día.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 324
+  },
+  {
+   "id": 53,
+   "rule": "subjunctive_wish",
+   "kind": "incorrect",
+   "text": "Ojalá que llueve mañana.",
+   "verdict": "assert",
+   "margin": 7.322976667153906,
+   "best": "Ojalá que llueva mañana.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 7.323,
+   "ms": 511
+  },
+  {
+   "id": 53,
+   "rule": "subjunctive_wish",
+   "kind": "correct",
+   "text": "Ojalá que llueva mañana.",
+   "verdict": "ok",
+   "margin": -7.322976667153906,
+   "best": "Ojalá que llueve mañana.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 5,
+   "dropped": 0,
+   "ms": 590
+  },
+  {
+   "id": 54,
+   "rule": "subjunctive_wish",
+   "kind": "incorrect",
+   "text": "Mis padres quieren que estudio medicina.",
+   "verdict": "hint",
+   "margin": 2.766008567728033,
+   "best": "Mis padres quieren que estudie medicina.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 2.766,
+   "ms": 576
+  },
+  {
+   "id": 54,
+   "rule": "subjunctive_wish",
+   "kind": "correct",
+   "text": "Mis padres quieren que estudie medicina.",
+   "verdict": "ok",
+   "margin": -2.4442006380982484,
+   "best": "Mis padres quieren que estudie la medicina.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.la",
+   "variants": 5,
+   "dropped": 0,
+   "ms": 593
+  },
+  {
+   "id": 55,
+   "rule": "subjunctive_wish",
+   "kind": "incorrect",
+   "text": "Prefiero que me llamas por la noche.",
+   "verdict": "assert",
+   "margin": 3.764992767624342,
+   "best": "Prefiero que me llames por la noche.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 3.765,
+   "ms": 485
+  },
+  {
+   "id": 55,
+   "rule": "subjunctive_wish",
+   "kind": "correct",
+   "text": "Prefiero que me llames por la noche.",
+   "verdict": "ok",
+   "margin": -3.5120474123198377,
+   "best": "Prefiero que me llames para la noche.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 485
+  },
+  {
+   "id": 56,
+   "rule": "subjunctive_wish",
+   "kind": "incorrect",
+   "text": "Deseo que eres muy feliz.",
+   "verdict": "ok",
+   "margin": 0.7094838703005237,
+   "best": "Deseo que seas muy feliz.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 0.709,
+   "ms": 466
+  },
+  {
+   "id": 56,
+   "rule": "subjunctive_wish",
+   "kind": "correct",
+   "text": "Deseo que seas muy feliz.",
+   "verdict": "ok",
+   "margin": 0.478712394046827,
+   "best": "Deseo que estés muy feliz.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 344
+  },
+  {
+   "id": 57,
+   "rule": "subjunctive_wish",
+   "kind": "incorrect",
+   "text": "Ella quiere que yo cocino hoy.",
+   "verdict": "assert",
+   "margin": 14.369071479896142,
+   "best": "Ella quiere que yo cocine hoy.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 14.369,
+   "ms": 217
+  },
+  {
+   "id": 57,
+   "rule": "subjunctive_wish",
+   "kind": "correct",
+   "text": "Ella quiere que yo cocine hoy.",
+   "verdict": "ok",
+   "margin": 0.3713042276679701,
+   "best": "Ella quiere que yo cocina hoy.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 183
+  },
+  {
+   "id": 58,
+   "rule": "subjunctive_wish",
+   "kind": "incorrect",
+   "text": "Espero que puedes venir.",
+   "verdict": "assert",
+   "margin": 5.5939034599015365,
+   "best": "Espero que puedas venir.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.594,
+   "ms": 236
+  },
+  {
+   "id": 58,
+   "rule": "subjunctive_wish",
+   "kind": "correct",
+   "text": "Espero que puedas venir.",
+   "verdict": "ok",
+   "margin": -5.5939034599015365,
+   "best": "Espero que puedes venir.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 98
+  },
+  {
+   "id": 59,
+   "rule": "subjunctive_wish",
+   "kind": "incorrect",
+   "text": "Ojalá tenemos suerte.",
+   "verdict": "hint",
+   "margin": 2.911492307375049,
+   "best": "Ojalá tengamos suerte.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 2.911,
+   "ms": 550
+  },
+  {
+   "id": 59,
+   "rule": "subjunctive_wish",
+   "kind": "correct",
+   "text": "Ojalá tengamos suerte.",
+   "verdict": "ok",
+   "margin": -2.911492307375049,
+   "best": "Ojalá tenemos suerte.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 4,
+   "dropped": 0,
+   "ms": 686
+  },
+  {
+   "id": 60,
+   "rule": "subjunctive_wish",
+   "kind": "incorrect",
+   "text": "Queremos que nos dices la verdad.",
+   "verdict": "assert",
+   "margin": 5.314263229078001,
+   "best": "Queremos que nos digas la verdad.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.314,
+   "ms": 342
+  },
+  {
+   "id": 60,
+   "rule": "subjunctive_wish",
+   "kind": "correct",
+   "text": "Queremos que nos digas la verdad.",
+   "verdict": "ok",
+   "margin": -5.314263229078001,
+   "best": "Queremos que nos dices la verdad.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 303
+  },
+  {
+   "id": 61,
+   "rule": "personal_a",
+   "kind": "incorrect",
+   "text": "Veo mi madre todos los días.",
+   "verdict": "assert",
+   "margin": 4.789299315091661,
+   "best": "Veo a mi madre todos los días.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.insert",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 4.789,
+   "ms": 361
+  },
+  {
+   "id": 61,
+   "rule": "personal_a",
+   "kind": "correct",
+   "text": "Veo a mi madre todos los días.",
+   "verdict": "ok",
+   "margin": -4.789299315091661,
+   "best": "Veo mi madre todos los días.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.delete",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 349
+  },
+  {
+   "id": 62,
+   "rule": "personal_a",
+   "kind": "incorrect",
+   "text": "Conozco tu hermano.",
+   "verdict": "assert",
+   "margin": 5.532333061470798,
+   "best": "Conozco a tu hermano.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.insert",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.532,
+   "ms": 253
+  },
+  {
+   "id": 62,
+   "rule": "personal_a",
+   "kind": "correct",
+   "text": "Conozco a tu hermano.",
+   "verdict": "ok",
+   "margin": -5.532333061470798,
+   "best": "Conozco tu hermano.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 120
+  },
+  {
+   "id": 63,
+   "rule": "personal_a",
+   "kind": "incorrect",
+   "text": "Llamé Juan ayer.",
+   "verdict": "assert",
+   "margin": 9.236599564531694,
+   "best": "Llamé a Juan ayer.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.insert",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 9.237,
+   "ms": 356
+  },
+  {
+   "id": 63,
+   "rule": "personal_a",
+   "kind": "correct",
+   "text": "Llamé a Juan ayer.",
+   "verdict": "ok",
+   "margin": -6.860457363432527,
+   "best": "Llamaba a Juan ayer.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 259
+  },
+  {
+   "id": 64,
+   "rule": "personal_a",
+   "kind": "incorrect",
+   "text": "Busco mi hijo.",
+   "verdict": "assert",
+   "margin": 3.3939016978044556,
+   "best": "Busco a mi hijo.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.insert",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 3.394,
+   "ms": 235
+  },
+  {
+   "id": 64,
+   "rule": "personal_a",
+   "kind": "correct",
+   "text": "Busco a mi hijo.",
+   "verdict": "ok",
+   "margin": -3.3939016978044556,
+   "best": "Busco mi hijo.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 611
+  },
+  {
+   "id": 65,
+   "rule": "personal_a",
+   "kind": "incorrect",
+   "text": "Ayudamos los vecinos.",
+   "verdict": "assert",
+   "margin": 3.960630316339703,
+   "best": "Ayudamos a los vecinos.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.insert",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 3.961,
+   "ms": 3658
+  },
+  {
+   "id": 65,
+   "rule": "personal_a",
+   "kind": "correct",
+   "text": "Ayudamos a los vecinos.",
+   "verdict": "ok",
+   "margin": -3.239351718768205,
+   "best": "Ayudábamos a los vecinos.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 489
+  },
+  {
+   "id": 66,
+   "rule": "personal_a",
+   "kind": "incorrect",
+   "text": "¿Viste María en la fiesta?",
+   "verdict": "assert",
+   "margin": 5.387757378164501,
+   "best": "¿Viste a María en la fiesta?",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.insert",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.388,
+   "ms": 513
+  },
+  {
+   "id": 66,
+   "rule": "personal_a",
+   "kind": "correct",
+   "text": "¿Viste a María en la fiesta?",
+   "verdict": "ok",
+   "margin": -5.387757378164501,
+   "best": "¿Viste María en la fiesta?",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.delete",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 508
+  },
+  {
+   "id": 67,
+   "rule": "personal_a",
+   "kind": "incorrect",
+   "text": "Quiero mucho mis abuelos.",
+   "verdict": "assert",
+   "margin": 5.122106320143189,
+   "best": "Quiero mucho a mis abuelos.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.insert",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.122,
+   "ms": 610
+  },
+  {
+   "id": 67,
+   "rule": "personal_a",
+   "kind": "correct",
+   "text": "Quiero mucho a mis abuelos.",
+   "verdict": "ok",
+   "margin": -5.122106320143189,
+   "best": "Quiero mucho mis abuelos.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 128
+  },
+  {
+   "id": 68,
+   "rule": "personal_a",
+   "kind": "incorrect",
+   "text": "Escuché la profesora con atención.",
+   "verdict": "hint",
+   "margin": 1.5536879331068612,
+   "best": "Escuché a la profesora con atención.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.insert",
+   "variants": 6,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 1.554,
+   "ms": 893
+  },
+  {
+   "id": 68,
+   "rule": "personal_a",
+   "kind": "correct",
+   "text": "Escuché a la profesora con atención.",
+   "verdict": "ok",
+   "margin": -0.8528158596337718,
+   "best": "Escuchaba a la profesora con atención.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 6,
+   "dropped": 0,
+   "ms": 809
+  },
+  {
+   "id": 69,
+   "rule": "personal_a",
+   "kind": "incorrect",
+   "text": "Visitamos nuestros primos en Ponce.",
+   "verdict": "ok",
+   "margin": -0.3802265124969679,
+   "best": "Visitamos a nuestros primos en Ponce.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.insert",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": -0.38,
+   "ms": 400
+  },
+  {
+   "id": 69,
+   "rule": "personal_a",
+   "kind": "correct",
+   "text": "Visitamos a nuestros primos en Ponce.",
+   "verdict": "ok",
+   "margin": 0.3802265124969679,
+   "best": "Visitamos nuestros primos en Ponce.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.delete",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 325
+  },
+  {
+   "id": 70,
+   "rule": "personal_a",
+   "kind": "incorrect",
+   "text": "No conozco nadie aquí.",
+   "verdict": "assert",
+   "margin": 5.576006903070429,
+   "best": "No conozco a nadie aquí.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.insert",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.576,
+   "ms": 295
+  },
+  {
+   "id": 70,
+   "rule": "personal_a",
+   "kind": "correct",
+   "text": "No conozco a nadie aquí.",
+   "verdict": "ok",
+   "margin": -5.576006903070429,
+   "best": "No conozco nadie aquí.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 105
+  },
+  {
+   "id": 71,
+   "rule": "personal_a",
+   "kind": "incorrect",
+   "text": "Compré a un coche nuevo.",
+   "verdict": "assert",
+   "margin": 10.484561511945401,
+   "best": "Compré un coche nuevo.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.delete",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 10.485,
+   "ms": 496
+  },
+  {
+   "id": 71,
+   "rule": "personal_a",
+   "kind": "correct",
+   "text": "Compré un coche nuevo.",
+   "verdict": "ok",
+   "margin": -10.183986622891346,
+   "best": "Compraba un coche nuevo.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 357
+  },
+  {
+   "id": 72,
+   "rule": "personal_a",
+   "kind": "incorrect",
+   "text": "Leo al periódico cada día.",
+   "verdict": "assert",
+   "margin": 7.797056098740704,
+   "best": "Leo el periódico cada día.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.delete",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 7.797,
+   "ms": 442
+  },
+  {
+   "id": 72,
+   "rule": "personal_a",
+   "kind": "correct",
+   "text": "Leo el periódico cada día.",
+   "verdict": "ok",
+   "margin": -6.156761236451498,
+   "best": "Leo periódico cada día.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 213
+  },
+  {
+   "id": 73,
+   "rule": "articles",
+   "kind": "incorrect",
+   "text": "Me gusta café.",
+   "verdict": "assert",
+   "margin": 4.1330567191575085,
+   "best": "Me gusta el café.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.el",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 4.133,
+   "ms": 409
+  },
+  {
+   "id": 73,
+   "rule": "articles",
+   "kind": "correct",
+   "text": "Me gusta el café.",
+   "verdict": "ok",
+   "margin": -4.1330567191575085,
+   "best": "Me gusta café.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 167
+  },
+  {
+   "id": 74,
+   "rule": "articles",
+   "kind": "incorrect",
+   "text": "Vida es bella.",
+   "verdict": "assert",
+   "margin": 8.647451563286026,
+   "best": "La vida es bella.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.la",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 8.647,
+   "ms": 450
+  },
+  {
+   "id": 74,
+   "rule": "articles",
+   "kind": "correct",
+   "text": "La vida es bella.",
+   "verdict": "ok",
+   "margin": -8.647451563286026,
+   "best": "Vida es bella.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 198
+  },
+  {
+   "id": 75,
+   "rule": "articles",
+   "kind": "incorrect",
+   "text": "Español es fácil.",
+   "verdict": "ok",
+   "margin": -1.1998956395497729,
+   "best": "Español está fácil.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": false,
+   "fixMargin": null,
+   "ms": 478
+  },
+  {
+   "id": 75,
+   "rule": "articles",
+   "kind": "correct",
+   "text": "El español es fácil.",
+   "verdict": "ok",
+   "margin": -1.671084369049435,
+   "best": "Español es fácil.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 400
+  },
+  {
+   "id": 76,
+   "rule": "articles",
+   "kind": "incorrect",
+   "text": "Voy a cine los sábados.",
+   "verdict": "assert",
+   "margin": 13.358808583356492,
+   "best": "Voy al cine los sábados.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.el",
+   "variants": 5,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 13.359,
+   "ms": 846
+  },
+  {
+   "id": 76,
+   "rule": "articles",
+   "kind": "correct",
+   "text": "Voy al cine los sábados.",
+   "verdict": "ok",
+   "margin": -4.677878139913943,
+   "best": "Voy al cine sábados.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 484
+  },
+  {
+   "id": 77,
+   "rule": "articles",
+   "kind": "incorrect",
+   "text": "Me lavo mis manos.",
+   "verdict": "assert",
+   "margin": 9.999161382396142,
+   "best": "Me lavo las manos.",
+   "bestKey": "es.body_article",
+   "bestRule": "es.body_article",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 9.999,
+   "ms": 189
+  },
+  {
+   "id": 77,
+   "rule": "articles",
+   "kind": "correct",
+   "text": "Me lavo las manos.",
+   "verdict": "ok",
+   "margin": -7.529014964410113,
+   "best": "Me lavo manos.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 92
+  },
+  {
+   "id": 78,
+   "rule": "articles",
+   "kind": "incorrect",
+   "text": "Llegamos a ocho.",
+   "verdict": "hint",
+   "margin": 1.2439096313296432,
+   "best": "Llegamos a las ocho.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.hour",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 1.244,
+   "ms": 411
+  },
+  {
+   "id": 78,
+   "rule": "articles",
+   "kind": "correct",
+   "text": "Llegamos a las ocho.",
+   "verdict": "ok",
+   "margin": -1.2439096313296432,
+   "best": "Llegamos a ocho.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 5,
+   "dropped": 0,
+   "ms": 572
+  },
+  {
+   "id": 79,
+   "rule": "articles",
+   "kind": "incorrect",
+   "text": "Perros son leales.",
+   "verdict": "assert",
+   "margin": 3.9108698455398105,
+   "best": "Los perros son leales.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.los",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 3.911,
+   "ms": 578
+  },
+  {
+   "id": 79,
+   "rule": "articles",
+   "kind": "correct",
+   "text": "Los perros son leales.",
+   "verdict": "ok",
+   "margin": -1.6130981605580068,
+   "best": "Los perros están leales.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 340
+  },
+  {
+   "id": 80,
+   "rule": "articles",
+   "kind": "incorrect",
+   "text": "Hablé con señor García.",
+   "verdict": "assert",
+   "margin": 7.348577431352499,
+   "best": "Hablé con el señor García.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.el",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 7.349,
+   "ms": 529
+  },
+  {
+   "id": 80,
+   "rule": "articles",
+   "kind": "correct",
+   "text": "Hablé con el señor García.",
+   "verdict": "ok",
+   "margin": -6.703106679409775,
+   "best": "Hablaba con el señor García.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 325
+  },
+  {
+   "id": 81,
+   "rule": "articles",
+   "kind": "incorrect",
+   "text": "Me duele mi cabeza.",
+   "verdict": "assert",
+   "margin": 5.961182682913616,
+   "best": "Me duele la cabeza.",
+   "bestKey": "es.body_article",
+   "bestRule": "es.body_article",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.961,
+   "ms": 195
+  },
+  {
+   "id": 81,
+   "rule": "articles",
+   "kind": "correct",
+   "text": "Me duele la cabeza.",
+   "verdict": "ok",
+   "margin": -6.045738097963223,
+   "best": "Me duele cabeza.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 85
+  },
+  {
+   "id": 82,
+   "rule": "articles",
+   "kind": "incorrect",
+   "text": "Quiero un otro café.",
+   "verdict": "assert",
+   "margin": 3.2944139376812913,
+   "best": "Quiero otro café.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 3.294,
+   "ms": 198
+  },
+  {
+   "id": 82,
+   "rule": "articles",
+   "kind": "correct",
+   "text": "Quiero otro café.",
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestKey": null,
+   "bestRule": null,
+   "variants": 0,
+   "dropped": 0,
+   "ms": 6
+  },
+  {
+   "id": 83,
+   "rule": "pronoun_placement",
+   "kind": "incorrect",
+   "text": "Compré lo ayer.",
+   "verdict": "assert",
+   "margin": 12.590718758910771,
+   "best": "Lo compré ayer.",
+   "bestKey": "es.pronoun_placement",
+   "bestRule": "es.pronoun_placement.finite",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 12.591,
+   "ms": 360
+  },
+  {
+   "id": 83,
+   "rule": "pronoun_placement",
+   "kind": "correct",
+   "text": "Lo compré ayer.",
+   "verdict": "ok",
+   "margin": -8.693687216038747,
+   "best": "Lo compraba ayer.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 199
+  },
+  {
+   "id": 84,
+   "rule": "pronoun_placement",
+   "kind": "incorrect",
+   "text": "Quiero te ver mañana.",
+   "verdict": "assert",
+   "margin": 6.599515561970293,
+   "best": "Te quiero ver mañana.",
+   "bestKey": "es.pronoun_placement",
+   "bestRule": "es.pronoun_placement.finite",
+   "variants": 5,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 4.26,
+   "ms": 654
+  },
+  {
+   "id": 84,
+   "rule": "pronoun_placement",
+   "kind": "correct",
+   "text": "Quiero verte mañana.",
+   "verdict": "ok",
+   "margin": -5.102653666513927,
+   "best": "Quiero verte una mañana.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.una",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 360
+  },
+  {
+   "id": 85,
+   "rule": "pronoun_placement",
+   "kind": "incorrect",
+   "text": "Lo te digo ahora.",
+   "verdict": "assert",
+   "margin": 9.150761111936276,
+   "best": "Te lo digo ahora.",
+   "bestKey": "es.pronoun_order",
+   "bestRule": "es.pronoun_order",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 9.151,
+   "ms": 268
+  },
+  {
+   "id": 85,
+   "rule": "pronoun_placement",
+   "kind": "correct",
+   "text": "Te lo digo ahora.",
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestKey": null,
+   "bestRule": null,
+   "variants": 0,
+   "dropped": 0,
+   "ms": 6
+  },
+  {
+   "id": 86,
+   "rule": "pronoun_placement",
+   "kind": "incorrect",
+   "text": "No hazlo.",
+   "verdict": "assert",
+   "margin": 6.99992864289619,
+   "best": "No lo hagas.",
+   "bestKey": "es.negative_command",
+   "bestRule": "es.pronoun_placement.negative_command",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 7,
+   "ms": 601
+  },
+  {
+   "id": 86,
+   "rule": "pronoun_placement",
+   "kind": "correct",
+   "text": "No lo hagas.",
+   "verdict": "ok",
+   "margin": -5.2345914112982115,
+   "best": "No lo haces.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 98
+  },
+  {
+   "id": 87,
+   "rule": "pronoun_placement",
+   "kind": "incorrect",
+   "text": "Le lo di a mi hermana.",
+   "verdict": "hint",
+   "margin": 1.7575430177266576,
+   "best": "Se lo di a mi hermana.",
+   "bestKey": "es.se_lo",
+   "bestRule": "es.se_lo",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 1.758,
+   "ms": 500
+  },
+  {
+   "id": 87,
+   "rule": "pronoun_placement",
+   "kind": "correct",
+   "text": "Se lo di a mi hermana.",
+   "verdict": "ok",
+   "margin": -4.614683518746229,
+   "best": "Se lo di mi hermana.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 229
+  },
+  {
+   "id": 88,
+   "rule": "pronoun_placement",
+   "kind": "incorrect",
+   "text": "Estoy lo leyendo ahora.",
+   "verdict": "assert",
+   "margin": 9.562740032525351,
+   "best": "Lo estoy leyendo ahora.",
+   "bestKey": "es.pronoun_placement",
+   "bestRule": "es.pronoun_placement.finite",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 8.899,
+   "ms": 2296
+  },
+  {
+   "id": 88,
+   "rule": "pronoun_placement",
+   "kind": "correct",
+   "text": "Estoy leyéndolo ahora.",
+   "verdict": "ok",
+   "margin": -4.26585521461508,
+   "best": "Soy leyéndolo ahora.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 375
+  },
+  {
+   "id": 89,
+   "rule": "pronoun_placement",
+   "kind": "incorrect",
+   "text": "Llamó me anoche.",
+   "verdict": "assert",
+   "margin": 13.689113559538828,
+   "best": "Me llamó anoche.",
+   "bestKey": "es.pronoun_placement",
+   "bestRule": "es.pronoun_placement.finite",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 13.689,
+   "ms": 973
+  },
+  {
+   "id": 89,
+   "rule": "pronoun_placement",
+   "kind": "correct",
+   "text": "Me llamó anoche.",
+   "verdict": "ok",
+   "margin": -1.0382653552845227,
+   "best": "Me llamaba anoche.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 855
+  },
+  {
+   "id": 90,
+   "rule": "pronoun_placement",
+   "kind": "incorrect",
+   "text": "Lo haz ahora.",
+   "verdict": "assert",
+   "margin": 3.860437102603399,
+   "best": "Hazlo ahora.",
+   "bestKey": "es.pronoun_placement",
+   "bestRule": "es.pronoun_placement.command",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 3.86,
+   "ms": 231
+  },
+  {
+   "id": 90,
+   "rule": "pronoun_placement",
+   "kind": "correct",
+   "text": "Hazlo ahora.",
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestKey": null,
+   "bestRule": null,
+   "variants": 0,
+   "dropped": 0,
+   "ms": 5
+  },
+  {
+   "id": 91,
+   "rule": "pronoun_placement",
+   "kind": "incorrect",
+   "text": "Vemos nos mañana.",
+   "verdict": "assert",
+   "margin": 17.516116636803503,
+   "best": "Nos vemos mañana.",
+   "bestKey": "es.pronoun_placement",
+   "bestRule": "es.pronoun_placement.finite",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 17.516,
+   "ms": 314
+  },
+  {
+   "id": 91,
+   "rule": "pronoun_placement",
+   "kind": "correct",
+   "text": "Nos vemos mañana.",
+   "verdict": "ok",
+   "margin": -9.073405753610931,
+   "best": "Nos vemos mañanas.",
+   "bestKey": "es.number",
+   "bestRule": "es.number",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 376
+  },
+  {
+   "id": 92,
+   "rule": "pronoun_placement",
+   "kind": "incorrect",
+   "text": "Invité la a cenar.",
+   "verdict": "assert",
+   "margin": 5.71028726034946,
+   "best": "La invité a cenar.",
+   "bestKey": "es.pronoun_placement",
+   "bestRule": "es.pronoun_placement.finite",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.71,
+   "ms": 361
+  },
+  {
+   "id": 92,
+   "rule": "pronoun_placement",
+   "kind": "correct",
+   "text": "La invité a cenar.",
+   "verdict": "ok",
+   "margin": -2.3174556202323267,
+   "best": "La invitaba a cenar.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 239
+  },
+  {
+   "id": 93,
+   "rule": "pronoun_placement",
+   "kind": "incorrect",
+   "text": "¿Puedes me ayudar?",
+   "verdict": "assert",
+   "margin": 5.463678350341365,
+   "best": "¿Me puedes ayudar?",
+   "bestKey": "es.pronoun_placement",
+   "bestRule": "es.pronoun_placement.finite",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 4.647,
+   "ms": 359
+  },
+  {
+   "id": 93,
+   "rule": "pronoun_placement",
+   "kind": "correct",
+   "text": "¿Puedes ayudarme?",
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestKey": null,
+   "bestRule": null,
+   "variants": 0,
+   "dropped": 0,
+   "ms": 8
+  }
+ ],
+ "holdout": [
+  {
+   "id": 101,
+   "rule": "ser_estar",
+   "kind": "incorrect",
+   "text": "Mi padre está médico.",
+   "verdict": "assert",
+   "margin": 6.93659363253165,
+   "best": "Mi padre es médico.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 5,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 6.937,
+   "ms": 557
+  },
+  {
+   "id": 101,
+   "rule": "ser_estar",
+   "kind": "correct",
+   "text": "Mi padre es médico.",
+   "verdict": "ok",
+   "margin": -0.5434190904307492,
+   "best": "Mi padre es un médico.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.un",
+   "variants": 5,
+   "dropped": 0,
+   "ms": 599
+  },
+  {
+   "id": 102,
+   "rule": "ser_estar",
+   "kind": "incorrect",
+   "text": "Hoy la sopa es fría.",
+   "verdict": "ok",
+   "margin": 0.24201930612291989,
+   "best": "Hoy la sopa está fría.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 0.242,
+   "ms": 551
+  },
+  {
+   "id": 102,
+   "rule": "ser_estar",
+   "kind": "correct",
+   "text": "Hoy la sopa está fría.",
+   "verdict": "ok",
+   "margin": -0.24201930612291989,
+   "best": "Hoy la sopa es fría.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 4,
+   "dropped": 0,
+   "ms": 1674
+  },
+  {
+   "id": 103,
+   "rule": "ser_estar",
+   "kind": "incorrect",
+   "text": "Estamos de Puerto Rico.",
+   "verdict": "assert",
+   "margin": 5.3585825316794065,
+   "best": "Somos de Puerto Rico.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.359,
+   "ms": 1260
+  },
+  {
+   "id": 103,
+   "rule": "ser_estar",
+   "kind": "correct",
+   "text": "Somos de Puerto Rico.",
+   "verdict": "ok",
+   "margin": -5.3585825316794065,
+   "best": "Estamos de Puerto Rico.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 752
+  },
+  {
+   "id": 104,
+   "rule": "ser_estar",
+   "kind": "incorrect",
+   "text": "Soy listo para salir.",
+   "verdict": "assert",
+   "margin": 4.481284961184226,
+   "best": "Estoy listo para salir.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 4.481,
+   "ms": 692
+  },
+  {
+   "id": 104,
+   "rule": "ser_estar",
+   "kind": "correct",
+   "text": "Estoy listo para salir.",
+   "verdict": "ok",
+   "margin": -2.709475478610546,
+   "best": "Estoy lista para salir.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 4,
+   "dropped": 0,
+   "ms": 589
+  },
+  {
+   "id": 105,
+   "rule": "ser_estar",
+   "kind": "incorrect",
+   "text": "La puerta es abierta.",
+   "verdict": "assert",
+   "margin": 5.472564259533687,
+   "best": "La puerta está abierta.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.473,
+   "ms": 399
+  },
+  {
+   "id": 105,
+   "rule": "ser_estar",
+   "kind": "correct",
+   "text": "La puerta está abierta.",
+   "verdict": "ok",
+   "margin": -5.472564259533687,
+   "best": "La puerta es abierta.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 358
+  },
+  {
+   "id": 106,
+   "rule": "ser_estar",
+   "kind": "incorrect",
+   "text": "El concierto está a las nueve.",
+   "verdict": "ok",
+   "margin": -0.1934330810368401,
+   "best": "El concierto es a las nueve.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 6,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": -0.193,
+   "ms": 887
+  },
+  {
+   "id": 106,
+   "rule": "ser_estar",
+   "kind": "correct",
+   "text": "El concierto es a las nueve.",
+   "verdict": "ok",
+   "margin": 0.1934330810368401,
+   "best": "El concierto está a las nueve.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 6,
+   "dropped": 0,
+   "ms": 10811
+  },
+  {
+   "id": 107,
+   "rule": "ser_estar",
+   "kind": "incorrect",
+   "text": "¿Dónde es la estación?",
+   "verdict": "assert",
+   "margin": 4.5911847008095314,
+   "best": "¿Dónde está la estación?",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 4.591,
+   "ms": 346
+  },
+  {
+   "id": 107,
+   "rule": "ser_estar",
+   "kind": "correct",
+   "text": "¿Dónde está la estación?",
+   "verdict": "ok",
+   "margin": -4.5911847008095314,
+   "best": "¿Dónde es la estación?",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 804
+  },
+  {
+   "id": 108,
+   "rule": "por_para",
+   "kind": "incorrect",
+   "text": "Estudio por ser doctora.",
+   "verdict": "assert",
+   "margin": 6.386006731283576,
+   "best": "Estudio para ser doctora.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 6,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 6.386,
+   "ms": 1111
+  },
+  {
+   "id": 108,
+   "rule": "por_para",
+   "kind": "correct",
+   "text": "Estudio para ser doctora.",
+   "verdict": "ok",
+   "margin": -2.65092272675599,
+   "best": "Estudio para ser una doctora.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.una",
+   "variants": 6,
+   "dropped": 0,
+   "ms": 720
+  },
+  {
+   "id": 109,
+   "rule": "por_para",
+   "kind": "incorrect",
+   "text": "Te cambio mi libro para tu revista.",
+   "verdict": "assert",
+   "margin": 6.059547527964234,
+   "best": "Te cambio mi libro por tu revista.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 6.06,
+   "ms": 340
+  },
+  {
+   "id": 109,
+   "rule": "por_para",
+   "kind": "correct",
+   "text": "Te cambio mi libro por tu revista.",
+   "verdict": "ok",
+   "margin": -6.059547527964234,
+   "best": "Te cambio mi libro para tu revista.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 312
+  },
+  {
+   "id": 110,
+   "rule": "por_para",
+   "kind": "incorrect",
+   "text": "Muchas gracias para la cena.",
+   "verdict": "assert",
+   "margin": 6.393789185269821,
+   "best": "Muchas gracias por la cena.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 6.394,
+   "ms": 247
+  },
+  {
+   "id": 110,
+   "rule": "por_para",
+   "kind": "correct",
+   "text": "Muchas gracias por la cena.",
+   "verdict": "ok",
+   "margin": -6.393789185269821,
+   "best": "Muchas gracias para la cena.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 760
+  },
+  {
+   "id": 111,
+   "rule": "por_para",
+   "kind": "incorrect",
+   "text": "Pagué diez dólares para la camisa.",
+   "verdict": "assert",
+   "margin": 4.026356147864359,
+   "best": "Pagué diez dólares por la camisa.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 4.026,
+   "ms": 5684
+  },
+  {
+   "id": 111,
+   "rule": "por_para",
+   "kind": "correct",
+   "text": "Pagué diez dólares por la camisa.",
+   "verdict": "ok",
+   "margin": -2.9715369553675615,
+   "best": "Pagué diez dólares por camisa.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 4,
+   "dropped": 0,
+   "ms": 626
+  },
+  {
+   "id": 112,
+   "rule": "por_para",
+   "kind": "incorrect",
+   "text": "Necesito gafas por leer.",
+   "verdict": "assert",
+   "margin": 17.42016876267044,
+   "best": "Necesito gafas para leer.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 17.42,
+   "ms": 249
+  },
+  {
+   "id": 112,
+   "rule": "por_para",
+   "kind": "correct",
+   "text": "Necesito gafas para leer.",
+   "verdict": "ok",
+   "margin": -17.42016876267044,
+   "best": "Necesito gafas por leer.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 128
+  },
+  {
+   "id": 113,
+   "rule": "por_para",
+   "kind": "incorrect",
+   "text": "La tarea es por el viernes.",
+   "verdict": "assert",
+   "margin": 8.939785034984798,
+   "best": "La tarea es para el viernes.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 5,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 8.94,
+   "ms": 731
+  },
+  {
+   "id": 113,
+   "rule": "por_para",
+   "kind": "correct",
+   "text": "La tarea es para el viernes.",
+   "verdict": "ok",
+   "margin": -2.356208056273651,
+   "best": "La tarea es para los viernes.",
+   "bestKey": "es.number",
+   "bestRule": "es.number",
+   "variants": 5,
+   "dropped": 0,
+   "ms": 835
+  },
+  {
+   "id": 114,
+   "rule": "gender",
+   "kind": "incorrect",
+   "text": "Mi casa es pequeño.",
+   "verdict": "assert",
+   "margin": 3.4307315272165972,
+   "best": "Mi casa es pequeña.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 3.431,
+   "ms": 349
+  },
+  {
+   "id": 114,
+   "rule": "gender",
+   "kind": "correct",
+   "text": "Mi casa es pequeña.",
+   "verdict": "ok",
+   "margin": -3.4307315272165972,
+   "best": "Mi casa es pequeño.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 342
+  },
+  {
+   "id": 115,
+   "rule": "gender",
+   "kind": "incorrect",
+   "text": "Tengo una problema grande.",
+   "verdict": "assert",
+   "margin": 6.271498469591251,
+   "best": "Tengo un problema grande.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 6.271,
+   "ms": 371
+  },
+  {
+   "id": 115,
+   "rule": "gender",
+   "kind": "correct",
+   "text": "Tengo un problema grande.",
+   "verdict": "ok",
+   "margin": -6.619064108423228,
+   "best": "Tengo problema grande.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 237
+  },
+  {
+   "id": 116,
+   "rule": "gender",
+   "kind": "incorrect",
+   "text": "Las manzanas están rojos.",
+   "verdict": "assert",
+   "margin": 5.93279633492455,
+   "best": "Las manzanas están rojas.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.933,
+   "ms": 3903
+  },
+  {
+   "id": 116,
+   "rule": "gender",
+   "kind": "correct",
+   "text": "Las manzanas están rojas.",
+   "verdict": "ok",
+   "margin": -1.6328305750809733,
+   "best": "Las manzanas son rojas.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 4,
+   "dropped": 0,
+   "ms": 4737
+  },
+  {
+   "id": 117,
+   "rule": "gender",
+   "kind": "incorrect",
+   "text": "Vivo en una ciudad tranquilo.",
+   "verdict": "assert",
+   "margin": 4.759837731535711,
+   "best": "Vivo en una ciudad tranquila.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 4.76,
+   "ms": 316
+  },
+  {
+   "id": 117,
+   "rule": "gender",
+   "kind": "correct",
+   "text": "Vivo en una ciudad tranquila.",
+   "verdict": "ok",
+   "margin": -5.580518094005651,
+   "best": "Vivo en ciudad tranquila.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 210
+  },
+  {
+   "id": 118,
+   "rule": "gender",
+   "kind": "incorrect",
+   "text": "La idioma es difícil.",
+   "verdict": "hint",
+   "margin": 2.327191611636021,
+   "best": "El idioma es difícil.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 2.327,
+   "ms": 1053
+  },
+  {
+   "id": 118,
+   "rule": "gender",
+   "kind": "correct",
+   "text": "El idioma es difícil.",
+   "verdict": "ok",
+   "margin": -1.7368264502073743,
+   "best": "El idioma está difícil.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 649
+  },
+  {
+   "id": 119,
+   "rule": "gender",
+   "kind": "incorrect",
+   "text": "Mi abuela es muy simpático.",
+   "verdict": "assert",
+   "margin": 7.3543949030408555,
+   "best": "Mi abuela es muy simpática.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 7.354,
+   "ms": 570
+  },
+  {
+   "id": 119,
+   "rule": "gender",
+   "kind": "correct",
+   "text": "Mi abuela es muy simpática.",
+   "verdict": "ok",
+   "margin": -7.3543949030408555,
+   "best": "Mi abuela es muy simpático.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 586
+  },
+  {
+   "id": 120,
+   "rule": "number",
+   "kind": "incorrect",
+   "text": "Mis hermanas son alta.",
+   "verdict": "assert",
+   "margin": 4.964385342804068,
+   "best": "Mis hermanas son altas.",
+   "bestKey": "es.number",
+   "bestRule": "es.number",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 4.964,
+   "ms": 1869
+  },
+  {
+   "id": 120,
+   "rule": "number",
+   "kind": "correct",
+   "text": "Mis hermanas son altas.",
+   "verdict": "ok",
+   "margin": -2.0579144576865147,
+   "best": "Mis hermanas están altas.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 976
+  },
+  {
+   "id": 121,
+   "rule": "number",
+   "kind": "incorrect",
+   "text": "Compré tres camisa.",
+   "verdict": "assert",
+   "margin": 9.575532776949494,
+   "best": "Compré tres camisas.",
+   "bestKey": "es.number",
+   "bestRule": "es.number",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 9.576,
+   "ms": 314
+  },
+  {
+   "id": 121,
+   "rule": "number",
+   "kind": "correct",
+   "text": "Compré tres camisas.",
+   "verdict": "ok",
+   "margin": -7.968043953740072,
+   "best": "Compraba tres camisas.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 298
+  },
+  {
+   "id": 122,
+   "rule": "number",
+   "kind": "incorrect",
+   "text": "Los coches rojo son caros.",
+   "verdict": "assert",
+   "margin": 10.390810288535128,
+   "best": "Los coches rojos son caros.",
+   "bestKey": "es.number",
+   "bestRule": "es.number",
+   "variants": 5,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 10.391,
+   "ms": 9059
+  },
+  {
+   "id": 122,
+   "rule": "number",
+   "kind": "correct",
+   "text": "Los coches rojos son caros.",
+   "verdict": "ok",
+   "margin": -5.5611545396760285,
+   "best": "Coches rojos son caros.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 4,
+   "dropped": 0,
+   "ms": 25516
+  },
+  {
+   "id": 123,
+   "rule": "number",
+   "kind": "incorrect",
+   "text": "Tengo muchos amigo aquí.",
+   "verdict": "assert",
+   "margin": 8.53935515781205,
+   "best": "Tengo muchos amigos aquí.",
+   "bestKey": "es.number",
+   "bestRule": "es.number",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 8.539,
+   "ms": 12137
+  },
+  {
+   "id": 123,
+   "rule": "number",
+   "kind": "correct",
+   "text": "Tengo muchos amigos aquí.",
+   "verdict": "ok",
+   "margin": -6.844120880153675,
+   "best": "Tengo a muchos amigos aquí.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.insert",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 216
+  },
+  {
+   "id": 124,
+   "rule": "number",
+   "kind": "incorrect",
+   "text": "Esta galletas están ricas.",
+   "verdict": "assert",
+   "margin": 7.222082510344848,
+   "best": "Estas galletas están ricas.",
+   "bestKey": "es.number",
+   "bestRule": "es.number",
+   "variants": 5,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 7.222,
+   "ms": 995
+  },
+  {
+   "id": 124,
+   "rule": "number",
+   "kind": "correct",
+   "text": "Estas galletas están ricas.",
+   "verdict": "ok",
+   "margin": 0.5927247622621188,
+   "best": "Estas galletas son ricas.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 5,
+   "dropped": 0,
+   "ms": 754
+  },
+  {
+   "id": 125,
+   "rule": "number",
+   "kind": "incorrect",
+   "text": "Las ventanas están abierta.",
+   "verdict": "ok",
+   "margin": -5.749058913422473,
+   "best": "Las ventanas son abierta.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": false,
+   "fixMargin": null,
+   "ms": 364
+  },
+  {
+   "id": 125,
+   "rule": "number",
+   "kind": "correct",
+   "text": "Las ventanas están abiertas.",
+   "verdict": "ok",
+   "margin": -5.470109135620486,
+   "best": "Las ventanas son abiertas.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 353
+  },
+  {
+   "id": 126,
+   "rule": "subject_verb",
+   "kind": "incorrect",
+   "text": "Mis padres trabaja en un hospital.",
+   "verdict": "assert",
+   "margin": 6.129054272210791,
+   "best": "Mis padres trabajan en un hospital.",
+   "bestKey": "es.verb_agreement",
+   "bestRule": "es.verb_agreement.subject",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 6.129,
+   "ms": 375
+  },
+  {
+   "id": 126,
+   "rule": "subject_verb",
+   "kind": "correct",
+   "text": "Mis padres trabajan en un hospital.",
+   "verdict": "ok",
+   "margin": -4.20843790557284,
+   "best": "Mis padres trabajan en hospital.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 227
+  },
+  {
+   "id": 127,
+   "rule": "subject_verb",
+   "kind": "incorrect",
+   "text": "Tú habla muy rápido.",
+   "verdict": "assert",
+   "margin": 4.044769552492205,
+   "best": "Tú hablas muy rápido.",
+   "bestKey": "es.verb_agreement",
+   "bestRule": "es.verb_agreement.subject",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 4.045,
+   "ms": 452
+  },
+  {
+   "id": 127,
+   "rule": "subject_verb",
+   "kind": "correct",
+   "text": "Tú hablas muy rápido.",
+   "verdict": "ok",
+   "margin": -7.844935662434853,
+   "best": "Tú hablas muy rápida.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 187
+  },
+  {
+   "id": 128,
+   "rule": "subject_verb",
+   "kind": "incorrect",
+   "text": "Nosotros come a las dos.",
+   "verdict": "assert",
+   "margin": 5.366408133314199,
+   "best": "Nosotros comemos a las dos.",
+   "bestKey": "es.verb_agreement",
+   "bestRule": "es.verb_agreement.subject",
+   "variants": 5,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.366,
+   "ms": 5850
+  },
+  {
+   "id": 128,
+   "rule": "subject_verb",
+   "kind": "correct",
+   "text": "Nosotros comemos a las dos.",
+   "verdict": "ok",
+   "margin": -2.3033422386754943,
+   "best": "Nosotros comemos a dos.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 4,
+   "dropped": 0,
+   "ms": 487
+  },
+  {
+   "id": 129,
+   "rule": "subject_verb",
+   "kind": "incorrect",
+   "text": "Los perros ladra por la noche.",
+   "verdict": "ok",
+   "margin": -3.0327456727954356,
+   "best": "Perros ladra por la noche.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": false,
+   "fixMargin": null,
+   "ms": 535
+  },
+  {
+   "id": 129,
+   "rule": "subject_verb",
+   "kind": "correct",
+   "text": "Los perros ladran por la noche.",
+   "verdict": "ok",
+   "margin": -4.441227827041299,
+   "best": "Perros ladran por la noche.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 488
+  },
+  {
+   "id": 130,
+   "rule": "subject_verb",
+   "kind": "incorrect",
+   "text": "Me encanta tus zapatos.",
+   "verdict": "hint",
+   "margin": 2.4521023812567257,
+   "best": "Me encanta los zapatos.",
+   "bestKey": "es.body_article",
+   "bestRule": "es.body_article",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": -2.687,
+   "ms": 330
+  },
+  {
+   "id": 130,
+   "rule": "subject_verb",
+   "kind": "correct",
+   "text": "Me encantan tus zapatos.",
+   "verdict": "ok",
+   "margin": 0.7785988514379305,
+   "best": "Me encantan los zapatos.",
+   "bestKey": "es.body_article",
+   "bestRule": "es.body_article",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 97
+  },
+  {
+   "id": 131,
+   "rule": "subject_verb",
+   "kind": "incorrect",
+   "text": "Ellas vive cerca de aquí.",
+   "verdict": "assert",
+   "margin": 7.198163849713627,
+   "best": "Ellas viven cerca de aquí.",
+   "bestKey": "es.verb_agreement",
+   "bestRule": "es.verb_agreement.subject",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 7.198,
+   "ms": 227
+  },
+  {
+   "id": 131,
+   "rule": "subject_verb",
+   "kind": "correct",
+   "text": "Ellas viven cerca de aquí.",
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestKey": null,
+   "bestRule": null,
+   "variants": 0,
+   "dropped": 0,
+   "ms": 8
+  },
+  {
+   "id": 132,
+   "rule": "subject_verb",
+   "kind": "incorrect",
+   "text": "Yo tiene dos hermanos.",
+   "verdict": "assert",
+   "margin": 5.170999842062251,
+   "best": "Yo tengo dos hermanos.",
+   "bestKey": "es.verb_agreement",
+   "bestRule": "es.verb_agreement.subject",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.171,
+   "ms": 336
+  },
+  {
+   "id": 132,
+   "rule": "subject_verb",
+   "kind": "correct",
+   "text": "Yo tengo dos hermanos.",
+   "verdict": "ok",
+   "margin": -10.432475199535403,
+   "best": "Yo tengo dos hermano.",
+   "bestKey": "es.number",
+   "bestRule": "es.number",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 88
+  },
+  {
+   "id": 133,
+   "rule": "preterite_imperfect",
+   "kind": "incorrect",
+   "text": "Anoche veía una película.",
+   "verdict": "assert",
+   "margin": 5.284812990128515,
+   "best": "Anoche vi una película.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.285,
+   "ms": 435
+  },
+  {
+   "id": 133,
+   "rule": "preterite_imperfect",
+   "kind": "correct",
+   "text": "Anoche vi una película.",
+   "verdict": "ok",
+   "margin": -5.284812990128515,
+   "best": "Anoche veía una película.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 292
+  },
+  {
+   "id": 134,
+   "rule": "preterite_imperfect",
+   "kind": "incorrect",
+   "text": "El sábado pasado íbamos al cine.",
+   "verdict": "assert",
+   "margin": 4.082980612506589,
+   "best": "El sábado pasado fuimos al cine.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 5,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 4.083,
+   "ms": 786
+  },
+  {
+   "id": 134,
+   "rule": "preterite_imperfect",
+   "kind": "correct",
+   "text": "El sábado pasado fuimos al cine.",
+   "verdict": "ok",
+   "margin": 0.5313596737534283,
+   "best": "Sábado pasado fuimos al cine.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 6,
+   "dropped": 0,
+   "ms": 820
+  },
+  {
+   "id": 135,
+   "rule": "preterite_imperfect",
+   "kind": "incorrect",
+   "text": "Cuando tuve diez años, aprendí a nadar.",
+   "verdict": "assert",
+   "margin": 3.3786879215254686,
+   "best": "Cuando tenía diez años, aprendí a nadar.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 3.379,
+   "ms": 5621
+  },
+  {
+   "id": 135,
+   "rule": "preterite_imperfect",
+   "kind": "correct",
+   "text": "Cuando tenía diez años, aprendí a nadar.",
+   "verdict": "ok",
+   "margin": -3.324083435602084,
+   "best": "Cuando tuviera diez años, aprendí a nadar.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 5,
+   "dropped": 0,
+   "ms": 1735
+  },
+  {
+   "id": 136,
+   "rule": "preterite_imperfect",
+   "kind": "incorrect",
+   "text": "En 2015 me mudaba a Miami.",
+   "verdict": "ok",
+   "margin": -10.58843670544909,
+   "best": "En 2015 me mudaba Miami.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.delete",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": false,
+   "fixMargin": null,
+   "ms": 249
+  },
+  {
+   "id": 136,
+   "rule": "preterite_imperfect",
+   "kind": "correct",
+   "text": "En 2015 me mudé a Miami.",
+   "verdict": "ok",
+   "margin": -9.33685500339175,
+   "best": "En 2015 me mudé Miami.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 203
+  },
+  {
+   "id": 137,
+   "rule": "preterite_imperfect",
+   "kind": "incorrect",
+   "text": "De repente se apagaba la luz.",
+   "verdict": "assert",
+   "margin": 8.336057531219371,
+   "best": "De repente se apagó la luz.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 8.336,
+   "ms": 441
+  },
+  {
+   "id": 137,
+   "rule": "preterite_imperfect",
+   "kind": "correct",
+   "text": "De repente se apagó la luz.",
+   "verdict": "ok",
+   "margin": -7.9056365184620105,
+   "best": "De repente se apagó luz.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 296
+  },
+  {
+   "id": 138,
+   "rule": "preterite_imperfect",
+   "kind": "incorrect",
+   "text": "Mi casa tuvo un jardín muy grande.",
+   "verdict": "assert",
+   "margin": 4.321587915092426,
+   "best": "Mi casa tenía un jardín muy grande.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 4.322,
+   "ms": 486
+  },
+  {
+   "id": 138,
+   "rule": "preterite_imperfect",
+   "kind": "correct",
+   "text": "Mi casa tenía un jardín muy grande.",
+   "verdict": "ok",
+   "margin": -4.321587915092426,
+   "best": "Mi casa tuvo un jardín muy grande.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 4,
+   "dropped": 0,
+   "ms": 591
+  },
+  {
+   "id": 139,
+   "rule": "subjunctive_wish",
+   "kind": "incorrect",
+   "text": "Quiero que me ayudas.",
+   "verdict": "assert",
+   "margin": 8.597373784924446,
+   "best": "Quiero que me ayudes.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 8.597,
+   "ms": 203
+  },
+  {
+   "id": 139,
+   "rule": "subjunctive_wish",
+   "kind": "correct",
+   "text": "Quiero que me ayudes.",
+   "verdict": "ok",
+   "margin": -8.597373784924446,
+   "best": "Quiero que me ayudas.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 91
+  },
+  {
+   "id": 140,
+   "rule": "subjunctive_wish",
+   "kind": "incorrect",
+   "text": "Espero que te gusta el regalo.",
+   "verdict": "assert",
+   "margin": 9.898830502995967,
+   "best": "Espero que te guste el regalo.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 9.899,
+   "ms": 402
+  },
+  {
+   "id": 140,
+   "rule": "subjunctive_wish",
+   "kind": "correct",
+   "text": "Espero que te guste el regalo.",
+   "verdict": "ok",
+   "margin": -8.831624635457242,
+   "best": "Espero que te gusto el regalo.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 1420
+  },
+  {
+   "id": 141,
+   "rule": "subjunctive_wish",
+   "kind": "incorrect",
+   "text": "Ojalá que no hace frío mañana.",
+   "verdict": "hint",
+   "margin": 1.4199752871293398,
+   "best": "Ojalá que no haga frío mañana.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 1.42,
+   "ms": 391
+  },
+  {
+   "id": 141,
+   "rule": "subjunctive_wish",
+   "kind": "correct",
+   "text": "Ojalá que no haga frío mañana.",
+   "verdict": "ok",
+   "margin": -1.4199752871293398,
+   "best": "Ojalá que no hace frío mañana.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 679
+  },
+  {
+   "id": 142,
+   "rule": "subjunctive_wish",
+   "kind": "incorrect",
+   "text": "Mi madre quiere que yo limpio mi cuarto.",
+   "verdict": "assert",
+   "margin": 4.773259316992327,
+   "best": "Mi madre quiere que yo limpie mi cuarto.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 4.773,
+   "ms": 554
+  },
+  {
+   "id": 142,
+   "rule": "subjunctive_wish",
+   "kind": "correct",
+   "text": "Mi madre quiere que yo limpie mi cuarto.",
+   "verdict": "ok",
+   "margin": -3.883359507058916,
+   "best": "Mi madre quiere que yo limpia mi cuarto.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 358
+  },
+  {
+   "id": 143,
+   "rule": "subjunctive_wish",
+   "kind": "incorrect",
+   "text": "Necesito que me llamas esta tarde.",
+   "verdict": "assert",
+   "margin": 7.695817896170599,
+   "best": "Necesito que me llames esta tarde.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 7.696,
+   "ms": 632
+  },
+  {
+   "id": 143,
+   "rule": "subjunctive_wish",
+   "kind": "correct",
+   "text": "Necesito que me llames esta tarde.",
+   "verdict": "ok",
+   "margin": -7.695817896170599,
+   "best": "Necesito que me llamas esta tarde.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 1105
+  },
+  {
+   "id": 144,
+   "rule": "subjunctive_wish",
+   "kind": "incorrect",
+   "text": "Preferimos que vienen temprano.",
+   "verdict": "assert",
+   "margin": 8.62479495321318,
+   "best": "Preferimos que vengan temprano.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 8.625,
+   "ms": 1296
+  },
+  {
+   "id": 144,
+   "rule": "subjunctive_wish",
+   "kind": "correct",
+   "text": "Preferimos que vengan temprano.",
+   "verdict": "ok",
+   "margin": -8.193720659565226,
+   "best": "Preferíamos que vengan temprano.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 360
+  },
+  {
+   "id": 145,
+   "rule": "personal_a",
+   "kind": "incorrect",
+   "text": "Llamé mi hermana anoche.",
+   "verdict": "assert",
+   "margin": 9.480683086027106,
+   "best": "Llamé a mi hermana anoche.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.insert",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 9.481,
+   "ms": 490
+  },
+  {
+   "id": 145,
+   "rule": "personal_a",
+   "kind": "correct",
+   "text": "Llamé a mi hermana anoche.",
+   "verdict": "ok",
+   "margin": -8.769607842168146,
+   "best": "Llamaba a mi hermana anoche.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 312
+  },
+  {
+   "id": 146,
+   "rule": "personal_a",
+   "kind": "incorrect",
+   "text": "Conocí Pedro en la universidad.",
+   "verdict": "assert",
+   "margin": 10.881086974857865,
+   "best": "Conocí a Pedro en la universidad.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.insert",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 10.881,
+   "ms": 499
+  },
+  {
+   "id": 146,
+   "rule": "personal_a",
+   "kind": "correct",
+   "text": "Conocí a Pedro en la universidad.",
+   "verdict": "ok",
+   "margin": -3.903662332578456,
+   "best": "Conocía a Pedro en la universidad.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 584
+  },
+  {
+   "id": 147,
+   "rule": "personal_a",
+   "kind": "incorrect",
+   "text": "Ayer vi tus padres en el mercado.",
+   "verdict": "assert",
+   "margin": 6.744784283101939,
+   "best": "Ayer vi a tus padres en el mercado.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.insert",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 6.745,
+   "ms": 620
+  },
+  {
+   "id": 147,
+   "rule": "personal_a",
+   "kind": "correct",
+   "text": "Ayer vi a tus padres en el mercado.",
+   "verdict": "ok",
+   "margin": -4.810566450654303,
+   "best": "Ayer veía a tus padres en el mercado.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 639
+  },
+  {
+   "id": 148,
+   "rule": "personal_a",
+   "kind": "incorrect",
+   "text": "No vi nadie en la calle.",
+   "verdict": "assert",
+   "margin": 5.288244935526215,
+   "best": "No vi a nadie en la calle.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.insert",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.288,
+   "ms": 1244
+  },
+  {
+   "id": 148,
+   "rule": "personal_a",
+   "kind": "correct",
+   "text": "No vi a nadie en la calle.",
+   "verdict": "ok",
+   "margin": -5.288244935526215,
+   "best": "No vi nadie en la calle.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.delete",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 634
+  },
+  {
+   "id": 149,
+   "rule": "personal_a",
+   "kind": "incorrect",
+   "text": "¿Conoces alguien aquí?",
+   "verdict": "assert",
+   "margin": 4.2965591913378915,
+   "best": "¿Conoces a alguien aquí?",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.insert",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 4.297,
+   "ms": 219
+  },
+  {
+   "id": 149,
+   "rule": "personal_a",
+   "kind": "correct",
+   "text": "¿Conoces a alguien aquí?",
+   "verdict": "ok",
+   "margin": -4.2965591913378915,
+   "best": "¿Conoces alguien aquí?",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 119
+  },
+  {
+   "id": 150,
+   "rule": "personal_a",
+   "kind": "incorrect",
+   "text": "Tengo a dos hermanos.",
+   "verdict": "assert",
+   "margin": 10.047546857893643,
+   "best": "Tengo dos hermanos.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.delete",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 10.048,
+   "ms": 450
+  },
+  {
+   "id": 150,
+   "rule": "personal_a",
+   "kind": "correct",
+   "text": "Tengo dos hermanos.",
+   "verdict": "ok",
+   "margin": -10.280311527798215,
+   "best": "Tengo dos hermano.",
+   "bestKey": "es.number",
+   "bestRule": "es.number",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 176
+  },
+  {
+   "id": 151,
+   "rule": "personal_a",
+   "kind": "incorrect",
+   "text": "Busco a las llaves.",
+   "verdict": "assert",
+   "margin": 4.970630388511246,
+   "best": "Busco las llaves.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.delete",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 4.971,
+   "ms": 304
+  },
+  {
+   "id": 151,
+   "rule": "personal_a",
+   "kind": "correct",
+   "text": "Busco las llaves.",
+   "verdict": "hint",
+   "margin": 2.8857529225377867,
+   "best": "Busco llaves.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 197
+  },
+  {
+   "id": 152,
+   "rule": "personal_a",
+   "kind": "incorrect",
+   "text": "Visité el médico ayer.",
+   "verdict": "assert",
+   "margin": 6.671095534151938,
+   "best": "Visitaba el médico ayer.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 3.666,
+   "ms": 560
+  },
+  {
+   "id": 152,
+   "rule": "personal_a",
+   "kind": "correct",
+   "text": "Visité al médico ayer.",
+   "verdict": "hint",
+   "margin": 2.8664545796439285,
+   "best": "Visitaba al médico ayer.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 421
+  },
+  {
+   "id": 153,
+   "rule": "personal_a",
+   "kind": "incorrect",
+   "text": "Extraño mucho mi abuela.",
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestKey": null,
+   "bestRule": null,
+   "variants": 0,
+   "dropped": 0,
+   "fixGenerated": false,
+   "fixMargin": null,
+   "ms": 113
+  },
+  {
+   "id": 153,
+   "rule": "personal_a",
+   "kind": "correct",
+   "text": "Extraño mucho a mi abuela.",
+   "verdict": "ok",
+   "margin": -3.5439551753637772,
+   "best": "Extraño mucho mi abuela.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 252
+  },
+  {
+   "id": 154,
+   "rule": "articles",
+   "kind": "incorrect",
+   "text": "Amor es ciego.",
+   "verdict": "assert",
+   "margin": 5.419674011239962,
+   "best": "El amor es ciego.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.el",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.42,
+   "ms": 1550
+  },
+  {
+   "id": 154,
+   "rule": "articles",
+   "kind": "correct",
+   "text": "El amor es ciego.",
+   "verdict": "ok",
+   "margin": -2.9079707153841454,
+   "best": "El amor está ciego.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 240
+  },
+  {
+   "id": 155,
+   "rule": "articles",
+   "kind": "incorrect",
+   "text": "Películas de terror me dan miedo.",
+   "verdict": "assert",
+   "margin": 4.591625997209704,
+   "best": "Las películas de terror me dan miedo.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.las",
+   "variants": 5,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 4.592,
+   "ms": 814
+  },
+  {
+   "id": 155,
+   "rule": "articles",
+   "kind": "correct",
+   "text": "Las películas de terror me dan miedo.",
+   "verdict": "ok",
+   "margin": -4.591625997209704,
+   "best": "Películas de terror me dan miedo.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 4,
+   "dropped": 0,
+   "ms": 551
+  },
+  {
+   "id": 156,
+   "rule": "articles",
+   "kind": "incorrect",
+   "text": "Me encanta música.",
+   "verdict": "assert",
+   "margin": 5.754610137878046,
+   "best": "Me encanta la música.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.la",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.755,
+   "ms": 476
+  },
+  {
+   "id": 156,
+   "rule": "articles",
+   "kind": "correct",
+   "text": "Me encanta la música.",
+   "verdict": "ok",
+   "margin": -5.754610137878046,
+   "best": "Me encanta música.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 214
+  },
+  {
+   "id": 157,
+   "rule": "articles",
+   "kind": "incorrect",
+   "text": "Mi hermana es una enfermera.",
+   "verdict": "ok",
+   "margin": -1.0972742748604603,
+   "best": "Mi hermana es enfermera.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": -1.097,
+   "ms": 460
+  },
+  {
+   "id": 157,
+   "rule": "articles",
+   "kind": "correct",
+   "text": "Mi hermana es enfermera.",
+   "verdict": "hint",
+   "margin": 1.0972742748604603,
+   "best": "Mi hermana es una enfermera.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.una",
+   "variants": 5,
+   "dropped": 0,
+   "ms": 558
+  },
+  {
+   "id": 158,
+   "rule": "articles",
+   "kind": "incorrect",
+   "text": "Gente es muy amable aquí.",
+   "verdict": "assert",
+   "margin": 5.311526058865809,
+   "best": "La gente es muy amable aquí.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.la",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.312,
+   "ms": 613
+  },
+  {
+   "id": 158,
+   "rule": "articles",
+   "kind": "correct",
+   "text": "La gente es muy amable aquí.",
+   "verdict": "ok",
+   "margin": -5.311526058865809,
+   "best": "Gente es muy amable aquí.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 349
+  },
+  {
+   "id": 159,
+   "rule": "articles",
+   "kind": "incorrect",
+   "text": "Tengo clase a nueve.",
+   "verdict": "assert",
+   "margin": 11.799424626442871,
+   "best": "Tengo clase a las nueve.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.hour",
+   "variants": 5,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 11.799,
+   "ms": 696
+  },
+  {
+   "id": 159,
+   "rule": "articles",
+   "kind": "correct",
+   "text": "Tengo clase a las nueve.",
+   "verdict": "ok",
+   "margin": 0.14938060599219227,
+   "best": "Tengo clases a las nueve.",
+   "bestKey": "es.number",
+   "bestRule": "es.number",
+   "variants": 7,
+   "dropped": 0,
+   "ms": 797
+  },
+  {
+   "id": 160,
+   "rule": "articles",
+   "kind": "incorrect",
+   "text": "Odio tráfico.",
+   "verdict": "assert",
+   "margin": 8.68801429387591,
+   "best": "Odio el tráfico.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.el",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 8.688,
+   "ms": 486
+  },
+  {
+   "id": 160,
+   "rule": "articles",
+   "kind": "correct",
+   "text": "Odio el tráfico.",
+   "verdict": "ok",
+   "margin": -8.68801429387591,
+   "best": "Odio tráfico.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 188
+  },
+  {
+   "id": 161,
+   "rule": "contraction",
+   "kind": "incorrect",
+   "text": "Vamos a el parque.",
+   "verdict": "assert",
+   "margin": 8.441334489700058,
+   "best": "Vamos al parque.",
+   "bestKey": "es.contraction",
+   "bestRule": "es.contraction",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 8.441,
+   "ms": 387
+  },
+  {
+   "id": 161,
+   "rule": "contraction",
+   "kind": "correct",
+   "text": "Vamos al parque.",
+   "verdict": "ok",
+   "margin": -8.012081944816273,
+   "best": "Vamos al parques.",
+   "bestKey": "es.number",
+   "bestRule": "es.number",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 366
+  },
+  {
+   "id": 162,
+   "rule": "contraction",
+   "kind": "incorrect",
+   "text": "Vengo de el supermercado.",
+   "verdict": "hint",
+   "margin": 2.4831571669304786,
+   "best": "Vengo del supermercado.",
+   "bestKey": "es.contraction",
+   "bestRule": "es.contraction",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 2.483,
+   "ms": 626
+  },
+  {
+   "id": 162,
+   "rule": "contraction",
+   "kind": "correct",
+   "text": "Vengo del supermercado.",
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestKey": null,
+   "bestRule": null,
+   "variants": 0,
+   "dropped": 0,
+   "ms": 127
+  },
+  {
+   "id": 163,
+   "rule": "contraction",
+   "kind": "incorrect",
+   "text": "Voy a gimnasio todos los días.",
+   "verdict": "assert",
+   "margin": 4.899603787718171,
+   "best": "Voy al gimnasio todos los días.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.el",
+   "variants": 5,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 4.9,
+   "ms": 937
+  },
+  {
+   "id": 163,
+   "rule": "contraction",
+   "kind": "correct",
+   "text": "Voy al gimnasio todos los días.",
+   "verdict": "ok",
+   "margin": -3.995163039010823,
+   "best": "Voy al gimnasio todos días.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 632
+  },
+  {
+   "id": 164,
+   "rule": "contraction",
+   "kind": "incorrect",
+   "text": "La casa de el vecino es grande.",
+   "verdict": "assert",
+   "margin": 8.640433874301504,
+   "best": "La casa del vecino es grande.",
+   "bestKey": "es.contraction",
+   "bestRule": "es.contraction",
+   "variants": 5,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 8.64,
+   "ms": 865
+  },
+  {
+   "id": 164,
+   "rule": "contraction",
+   "kind": "correct",
+   "text": "La casa del vecino es grande.",
+   "verdict": "ok",
+   "margin": -4.680920615945485,
+   "best": "La casa del vecino es grandes.",
+   "bestKey": "es.number",
+   "bestRule": "es.number",
+   "variants": 4,
+   "dropped": 0,
+   "ms": 4969
+  },
+  {
+   "id": 165,
+   "rule": "contraction",
+   "kind": "incorrect",
+   "text": "Llegué tarde a el trabajo.",
+   "verdict": "assert",
+   "margin": 11.206673952924668,
+   "best": "Llegué tarde al trabajo.",
+   "bestKey": "es.contraction",
+   "bestRule": "es.contraction",
+   "variants": 7,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 11.207,
+   "ms": 40877
+  },
+  {
+   "id": 165,
+   "rule": "contraction",
+   "kind": "correct",
+   "text": "Llegué tarde al trabajo.",
+   "verdict": "ok",
+   "margin": -5.662929083835266,
+   "best": "Llegaba tarde al trabajo.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 6,
+   "dropped": 0,
+   "ms": 11325
+  },
+  {
+   "id": 166,
+   "rule": "contraction",
+   "kind": "incorrect",
+   "text": "Salgo de trabajo a las cinco.",
+   "verdict": "assert",
+   "margin": 3.7707661960062495,
+   "best": "Salgo del trabajo a las cinco.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.el",
+   "variants": 7,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 3.771,
+   "ms": 882
+  },
+  {
+   "id": 166,
+   "rule": "contraction",
+   "kind": "correct",
+   "text": "Salgo del trabajo a las cinco.",
+   "verdict": "ok",
+   "margin": -8.708235145858946,
+   "best": "Salgo del trabajo a los cinco.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 5,
+   "dropped": 0,
+   "ms": 804
+  },
+  {
+   "id": 167,
+   "rule": "contraction",
+   "kind": "incorrect",
+   "text": "El gato duerme al lado de el sofá.",
+   "verdict": "assert",
+   "margin": 16.351062697385963,
+   "best": "El gato duerme al lado del sofá.",
+   "bestKey": "es.contraction",
+   "bestRule": "es.contraction",
+   "variants": 5,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 16.351,
+   "ms": 829
+  },
+  {
+   "id": 167,
+   "rule": "contraction",
+   "kind": "correct",
+   "text": "El gato duerme al lado del sofá.",
+   "verdict": "ok",
+   "margin": -5.706034006342726,
+   "best": "Gato duerme al lado del sofá.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 4,
+   "dropped": 0,
+   "ms": 630
+  },
+  {
+   "id": 168,
+   "rule": "body_article",
+   "kind": "incorrect",
+   "text": "Me cepillo mis dientes.",
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestKey": null,
+   "bestRule": null,
+   "variants": 0,
+   "dropped": 0,
+   "fixGenerated": false,
+   "fixMargin": null,
+   "ms": 150
+  },
+  {
+   "id": 168,
+   "rule": "body_article",
+   "kind": "correct",
+   "text": "Me cepillo los dientes.",
+   "verdict": "ok",
+   "margin": -5.961420758004131,
+   "best": "Me cepillo dientes.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 274
+  },
+  {
+   "id": 169,
+   "rule": "body_article",
+   "kind": "incorrect",
+   "text": "Me duele mi estómago.",
+   "verdict": "assert",
+   "margin": 6.129209129385391,
+   "best": "Me duele el estómago.",
+   "bestKey": "es.body_article",
+   "bestRule": "es.body_article",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 6.129,
+   "ms": 310
+  },
+  {
+   "id": 169,
+   "rule": "body_article",
+   "kind": "correct",
+   "text": "Me duele el estómago.",
+   "verdict": "ok",
+   "margin": -12.458271232155539,
+   "best": "Me duele estómago.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 104
+  },
+  {
+   "id": 170,
+   "rule": "body_article",
+   "kind": "incorrect",
+   "text": "Se rompió su pierna.",
+   "verdict": "assert",
+   "margin": 5.873218084689501,
+   "best": "Se rompió la pierna.",
+   "bestKey": "es.body_article",
+   "bestRule": "es.body_article",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.873,
+   "ms": 347
+  },
+  {
+   "id": 170,
+   "rule": "body_article",
+   "kind": "correct",
+   "text": "Se rompió la pierna.",
+   "verdict": "ok",
+   "margin": -7.08135070708548,
+   "best": "Se rompió pierna.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 385
+  },
+  {
+   "id": 171,
+   "rule": "body_article",
+   "kind": "incorrect",
+   "text": "¿Te lavaste tus manos?",
+   "verdict": "assert",
+   "margin": 8.529147880598913,
+   "best": "¿Te lavaste las manos?",
+   "bestKey": "es.body_article",
+   "bestRule": "es.body_article",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 8.529,
+   "ms": 347
+  },
+  {
+   "id": 171,
+   "rule": "body_article",
+   "kind": "correct",
+   "text": "¿Te lavaste las manos?",
+   "verdict": "ok",
+   "margin": -7.89774121235379,
+   "best": "¿Te lavaste manos?",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 317
+  },
+  {
+   "id": 172,
+   "rule": "body_article",
+   "kind": "incorrect",
+   "text": "Me corté mi pelo ayer.",
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestKey": null,
+   "bestRule": null,
+   "variants": 0,
+   "dropped": 0,
+   "fixGenerated": false,
+   "fixMargin": null,
+   "ms": 147
+  },
+  {
+   "id": 172,
+   "rule": "body_article",
+   "kind": "correct",
+   "text": "Me corté el pelo ayer.",
+   "verdict": "ok",
+   "margin": -11.902361541729316,
+   "best": "Me corté pelo ayer.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 588
+  },
+  {
+   "id": 173,
+   "rule": "body_article",
+   "kind": "incorrect",
+   "text": "Mi hijo se puso su chaqueta.",
+   "verdict": "ok",
+   "margin": -6.000471547643905,
+   "best": "Mi hijo se ponía su chaqueta.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": false,
+   "fixMargin": null,
+   "ms": 402
+  },
+  {
+   "id": 173,
+   "rule": "body_article",
+   "kind": "correct",
+   "text": "Mi hijo se puso la chaqueta.",
+   "verdict": "ok",
+   "margin": -4.107659862412401,
+   "best": "Mi hijo se puso el chaqueta.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 4,
+   "dropped": 0,
+   "ms": 768
+  },
+  {
+   "id": 174,
+   "rule": "body_article",
+   "kind": "incorrect",
+   "text": "Me duelen mis pies.",
+   "verdict": "assert",
+   "margin": 5.201503522382055,
+   "best": "Me duelen los pies.",
+   "bestKey": "es.body_article",
+   "bestRule": "es.body_article",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.202,
+   "ms": 212
+  },
+  {
+   "id": 174,
+   "rule": "body_article",
+   "kind": "correct",
+   "text": "Me duelen los pies.",
+   "verdict": "ok",
+   "margin": -11.816036719394354,
+   "best": "Me duelen pies.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 85
+  },
+  {
+   "id": 175,
+   "rule": "pronoun_placement",
+   "kind": "incorrect",
+   "text": "Vi la ayer en el parque.",
+   "verdict": "assert",
+   "margin": 7.036295506466946,
+   "best": "Vi ayer en el parque.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 2.619,
+   "ms": 725
+  },
+  {
+   "id": 175,
+   "rule": "pronoun_placement",
+   "kind": "correct",
+   "text": "La vi ayer en el parque.",
+   "verdict": "ok",
+   "margin": -2.7617263365893443,
+   "best": "La veía ayer en el parque.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 484
+  },
+  {
+   "id": 176,
+   "rule": "pronoun_placement",
+   "kind": "incorrect",
+   "text": "Voy a te llamar mañana.",
+   "verdict": "assert",
+   "margin": 4.705428010905614,
+   "best": "Voy a llamarte mañana.",
+   "bestKey": "es.pronoun_placement",
+   "bestRule": "es.pronoun_placement.nonfinite",
+   "variants": 5,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 4.705,
+   "ms": 624
+  },
+  {
+   "id": 176,
+   "rule": "pronoun_placement",
+   "kind": "correct",
+   "text": "Voy a llamarte mañana.",
+   "verdict": "ok",
+   "margin": -3.655125994465493,
+   "best": "Voy a llamarte la mañana.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.la",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 355
+  },
+  {
+   "id": 177,
+   "rule": "pronoun_placement",
+   "kind": "incorrect",
+   "text": "No preocúpate.",
+   "verdict": "assert",
+   "margin": 10.668185293424717,
+   "best": "No te preocupes.",
+   "bestKey": "es.negative_command",
+   "bestRule": "es.pronoun_placement.negative_command",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 10.668,
+   "ms": 306
+  },
+  {
+   "id": 177,
+   "rule": "pronoun_placement",
+   "kind": "correct",
+   "text": "No te preocupes.",
+   "verdict": "ok",
+   "margin": -14.276682649293342,
+   "best": "No te preocupas.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 83
+  },
+  {
+   "id": 178,
+   "rule": "pronoun_placement",
+   "kind": "incorrect",
+   "text": "Ya hemos la comprado.",
+   "verdict": "assert",
+   "margin": 7.4634387029245985,
+   "best": "Ya la hemos comprado.",
+   "bestKey": "es.pronoun_placement",
+   "bestRule": "es.pronoun_placement.finite",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 7.463,
+   "ms": 235
+  },
+  {
+   "id": 178,
+   "rule": "pronoun_placement",
+   "kind": "correct",
+   "text": "Ya la hemos comprado.",
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestKey": null,
+   "bestRule": null,
+   "variants": 0,
+   "dropped": 0,
+   "ms": 6
+  },
+  {
+   "id": 179,
+   "rule": "pronoun_placement",
+   "kind": "incorrect",
+   "text": "La te presto mañana.",
+   "verdict": "hint",
+   "margin": 8.849600853748623,
+   "best": "Te la presto mañana.",
+   "bestKey": "es.pronoun_order",
+   "bestRule": "es.pronoun_order",
+   "variants": 5,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 8.85,
+   "ms": 688
+  },
+  {
+   "id": 179,
+   "rule": "pronoun_placement",
+   "kind": "correct",
+   "text": "Te la presto mañana.",
+   "verdict": "ok",
+   "margin": -6.81383443034705,
+   "best": "Te la presto la mañana.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.la",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 374
+  },
+  {
+   "id": 180,
+   "rule": "pronoun_placement",
+   "kind": "incorrect",
+   "text": "Estoy te esperando.",
+   "verdict": "assert",
+   "margin": 7.038149769063715,
+   "best": "Estoy esperándote.",
+   "bestKey": "es.pronoun_placement",
+   "bestRule": "es.pronoun_placement.nonfinite",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 7.038,
+   "ms": 410
+  },
+  {
+   "id": 180,
+   "rule": "pronoun_placement",
+   "kind": "correct",
+   "text": "Estoy esperándote.",
+   "verdict": "ok",
+   "margin": -6.162566893691476,
+   "best": "Soy esperándote.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 107
+  },
+  {
+   "id": 181,
+   "rule": "pronoun_placement",
+   "kind": "incorrect",
+   "text": "Lo voy a comprarlo mañana.",
+   "verdict": "assert",
+   "margin": 11.696906361340378,
+   "best": "Voy a comprarlo mañana.",
+   "bestKey": "es.pronoun_double",
+   "bestRule": "es.pronoun_double",
+   "variants": 5,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 11.113,
+   "ms": 678
+  },
+  {
+   "id": 181,
+   "rule": "pronoun_placement",
+   "kind": "correct",
+   "text": "Lo voy a comprar mañana.",
+   "verdict": "ok",
+   "margin": -7.259737990924055,
+   "best": "Lo voy a comprar una mañana.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.una",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 551
+  },
+  {
+   "id": 182,
+   "rule": "pronoun_placement",
+   "kind": "incorrect",
+   "text": "Te pon el abrigo.",
+   "verdict": "assert",
+   "margin": 10.601358717228425,
+   "best": "Ponte el abrigo.",
+   "bestKey": "es.pronoun_placement",
+   "bestRule": "es.pronoun_placement.command",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 10.601,
+   "ms": 434
+  },
+  {
+   "id": 182,
+   "rule": "pronoun_placement",
+   "kind": "correct",
+   "text": "Ponte el abrigo.",
+   "verdict": "ok",
+   "margin": -3.0121838262420084,
+   "best": "Ponte abrigo.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 204
+  },
+  {
+   "id": 183,
+   "rule": "pronoun_placement",
+   "kind": "incorrect",
+   "text": "Compré las en el mercado.",
+   "verdict": "hint",
+   "margin": 1.6456194494148377,
+   "best": "Las compré en el mercado.",
+   "bestKey": "es.pronoun_placement",
+   "bestRule": "es.pronoun_placement.finite",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 1.646,
+   "ms": 470
+  },
+  {
+   "id": 183,
+   "rule": "pronoun_placement",
+   "kind": "correct",
+   "text": "Las compré en el mercado.",
+   "verdict": "ok",
+   "margin": -5.033707493447569,
+   "best": "Las compré en mercado.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 389
+  }
+ ],
+ "holdout2": [
+  {
+   "id": 201,
+   "rule": "ser_estar",
+   "kind": "incorrect",
+   "text": "Mi novia está muy inteligente.",
+   "verdict": "assert",
+   "margin": 5.493678536340159,
+   "best": "Mi novia es muy inteligente.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.494,
+   "ms": 334
+  },
+  {
+   "id": 201,
+   "rule": "ser_estar",
+   "kind": "correct",
+   "text": "Mi novia es muy inteligente.",
+   "verdict": "ok",
+   "margin": -5.493678536340159,
+   "best": "Mi novia está muy inteligente.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 302
+  },
+  {
+   "id": 202,
+   "rule": "ser_estar",
+   "kind": "incorrect",
+   "text": "Somos en la oficina.",
+   "verdict": "assert",
+   "margin": 7.4166023641056285,
+   "best": "Estamos en la oficina.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 7.417,
+   "ms": 344
+  },
+  {
+   "id": 202,
+   "rule": "ser_estar",
+   "kind": "correct",
+   "text": "Estamos en la oficina.",
+   "verdict": "ok",
+   "margin": -4.724452710780238,
+   "best": "Estamos en oficina.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 342
+  },
+  {
+   "id": 203,
+   "rule": "ser_estar",
+   "kind": "incorrect",
+   "text": "La tienda es cerrada.",
+   "verdict": "assert",
+   "margin": 4.780073762018123,
+   "best": "La tienda está cerrada.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 4.78,
+   "ms": 321
+  },
+  {
+   "id": 203,
+   "rule": "ser_estar",
+   "kind": "correct",
+   "text": "La tienda está cerrada.",
+   "verdict": "ok",
+   "margin": -4.780073762018123,
+   "best": "La tienda es cerrada.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 375
+  },
+  {
+   "id": 204,
+   "rule": "por_para",
+   "kind": "incorrect",
+   "text": "Gracias para venir.",
+   "verdict": "assert",
+   "margin": 10.699871700382324,
+   "best": "Gracias por venir.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 10.7,
+   "ms": 206
+  },
+  {
+   "id": 204,
+   "rule": "por_para",
+   "kind": "correct",
+   "text": "Gracias por venir.",
+   "verdict": "ok",
+   "margin": -10.699871700382324,
+   "best": "Gracias para venir.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 116
+  },
+  {
+   "id": 205,
+   "rule": "por_para",
+   "kind": "incorrect",
+   "text": "Trabajo por una empresa grande.",
+   "verdict": "assert",
+   "margin": 8.04155994749695,
+   "best": "Trabajo para una empresa grande.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 8.042,
+   "ms": 328
+  },
+  {
+   "id": 205,
+   "rule": "por_para",
+   "kind": "correct",
+   "text": "Trabajo para una empresa grande.",
+   "verdict": "ok",
+   "margin": -4.309195290615779,
+   "best": "Trabajo para empresa grande.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 330
+  },
+  {
+   "id": 206,
+   "rule": "por_para",
+   "kind": "incorrect",
+   "text": "Voy a la playa para la tarde.",
+   "verdict": "assert",
+   "margin": 10.295227067119558,
+   "best": "Voy a la playa por la tarde.",
+   "bestKey": "es.por_para",
+   "bestRule": "es.por_para",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 10.295,
+   "ms": 557
+  },
+  {
+   "id": 206,
+   "rule": "por_para",
+   "kind": "correct",
+   "text": "Voy a la playa por la tarde.",
+   "verdict": "ok",
+   "margin": -6.921442108666902,
+   "best": "Voy a playa por la tarde.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 4,
+   "dropped": 0,
+   "ms": 629
+  },
+  {
+   "id": 207,
+   "rule": "gender",
+   "kind": "incorrect",
+   "text": "La leche está frío.",
+   "verdict": "assert",
+   "margin": 10.37660183819045,
+   "best": "La leche está fría.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 10.377,
+   "ms": 557
+  },
+  {
+   "id": 207,
+   "rule": "gender",
+   "kind": "correct",
+   "text": "La leche está fría.",
+   "verdict": "ok",
+   "margin": -1.0893629649959777,
+   "best": "La leche es fría.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 4,
+   "dropped": 0,
+   "ms": 495
+  },
+  {
+   "id": 208,
+   "rule": "gender",
+   "kind": "incorrect",
+   "text": "Es una día bonito.",
+   "verdict": "assert",
+   "margin": 11.978969278204328,
+   "best": "Es un día bonito.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 11.979,
+   "ms": 447
+  },
+  {
+   "id": 208,
+   "rule": "gender",
+   "kind": "correct",
+   "text": "Es un día bonito.",
+   "verdict": "ok",
+   "margin": -7.274458975146576,
+   "best": "Es día bonito.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 309
+  },
+  {
+   "id": 209,
+   "rule": "gender",
+   "kind": "incorrect",
+   "text": "Tengo una idea nuevo.",
+   "verdict": "assert",
+   "margin": 5.214294333022394,
+   "best": "Tengo una idea nueva.",
+   "bestKey": "es.gender",
+   "bestRule": "es.gender",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.214,
+   "ms": 295
+  },
+  {
+   "id": 209,
+   "rule": "gender",
+   "kind": "correct",
+   "text": "Tengo una idea nueva.",
+   "verdict": "ok",
+   "margin": -6.572008885326689,
+   "best": "Tengo idea nueva.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 253
+  },
+  {
+   "id": 210,
+   "rule": "number",
+   "kind": "incorrect",
+   "text": "Los zapatos nuevo son cómodos.",
+   "verdict": "assert",
+   "margin": 9.058881697345186,
+   "best": "Los zapatos nuevos son cómodos.",
+   "bestKey": "es.number",
+   "bestRule": "es.number",
+   "variants": 5,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 9.059,
+   "ms": 698
+  },
+  {
+   "id": 210,
+   "rule": "number",
+   "kind": "correct",
+   "text": "Los zapatos nuevos son cómodos.",
+   "verdict": "ok",
+   "margin": -2.37758203029221,
+   "best": "Zapatos nuevos son cómodos.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 4,
+   "dropped": 0,
+   "ms": 534
+  },
+  {
+   "id": 211,
+   "rule": "number",
+   "kind": "incorrect",
+   "text": "Mis primos son muy alto.",
+   "verdict": "assert",
+   "margin": 4.761726128138477,
+   "best": "Mis primos son muy altos.",
+   "bestKey": "es.number",
+   "bestRule": "es.number",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 4.762,
+   "ms": 388
+  },
+  {
+   "id": 211,
+   "rule": "number",
+   "kind": "correct",
+   "text": "Mis primos son muy altos.",
+   "verdict": "ok",
+   "margin": -3.1924753320787786,
+   "best": "Mis primos están muy altos.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 313
+  },
+  {
+   "id": 212,
+   "rule": "number",
+   "kind": "incorrect",
+   "text": "Hay tres silla en la cocina.",
+   "verdict": "assert",
+   "margin": 10.159193518430893,
+   "best": "Hay tres sillas en la cocina.",
+   "bestKey": "es.number",
+   "bestRule": "es.number",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 10.159,
+   "ms": 353
+  },
+  {
+   "id": 212,
+   "rule": "number",
+   "kind": "correct",
+   "text": "Hay tres sillas en la cocina.",
+   "verdict": "ok",
+   "margin": -10.159193518430893,
+   "best": "Hay tres silla en la cocina.",
+   "bestKey": "es.number",
+   "bestRule": "es.number",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 304
+  },
+  {
+   "id": 213,
+   "rule": "subject_verb",
+   "kind": "incorrect",
+   "text": "Mis hermanos vive en Texas.",
+   "verdict": "assert",
+   "margin": 4.43891129766725,
+   "best": "Mis hermanos viven en Texas.",
+   "bestKey": "es.verb_agreement",
+   "bestRule": "es.verb_agreement.subject",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 4.439,
+   "ms": 219
+  },
+  {
+   "id": 213,
+   "rule": "subject_verb",
+   "kind": "correct",
+   "text": "Mis hermanos viven en Texas.",
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestKey": null,
+   "bestRule": null,
+   "variants": 0,
+   "dropped": 0,
+   "ms": 6
+  },
+  {
+   "id": 214,
+   "rule": "subject_verb",
+   "kind": "incorrect",
+   "text": "Usted tienes razón.",
+   "verdict": "assert",
+   "margin": 6.054130766434067,
+   "best": "Usted tiene razón.",
+   "bestKey": "es.verb_agreement",
+   "bestRule": "es.verb_agreement.subject",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 6.054,
+   "ms": 468
+  },
+  {
+   "id": 214,
+   "rule": "subject_verb",
+   "kind": "correct",
+   "text": "Usted tiene razón.",
+   "verdict": "ok",
+   "margin": -2.9851825027870156,
+   "best": "Usted tiene la razón.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.la",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 374
+  },
+  {
+   "id": 215,
+   "rule": "subject_verb",
+   "kind": "incorrect",
+   "text": "Nos gusta las películas viejas.",
+   "verdict": "ok",
+   "margin": 0.11477460409152584,
+   "best": "Nos gusta películas viejas.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": -0.966,
+   "ms": 370
+  },
+  {
+   "id": 215,
+   "rule": "subject_verb",
+   "kind": "correct",
+   "text": "Nos gustan las películas viejas.",
+   "verdict": "ok",
+   "margin": -1.6627347546731563,
+   "best": "Nos gustan películas viejas.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 228
+  },
+  {
+   "id": 216,
+   "rule": "preterite_imperfect",
+   "kind": "incorrect",
+   "text": "Ayer terminaba el libro.",
+   "verdict": "assert",
+   "margin": 5.760025896770461,
+   "best": "Ayer terminé el libro.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.76,
+   "ms": 422
+  },
+  {
+   "id": 216,
+   "rule": "preterite_imperfect",
+   "kind": "correct",
+   "text": "Ayer terminé el libro.",
+   "verdict": "ok",
+   "margin": -4.992810269119424,
+   "best": "Ayer terminé libro.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 380
+  },
+  {
+   "id": 217,
+   "rule": "preterite_imperfect",
+   "kind": "incorrect",
+   "text": "Mi abuela siempre cocinó los domingos.",
+   "verdict": "assert",
+   "margin": 6.570913874231717,
+   "best": "Mi abuela siempre cocinaba los domingos.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 6.571,
+   "ms": 377
+  },
+  {
+   "id": 217,
+   "rule": "preterite_imperfect",
+   "kind": "correct",
+   "text": "Mi abuela siempre cocinaba los domingos.",
+   "verdict": "ok",
+   "margin": -1.0278424390341208,
+   "best": "Mi abuela siempre cocinaba domingos.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 513
+  },
+  {
+   "id": 218,
+   "rule": "preterite_imperfect",
+   "kind": "incorrect",
+   "text": "Anoche cenábamos en un restaurante.",
+   "verdict": "assert",
+   "margin": 5.111200792158741,
+   "best": "Anoche cenamos en un restaurante.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.111,
+   "ms": 376
+  },
+  {
+   "id": 218,
+   "rule": "preterite_imperfect",
+   "kind": "correct",
+   "text": "Anoche cenamos en un restaurante.",
+   "verdict": "ok",
+   "margin": -5.111200792158741,
+   "best": "Anoche cenábamos en un restaurante.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 365
+  },
+  {
+   "id": 219,
+   "rule": "subjunctive_wish",
+   "kind": "incorrect",
+   "text": "Quiero que llegas temprano.",
+   "verdict": "assert",
+   "margin": 12.169482349650107,
+   "best": "Quiero que llegues temprano.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 12.169,
+   "ms": 251
+  },
+  {
+   "id": 219,
+   "rule": "subjunctive_wish",
+   "kind": "correct",
+   "text": "Quiero que llegues temprano.",
+   "verdict": "ok",
+   "margin": -12.169482349650107,
+   "best": "Quiero que llegas temprano.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 116
+  },
+  {
+   "id": 220,
+   "rule": "subjunctive_wish",
+   "kind": "incorrect",
+   "text": "Ojalá que tienes razón.",
+   "verdict": "assert",
+   "margin": 6.572300876658964,
+   "best": "Ojalá que tengas razón.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 6.572,
+   "ms": 512
+  },
+  {
+   "id": 220,
+   "rule": "subjunctive_wish",
+   "kind": "correct",
+   "text": "Ojalá que tengas razón.",
+   "verdict": "ok",
+   "margin": -2.7145338973388426,
+   "best": "Ojalá que tengas razones.",
+   "bestKey": "es.number",
+   "bestRule": "es.number",
+   "variants": 4,
+   "dropped": 0,
+   "ms": 540
+  },
+  {
+   "id": 221,
+   "rule": "subjunctive_wish",
+   "kind": "incorrect",
+   "text": "Te pido que me escuchas.",
+   "verdict": "assert",
+   "margin": 8.847636764551268,
+   "best": "Te pido que me escuches.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 8.848,
+   "ms": 284
+  },
+  {
+   "id": 221,
+   "rule": "subjunctive_wish",
+   "kind": "correct",
+   "text": "Te pido que me escuches.",
+   "verdict": "ok",
+   "margin": -8.847636764551268,
+   "best": "Te pido que me escuchas.",
+   "bestKey": "es.mood",
+   "bestRule": "es.mood",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 88
+  },
+  {
+   "id": 222,
+   "rule": "personal_a",
+   "kind": "incorrect",
+   "text": "Ayudé mi vecina con las bolsas.",
+   "verdict": "assert",
+   "margin": 7.1923696016125405,
+   "best": "Ayudé a mi vecina con las bolsas.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.insert",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 7.192,
+   "ms": 559
+  },
+  {
+   "id": 222,
+   "rule": "personal_a",
+   "kind": "correct",
+   "text": "Ayudé a mi vecina con las bolsas.",
+   "verdict": "ok",
+   "margin": -3.438583058857464,
+   "best": "Ayudé a mi vecina con bolsas.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 613
+  },
+  {
+   "id": 223,
+   "rule": "personal_a",
+   "kind": "incorrect",
+   "text": "Vi Carlos en el cine.",
+   "verdict": "assert",
+   "margin": 8.014265066159886,
+   "best": "Vi a Carlos en el cine.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.insert",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 8.014,
+   "ms": 484
+  },
+  {
+   "id": 223,
+   "rule": "personal_a",
+   "kind": "correct",
+   "text": "Vi a Carlos en el cine.",
+   "verdict": "ok",
+   "margin": -6.664649125045315,
+   "best": "Vi a Carlos en cine.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 488
+  },
+  {
+   "id": 224,
+   "rule": "personal_a",
+   "kind": "incorrect",
+   "text": "Compré a una bicicleta.",
+   "verdict": "assert",
+   "margin": 11.537440509465164,
+   "best": "Compré una bicicleta.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.delete",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 11.537,
+   "ms": 501
+  },
+  {
+   "id": 224,
+   "rule": "personal_a",
+   "kind": "correct",
+   "text": "Compré una bicicleta.",
+   "verdict": "ok",
+   "margin": -4.663322432284787,
+   "best": "Compré bicicleta.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 353
+  },
+  {
+   "id": 225,
+   "rule": "articles",
+   "kind": "incorrect",
+   "text": "Me encanta chocolate.",
+   "verdict": "assert",
+   "margin": 5.806943907882612,
+   "best": "Me encanta el chocolate.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.el",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.807,
+   "ms": 437
+  },
+  {
+   "id": 225,
+   "rule": "articles",
+   "kind": "correct",
+   "text": "Me encanta el chocolate.",
+   "verdict": "ok",
+   "margin": -5.806943907882612,
+   "best": "Me encanta chocolate.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 272
+  },
+  {
+   "id": 226,
+   "rule": "articles",
+   "kind": "incorrect",
+   "text": "Gatos duermen mucho.",
+   "verdict": "hint",
+   "margin": 2.652948244317624,
+   "best": "Los gatos duermen mucho.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.los",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 2.653,
+   "ms": 367
+  },
+  {
+   "id": 226,
+   "rule": "articles",
+   "kind": "correct",
+   "text": "Los gatos duermen mucho.",
+   "verdict": "ok",
+   "margin": -2.652948244317624,
+   "best": "Gatos duermen mucho.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 116
+  },
+  {
+   "id": 227,
+   "rule": "articles",
+   "kind": "incorrect",
+   "text": "Mi padre es un abogado.",
+   "verdict": "ok",
+   "margin": -0.2736387396136841,
+   "best": "Mi padre es abogado.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": -0.274,
+   "ms": 461
+  },
+  {
+   "id": 227,
+   "rule": "articles",
+   "kind": "correct",
+   "text": "Mi padre es abogado.",
+   "verdict": "ok",
+   "margin": 0.2736387396136841,
+   "best": "Mi padre es un abogado.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.un",
+   "variants": 5,
+   "dropped": 0,
+   "ms": 548
+  },
+  {
+   "id": 228,
+   "rule": "contraction",
+   "kind": "incorrect",
+   "text": "Vamos a el mercado mañana.",
+   "verdict": "assert",
+   "margin": 8.262076366719747,
+   "best": "Vamos al mercado mañana.",
+   "bestKey": "es.contraction",
+   "bestRule": "es.contraction",
+   "variants": 3,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 8.262,
+   "ms": 405
+  },
+  {
+   "id": 228,
+   "rule": "contraction",
+   "kind": "correct",
+   "text": "Vamos al mercado mañana.",
+   "verdict": "ok",
+   "margin": -9.297875576771059,
+   "best": "Vamos el mercado mañana.",
+   "bestKey": "es.personal_a",
+   "bestRule": "es.personal_a.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 186
+  },
+  {
+   "id": 229,
+   "rule": "contraction",
+   "kind": "incorrect",
+   "text": "El hijo de el profesor es simpático.",
+   "verdict": "hint",
+   "margin": 2.8445374976552813,
+   "best": "El hijo del profesor es simpático.",
+   "bestKey": "es.contraction",
+   "bestRule": "es.contraction",
+   "variants": 6,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 2.845,
+   "ms": 853
+  },
+  {
+   "id": 229,
+   "rule": "contraction",
+   "kind": "correct",
+   "text": "El hijo del profesor es simpático.",
+   "verdict": "ok",
+   "margin": -2.0720518589249792,
+   "best": "El hijo del profesor está simpático.",
+   "bestKey": "es.ser_estar",
+   "bestRule": "es.ser_estar",
+   "variants": 5,
+   "dropped": 0,
+   "ms": 663
+  },
+  {
+   "id": 230,
+   "rule": "contraction",
+   "kind": "incorrect",
+   "text": "Llegamos a aeropuerto tarde.",
+   "verdict": "assert",
+   "margin": 7.107943610424655,
+   "best": "Llegamos al aeropuerto tarde.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.el",
+   "variants": 4,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 7.108,
+   "ms": 667
+  },
+  {
+   "id": 230,
+   "rule": "contraction",
+   "kind": "correct",
+   "text": "Llegamos al aeropuerto tarde.",
+   "verdict": "ok",
+   "margin": -9.897535852634455,
+   "best": "Llegábamos al aeropuerto tarde.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 406
+  },
+  {
+   "id": 231,
+   "rule": "body_article",
+   "kind": "incorrect",
+   "text": "Me lavé mi cara.",
+   "verdict": "assert",
+   "margin": 7.428797474865576,
+   "best": "Me lavé la cara.",
+   "bestKey": "es.body_article",
+   "bestRule": "es.body_article",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 7.429,
+   "ms": 361
+  },
+  {
+   "id": 231,
+   "rule": "body_article",
+   "kind": "correct",
+   "text": "Me lavé la cara.",
+   "verdict": "ok",
+   "margin": -4.882618754253517,
+   "best": "Me lavaba la cara.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 315
+  },
+  {
+   "id": 232,
+   "rule": "body_article",
+   "kind": "incorrect",
+   "text": "Le duele su espalda.",
+   "verdict": "assert",
+   "margin": 5.100451936401637,
+   "best": "Le duele la espalda.",
+   "bestKey": "es.body_article",
+   "bestRule": "es.body_article",
+   "variants": 1,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.1,
+   "ms": 290
+  },
+  {
+   "id": 232,
+   "rule": "body_article",
+   "kind": "correct",
+   "text": "Le duele la espalda.",
+   "verdict": "ok",
+   "margin": -10.43422750919295,
+   "best": "Le duele espalda.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "dropped": 0,
+   "ms": 103
+  },
+  {
+   "id": 233,
+   "rule": "body_article",
+   "kind": "incorrect",
+   "text": "Nos quitamos nuestros zapatos.",
+   "verdict": "assert",
+   "margin": 6.503821222668378,
+   "best": "Nos quitamos los zapatos.",
+   "bestKey": "es.body_article",
+   "bestRule": "es.body_article",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 6.504,
+   "ms": 329
+  },
+  {
+   "id": 233,
+   "rule": "body_article",
+   "kind": "correct",
+   "text": "Nos quitamos los zapatos.",
+   "verdict": "ok",
+   "margin": -6.897521888825025,
+   "best": "Nos quitábamos los zapatos.",
+   "bestKey": "es.aspect",
+   "bestRule": "es.aspect",
+   "variants": 2,
+   "dropped": 0,
+   "ms": 323
+  },
+  {
+   "id": 234,
+   "rule": "pronoun_placement",
+   "kind": "incorrect",
+   "text": "Llamo te mañana.",
+   "verdict": "assert",
+   "margin": 11.302075165749034,
+   "best": "Te llamo mañana.",
+   "bestKey": "es.pronoun_placement",
+   "bestRule": "es.pronoun_placement.finite",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 11.302,
+   "ms": 345
+  },
+  {
+   "id": 234,
+   "rule": "pronoun_placement",
+   "kind": "correct",
+   "text": "Te llamo mañana.",
+   "verdict": "ok",
+   "margin": -4.200804357408032,
+   "best": "Te llamo una mañana.",
+   "bestKey": "es.article",
+   "bestRule": "es.article.insert.una",
+   "variants": 3,
+   "dropped": 0,
+   "ms": 516
+  },
+  {
+   "id": 235,
+   "rule": "pronoun_placement",
+   "kind": "incorrect",
+   "text": "Quiero lo comprar.",
+   "verdict": "assert",
+   "margin": 8.148631627949651,
+   "best": "Lo quiero comprar.",
+   "bestKey": "es.pronoun_placement",
+   "bestRule": "es.pronoun_placement.finite",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 5.558,
+   "ms": 318
+  },
+  {
+   "id": 235,
+   "rule": "pronoun_placement",
+   "kind": "correct",
+   "text": "Quiero comprarlo.",
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestKey": null,
+   "bestRule": null,
+   "variants": 0,
+   "dropped": 0,
+   "ms": 6
+  },
+  {
+   "id": 236,
+   "rule": "pronoun_placement",
+   "kind": "incorrect",
+   "text": "Ya he lo terminado.",
+   "verdict": "assert",
+   "margin": 4.712457409107564,
+   "best": "Ya lo he terminado.",
+   "bestKey": "es.pronoun_placement",
+   "bestRule": "es.pronoun_placement.finite",
+   "variants": 2,
+   "dropped": 0,
+   "fixGenerated": true,
+   "fixMargin": 4.712,
+   "ms": 342
+  },
+  {
+   "id": 236,
+   "rule": "pronoun_placement",
+   "kind": "correct",
+   "text": "Ya lo he terminado.",
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestKey": null,
+   "bestRule": null,
+   "variants": 0,
+   "dropped": 0,
+   "ms": 110
+  }
+ ],
+ "slang": [
+  {
+   "id": 1,
+   "region": "PR",
+   "text": "¿Qué es la que hay, mano?",
+   "slangNamed": [
+    "qué es la que hay"
+   ],
+   "slangSegments": [
+    "Qué",
+    "es",
+    "la",
+    "que",
+    "hay"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "Qué",
+     "heat": 0
+    },
+    {
+     "word": "es",
+     "heat": 0
+    },
+    {
+     "word": "la",
+     "heat": 0
+    },
+    {
+     "word": "que",
+     "heat": 0
+    },
+    {
+     "word": "hay",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "region": "PR",
+   "text": "Vamo' a janguear con el corillo esta noche.",
+   "slangNamed": [
+    "vamo'",
+    "janguear",
+    "corillo"
+   ],
+   "slangSegments": [
+    "Vamo'",
+    "janguear",
+    "corillo"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "Vamo'",
+     "heat": 0
+    },
+    {
+     "word": "janguear",
+     "heat": 0
+    },
+    {
+     "word": "corillo",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 3,
+   "region": "PR",
+   "text": "Esa vaina 'tá brutal.",
+   "slangNamed": [
+    "'tá",
+    "brutal"
+   ],
+   "slangSegments": [
+    "vaina",
+    "'tá",
+    "brutal"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "vaina",
+     "heat": 0
+    },
+    {
+     "word": "'tá",
+     "heat": 0
+    },
+    {
+     "word": "brutal",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 4,
+   "region": "PR",
+   "text": "¿Pa' qué tú quieres eso?",
+   "slangNamed": [
+    "pa'"
+   ],
+   "slangSegments": [
+    "Pa'"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "Pa'",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 5,
+   "region": "PR",
+   "text": "Ese pana mío es bien chévere.",
+   "slangNamed": [
+    "pana",
+    "chévere"
+   ],
+   "slangSegments": [
+    "pana",
+    "chévere"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "pana",
+     "heat": 0
+    },
+    {
+     "word": "chévere",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 6,
+   "region": "PR",
+   "text": "Estoy janguiando en la playa con mis panas.",
+   "slangNamed": [],
+   "slangSegments": [
+    "janguiando",
+    "panas"
+   ],
+   "verdict": "ok",
+   "margin": -7.204484301076594,
+   "best": "Estoy janguiando en playa con mis panas.",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "janguiando",
+     "heat": 0
+    },
+    {
+     "word": "panas",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 7,
+   "region": "DO",
+   "text": "Dímelo, loco, ¿qué lo que?",
+   "slangNamed": [
+    "dímelo",
+    "loco",
+    "qué lo que"
+   ],
+   "slangSegments": [
+    "Dímelo",
+    "loco",
+    "qué",
+    "lo",
+    "que"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "Dímelo",
+     "heat": 0
+    },
+    {
+     "word": "loco",
+     "heat": 0
+    },
+    {
+     "word": "qué",
+     "heat": 0
+    },
+    {
+     "word": "lo",
+     "heat": 0
+    },
+    {
+     "word": "que",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 8,
+   "region": "PR",
+   "text": "Ese carro 'tá to' jevi.",
+   "slangNamed": [
+    "'tá",
+    "to'"
+   ],
+   "slangSegments": [
+    "'tá",
+    "to'"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "'tá",
+     "heat": 0
+    },
+    {
+     "word": "to'",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 9,
+   "region": "PR",
+   "text": "No me jodas con esa vaina.",
+   "slangNamed": [],
+   "slangSegments": [
+    "jodas",
+    "vaina"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "jodas",
+     "heat": 0
+    },
+    {
+     "word": "vaina",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 10,
+   "region": "DO",
+   "text": "Tengo un chin de hambre.",
+   "slangNamed": [
+    "un chin",
+    "chin"
+   ],
+   "slangSegments": [
+    "un",
+    "chin"
+   ],
+   "verdict": "ok",
+   "margin": -3.1379861501358306,
+   "best": "Tengo un chin del hambre.",
+   "bestRule": "es.article.insert.el",
+   "variants": 3,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "un",
+     "heat": 0
+    },
+    {
+     "word": "chin",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 11,
+   "region": "PR",
+   "text": "Ahorita vengo, voy pa' la tienda.",
+   "slangNamed": [
+    "pa'"
+   ],
+   "slangSegments": [
+    "pa'"
+   ],
+   "verdict": "ok",
+   "margin": -14.430102078982259,
+   "best": "Ahorita vengo, voy pa' tienda.",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "pa'",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 12,
+   "region": "PR",
+   "text": "El corillo está esperando afuera.",
+   "slangNamed": [
+    "corillo"
+   ],
+   "slangSegments": [
+    "corillo"
+   ],
+   "verdict": "ok",
+   "margin": -7.436192514092131,
+   "best": "El corillo es esperando afuera.",
+   "bestRule": "es.ser_estar",
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "corillo",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 13,
+   "region": "PR",
+   "text": "Mi pana, eso 'tá cabrón.",
+   "slangNamed": [
+    "pana",
+    "'tá",
+    "cabrón"
+   ],
+   "slangSegments": [
+    "pana",
+    "'tá",
+    "cabrón"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "pana",
+     "heat": 0
+    },
+    {
+     "word": "'tá",
+     "heat": 0
+    },
+    {
+     "word": "cabrón",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 14,
+   "region": "CU",
+   "text": "¿Qué volá, asere?",
+   "slangNamed": [
+    "asere"
+   ],
+   "slangSegments": [
+    "asere"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "asere",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 15,
+   "region": "CU",
+   "text": "Eso 'tá en candela.",
+   "slangNamed": [
+    "'tá"
+   ],
+   "slangSegments": [
+    "'tá"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "'tá",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 16,
+   "region": "PR",
+   "text": "Me voy pa' casa, que 'toy cansao.",
+   "slangNamed": [
+    "pa'",
+    "'toy"
+   ],
+   "slangSegments": [
+    "pa'",
+    "'toy"
+   ],
+   "verdict": "hint",
+   "margin": 1.5965287362030693,
+   "best": "Me voy pa' la casa, que 'toy cansao.",
+   "bestRule": "es.article.insert.la",
+   "variants": 2,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "pa'",
+     "heat": 0
+    },
+    {
+     "word": "'toy",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 17,
+   "region": "CO",
+   "text": "Parcero, ¿qué más pues?",
+   "slangNamed": [
+    "parcero",
+    "qué más"
+   ],
+   "slangSegments": [
+    "Parcero",
+    "qué",
+    "más"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "Parcero",
+     "heat": 0
+    },
+    {
+     "word": "qué",
+     "heat": 0
+    },
+    {
+     "word": "más",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 18,
+   "region": "CO",
+   "text": "Esa fiesta estuvo bacana.",
+   "slangNamed": [],
+   "slangSegments": [
+    "bacana"
+   ],
+   "verdict": "ok",
+   "margin": -0.2239403617181246,
+   "best": "Esa fiesta estaba bacana.",
+   "bestRule": "es.aspect",
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "bacana",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 19,
+   "region": "PR",
+   "text": "No tengo chavos pa' salir hoy.",
+   "slangNamed": [
+    "chavos",
+    "pa'"
+   ],
+   "slangSegments": [
+    "chavos",
+    "pa'"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "chavos",
+     "heat": 0
+    },
+    {
+     "word": "pa'",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 20,
+   "region": "PR",
+   "text": "Deja la bobería y vamo' ya.",
+   "slangNamed": [
+    "vamo'"
+   ],
+   "slangSegments": [
+    "vamo'"
+   ],
+   "verdict": "ok",
+   "margin": -2.13405520591931,
+   "best": "Deja bobería y vamo' ya.",
+   "bestRule": "es.article.delete",
+   "variants": 2,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "vamo'",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 21,
+   "region": "DO",
+   "text": "Ese tipo es un tíguere.",
+   "slangNamed": [
+    "tíguere"
+   ],
+   "slangSegments": [
+    "tíguere"
+   ],
+   "verdict": "ok",
+   "margin": -8.978562649307413,
+   "best": "Ese tipo está un tíguere.",
+   "bestRule": "es.ser_estar",
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "tíguere",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 22,
+   "region": "PR",
+   "text": "Bregamos con eso mañana.",
+   "slangNamed": [],
+   "slangSegments": [
+    "Bregamos"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "Bregamos",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 23,
+   "region": "PR",
+   "text": "¡Wepa! Ganamos el juego.",
+   "slangNamed": [
+    "wepa"
+   ],
+   "slangSegments": [
+    "Wepa"
+   ],
+   "verdict": "ok",
+   "margin": -5.070925931956374,
+   "best": "¡Wepa! Ganamos juego.",
+   "bestRule": "es.article.delete",
+   "variants": 2,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "Wepa",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 24,
+   "region": "PR",
+   "text": "Estoy pela'o este mes.",
+   "slangNamed": [
+    "pela'o"
+   ],
+   "slangSegments": [
+    "pela'o"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "pela'o",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 25,
+   "region": "PR",
+   "text": "Qué chévere que viniste, mi pana.",
+   "slangNamed": [
+    "chévere",
+    "pana"
+   ],
+   "slangSegments": [
+    "chévere",
+    "pana"
+   ],
+   "verdict": "ok",
+   "margin": -4.92733698080821,
+   "best": "Qué chévere que venías, mi pana.",
+   "bestRule": "es.aspect",
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "chévere",
+     "heat": 0
+    },
+    {
+     "word": "pana",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 26,
+   "region": "CO",
+   "text": "Ese man es más bacano que el putas.",
+   "slangNamed": [
+    "man",
+    "bacano",
+    "putas"
+   ],
+   "slangSegments": [
+    "man",
+    "bacano",
+    "putas"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "man",
+     "heat": 0
+    },
+    {
+     "word": "bacano",
+     "heat": 0
+    },
+    {
+     "word": "putas",
+     "heat": 0
+    }
+   ]
+  }
+ ],
+ "slanghold": [
+  {
+   "id": 101,
+   "region": "PR",
+   "text": "Ese jangueo anoche estuvo brutal.",
+   "slangNamed": [
+    "jangueo",
+    "brutal"
+   ],
+   "slangSegments": [
+    "jangueo",
+    "brutal"
+   ],
+   "verdict": "ok",
+   "margin": -1.32143647415932,
+   "best": "Ese jangueo anoche estaba brutal.",
+   "bestRule": "es.aspect",
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "jangueo",
+     "heat": 0
+    },
+    {
+     "word": "brutal",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 102,
+   "region": "PR",
+   "text": "Mi jeva y yo vamos pa' la playa.",
+   "slangNamed": [
+    "jeva",
+    "pa'"
+   ],
+   "slangSegments": [
+    "jeva",
+    "pa'"
+   ],
+   "verdict": "ok",
+   "margin": -3.5135022347843616,
+   "best": "Mi jeva y yo vamos pa' playa.",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "jeva",
+     "heat": 0
+    },
+    {
+     "word": "pa'",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 103,
+   "region": "PR",
+   "text": "No tengo chavos, mano.",
+   "slangNamed": [
+    "chavos"
+   ],
+   "slangSegments": [
+    "chavos"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "chavos",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 104,
+   "region": "PR",
+   "text": "Ese perreo 'tá cabrón.",
+   "slangNamed": [
+    "perreo",
+    "'tá",
+    "cabrón"
+   ],
+   "slangSegments": [
+    "perreo",
+    "'tá",
+    "cabrón"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "perreo",
+     "heat": 0
+    },
+    {
+     "word": "'tá",
+     "heat": 0
+    },
+    {
+     "word": "cabrón",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 105,
+   "region": "PR",
+   "text": "Acho, qué revolú hay aquí.",
+   "slangNamed": [
+    "acho",
+    "revolú"
+   ],
+   "slangSegments": [
+    "Acho",
+    "revolú"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "Acho",
+     "heat": 0
+    },
+    {
+     "word": "revolú",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 106,
+   "region": "PR",
+   "text": "Llegó el corillo completo.",
+   "slangNamed": [
+    "corillo"
+   ],
+   "slangSegments": [
+    "corillo"
+   ],
+   "verdict": "ok",
+   "margin": -6.114241363586622,
+   "best": "Llegaba el corillo completo.",
+   "bestRule": "es.aspect",
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "corillo",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 107,
+   "region": "PR",
+   "text": "Dame pon pa'l pueblo.",
+   "slangNamed": [
+    "pon",
+    "pa'l"
+   ],
+   "slangSegments": [
+    "pon",
+    "pa'l"
+   ],
+   "verdict": "ok",
+   "margin": -6.276518138574595,
+   "best": "Dame pon pa'l el pueblo.",
+   "bestRule": "es.article.insert.el",
+   "variants": 2,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "pon",
+     "heat": 0
+    },
+    {
+     "word": "pa'l",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 108,
+   "region": "DO",
+   "text": "¿Qué lo que, manito?",
+   "slangNamed": [
+    "qué lo que",
+    "manito"
+   ],
+   "slangSegments": [
+    "Qué",
+    "lo",
+    "que",
+    "manito"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "Qué",
+     "heat": 0
+    },
+    {
+     "word": "lo",
+     "heat": 0
+    },
+    {
+     "word": "que",
+     "heat": 0
+    },
+    {
+     "word": "manito",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 109,
+   "region": "DO",
+   "text": "Ese tíguere tiene una jeepeta nueva.",
+   "slangNamed": [
+    "tíguere",
+    "jeepeta"
+   ],
+   "slangSegments": [
+    "tíguere",
+    "jeepeta"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "tíguere",
+     "heat": 0
+    },
+    {
+     "word": "jeepeta",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 110,
+   "region": "DO",
+   "text": "Vamos pa'l colmado.",
+   "slangNamed": [
+    "pa'l",
+    "colmado"
+   ],
+   "slangSegments": [
+    "pa'l",
+    "colmado"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "pa'l",
+     "heat": 0
+    },
+    {
+     "word": "colmado",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 111,
+   "region": "DO",
+   "text": "Dame un chin de agua.",
+   "slangNamed": [
+    "un chin",
+    "chin"
+   ],
+   "slangSegments": [
+    "un",
+    "chin"
+   ],
+   "verdict": "ok",
+   "margin": -5.395348184068638,
+   "best": "Dame un chin del agua.",
+   "bestRule": "es.article.insert.el",
+   "variants": 3,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "un",
+     "heat": 0
+    },
+    {
+     "word": "chin",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 112,
+   "region": "DO",
+   "text": "Ese bonche estuvo jevi.",
+   "slangNamed": [
+    "bonche",
+    "jevi"
+   ],
+   "slangSegments": [
+    "bonche",
+    "jevi"
+   ],
+   "verdict": "ok",
+   "margin": -0.42346403331633553,
+   "best": "Ese bonche estaba jevi.",
+   "bestRule": "es.aspect",
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "bonche",
+     "heat": 0
+    },
+    {
+     "word": "jevi",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 113,
+   "region": "DO",
+   "text": "Hay una pila de gente en el concho.",
+   "slangNamed": [
+    "pila",
+    "concho"
+   ],
+   "slangSegments": [
+    "pila",
+    "concho"
+   ],
+   "verdict": "ok",
+   "margin": -2.960154244115458,
+   "best": "Hay una pila de la gente en el concho.",
+   "bestRule": "es.article.insert.la",
+   "variants": 2,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "pila",
+     "heat": 0
+    },
+    {
+     "word": "concho",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 114,
+   "region": "DO",
+   "text": "¡Coño, qué calor hace!",
+   "slangNamed": [
+    "coño"
+   ],
+   "slangSegments": [
+    "Coño"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "Coño",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 115,
+   "region": "CU",
+   "text": "Asere, ¿qué bolá?",
+   "slangNamed": [
+    "asere",
+    "qué bolá"
+   ],
+   "slangSegments": [
+    "Asere",
+    "qué",
+    "bolá"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "Asere",
+     "heat": 0
+    },
+    {
+     "word": "qué",
+     "heat": 0
+    },
+    {
+     "word": "bolá",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 116,
+   "region": "CU",
+   "text": "Mi socio tiene una pincha nueva.",
+   "slangNamed": [
+    "socio",
+    "pincha"
+   ],
+   "slangSegments": [
+    "socio",
+    "pincha"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "socio",
+     "heat": 0
+    },
+    {
+     "word": "pincha",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 117,
+   "region": "CU",
+   "text": "Vamos a jamar algo, que tengo hambre.",
+   "slangNamed": [
+    "jamar"
+   ],
+   "slangSegments": [
+    "jamar"
+   ],
+   "verdict": "ok",
+   "margin": -3.5485002417739047,
+   "best": "Vamos a jamar algo, que tengo el hambre.",
+   "bestRule": "es.article.insert.el",
+   "variants": 4,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "jamar",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 118,
+   "region": "CU",
+   "text": "Ese yuma no habla español.",
+   "slangNamed": [
+    "yuma"
+   ],
+   "slangSegments": [
+    "yuma"
+   ],
+   "verdict": "ok",
+   "margin": -8.761527810697132,
+   "best": "Ese yuma no habla española.",
+   "bestRule": "es.gender",
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "yuma",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 119,
+   "region": "CU",
+   "text": "La fiesta estuvo bárbara.",
+   "slangNamed": [],
+   "slangSegments": [
+    "bárbara"
+   ],
+   "verdict": "ok",
+   "margin": -1.2718623146876524,
+   "best": "La fiesta estaba bárbara.",
+   "bestRule": "es.aspect",
+   "variants": 2,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "bárbara",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 120,
+   "region": "CU",
+   "text": "Me voy pa'l gao.",
+   "slangNamed": [
+    "pa'l",
+    "gao"
+   ],
+   "slangSegments": [
+    "pa'l",
+    "gao"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "pa'l",
+     "heat": 0
+    },
+    {
+     "word": "gao",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 121,
+   "region": "CU",
+   "text": "¡Qué pinga, se fue la guagua!",
+   "slangNamed": [
+    "pinga"
+   ],
+   "slangSegments": [
+    "pinga",
+    "guagua"
+   ],
+   "verdict": "ok",
+   "margin": -7.4461032201113575,
+   "best": "¡Qué pinga, se estuvo la guagua!",
+   "bestRule": "es.ser_estar",
+   "variants": 2,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "pinga",
+     "heat": 0
+    },
+    {
+     "word": "guagua",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 122,
+   "region": "CO",
+   "text": "Parce, esa rumba estuvo una chimba.",
+   "slangNamed": [
+    "parce",
+    "rumba",
+    "chimba"
+   ],
+   "slangSegments": [
+    "Parce",
+    "rumba",
+    "chimba"
+   ],
+   "verdict": "assert",
+   "margin": 6.796084236351756,
+   "best": "Parce, esa rumba fue una chimba.",
+   "bestRule": "es.ser_estar",
+   "variants": 2,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "Parce",
+     "heat": 0
+    },
+    {
+     "word": "rumba",
+     "heat": 0
+    },
+    {
+     "word": "chimba",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 123,
+   "region": "CO",
+   "text": "Qué pereza ir a camellar hoy.",
+   "slangNamed": [
+    "camellar"
+   ],
+   "slangSegments": [
+    "camellar"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "camellar",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 124,
+   "region": "CO",
+   "text": "Pilas con ese man, que es muy sapo.",
+   "slangNamed": [
+    "pilas",
+    "man",
+    "sapo"
+   ],
+   "slangSegments": [
+    "Pilas",
+    "man",
+    "sapo"
+   ],
+   "verdict": "ok",
+   "margin": -6.070645047613905,
+   "best": "Pilas con ese man, que sea muy sapo.",
+   "bestRule": "es.mood",
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "Pilas",
+     "heat": 0
+    },
+    {
+     "word": "man",
+     "heat": 0
+    },
+    {
+     "word": "sapo",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 125,
+   "region": "CO",
+   "text": "Nos tomamos unas polas con el parche.",
+   "slangNamed": [
+    "parche"
+   ],
+   "slangSegments": [
+    "polas",
+    "parche"
+   ],
+   "verdict": "ok",
+   "margin": -6.481551592649581,
+   "best": "Nos tomábamos unas polas con el parche.",
+   "bestRule": "es.aspect",
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "polas",
+     "heat": 0
+    },
+    {
+     "word": "parche",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 126,
+   "region": "CO",
+   "text": "Ese cucho es muy berraco.",
+   "slangNamed": [
+    "cucho",
+    "berraco"
+   ],
+   "slangSegments": [
+    "cucho",
+    "berraco"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "cucho",
+     "heat": 0
+    },
+    {
+     "word": "berraco",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 127,
+   "region": "CO",
+   "text": "Tengo un guayabo terrible.",
+   "slangNamed": [
+    "guayabo"
+   ],
+   "slangSegments": [
+    "guayabo"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "guayabo",
+     "heat": 0
+    }
+   ]
+  }
+ ],
+ "slanghold2": [
+  {
+   "id": 201,
+   "region": "PR",
+   "text": "Ese jevo es bien nítido.",
+   "slangNamed": [
+    "jevo",
+    "nítido"
+   ],
+   "slangSegments": [
+    "jevo",
+    "nítido"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "jevo",
+     "heat": 0
+    },
+    {
+     "word": "nítido",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 202,
+   "region": "PR",
+   "text": "Vamos a perrear toa la noche.",
+   "slangNamed": [
+    "perrear",
+    "toa"
+   ],
+   "slangSegments": [
+    "perrear",
+    "toa"
+   ],
+   "verdict": "ok",
+   "margin": -0.19110942780443452,
+   "best": "Vamos a perrear toa noche.",
+   "bestRule": "es.article.delete",
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "perrear",
+     "heat": 0
+    },
+    {
+     "word": "toa",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 203,
+   "region": "PR",
+   "text": "Mi titi hizo un arroz brutal.",
+   "slangNamed": [
+    "titi",
+    "brutal"
+   ],
+   "slangSegments": [
+    "titi",
+    "brutal"
+   ],
+   "verdict": "ok",
+   "margin": -2.387103922760552,
+   "best": "Mi titi hizo arroz brutal.",
+   "bestRule": "es.article.delete",
+   "variants": 2,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "titi",
+     "heat": 0
+    },
+    {
+     "word": "brutal",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 204,
+   "region": "DO",
+   "text": "Klk, ¿tú vas pa'l coro?",
+   "slangNamed": [
+    "klk",
+    "pa'l",
+    "coro"
+   ],
+   "slangSegments": [
+    "Klk",
+    "pa'l",
+    "coro"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "Klk",
+     "heat": 0
+    },
+    {
+     "word": "pa'l",
+     "heat": 0
+    },
+    {
+     "word": "coro",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 205,
+   "region": "DO",
+   "text": "Ese tipo es un pariguayo.",
+   "slangNamed": [
+    "pariguayo"
+   ],
+   "slangSegments": [
+    "pariguayo"
+   ],
+   "verdict": "ok",
+   "margin": -10.559827803275319,
+   "best": "Ese tipo está un pariguayo.",
+   "bestRule": "es.ser_estar",
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "pariguayo",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 206,
+   "region": "CU",
+   "text": "Tremenda jama hizo mi pura.",
+   "slangNamed": [
+    "jama",
+    "pura"
+   ],
+   "slangSegments": [
+    "jama",
+    "pura"
+   ],
+   "verdict": "ok",
+   "margin": -3.2717329168503824,
+   "best": "Tremenda jama hacía mi pura.",
+   "bestRule": "es.aspect",
+   "variants": 1,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "jama",
+     "heat": 0
+    },
+    {
+     "word": "pura",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 207,
+   "region": "CU",
+   "text": "El asere ese tiene bisne.",
+   "slangNamed": [
+    "asere",
+    "bisne"
+   ],
+   "slangSegments": [
+    "asere",
+    "bisne"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "asere",
+     "heat": 0
+    },
+    {
+     "word": "bisne",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 208,
+   "region": "CO",
+   "text": "Qué chimba de parche, parce.",
+   "slangNamed": [
+    "chimba",
+    "parche",
+    "parce"
+   ],
+   "slangSegments": [
+    "chimba",
+    "parche",
+    "parce"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "chimba",
+     "heat": 0
+    },
+    {
+     "word": "parche",
+     "heat": 0
+    },
+    {
+     "word": "parce",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 209,
+   "region": "CO",
+   "text": "Me tomé un tinto bien rico.",
+   "slangNamed": [
+    "tinto"
+   ],
+   "slangSegments": [
+    "tinto"
+   ],
+   "verdict": "ok",
+   "margin": -7.59759016234932,
+   "best": "Me tomé un tinto bien rica.",
+   "bestRule": "es.gender",
+   "variants": 2,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "tinto",
+     "heat": 0
+    }
+   ]
+  },
+  {
+   "id": 210,
+   "region": "CO",
+   "text": "Ese man camella mucho.",
+   "slangNamed": [
+    "man"
+   ],
+   "slangSegments": [
+    "man",
+    "camella"
+   ],
+   "verdict": "ok",
+   "margin": null,
+   "best": null,
+   "bestRule": null,
+   "variants": 0,
+   "touchingSlang": [],
+   "slangHeat": [
+    {
+     "word": "man",
+     "heat": 0
+    },
+    {
+     "word": "camella",
+     "heat": 0
+    }
+   ]
+  }
+ ],
+ "summary": {
+  "pairs": {
+   "all": {
+    "n": 93,
+    "fixGenerated": 92,
+    "asserted": 74,
+    "assertedRightFix": 70,
+    "flaggedRightFix": 83,
+    "rightRule": 86,
+    "hinted": 13,
+    "falseHints": 1
+   },
+   "families": {
+    "ser_estar": {
+     "n": 10,
+     "fixGenerated": 10,
+     "asserted": 7,
+     "assertedRightFix": 7,
+     "flaggedRightFix": 9,
+     "rightRule": 9,
+     "hinted": 2,
+     "falseHints": 1
+    },
+    "por_para": {
+     "n": 10,
+     "fixGenerated": 10,
+     "asserted": 9,
+     "assertedRightFix": 8,
+     "flaggedRightFix": 8,
+     "rightRule": 8
+    },
+    "gender": {
+     "n": 10,
+     "fixGenerated": 10,
+     "asserted": 8,
+     "assertedRightFix": 8,
+     "flaggedRightFix": 10,
+     "rightRule": 10,
+     "hinted": 2
+    },
+    "number": {
+     "n": 10,
+     "fixGenerated": 10,
+     "asserted": 8,
+     "assertedRightFix": 8,
+     "flaggedRightFix": 9,
+     "rightRule": 9,
+     "hinted": 1
+    },
+    "preterite_imperfect": {
+     "n": 10,
+     "fixGenerated": 10,
+     "flaggedRightFix": 10,
+     "hinted": 3,
+     "rightRule": 10,
+     "asserted": 7,
+     "assertedRightFix": 7
+    },
+    "subjunctive_wish": {
+     "n": 10,
+     "fixGenerated": 10,
+     "asserted": 7,
+     "assertedRightFix": 7,
+     "flaggedRightFix": 9,
+     "rightRule": 9,
+     "hinted": 2
+    },
+    "personal_a": {
+     "n": 12,
+     "fixGenerated": 12,
+     "asserted": 10,
+     "assertedRightFix": 10,
+     "flaggedRightFix": 11,
+     "rightRule": 11,
+     "hinted": 1
+    },
+    "articles": {
+     "n": 10,
+     "fixGenerated": 9,
+     "asserted": 8,
+     "assertedRightFix": 8,
+     "flaggedRightFix": 9,
+     "rightRule": 9,
+     "hinted": 1
+    },
+    "pronoun_placement": {
+     "n": 11,
+     "fixGenerated": 11,
+     "asserted": 10,
+     "assertedRightFix": 7,
+     "flaggedRightFix": 8,
+     "rightRule": 11,
+     "hinted": 1
+    }
+   },
+   "flagsOnCorrect": [
+    "hint La fiesta es en mi casa esta noche. -> La fiesta está en mi casa esta noche. (1.34, es.ser_estar)"
+   ],
+   "misses": [
+    "[ser_estar] Madrid es en España. -> hint Madrid está en España. (2.20) fix generated 2.198",
+    "[ser_estar] La fiesta está en mi casa esta noche. -> ok La fiesta es en mi casa esta noche. (-1.34) fix generated -1.34",
+    "[ser_estar] El café es muy caliente ahora. -> hint El café está muy caliente ahora. (2.25) fix generated 2.245",
+    "[por_para] Trabajo para la mañana. -> ok Trabajo para mañana. (0.96) fix generated -0.871",
+    "[por_para] Tengo que terminar esto por mañana. -> assert Tengo que terminar esto por la mañana. (4.47) fix generated 3.118",
+    "[gender] Tengo un mano fría. -> hint Tengo una mano fría. (2.90) fix generated 2.897",
+    "[gender] La mapa está en la mesa. -> hint El mapa está en la mesa. (2.36) fix generated 2.357",
+    "[number] Ellos quiere comer ahora. -> ok Ellos quieren comer ahora. (0.58) fix generated 0.583",
+    "[number] Me gusta las manzanas. -> hint Me gustan las manzanas. (1.11) fix generated 1.115",
+    "[preterite_imperfect] Cuando fui niño, vivía en Cuba. -> hint Cuando era niño, vivía en Cuba. (2.80) fix generated 2.799",
+    "[preterite_imperfect] Fueron las diez cuando salimos. -> hint Eran las diez cuando salimos. (1.86) fix generated 1.864",
+    "[preterite_imperfect] Ella tuvo el pelo largo cuando la conocí. -> hint Ella tenía el pelo largo cuando la conocí. (2.20) fix generated 2.203",
+    "[subjunctive_wish] Mis padres quieren que estudio medicina. -> hint Mis padres quieren que estudie medicina. (2.77) fix generated 2.766",
+    "[subjunctive_wish] Deseo que eres muy feliz. -> ok Deseo que seas muy feliz. (0.71) fix generated 0.709",
+    "[subjunctive_wish] Ojalá tenemos suerte. -> hint Ojalá tengamos suerte. (2.91) fix generated 2.911",
+    "[personal_a] Escuché la profesora con atención. -> hint Escuché a la profesora con atención. (1.55) fix generated 1.554",
+    "[personal_a] Visitamos nuestros primos en Ponce. -> ok Visitamos a nuestros primos en Ponce. (-0.38) fix generated -0.38",
+    "[articles] Español es fácil. -> ok Español está fácil. (-1.20) fix NOT generated",
+    "[articles] Llegamos a ocho. -> hint Llegamos a las ocho. (1.24) fix generated 1.244",
+    "[pronoun_placement] Quiero te ver mañana. -> assert Te quiero ver mañana. (6.60) fix generated 4.26",
+    "[pronoun_placement] Le lo di a mi hermana. -> hint Se lo di a mi hermana. (1.76) fix generated 1.758",
+    "[pronoun_placement] Estoy lo leyendo ahora. -> assert Lo estoy leyendo ahora. (9.56) fix generated 8.899",
+    "[pronoun_placement] ¿Puedes me ayudar? -> assert ¿Me puedes ayudar? (5.46) fix generated 4.647"
+   ]
+  },
+  "holdout": {
+   "all": {
+    "n": 83,
+    "fixGenerated": 76,
+    "asserted": 67,
+    "assertedRightFix": 64,
+    "flaggedRightFix": 69,
+    "rightRule": 70,
+    "hinted": 6,
+    "falseHints": 3
+   },
+   "families": {
+    "ser_estar": {
+     "n": 7,
+     "fixGenerated": 7,
+     "asserted": 5,
+     "assertedRightFix": 5,
+     "flaggedRightFix": 5,
+     "rightRule": 5
+    },
+    "por_para": {
+     "n": 6,
+     "fixGenerated": 6,
+     "asserted": 6,
+     "assertedRightFix": 6,
+     "flaggedRightFix": 6,
+     "rightRule": 6
+    },
+    "gender": {
+     "n": 6,
+     "fixGenerated": 6,
+     "asserted": 5,
+     "assertedRightFix": 5,
+     "flaggedRightFix": 6,
+     "rightRule": 6,
+     "hinted": 1
+    },
+    "number": {
+     "n": 6,
+     "fixGenerated": 5,
+     "asserted": 5,
+     "assertedRightFix": 5,
+     "flaggedRightFix": 5,
+     "rightRule": 5
+    },
+    "subject_verb": {
+     "n": 7,
+     "fixGenerated": 6,
+     "asserted": 5,
+     "assertedRightFix": 5,
+     "flaggedRightFix": 5,
+     "rightRule": 5,
+     "hinted": 1
+    },
+    "preterite_imperfect": {
+     "n": 6,
+     "fixGenerated": 5,
+     "asserted": 5,
+     "assertedRightFix": 5,
+     "flaggedRightFix": 5,
+     "rightRule": 5
+    },
+    "subjunctive_wish": {
+     "n": 6,
+     "fixGenerated": 6,
+     "asserted": 5,
+     "assertedRightFix": 5,
+     "flaggedRightFix": 6,
+     "rightRule": 6,
+     "hinted": 1
+    },
+    "personal_a": {
+     "n": 9,
+     "fixGenerated": 8,
+     "asserted": 8,
+     "assertedRightFix": 7,
+     "flaggedRightFix": 7,
+     "rightRule": 7,
+     "falseHints": 2
+    },
+    "articles": {
+     "n": 7,
+     "fixGenerated": 7,
+     "asserted": 6,
+     "assertedRightFix": 6,
+     "flaggedRightFix": 6,
+     "rightRule": 6,
+     "falseHints": 1
+    },
+    "contraction": {
+     "n": 7,
+     "fixGenerated": 7,
+     "asserted": 6,
+     "assertedRightFix": 6,
+     "flaggedRightFix": 7,
+     "rightRule": 7,
+     "hinted": 1
+    },
+    "body_article": {
+     "n": 7,
+     "fixGenerated": 4,
+     "asserted": 4,
+     "assertedRightFix": 4,
+     "flaggedRightFix": 4,
+     "rightRule": 4
+    },
+    "pronoun_placement": {
+     "n": 9,
+     "fixGenerated": 9,
+     "asserted": 7,
+     "assertedRightFix": 5,
+     "flaggedRightFix": 7,
+     "rightRule": 8,
+     "hinted": 2
+    }
+   },
+   "flagsOnCorrect": [
+    "hint Busco las llaves. -> Busco llaves. (2.89, es.article.delete)",
+    "hint Visité al médico ayer. -> Visitaba al médico ayer. (2.87, es.aspect)",
+    "hint Mi hermana es enfermera. -> Mi hermana es una enfermera. (1.10, es.article.insert.una)"
+   ],
+   "misses": [
+    "[ser_estar] Hoy la sopa es fría. -> ok Hoy la sopa está fría. (0.24) fix generated 0.242",
+    "[ser_estar] El concierto está a las nueve. -> ok El concierto es a las nueve. (-0.19) fix generated -0.193",
+    "[gender] La idioma es difícil. -> hint El idioma es difícil. (2.33) fix generated 2.327",
+    "[number] Las ventanas están abierta. -> ok Las ventanas son abierta. (-5.75) fix NOT generated",
+    "[subject_verb] Los perros ladra por la noche. -> ok Perros ladra por la noche. (-3.03) fix NOT generated",
+    "[subject_verb] Me encanta tus zapatos. -> hint Me encanta los zapatos. (2.45) fix generated -2.687",
+    "[preterite_imperfect] En 2015 me mudaba a Miami. -> ok En 2015 me mudaba Miami. (-10.59) fix NOT generated",
+    "[subjunctive_wish] Ojalá que no hace frío mañana. -> hint Ojalá que no haga frío mañana. (1.42) fix generated 1.42",
+    "[personal_a] Visité el médico ayer. -> assert Visitaba el médico ayer. (6.67) fix generated 3.666",
+    "[personal_a] Extraño mucho mi abuela. -> ok - (-) fix NOT generated",
+    "[articles] Mi hermana es una enfermera. -> ok Mi hermana es enfermera. (-1.10) fix generated -1.097",
+    "[contraction] Vengo de el supermercado. -> hint Vengo del supermercado. (2.48) fix generated 2.483",
+    "[body_article] Me cepillo mis dientes. -> ok - (-) fix NOT generated",
+    "[body_article] Me corté mi pelo ayer. -> ok - (-) fix NOT generated",
+    "[body_article] Mi hijo se puso su chaqueta. -> ok Mi hijo se ponía su chaqueta. (-6.00) fix NOT generated",
+    "[pronoun_placement] Vi la ayer en el parque. -> assert Vi ayer en el parque. (7.04) fix generated 2.619",
+    "[pronoun_placement] La te presto mañana. -> hint Te la presto mañana. (8.85) fix generated 8.85",
+    "[pronoun_placement] Lo voy a comprarlo mañana. -> assert Voy a comprarlo mañana. (11.70) fix generated 11.113",
+    "[pronoun_placement] Compré las en el mercado. -> hint Las compré en el mercado. (1.65) fix generated 1.646"
+   ]
+  },
+  "holdout2": {
+   "all": {
+    "n": 36,
+    "fixGenerated": 36,
+    "asserted": 32,
+    "assertedRightFix": 31,
+    "flaggedRightFix": 33,
+    "rightRule": 34,
+    "hinted": 2
+   },
+   "families": {
+    "ser_estar": {
+     "n": 3,
+     "fixGenerated": 3,
+     "asserted": 3,
+     "assertedRightFix": 3,
+     "flaggedRightFix": 3,
+     "rightRule": 3
+    },
+    "por_para": {
+     "n": 3,
+     "fixGenerated": 3,
+     "asserted": 3,
+     "assertedRightFix": 3,
+     "flaggedRightFix": 3,
+     "rightRule": 3
+    },
+    "gender": {
+     "n": 3,
+     "fixGenerated": 3,
+     "asserted": 3,
+     "assertedRightFix": 3,
+     "flaggedRightFix": 3,
+     "rightRule": 3
+    },
+    "number": {
+     "n": 3,
+     "fixGenerated": 3,
+     "asserted": 3,
+     "assertedRightFix": 3,
+     "flaggedRightFix": 3,
+     "rightRule": 3
+    },
+    "subject_verb": {
+     "n": 3,
+     "fixGenerated": 3,
+     "asserted": 2,
+     "assertedRightFix": 2,
+     "flaggedRightFix": 2,
+     "rightRule": 2
+    },
+    "preterite_imperfect": {
+     "n": 3,
+     "fixGenerated": 3,
+     "asserted": 3,
+     "assertedRightFix": 3,
+     "flaggedRightFix": 3,
+     "rightRule": 3
+    },
+    "subjunctive_wish": {
+     "n": 3,
+     "fixGenerated": 3,
+     "asserted": 3,
+     "assertedRightFix": 3,
+     "flaggedRightFix": 3,
+     "rightRule": 3
+    },
+    "personal_a": {
+     "n": 3,
+     "fixGenerated": 3,
+     "asserted": 3,
+     "assertedRightFix": 3,
+     "flaggedRightFix": 3,
+     "rightRule": 3
+    },
+    "articles": {
+     "n": 3,
+     "fixGenerated": 3,
+     "asserted": 1,
+     "assertedRightFix": 1,
+     "flaggedRightFix": 2,
+     "rightRule": 2,
+     "hinted": 1
+    },
+    "contraction": {
+     "n": 3,
+     "fixGenerated": 3,
+     "asserted": 2,
+     "assertedRightFix": 2,
+     "flaggedRightFix": 3,
+     "rightRule": 3,
+     "hinted": 1
+    },
+    "body_article": {
+     "n": 3,
+     "fixGenerated": 3,
+     "asserted": 3,
+     "assertedRightFix": 3,
+     "flaggedRightFix": 3,
+     "rightRule": 3
+    },
+    "pronoun_placement": {
+     "n": 3,
+     "fixGenerated": 3,
+     "asserted": 3,
+     "assertedRightFix": 2,
+     "flaggedRightFix": 2,
+     "rightRule": 3
+    }
+   },
+   "flagsOnCorrect": [],
+   "misses": [
+    "[subject_verb] Nos gusta las películas viejas. -> ok Nos gusta películas viejas. (0.11) fix generated -0.966",
+    "[articles] Gatos duermen mucho. -> hint Los gatos duermen mucho. (2.65) fix generated 2.653",
+    "[articles] Mi padre es un abogado. -> ok Mi padre es abogado. (-0.27) fix generated -0.274",
+    "[contraction] El hijo de el profesor es simpático. -> hint El hijo del profesor es simpático. (2.84) fix generated 2.845",
+    "[pronoun_placement] Quiero lo comprar. -> assert Lo quiero comprar. (8.15) fix generated 5.558"
+   ]
+  },
+  "slang": {
+   "n": 26,
+   "verdicts": {
+    "ok": 25,
+    "hint": 1
+   },
+   "asserts": [],
+   "hints": [
+    "Me voy pa' casa, que 'toy cansao. -> Me voy pa' la casa, que 'toy cansao. (1.60, es.article.insert.la)"
+   ],
+   "variantsTouchingSlang": [],
+   "slangWords": 52,
+   "slangShaded": [],
+   "noSlangFound": []
+  },
+  "slanghold": {
+   "n": 27,
+   "verdicts": {
+    "ok": 26,
+    "assert": 1
+   },
+   "asserts": [
+    "Parce, esa rumba estuvo una chimba. -> Parce, esa rumba fue una chimba. (6.80, es.ser_estar)"
+   ],
+   "hints": [],
+   "variantsTouchingSlang": [],
+   "slangWords": 52,
+   "slangShaded": [],
+   "noSlangFound": []
+  },
+  "slanghold2": {
+   "n": 10,
+   "verdicts": {
+    "ok": 10
+   },
+   "asserts": [],
+   "hints": [],
+   "variantsTouchingSlang": [],
+   "slangWords": 20,
+   "slangShaded": [],
+   "noSlangFound": []
+  }
+ },
+ "totalMs": 379721
+}

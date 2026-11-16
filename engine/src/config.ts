@@ -31,6 +31,13 @@
  * | DEFAULT_CREDIT_OPTIONS          | fullRatio, fullFloor   | 0.25, 0.05     | consistent with the lists; calibrate from learner answers     |
  * | DEFAULT_VARIANT_OPTIONS         | maxVariants            | 16             | 1.9 s for 1 + 6 on 4 CPU cores; measure on device             |
  * | DEFAULT_NEXT_SENTENCE_TUNING    | tokensPerWord          | 2              | measured 1.6 for Qwen3, plus headroom                         |
+ * | DEFAULT_NEXT_SENTENCE_TUNING    | n, retryN              | 5, 4           | measured: in-band candidate in most steps at every level      |
+ * | DEFAULT_NEXT_SENTENCE_TUNING    | stop                   | sentence ends  | measured: about 11 tokens per candidate instead of 26 to 36   |
+ * | DEFAULT_NEXT_SENTENCE_TUNING    | naturalTop             | 3              | three scoring calls of about 0.1 s each                       |
+ * | DEFAULT_STORY_PROMPT_OPTIONS    | tags, minLines         | [ ], 3         | measured: tagged lines made the target used (12/12 vs 2/12)   |
+ * | DEFAULT_SELECT_OPTIONS          | outOfBandPenalty       | 20             | the band comes first                                          |
+ * | DEFAULT_SELECT_OPTIONS          | hardMax / minWords     | 1.6, 0.6       | measured: run-ons and one-word answers                        |
+ * | DEFAULT_HANDOVER_OPTIONS        | strictFrom, knownAt    | 150, 0.9       | judgement between measured profiles; see session/handover.ts  |
  * | EVENT_EVIDENCE (learner/model)  | cliff_answer.partial   | weights        | judgement; calibrate from learner logs                        |
  * | EVENT_EVIDENCE (learner/model)  | spoke_error            | weight 0.6     | asserts had no false flags; kept moderate                     |
  *
@@ -157,6 +164,7 @@ export { DEFAULT_SESSION_SETTINGS } from './session/common';
 export { DEFAULT_LANDING_OPTIONS, DEFAULT_OPTION_CHOICE_OPTIONS } from './session/cliff';
 export { DEFAULT_VIEW_OPTIONS } from './session/view';
 export { DEFAULT_STORY_SESSION_OPTIONS } from './session/story';
+export { DEFAULT_HANDOVER_OPTIONS } from './session/handover';
 export { DEFAULT_LYRIC_SESSION_OPTIONS } from './session/lyric';
 
 // Model adapters (model/contract.ts DEFAULT_CONTRACT_OPTIONS is test-only: it imports vitest)

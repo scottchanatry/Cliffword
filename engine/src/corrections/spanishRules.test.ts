@@ -320,7 +320,7 @@ describe('SPANISH_RULES: inflections, inserts, deletes', () => {
     // Every lemma the rules name is a lemma of the lexicon, so the chosen analysis can match it.
     for (const lemma of [...BODY_PARTS, ...TIME_NOUNS]) expect(lexiconRows(lemma).some((r) => r[1] === 'NOUN'), lemma).toBe(true);
     for (const lemma of GUSTAR_VERBS) expect(lexiconRows(lemma).some((r) => r[1] === 'VERB'), lemma).toBe(true);
-    expect(SER_ESTAR_RULE).toMatchObject({ notBeforeSlang: true, slangThroughPos: ['ADV'] });
+    expect(SER_ESTAR_RULE).toMatchObject({ notBeforeSlang: true, slangThroughPos: ['ADV', 'DET'] });
     expect(byId('es.gender')).toMatchObject({ keepAgreement: [...AGREEMENT_NEIGHBOUR_POS] });
     expect(byId('es.number')).toMatchObject({ keepAgreement: [...AGREEMENT_NEIGHBOUR_POS] });
   });

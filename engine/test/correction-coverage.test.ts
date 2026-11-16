@@ -244,6 +244,7 @@ describe('slang in corrections and heat', () => {
     for (const reg of ['street', 'neutral'] as const) {
       expect(byRule('Esa fiesta estuvo bacana.', 'es.ser_estar', reg), reg).toEqual([]);
       expect(byRule('Esa fiesta estuvo bien bacana.', 'es.ser_estar', reg), reg).toEqual([]);
+      expect(byRule('Ese tipo es un tíguere.', 'es.ser_estar', reg), reg).toEqual([]);
     }
     expect(byRule('Esa fiesta estuvo aburrida.', 'es.ser_estar')).toEqual(['Esa fiesta fue aburrida.']);
   });

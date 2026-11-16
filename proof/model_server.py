@@ -243,13 +243,16 @@ class ModelServer:
         tokens = self.start + self.tokenize(prompt)
         if len(tokens) >= self.n_ctx:
             raise BadRequest(f"prompt of {len(tokens)} tokens does not fit the context of {self.n_ctx}")
-        # Evaluate the prompt from scratch, so identical requests are bit-identical whatever
-        # the cache holds (sampled tokens are evaluated one at a time, see logits()).
-        llm.reset()
-        llm.eval(tokens)
+        # Evaluate the prompt through logits(): the longest prefix shared with the previous
+        # request is reused from the KV cache and the rest is evaluated in batches of at
+        # least MIN_BATCH tokens, which give bit-identical rows (see logits()), so identical
+        # requests still give identical texts whatever came before. Story generation sends
+        # rounds that differ only in the last line (engine/src/story/next.ts), and llama.rn
+        # reuses a matching prompt prefix the same way.
+        self.logits(tokens)
         base = len(tokens)
         # Generated tokens are evaluated one at a time; only the prompt may be reused.
-        self.clean = base if base >= MIN_BATCH else 0
+        self.clean = min(self.clean, base) if base >= MIN_BATCH else 0
         texts = []
         for i in range(n):
             llm.n_tokens = base  # drop the previous completion; eval() trims the KV cache

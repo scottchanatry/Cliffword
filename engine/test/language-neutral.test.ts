@@ -355,4 +355,45 @@ describe.each(segmenters)('a language without spaces (%s)', (_name, segment) => 
     // Plain data all the way through.
     expect(JSON.parse(JSON.stringify(s.snapshot()))).toEqual(s.snapshot());
   });
+
+  it('gets no Spanish generation prompt: a bare tagged continuation, or the wording of its own story data', async () => {
+    const prompts: string[] = [];
+    const recording: LanguageModel = {
+      id: 'recording',
+      scoreContinuation: (c, t) => model.scoreContinuation(c, t),
+      nextTokens: (c, k) => model.nextTokens(c, k),
+      generate: (p, o) => {
+        prompts.push(p);
+        return model.generate(p, o);
+      },
+    };
+    const learner = new LearnerModel();
+    for (const [lemma] of LEXICON) learner.apply({ type: 'read', key: `ja:${lemma}`, at: T0 - 60_000 });
+    const s = StorySession.create({ model: recording, pack, pair: PAIR, learner, now: T0, seed: 9 });
+    await s.next(T0 + 1000);
+    expect(prompts.length).toBeGreaterThan(0);
+    const SPANISH = /Cuento|español|Personajes|Palabras|Frases|Escribe|oración|Historia|nivel/u;
+    for (const p of prompts) {
+      expect(p).not.toMatch(SPANISH);
+      // Only tagged story lines: "[word] sentence" lines and the next tag, no header, no spaces added.
+      const lines = p.split('\n');
+      for (const line of lines) expect(line).toMatch(/^\[[^\]]+\]/u);
+    }
+    // With story data of its own, the header is the pack's wording.
+    const withData: LanguagePack = {
+      ...pack,
+      story: {
+        prompt: { header: '日本語の物語{level}。', level: '（{name}）', lengthHint: '', characters: '人物：{names}。', scene: '', vocabulary: '単語：{words}。', listSeparator: '、', street: '', streetRegion: '' },
+        levels: [{ upTo: 1e9, name: 'N5' }],
+      },
+    };
+    const own: string[] = [];
+    const s2 = StorySession.create({
+      model: { ...recording, generate: (p, o) => (own.push(p), model.generate(p, o)) },
+      pack: withData, pair: PAIR, learner, now: T0, seed: 9,
+    });
+    await s2.next(T0 + 1000);
+    expect(own[0]?.startsWith('日本語の物語（N5）。\n人物：先生。')).toBe(true);
+    expect(own[0]).not.toMatch(SPANISH);
+  });
 });

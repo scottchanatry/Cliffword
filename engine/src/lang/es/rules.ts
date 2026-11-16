@@ -153,9 +153,10 @@ export function serEstarGroups(): string[][] {
 
 /**
  * ser vs estar: swap any form of one verb for the same person, number, tense and mood of
- * the other. Not before a slang predicate (through adverbs: "estuvo bien bacana"): the
- * model cannot score the slang word, and it asserted "Esa fiesta fue bacana" for the
- * correct "estuvo bacana" (both are fine; proof/ENGINE_REAL_MODEL.md).
+ * the other. Not before a slang predicate, looking through adverbs and determiners
+ * ("estuvo bien bacana", "estuvo una chimba", "es un tíguere"): the model cannot score
+ * the slang word, and it asserted "Esa fiesta fue bacana" for the correct "estuvo bacana"
+ * and "fue una chimba" for "estuvo una chimba" (both are fine; proof/ENGINE_REAL_MODEL.md).
  */
 export const SER_ESTAR_RULE: SwapRule = {
   id: 'es.ser_estar',
@@ -163,7 +164,7 @@ export const SER_ESTAR_RULE: SwapRule = {
   explainKey: 'es.ser_estar',
   groups: serEstarGroups(),
   notBeforeSlang: true,
-  slangThroughPos: ['ADV'],
+  slangThroughPos: ['ADV', 'DET'],
 };
 
 /** por vs para. The clipped "pa'" is a slang entry and is left alone by the generator. */

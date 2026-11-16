@@ -1,0 +1,385 @@
+{
+ "meta": {
+  "date": "2026-11-16T00:59:50.990Z",
+  "mode": "after",
+  "steps": 2,
+  "seedBase": 1,
+  "cpus": 4,
+  "loadavg": [
+   8.78,
+   7.36,
+   6.31
+  ],
+  "server": "http://127.0.0.1:8771"
+ },
+ "summary": {
+  "brandNew": {
+   "runs": 2,
+   "inBand": 1,
+   "ownInBand": 0,
+   "targetUse": 1,
+   "distinct": 2,
+   "noSentence": 0,
+   "chosenFailingNewRejects": 0,
+   "rejects": {},
+   "meanSeconds": 32.2,
+   "medianSeconds": 36.23,
+   "maxSeconds": 36.23,
+   "meanGenerateCalls": 1,
+   "meanScoreCalls": 2.5,
+   "meanPromptTokens": 181,
+   "meanDecodeTokens": 57
+  },
+  "early": {
+   "runs": 2,
+   "inBand": 1,
+   "ownInBand": 1,
+   "targetUse": 1,
+   "distinct": 2,
+   "noSentence": 0,
+   "chosenFailingNewRejects": 0,
+   "rejects": {},
+   "meanSeconds": 29.2,
+   "medianSeconds": 34.52,
+   "maxSeconds": 34.52,
+   "meanGenerateCalls": 1,
+   "meanScoreCalls": 3,
+   "meanPromptTokens": 151,
+   "meanDecodeTokens": 42
+  }
+ },
+ "rows": [
+  {
+   "profile": "brandNew",
+   "step": 0,
+   "seed": 1,
+   "vocab": 225,
+   "sentenceWords": {
+    "min": 4.245181026308491,
+    "max": 8.628715499984592
+   },
+   "targets": [
+    "es:estar"
+   ],
+   "sentence": "La familia está en el restaurante.",
+   "inBand": true,
+   "ownInBand": false,
+   "ownShare": 0.201,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {},
+   "candidates": 5,
+   "accepted": 5,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 2,
+   "seconds": 28.21,
+   "promptTokens": 181,
+   "decodeTokens": 57,
+   "bridge": true,
+   "ranked": [
+    {
+     "text": "La familia está en el restaurante.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": [
+      "es:estar"
+     ]
+    },
+    {
+     "text": "Marta y su familia están en el restaurante.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": [
+      "es:estar"
+     ]
+    },
+    {
+     "text": "Marta y su familia están en el restaurante.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": [
+      "es:estar"
+     ]
+    },
+    {
+     "text": "Marta y su familia están en el restaurante.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": [
+      "es:estar"
+     ]
+    },
+    {
+     "text": "Marta y su familia están en el restaurante.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": [
+      "es:estar"
+     ]
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: tocar, guitarra, piano, música, ser, fantástico, momento, perfecto, después, ir, restaurante, familia, muy, no, tener, artista, importante, hoy, concierto, parque, parte, existir, entrar, persona, ocurrir, terminar, permitir, servir, necesitar, gobierno, problema, presentar, crear, considerar, historia, aceptar, explicar, grupo, idea, general.\n\n[piano] Marta toca la guitarra y el piano.\n[fantástica] La música es fantástica.\n[perfecto] Es un momento perfecto.\n[restaurante] Después, Marta va a un restaurante con su familia.\n[estar]"
+   ]
+  },
+  {
+   "profile": "brandNew",
+   "step": 1,
+   "seed": 1001,
+   "vocab": 225,
+   "sentenceWords": {
+    "min": 4.245181026308491,
+    "max": 8.628715499984592
+   },
+   "targets": [
+    "es:más"
+   ],
+   "sentence": "El grupo es más importante.",
+   "inBand": true,
+   "ownInBand": false,
+   "ownShare": 0.251,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {},
+   "candidates": 5,
+   "accepted": 5,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 3,
+   "seconds": 36.23,
+   "promptTokens": 180,
+   "decodeTokens": 56,
+   "bridge": true,
+   "ranked": [
+    {
+     "text": "El grupo es más importante.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": [
+      "es:más"
+     ]
+    },
+    {
+     "text": "El grupo está en el restaurante.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.98,
+     "rejected": [],
+     "targets": []
+    },
+    {
+     "text": "La familia está en el restaurante, y más tarde van al parque.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.802,
+     "rejected": [],
+     "targets": [
+      "es:más"
+     ]
+    },
+    {
+     "text": "El grupo de Marta está más cerca de su casa.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.735,
+     "rejected": [],
+     "targets": [
+      "es:más"
+     ]
+    },
+    {
+     "text": "El tiempo es más importante que el trabajo.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.561,
+     "rejected": [],
+     "targets": [
+      "es:más"
+     ]
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: música, ser, fantástico, momento, perfecto, después, ir, restaurante, familia, estar, muy, no, tener, artista, guitarra, importante, hoy, concierto, parque, tocar, piano, parte, existir, entrar, persona, ocurrir, terminar, permitir, servir, necesitar, gobierno, problema, presentar, crear, considerar, historia, aceptar, explicar, grupo, idea.\n\n[fantástica] La música es fantástica.\n[perfecto] Es un momento perfecto.\n[restaurante] Después, Marta va a un restaurante con su familia.\n[restaurante] La familia está en el restaurante.\n[más]"
+   ]
+  },
+  {
+   "profile": "early",
+   "step": 0,
+   "seed": 1,
+   "vocab": 503,
+   "sentenceWords": {
+    "min": 5.153623904784062,
+    "max": 10.546539354544134
+   },
+   "targets": [
+    "es:viejo"
+   ],
+   "sentence": "El viejo está en la casa.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.968,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {},
+   "candidates": 5,
+   "accepted": 5,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 3,
+   "seconds": 23.85,
+   "promptTokens": 151,
+   "decodeTokens": 44,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El viejo está en la casa.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.968,
+     "rejected": [],
+     "targets": [
+      "es:viejo"
+     ]
+    },
+    {
+     "text": "El viejo es muy grande.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:viejo"
+     ]
+    },
+    {
+     "text": "El viejo quiere ser un hombre grande.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:viejo"
+     ]
+    },
+    {
+     "text": "El viejo es muy grande.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:viejo"
+     ]
+    },
+    {
+     "text": "El viejo es muy sabio.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.728,
+     "rejected": [],
+     "targets": [
+      "es:viejo"
+     ]
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: vivir, casa, ir, ser, no, estar, tener, más, hacer, poder, decir, ya, ver, dar, muy, vez, saber, mismo, también, año, querer, así, primero, grande, llegar, pasar, tiempo, sí, día, bien, deber, entonces, poner, cosa, hombre, parecer, tan, donde, ahora, parte.\n\n[casa] La niña vive en una casa pequeña.\n[pequeña] Marta vive en una casa pequeña.\n[hermano] Hoy ella va al mercado con su hermano.\n[viejo]"
+   ]
+  },
+  {
+   "profile": "early",
+   "step": 1,
+   "seed": 1001,
+   "vocab": 503,
+   "sentenceWords": {
+    "min": 5.153623904784062,
+    "max": 10.546539354544134
+   },
+   "targets": [
+    "es:claro"
+   ],
+   "sentence": "El claro está en el claro.",
+   "inBand": true,
+   "ownInBand": true,
+   "ownShare": 0.97,
+   "targetUsed": true,
+   "newRejects": [],
+   "rejects": {},
+   "candidates": 5,
+   "accepted": 5,
+   "retried": false,
+   "generateCalls": 1,
+   "scoreCalls": 3,
+   "seconds": 34.52,
+   "promptTokens": 151,
+   "decodeTokens": 39,
+   "bridge": false,
+   "ranked": [
+    {
+     "text": "El claro está en el claro.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:claro"
+     ]
+    },
+    {
+     "text": "El claro es muy grande.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:claro"
+     ]
+    },
+    {
+     "text": "El claro es muy claro.",
+     "accepted": true,
+     "inBand": true,
+     "share": 0.97,
+     "rejected": [],
+     "targets": [
+      "es:claro"
+     ]
+    },
+    {
+     "text": "El claro está en el patio.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.776,
+     "rejected": [],
+     "targets": [
+      "es:claro"
+     ]
+    },
+    {
+     "text": "El clarito está en la casa.",
+     "accepted": true,
+     "inBand": false,
+     "share": 0.807,
+     "rejected": [],
+     "targets": []
+    }
+   ],
+   "prompts": [
+    "Cuento en español (nivel A1). Frases cortas.\nPersonajes: Marta.\nPalabras: vivir, casa, ir, estar, ser, no, tener, más, hacer, poder, decir, ya, ver, dar, muy, vez, saber, mismo, también, año, querer, así, primero, grande, llegar, pasar, tiempo, sí, día, bien, deber, entonces, poner, cosa, hombre, parecer, tan, donde, ahora, parte.\n\n[pequeña] Marta vive en una casa pequeña.\n[hermano] Hoy ella va al mercado con su hermano.\n[viejo] El viejo está en la casa.\n[claro]"
+   ]
+  }
+ ]
+}

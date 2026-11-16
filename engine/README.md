@@ -22,7 +22,7 @@ npx vitest run     # all tests, including integration and simulated learners
 | `src/model/` | The `LanguageModel` contract (`scoreContinuation`, `nextTokens`, `generate`; `TokenScore.upperBound` for a top-N runtime), a deterministic n-gram mock (`createMockModel`, Spanish corpus by default, any corpus accepted), `HttpLanguageModel` (`http.ts`, for `proof/model_server.py`), `TopNBoundedModel` (`topN.ts`, what llama.rn forced decoding gives) and `runLanguageModelContract` (`contract.ts`, a test-only helper that imports vitest, so it is not exported from `src/index.ts`). |
 | `src/lang/types.ts` | The `LanguagePack` contract: segments, analyses, analysis choice in context, features, correction rule kinds (swap, inflect, insert, delete, move), slang entries and register packs, the shared `Register` type, enclitic pronouns (`attachClitic`, `splitClitics`), spoken commands (`commands`), command fillers (`fillers`) and regular street endings (`streetEndings`). |
 | `src/lang/choose.ts` | One analysis per word in context (`chooseAnalysesInText`): PROPN for capitalized words mid-sentence, else `pack.chooseAnalysis` with the previous word, else the first analysis. Selection, cliff choice and corrections all key words through it. |
-| `src/lang/es/` | The Spanish pack: segmenter that keeps clipped forms (`'tá`, `pa'`) whole, normalizer, conjugation and inflection, analyzer (exact, then enclitics, then accent-insensitive; a noun or adjective in its own dictionary form first), homographs in context (`chooseSpanishAnalysis`: la comida, he estado, ella vino), a 1788-lemma frequency lexicon that includes every cognate of the pair pack. `clitics.ts`: enclitics attached keeping the host's stress (leyéndolo, dámelo) and split off again. `commands.ts`: spoken commands, fillers and street endings (`SPANISH_COMMANDS`, `SPANISH_FILLERS`, `SPANISH_STREET_ENDINGS`). `createSpanishPack`. |
+| `src/lang/es/` | The Spanish pack: segmenter that keeps clipped forms (`'tá`, `pa'`) whole, normalizer, conjugation and inflection, analyzer (exact, then enclitics, then accent-insensitive; a noun or adjective in its own dictionary form first), homographs in context (`chooseSpanishAnalysis`: la comida, he estado, ella vino), a 1788-lemma frequency lexicon that includes every cognate of the pair pack. `clitics.ts`: enclitics attached keeping the host's stress (leyéndolo, dámelo) and split off again. `commands.ts`: spoken commands, fillers and street endings (`SPANISH_COMMANDS`, `SPANISH_FILLERS`, `SPANISH_STREET_ENDINGS`). `story.ts`: story-generation data (`SPANISH_STORY_DATA`: prompt wording, level names, length hints, example lines, region names, leak patterns, meta words, answer labels) and `SPANISH_ABBREVIATIONS`. `createSpanishPack`. |
 | `src/lang/es/rules.ts` | The 29 Spanish correction rules as data: ser/estar (not before a slang predicate), por/para, gender and number (never breaking an agreement that holds; number street tolerant), subject-verb agreement (subject before the verb, and gustar-type verbs with the noun after), aspect, mood, personal a (also across an adverb and before nadie/alguien), articles (also at a sentence start and before clock hours), a + el = al and de + el = del, possessive to article with body parts and clothes, and object pronouns (move rules for placement, participles after haber, doubled pronouns, clitic order, le/les to se before lo/la). |
 | `src/lang/es/registers/` | Slang register packs for Puerto Rico, the Dominican Republic, Cuba, Colombia and shared Caribbean clipped forms, with meaning, region, formality and explicit flag (common explicit lyric words included). `findSlang`. |
 | `src/pair/types.ts` | The `PairPack` contract. |
@@ -30,11 +30,11 @@ npx vitest run     # all tests, including integration and simulated learners
 | `src/scoring/` | Word surprise and heat (`scoreWords`), whole-word next-word lists from sub-word tokens (`nextWords`), cliff positions (`cliffPositions`) and answer credit (`scoreCliffAnswer`). |
 | `src/corrections/` | Rule-made variants (`generateVariants`) scored against the learner's sentence; the winning rule explains (`judgeSentence`). |
 | `src/learner/` | Per-item, per-skill memory model (`LearnerModel`), continuous difficulty settings (`deriveParams`), cliff rungs and tiles (`cliffRungFor`, `showText`), placement (`PlacementTracker`). |
-| `src/story/` | Target words (`chooseTargets`), the continuation prompt and output cleaning, candidate selection (`selectSentence`), next-sentence generation (`generateNextSentence`), cliff choice (`pickCliff`). |
+| `src/story/` | Target words (`chooseTargets`), the continuation prompt (`buildStoryPrompt`: tagged story lines, wording from `LanguagePack.story`) and output cleaning, candidate rejects and selection (`selectSentence`, `REJECT_CODES`), next-sentence generation (`generateNextSentence`: target round, safe round, natural score), cliff choice (`pickCliff`). No words of any language: `src/story/neutral.test.ts` checks the sources. |
 | `src/gaps/` | Native-language words inside target-language replies (`findNativeGaps`) and the learner events they imply (`gapEvents`). |
 | `src/speaking/` | Spoken commands (`matchCommand`), expected vs heard words and "Understood N of M" (`alignTranscript`), timed retell (`retellMetrics`, `retellProgress`, `retellCoverage`, `RETELL_LANES`), minutes spoken per local day and streak (`addSpoken`, `spokenStats`), self-repair before a fix (`repairFlow`, `judgeAttempt`, `attemptRepair`, `repairEvents`), "no sé" (`startNoSe`, `advanceNoSe`), native-language answers (`nativeReply`), tile durations (`estimateDurationMs`). |
 | `src/lyrics/` | Pasted lyrics and LRC (`parseLyrics`), slang notes (`slangNotes`), neutral/street line pairs (`registerPairs`), lyric and brought-text cliffs (`lyricCliffs`, `broughtTextCliffs`, `scoreLyricAnswer`), surprise maps (`surpriseMap`), sing-back (`echoLine`), and the one word aligner the engine uses (`alignWords`; speaking reuses it). |
-| `src/session/` | `StorySession` and `LyricSession`: pure, deterministic state machines over `{ model, pack, pair, learner }` that return plain-data screens and the learner events of each step, with `snapshot()` / `restore()`. A null model is canned mode (starter sentences). |
+| `src/session/` | `StorySession` and `LyricSession`: pure, deterministic state machines over `{ model, pack, pair, learner }` that return plain-data screens and the learner events of each step, with `snapshot()` / `restore()`. A null model is canned mode (starter sentences). `handover.ts`: starter, bridge and free generation stages (`handoverStage`, `bridgeFamiliar`, `DEFAULT_HANDOVER_OPTIONS`). `prefetch.ts`: `ModelGate`, which serializes a session's model calls and replays a prefetch's answers (`StorySession.prefetch`). |
 | `src/packs.ts` | `createDefaultSpanishPack()`, `createDefaultPairPack()` and helpers that turn pack data into learner keys. |
 | `src/config.ts` | Every `DEFAULT_*` options object in one place, with the source of each value (proof test or judgement). |
 | `src/index.ts` | The public API. |
@@ -72,11 +72,15 @@ Import from `src/index.ts` (the package `main`).
   `cliffRungFor` picks options, hint or free per word; `showText` decides text or tile per
   word. `PlacementTracker` runs placement inside the first story and builds a prior;
   `PlacementTracker.brandNew(cognateLexemeKeys(pair))` is the "I'm brand new" prior.
-- **Story.** `chooseTargets({ learner, now, frequencyKeys, extra })` picks the next new
-  words. `generateNextSentence(model, { pack, learner, pair }, { story, targets, params,
-  now, seed })` samples candidates, cleans them and selects one. `selectSentence` ranks a
-  given candidate list. `pickCliff(positions, { text, pack, learner, now, targets, params })`
-  picks where the story stops and which words are hidden.
+- **Story.** `chooseTargets({ learner, now, frequencyKeys, extra, exclude, accept })` picks
+  the next new words. `generateNextSentence(model, { pack, learner, pair }, { story,
+  targets, params, now, seed, names?, vocab?, familiar?, vocabulary?, scene?, safeTag? })`
+  samples candidates after the continuation prompt, cleans and rejects them, and selects
+  one; the result carries `rejectCounts` and diagnostics (rounds, generate and score
+  calls, `targetUsed`, the vocabulary line). `buildStoryPrompt(pack, input)` builds the
+  prompt (`prefix` + `suffix`); `selectSentence` ranks a given candidate list (strings or
+  `{ text, raw, natural }`). `pickCliff(positions, { text, pack, learner, now, targets,
+  params })` picks where the story stops and which words are hidden.
 - **Gaps.** `findNativeGaps(text, pack, pair)` finds runs of native words with Spanish
   candidates; `gapEvents(gaps, pack, now)` turns them into `native_gap` events.
 - **Speaking.** `matchCommand(transcript, pack, { answer })` returns a `CommandMatch`
@@ -105,7 +109,10 @@ Import from `src/index.ts` (the package `main`).
   events are already applied to the session's learner unless `applyEvents: false`.
   Display text is always a `UiText` (`{ key, params }`) to look up in `pair.ui`;
   `SESSION_UI_KEYS` lists every key a screen can carry. Async steps must not overlap
-  (a second one throws).
+  (a second one throws). `StorySession.prefetch(at)` prepares the next step while the
+  learner is on the landing or no-sé screen (next() then replays the model's answers);
+  `stageAt(at)` says whether the next sentence comes from the starter, the bridge or free
+  generation; `modelStats` counts model calls and replays.
 - **Model adapters.** `new HttpLanguageModel({ baseUrl })` for `proof/model_server.py`;
   `new TopNBoundedModel(model, { n })` reports tokens outside the top N as upper bounds
   (`TokenScore.upperBound`), and the engine never lets a bound raise a verdict or credit
@@ -173,13 +180,21 @@ In more detail:
    turns the vocabulary estimate and recent performance into continuous settings; the
    known-word band stays at about 95 to 98% at every level (a share within 1e-9 of an edge
    counts as on it), and cliffs hide at most 4 words.
-2. **Generate and select.** `generateNextSentence` builds a short Spanish prompt (last
-   sentences, target words, maximum length, register), samples `n` candidates in one model
-   call, cleans each to one sentence, and lets `selectSentence` rank them by distance to the
-   known-word band, target words hit, length and unknown words. It rejects echoed prompts,
-   English words, repeats and unbalanced quotes. If nothing lands in the band it retries once
-   with a simpler prompt. Target words are left out of the band check, because they are the
-   new material the band allows.
+2. **Generate and select.** `generateNextSentence` builds a continuation prompt (no chat
+   template): a header from the pack (`LanguagePack.story`: "Cuento en español (nivel
+   A1). Frases cortas.", the characters, a vocabulary line for small vocabularies), then
+   the last story sentences one per line after their key word in brackets, ending with
+   the target as the next tag (`[viejo]`). It samples `n` candidates in one model call,
+   stopping at the first sentence end, cleans each to one sentence, and rejects
+   placeholders, lists, headings, bare quotes, prompt leaks, meta talk, native or foreign
+   words, verbless fragments, sentences far outside the level's length and near repeats
+   (`REJECT_CODES`, counted per reason). `selectSentence` ranks the rest: the known-word
+   band first, then target words, novelty, continuity, length and unknown words. If
+   nothing lands in the band, a safe round ends the same prompt with a familiar tag (the
+   main character); then the best few are scored by the model and the most natural wins
+   among them. Target words are left out of the band check, because they are the new
+   material the band allows. A zero-knowledge learner hears the pair's starter story
+   first and then generates on a bridge vocabulary (session/handover.ts).
 3. **Pick the cliff.** `cliffPositions` scores the sentence once and runs the whole-word
    next-word search at each position. `pickCliff` excludes the first word of a sentence,
    names, numbers and implausible words, prefers target words and words the learner
@@ -206,7 +221,8 @@ In more detail:
    floor, the baseline times the share of successful evidence, so an item met only with
    success never ends up below its prior.
 
-Model calls per step (defaults): generation 1 or 2; cliff positions 1 plus at most 50 per
+Model calls per step (defaults): generation 1 or 2 plus up to 3 scoring calls for the
+natural score (`naturalTop`); cliff positions 1 plus at most 50 per
 analysed position (a next-word search of at most 49 calls and one boundary call; pass
 `positions` to analyse a few); an answer 1 next-word search plus up to 2 calls; a judgement
 1 plus one per variant (at most 16).
@@ -393,6 +409,36 @@ fallback.
 - New explanation keys in the en-es pack: `es.verb_agreement`, `es.contraction`,
   `es.body_article`, `es.pronoun_double`.
 
+## Contract decisions made for story generation (round 3)
+
+- `LanguagePack.story?` (`StoryLanguageData`, lang/storyData.ts): the continuation
+  prompt's wording, level names by vocabulary, length hints, example lines, region
+  names, the older instruction wording, leak patterns (regex sources), meta words,
+  answer labels, preamble words and `requireVerb`. `LanguagePack.abbreviations?`: no
+  sentence end after them. The Spanish values are in lang/es/story.ts; story/ holds none.
+  `SPANISH_PROMPT_TEXT`, `REGION_NAMES` and `DEFAULT_ABBREVIATIONS` stay exported as
+  aliases of the Spanish data; `DEFAULT_LEAK_PATTERNS` and `DEFAULT_EXTRACT_OPTIONS` now
+  hold only the model's own English meta talk, and `extractOptionsFor(pack)` adds the
+  pack's labels. `buildContinuationPrompt` without pack wording has no instruction lines.
+- `RejectCode` gained placeholder, list, heading, bare_quote, meta, foreign, no_verb and
+  too_short; `Selection.rejectCounts`; `SelectContext.names` (characters are names at a
+  sentence start too) and `familiar` (counted at least `familiarCredit`); selection takes
+  `{ text, raw, natural }` candidates; `ScoreParts` gained novelty, continuity, natural;
+  the band term carries `outOfBandPenalty` so any in-band candidate comes first.
+  `hardMaxWordsFactor` is 1.6 (was 2.5).
+- `generateNextSentence` uses the tagged continuation prompt; `NextSentenceTuning`
+  gained retryN, naturalTop and the vocabulary-line settings, and stops at the first
+  sentence end; `GenerationRound.tag` and `maxTokens`; diagnostics count generate and
+  score calls separately.
+- `chooseTargets` takes `accept`; practice and review compare probabilities in 0.05
+  buckets (frequency order inside a bucket), so the weakest-speaking word is no longer
+  the rarest word of the list by a few thousandths.
+- `StorySession`: `prefetch(at)`, `stageAt(at)`, `modelStats`; options `handover` and
+  `generation`; `StoryState.introduced`. All model calls of a session go through one
+  `ModelGate` (one at a time). Canned mode plays the unused placement-ladder sentences
+  after the starter before it cycles. `proof/model_server.py` `/generate` reuses the KV
+  cache of the prompt prefix shared with the previous request (identical texts).
+
 ## Known limits
 
 - Corrections never restore a missing accent (by design, so ser/estar is not credited for
@@ -416,10 +462,17 @@ fallback.
   `nextWords` (`opts.classify`); none exists yet, so next-word lists and cliff
   alternatives are whole token runs there. `test/language-neutral.test.ts` runs scoring,
   corrections, commands, alignment and sessions on a toy Japanese pack.
-- The story prompt text, region names, leak patterns and abbreviations default to
-  Spanish inside `story/` (`SPANISH_PROMPT_TEXT`, `REGION_NAMES`, `DEFAULT_LEAK_PATTERNS`,
-  `DEFAULT_ABBREVIATIONS`); sessions pass none, so another target language gets a
-  Spanish generation prompt until these move into the packs.
+- Sentence splitting outside `story/` (lyrics, speaking, gaps, the session view) calls
+  `splitSentences` / `sentenceStartFlags` without abbreviations, which now default to
+  none (`LanguagePack.abbreviations` holds Spanish's list): "Sr. García" counts as two
+  sentences there until those modules pass the pack's list.
+- The bridge (session/handover.ts) holds the known-word band on the starter's words,
+  cognates and introduced words, because the learner model gains meaning evidence slowly
+  (eight starter sentences leave the taught words below 0.7). Calibrate `strictFrom` and
+  the evidence weights from learner logs.
+- Words outside the shipped 1788-lemma lexicon count as unknown at every level, so an
+  advanced learner's band holds only on sentences of listed words; a longer frequency
+  list fixes it.
 - Street scoring names the slang of the whole sentence in the prefix, including the
   hidden cliff words (story and lyric cliffs), which primes the model towards the
   lyric's own slang. Slang answers are credited from the packs, so this mostly affects

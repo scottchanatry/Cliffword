@@ -44,7 +44,8 @@
  *      a scored candidate below naturalFloor is rejected (unnatural);
  *    - length: -lengthWeight per word outside params.sentenceWords;
  *    - unknown: -unknownPenalty per distinct unknown non-target lexeme beyond
- *      params.newWordsPerSentence (fractional allowances give fractional penalties).
+ *      params.newWordsPerSentence (fractional allowances give fractional penalties);
+ *    - variety: with a seed, a seeded jitter below varietyJitter, so near ties differ by seed.
  * Accepted candidates are ranked by score (ties: earlier candidate first); rejected ones
  * follow in input order. Every candidate carries human-readable reasons for debugging.
  *
@@ -183,6 +184,12 @@ export interface SelectOptions {
   naturalClamp: number;
   /** A scored candidate below this mean log-probability per token is rejected (unnatural). */
   naturalFloor: number;
+  /**
+   * With SelectContext.seed, each candidate's score gets a seeded jitter in
+   * [0, varietyJitter) (by seed and text), so candidates this close are ordered by the
+   * seed and different seeds tell different stories. 0 turns it off.
+   */
+  varietyJitter: number;
 }
 
 /**
@@ -258,6 +265,10 @@ export const DEFAULT_SELECT_OPTIONS: Readonly<SelectOptions> = {
   naturalBaseline: -3,
   naturalClamp: 2,
   naturalFloor: -4.4,
+  // Measured on Qwen3-1.7B: two of three seeds chose the same bridge sentence ("Marta y su
+  // familia están en el restaurante.") from different candidate sets; half a point (a
+  // sixth of a target, a quarter of the natural range) varies near ties only.
+  varietyJitter: 0.5,
 };
 
 export interface SelectContext {
@@ -278,6 +289,8 @@ export interface SelectContext {
   names?: readonly string[];
   /** Lexeme keys counted at least familiarCredit (the zero-knowledge bridge). */
   familiar?: Iterable<string>;
+  /** Seed of the step: orders near-equal candidates (SelectOptions.varietyJitter). */
+  seed?: number;
   options?: Partial<SelectOptions>;
 }
 
@@ -323,6 +336,8 @@ export interface ScoreParts {
   novelty: number;
   continuity: number;
   natural: number;
+  /** Seeded jitter (varietyJitter). */
+  variety: number;
 }
 
 export interface CandidateEvaluation {
@@ -763,8 +778,9 @@ function evaluateWith(
     novelty: -o.noveltyWeight * overlap,
     continuity: (namesUsed.length || reusesContent ? o.continuityBonus : 0) - o.newNamePenalty * newNames.length,
     natural: natural === null ? 0 : Math.max(-o.naturalClamp, Math.min(o.naturalClamp, o.naturalWeight * (natural - o.naturalBaseline))),
+    variety: ctx.seed === undefined || o.varietyJitter <= 0 ? 0 : o.varietyJitter * seededUnit(ctx.seed, text),
   };
-  const score = parts.band + parts.target + parts.length + parts.unknown + parts.novelty + parts.continuity + parts.natural;
+  const score = parts.band + parts.target + parts.length + parts.unknown + parts.novelty + parts.continuity + parts.natural + parts.variety;
   const rejected = rejectReasons(text, words, ctx, o, raw, natural);
 
   const reasons: string[] = [];
@@ -796,6 +812,19 @@ function evaluateWith(
   };
   if (raw !== undefined) out.raw = raw;
   return out;
+}
+
+/** A number in [0, 1) from a seed and a text (FNV-1a), the same on every platform. */
+export function seededUnit(seed: number, text: string): number {
+  let h = (0x811c9dc5 ^ (seed >>> 0)) >>> 0;
+  for (let i = 0; i < text.length; i++) {
+    h ^= text.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  h ^= h >>> 15;
+  h = Math.imul(h, 0x2c1b3c6d) >>> 0;
+  h ^= h >>> 12;
+  return (h >>> 0) / 4294967296;
 }
 
 function asCandidate(c: string | SelectCandidate): SelectCandidate {

@@ -236,7 +236,7 @@ describe('generateNextSentence with scripted outputs', () => {
     expect(r.diagnostics.scoreCalls).toBe(2);
     expect(r.sentence).toBe('Marta compró pan en la playa.');
     expect(r.best?.natural).toBeCloseTo(-2, 6);
-    const flat = await generateNextSentence(new ScriptedModel([texts], lp), deps(early), opts({ tuning: { n: 3, naturalTop: 0 } }));
+    const flat = await generateNextSentence(new ScriptedModel([texts], lp), deps(early), opts({ tuning: { n: 3, naturalTop: 0 }, select: { varietyJitter: 0 } }));
     expect(flat.best?.index).toBe(0);
     expect(flat.best?.natural).toBeNull();
   });
@@ -306,5 +306,18 @@ describe('next helpers', () => {
     // Nouns before other content words.
     expect(safeTagFor({ ...base, seed: 0, vocabulary: ['comprar', 'casa'] })).toBe('casa');
     expect(safeTagFor({ ...base, seed: 0, vocabulary: ['comprar'] })).toBe('comprar');
+  });
+
+  it('orders near-equal candidates by the seed (varietyJitter), the same way every time', async () => {
+    const texts = ['Marta compró pan en la casa.', 'Marta compró pan en la playa.', 'Marta compró pan en el parque.', 'Marta compró pan en la puerta.'];
+    const picks = new Set<string | null>();
+    for (const seed of [1, 2, 3, 4, 5, 6, 7, 8]) {
+      const r = await generateNextSentence(new ScriptedModel([texts]), deps(early), opts({ seed, tuning: { n: 4, naturalTop: 0 } }));
+      const again = await generateNextSentence(new ScriptedModel([texts]), deps(early), opts({ seed, tuning: { n: 4, naturalTop: 0 } }));
+      expect(again.sentence).toBe(r.sentence);
+      expect(r.best?.parts.variety).toBeLessThan(0.5);
+      picks.add(r.sentence);
+    }
+    expect(picks.size).toBeGreaterThan(1);
   });
 });

@@ -8,8 +8,9 @@ Per step type: model calls (mean, min-max, by method) and seconds, measured and
 server had its cores, 2 to 7 s when other jobs starved it (llama.cpp threads spinning
 on oversubscribed cores), so measured seconds are upper bounds. Typical seconds are
 mean scoring and next-token calls x the median time per call over the steps whose
-calls averaged under FAST_MS (the unstarved mode); generate calls are left out (noted
-"+ gen").
+calls averaged at least 20 ms and under FAST_MS (the unstarved mode), pooled over the
+runs named together (one server: steps of 0 to 2 calls are too short to time it);
+generate calls are left out (noted "+ gen").
 Also compares two runs step by step (result hashes): pass them as A:B to compare.
 """
 import json
@@ -30,15 +31,19 @@ FAST_MS = 500
 def per_call_ms(rows):
     """Median ms per scoring / next-token call over unstarved steps without generation, and the share of starved steps."""
     plain = [r["modelMs"] / r["total"] for r in rows if r["total"] > 0 and r["calls"]["generate"] == 0]
-    fast = [x for x in plain if x < FAST_MS]
-    return (statistics.median(fast) if fast else 0.0), (len(plain) - len(fast), len(plain))
+    fast = [x for x in plain if 20 <= x < FAST_MS]
+    return (statistics.median(fast) if fast else 0.0), (sum(1 for x in plain if x >= FAST_MS), len(plain))
+
+
+POOLED_MS = None
 
 
 def table(label):
     d = load(label)
     rows = d["rows"]
-    ms, (starved, steps) = per_call_ms(rows)
-    print(f"\n{label} ({d['when'][:16]}, load {d['load']}): median {ms:.0f} ms per unstarved score/next call; {starved} of {steps} steps with calls starved")
+    own, (starved, steps) = per_call_ms(rows)
+    ms = POOLED_MS if POOLED_MS else own
+    print(f"\n{label} ({d['when'][:16]}, load {d['load']}): median {ms:.0f} ms per unstarved score/next call (pooled); {starved} of {steps} steps with calls starved")
     groups = {}
     for r in rows:
         k = "next (chapter flow)" if r["step"].startswith("next (") else r["step"]
@@ -64,6 +69,7 @@ def compare(a, b):
             print(f"   differs: {x['step']}: {x.get('note')} | {y.get('note')}")
 
 
+POOLED_MS = per_call_ms([r for a in sys.argv[1:] if ":" not in a for r in load(a)["rows"]])[0]
 for arg in sys.argv[1:]:
     if ":" in arg:
         compare(*arg.split(":", 1))

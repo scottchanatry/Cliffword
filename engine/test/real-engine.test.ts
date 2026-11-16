@@ -346,13 +346,15 @@ describe.skipIf(!BASE_URL)('the engine on the real model', () => {
   // words, a real sentence of the level's length, the target used at least once, and
   // three different sentences.
   it('generateNextSentence: early and intermediate learners get distinct in-band sentences that use their targets', async () => {
-    const profiles: [string, LearnerModel][] = [
-      ['early', reaching({ meaning: 300, written: 300, sound: 200, speaking: 80 })],
-      ['intermediate', reaching({ meaning: 1200, written: 1200, sound: 700, speaking: 300 })],
+    // Each learner continues a story of its level (an early learner's story is written in
+    // its words; the market story has words beyond rank 300 in every sentence).
+    const profiles: [string, LearnerModel, string[]][] = [
+      ['early', reaching({ meaning: 300, written: 300, sound: 200, speaking: 80 }), ['Marta vive en una casa pequeña.', 'Hoy ella va al mercado con su hermano.']],
+      ['intermediate', reaching({ meaning: 1200, written: 1200, sound: 700, speaking: 300 }), story],
     ];
-    for (const [name, learner] of profiles) {
+    for (const [name, learner, storySoFar] of profiles) {
       const runs = [];
-      for (const seed of SEEDS) runs.push(await generate(learner, story, seed));
+      for (const seed of SEEDS) runs.push(await generate(learner, storySoFar, seed));
       const sentences = runs.map((x) => x.r.sentence);
       for (const { r, params } of runs) {
         expect(r.sentence, name).not.toBeNull();

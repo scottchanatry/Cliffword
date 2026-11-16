@@ -434,6 +434,7 @@ export async function generateNextSentence(
     instructions,
     names,
     familiar,
+    seed: opts.seed,
     options: opts.select,
   });
 

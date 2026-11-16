@@ -1,0 +1,713 @@
+{
+ "when": "2026-11-16T03:27:58.952Z",
+ "mode": "after",
+ "model": "real",
+ "sentences": 3,
+ "load": [
+  8.68,
+  8.14,
+  8.06
+ ],
+ "cores": 4,
+ "summary": {
+  "next": {
+   "n": 3,
+   "calls": {
+    "mean": 74.7,
+    "min": 40,
+    "max": 93
+   },
+   "byMethod": {
+    "scoreContinuation": 4.3,
+    "nextTokens": 69.3,
+    "generate": 1
+   },
+   "seconds": {
+    "mean": 367.925,
+    "max": 516.2
+   }
+  },
+  "answer:alternative": {
+   "n": 3,
+   "calls": {
+    "mean": 2.7,
+    "min": 2,
+    "max": 4
+   },
+   "byMethod": {
+    "scoreContinuation": 1.3,
+    "nextTokens": 1.3,
+    "generate": 0
+   },
+   "seconds": {
+    "mean": 1.324,
+    "max": 3.946
+   }
+  },
+  "answer:wrong": {
+   "n": 3,
+   "calls": {
+    "mean": 4,
+    "min": 4,
+    "max": 4
+   },
+   "byMethod": {
+    "scoreContinuation": 2,
+    "nextTokens": 2,
+    "generate": 0
+   },
+   "seconds": {
+    "mean": 10.114,
+    "max": 11.428
+   }
+  },
+  "answer:form": {
+   "n": 3,
+   "calls": {
+    "mean": 4,
+    "min": 4,
+    "max": 4
+   },
+   "byMethod": {
+    "scoreContinuation": 2,
+    "nextTokens": 2,
+    "generate": 0
+   },
+   "seconds": {
+    "mean": 8.205,
+    "max": 12.631
+   }
+  },
+  "answer:actual": {
+   "n": 3,
+   "calls": {
+    "mean": 2,
+    "min": 2,
+    "max": 2
+   },
+   "byMethod": {
+    "scoreContinuation": 1,
+    "nextTokens": 1,
+    "generate": 0
+   },
+   "seconds": {
+    "mean": 3.782,
+    "max": 5.085
+   }
+  },
+  "next (chapter flow)": {
+   "n": 3,
+   "calls": {
+    "mean": 0,
+    "min": 0,
+    "max": 0
+   },
+   "byMethod": {
+    "scoreContinuation": 0,
+    "nextTokens": 0,
+    "generate": 0
+   },
+   "seconds": {
+    "mean": 0,
+    "max": 0.001
+   }
+  },
+  "turn": {
+   "n": 1,
+   "calls": {
+    "mean": 10,
+    "min": 10,
+    "max": 10
+   },
+   "byMethod": {
+    "scoreContinuation": 10,
+    "nextTokens": 0,
+    "generate": 0
+   },
+   "seconds": {
+    "mean": 48.705,
+    "max": 48.705
+   }
+  },
+  "retell": {
+   "n": 1,
+   "calls": {
+    "mean": 0,
+    "min": 0,
+    "max": 0
+   },
+   "byMethod": {
+    "scoreContinuation": 0,
+    "nextTokens": 0,
+    "generate": 0
+   },
+   "seconds": {
+    "mean": 0.002,
+    "max": 0.002
+   }
+  },
+  "lyric next": {
+   "n": 3,
+   "calls": {
+    "mean": 48,
+    "min": 31,
+    "max": 70
+   },
+   "byMethod": {
+    "scoreContinuation": 1,
+    "nextTokens": 47,
+    "generate": 0
+   },
+   "seconds": {
+    "mean": 200.757,
+    "max": 296.395
+   }
+  },
+  "lyric answer:alternative": {
+   "n": 3,
+   "calls": {
+    "mean": 0.7,
+    "min": 0,
+    "max": 2
+   },
+   "byMethod": {
+    "scoreContinuation": 0.3,
+    "nextTokens": 0.3,
+    "generate": 0
+   },
+   "seconds": {
+    "mean": 0.007,
+    "max": 0.016
+   }
+  },
+  "lyric answer:wrong": {
+   "n": 3,
+   "calls": {
+    "mean": 12.3,
+    "min": 2,
+    "max": 31
+   },
+   "byMethod": {
+    "scoreContinuation": 1.7,
+    "nextTokens": 10.7,
+    "generate": 0
+   },
+   "seconds": {
+    "mean": 43.76,
+    "max": 128.506
+   }
+  },
+  "lyric answer:actual": {
+   "n": 3,
+   "calls": {
+    "mean": 0.7,
+    "min": 0,
+    "max": 2
+   },
+   "byMethod": {
+    "scoreContinuation": 0.3,
+    "nextTokens": 0.3,
+    "generate": 0
+   },
+   "seconds": {
+    "mean": 1.333,
+    "max": 3.996
+   }
+  },
+  "echo": {
+   "n": 3,
+   "calls": {
+    "mean": 0,
+    "min": 0,
+    "max": 0
+   },
+   "byMethod": {
+    "scoreContinuation": 0,
+    "nextTokens": 0,
+    "generate": 0
+   },
+   "seconds": {
+    "mean": 0.003,
+    "max": 0.005
+   }
+  }
+ },
+ "rows": [
+  {
+   "step": "next",
+   "calls": {
+    "scoreContinuation": 4,
+    "nextTokens": 86,
+    "generate": 1
+   },
+   "total": 91,
+   "ms": 516199.6,
+   "modelMs": 515864.4,
+   "screen": "cliff",
+   "hash": "7b228145dd00"
+  },
+  {
+   "step": "answer:alternative",
+   "calls": {
+    "scoreContinuation": 1,
+    "nextTokens": 1,
+    "generate": 0
+   },
+   "total": 2,
+   "ms": 17.2,
+   "modelMs": 8.7,
+   "screen": "landing",
+   "hash": "28e9a0b786e5",
+   "note": "casa partial plausible p=1.24e-1"
+  },
+  {
+   "step": "answer:wrong",
+   "calls": {
+    "scoreContinuation": 2,
+    "nextTokens": 2,
+    "generate": 0
+   },
+   "total": 4,
+   "ms": 11428,
+   "modelMs": 11426,
+   "screen": "landing",
+   "hash": "f229b5fd31b3",
+   "note": "mesa none unlikely p=7.97e-4"
+  },
+  {
+   "step": "answer:form",
+   "calls": {
+    "scoreContinuation": 2,
+    "nextTokens": 2,
+    "generate": 0
+   },
+   "total": 4,
+   "ms": 12631,
+   "modelMs": 12629.1,
+   "screen": "landing",
+   "hash": "ba3d194072ca",
+   "note": "casas partial form p=1.22e-7"
+  },
+  {
+   "step": "answer:actual",
+   "calls": {
+    "scoreContinuation": 1,
+    "nextTokens": 1,
+    "generate": 0
+   },
+   "total": 2,
+   "ms": 3826.2,
+   "modelMs": 3824.7,
+   "screen": "landing",
+   "hash": "8b21a4276d8b",
+   "note": "casa grande full actual p=1.62e-3"
+  },
+  {
+   "step": "next",
+   "calls": {
+    "scoreContinuation": 4,
+    "nextTokens": 35,
+    "generate": 1
+   },
+   "total": 40,
+   "ms": 171997.1,
+   "modelMs": 171955.3,
+   "screen": "cliff",
+   "hash": "f40d0ff637fb"
+  },
+  {
+   "step": "answer:alternative",
+   "calls": {
+    "scoreContinuation": 1,
+    "nextTokens": 1,
+    "generate": 0
+   },
+   "total": 2,
+   "ms": 9.3,
+   "modelMs": 8,
+   "screen": "landing",
+   "hash": "be1f204161c6",
+   "note": "casa partial plausible p=9.52e-1"
+  },
+  {
+   "step": "answer:wrong",
+   "calls": {
+    "scoreContinuation": 2,
+    "nextTokens": 2,
+    "generate": 0
+   },
+   "total": 4,
+   "ms": 8896.1,
+   "modelMs": 8894.2,
+   "screen": "landing",
+   "hash": "a8fc4ec39b61",
+   "note": "mesa none unlikely p=4.23e-6"
+  },
+  {
+   "step": "answer:form",
+   "calls": {
+    "scoreContinuation": 2,
+    "nextTokens": 2,
+    "generate": 0
+   },
+   "total": 4,
+   "ms": 1606,
+   "modelMs": 1604.6,
+   "screen": "landing",
+   "hash": "5716d156e033",
+   "note": "casas partial form p=2.09e-6"
+  },
+  {
+   "step": "answer:actual",
+   "calls": {
+    "scoreContinuation": 1,
+    "nextTokens": 1,
+    "generate": 0
+   },
+   "total": 2,
+   "ms": 5084.5,
+   "modelMs": 5079.6,
+   "screen": "landing",
+   "hash": "535a374e0f8d",
+   "note": "casa grande full actual p=8.46e-1"
+  },
+  {
+   "step": "next",
+   "calls": {
+    "scoreContinuation": 5,
+    "nextTokens": 87,
+    "generate": 1
+   },
+   "total": 93,
+   "ms": 415579.3,
+   "modelMs": 415560.4,
+   "screen": "cliff",
+   "hash": "bdeecb41b743"
+  },
+  {
+   "step": "answer:alternative",
+   "calls": {
+    "scoreContinuation": 2,
+    "nextTokens": 2,
+    "generate": 0
+   },
+   "total": 4,
+   "ms": 3945.9,
+   "modelMs": 3944.2,
+   "screen": "landing",
+   "hash": "2773effedc37",
+   "note": "tener partial plausible p=1.89e-1"
+  },
+  {
+   "step": "answer:wrong",
+   "calls": {
+    "scoreContinuation": 2,
+    "nextTokens": 2,
+    "generate": 0
+   },
+   "total": 4,
+   "ms": 10017.3,
+   "modelMs": 10016,
+   "screen": "landing",
+   "hash": "08bdcad3ebac",
+   "note": "mesa none unlikely p=1.31e-7"
+  },
+  {
+   "step": "answer:form",
+   "calls": {
+    "scoreContinuation": 2,
+    "nextTokens": 2,
+    "generate": 0
+   },
+   "total": 4,
+   "ms": 10376.5,
+   "modelMs": 10375.2,
+   "screen": "landing",
+   "hash": "559d6dd40fa9",
+   "note": "unos partial form p=9.18e-5"
+  },
+  {
+   "step": "answer:actual",
+   "calls": {
+    "scoreContinuation": 1,
+    "nextTokens": 1,
+    "generate": 0
+   },
+   "total": 2,
+   "ms": 2434,
+   "modelMs": 2433.1,
+   "screen": "landing",
+   "hash": "ac652f1178b2",
+   "note": "un país full actual p=1.03e-4"
+  },
+  {
+   "step": "next (to chapter end)",
+   "calls": {
+    "scoreContinuation": 0,
+    "nextTokens": 0,
+    "generate": 0
+   },
+   "total": 0,
+   "ms": 0.6,
+   "modelMs": 0,
+   "screen": "turn",
+   "hash": "0c421bbf971c"
+  },
+  {
+   "step": "turn",
+   "calls": {
+    "scoreContinuation": 10,
+    "nextTokens": 0,
+    "generate": 0
+   },
+   "total": 10,
+   "ms": 48705.4,
+   "modelMs": 48688.6,
+   "screen": "repair",
+   "hash": "8d45402619d8"
+  },
+  {
+   "step": "next (to up next)",
+   "calls": {
+    "scoreContinuation": 0,
+    "nextTokens": 0,
+    "generate": 0
+   },
+   "total": 0,
+   "ms": 0.3,
+   "modelMs": 0,
+   "screen": "upNext",
+   "hash": "192654285bcd"
+  },
+  {
+   "step": "next (retell start)",
+   "calls": {
+    "scoreContinuation": 0,
+    "nextTokens": 0,
+    "generate": 0
+   },
+   "total": 0,
+   "ms": 0.3,
+   "modelMs": 0,
+   "screen": "retell",
+   "hash": "2707087c9922"
+  },
+  {
+   "step": "retell",
+   "calls": {
+    "scoreContinuation": 0,
+    "nextTokens": 0,
+    "generate": 0
+   },
+   "total": 0,
+   "ms": 1.5,
+   "modelMs": 0,
+   "screen": "retell",
+   "hash": "afc301008525"
+  },
+  {
+   "step": "lyric next",
+   "calls": {
+    "scoreContinuation": 1,
+    "nextTokens": 42,
+    "generate": 0
+   },
+   "total": 43,
+   "ms": 190931,
+   "modelMs": 190922.1,
+   "screen": "cliff",
+   "hash": "f32d5f3406df"
+  },
+  {
+   "step": "lyric answer:alternative",
+   "calls": {
+    "scoreContinuation": 1,
+    "nextTokens": 1,
+    "generate": 0
+   },
+   "total": 2,
+   "ms": 16.4,
+   "modelMs": 10.4,
+   "screen": "result",
+   "hash": "58121622adf3",
+   "note": "a partial plausible p=5.17e-1"
+  },
+  {
+   "step": "lyric answer:wrong",
+   "calls": {
+    "scoreContinuation": 2,
+    "nextTokens": 2,
+    "generate": 0
+   },
+   "total": 4,
+   "ms": 2684.5,
+   "modelMs": 2683.5,
+   "screen": "result",
+   "hash": "fe982f3da141",
+   "note": "mesa none unlikely p=1.16e-6"
+  },
+  {
+   "step": "lyric answer:actual",
+   "calls": {
+    "scoreContinuation": 1,
+    "nextTokens": 1,
+    "generate": 0
+   },
+   "total": 2,
+   "ms": 3996.4,
+   "modelMs": 3995.7,
+   "screen": "result",
+   "hash": "08f151f7efbf",
+   "note": "a bailar full actual p=1.55e-2"
+  },
+  {
+   "step": "echo",
+   "calls": {
+    "scoreContinuation": 0,
+    "nextTokens": 0,
+    "generate": 0
+   },
+   "total": 0,
+   "ms": 2.9,
+   "modelMs": 0,
+   "screen": "echo",
+   "hash": "1c5e7433144d"
+  },
+  {
+   "step": "lyric next",
+   "calls": {
+    "scoreContinuation": 1,
+    "nextTokens": 69,
+    "generate": 0
+   },
+   "total": 70,
+   "ms": 296394.6,
+   "modelMs": 296385.1,
+   "screen": "cliff",
+   "hash": "a990ee1e31cb"
+  },
+  {
+   "step": "lyric answer:alternative",
+   "calls": {
+    "scoreContinuation": 0,
+    "nextTokens": 0,
+    "generate": 0
+   },
+   "total": 0,
+   "ms": 5.2,
+   "modelMs": 0,
+   "screen": "result",
+   "hash": "fc3c16060976",
+   "note": "janguear full likely p=7.10e-2"
+  },
+  {
+   "step": "lyric answer:wrong",
+   "calls": {
+    "scoreContinuation": 2,
+    "nextTokens": 29,
+    "generate": 0
+   },
+   "total": 31,
+   "ms": 128505.9,
+   "modelMs": 128498.2,
+   "screen": "result",
+   "hash": "adff3dcca05c",
+   "note": "mesa none unlikely p=9.64e-6"
+  },
+  {
+   "step": "lyric answer:actual",
+   "calls": {
+    "scoreContinuation": 0,
+    "nextTokens": 0,
+    "generate": 0
+   },
+   "total": 0,
+   "ms": 0.6,
+   "modelMs": 0,
+   "screen": "result",
+   "hash": "71295b4d2b5d",
+   "note": "corillo full actual p=5.49e-2"
+  },
+  {
+   "step": "echo",
+   "calls": {
+    "scoreContinuation": 0,
+    "nextTokens": 0,
+    "generate": 0
+   },
+   "total": 0,
+   "ms": 1.7,
+   "modelMs": 0,
+   "screen": "echo",
+   "hash": "cf7c51feee3e"
+  },
+  {
+   "step": "lyric next",
+   "calls": {
+    "scoreContinuation": 1,
+    "nextTokens": 30,
+    "generate": 0
+   },
+   "total": 31,
+   "ms": 114944.8,
+   "modelMs": 114938.4,
+   "screen": "cliff",
+   "hash": "db46c9351275"
+  },
+  {
+   "step": "lyric answer:alternative",
+   "calls": {
+    "scoreContinuation": 0,
+    "nextTokens": 0,
+    "generate": 0
+   },
+   "total": 0,
+   "ms": 0.7,
+   "modelMs": 0,
+   "screen": "result",
+   "hash": "e7624f3138c4",
+   "note": "cama full likely p=3.36e-1"
+  },
+  {
+   "step": "lyric answer:wrong",
+   "calls": {
+    "scoreContinuation": 1,
+    "nextTokens": 1,
+    "generate": 0
+   },
+   "total": 2,
+   "ms": 89.2,
+   "modelMs": 87.3,
+   "screen": "result",
+   "hash": "c81ed13ca00b",
+   "note": "mesa partial plausible p=1.80e-3"
+  },
+  {
+   "step": "lyric answer:actual",
+   "calls": {
+    "scoreContinuation": 0,
+    "nextTokens": 0,
+    "generate": 0
+   },
+   "total": 0,
+   "ms": 0.6,
+   "modelMs": 0,
+   "screen": "result",
+   "hash": "cc28d526ff6e",
+   "note": "casa full actual p=4.34e-1"
+  },
+  {
+   "step": "echo",
+   "calls": {
+    "scoreContinuation": 0,
+    "nextTokens": 0,
+    "generate": 0
+   },
+   "total": 0,
+   "ms": 4.6,
+   "modelMs": 0,
+   "screen": "echo",
+   "hash": "68f9ef45134a"
+  }
+ ]
+}

@@ -411,7 +411,8 @@ letting the caller pass them in would make an answer cost one or two scoring cal
 5. PR register pack: add "qué es la que hay"; DO: treat "un chin" as a phrase.
 6. Story generation for brand-new learners (section 5).
 7. `scoreCliffAnswer` could accept precomputed alternatives (section 7), and credit an
-   answer that shares a lemma with a likely alternative (reír vs reírse).
+   answer that shares a lemma with a likely alternative (reír vs reírse). Done
+   2026-11-16: see "Answer speed, lemma credit and session robustness".
 
 Update after integration (same day, same server and model): issues 1 and 2 are fixed in
 the rule data. `DeleteRule` gained `notBeforePos` and `notBeforeWords`, and the
@@ -635,3 +636,245 @@ Rules are data in `engine/src/lang/es/rules.ts` (29 rules, was 22); the generato
    from heat wherever it appears in that region's street text ("qué es la que hay" exempts
    que, la, es, hay); corrections match phrases as runs. A text-aware exemption would fix
    it.
+
+## Answer speed, lemma credit and session robustness (2026-11-16)
+
+Same model (Qwen3-1.7B Q4_K_M) through its own `proof/model_server.py` (2 threads) while
+another model server and other agents' jobs shared the 4 cores (load average 7 to 10).
+The time per model call was bimodal: 60 to 130 ms (median 88 ms) when the server had its
+cores, 2 to 7 s when it was starved, in about half of the steps. So call counts below are
+exact, measured seconds are upper bounds, and "typical" seconds are the calls times the
+unstarved median (88 ms per scoring or next-token call; generation not included).
+Scripts in `proof/engine-measure/`: `session-calls.ts` + `calls-summary.py` (calls per
+session step), `credit-lemma.ts` + `credit-summary.py` (cliff credit), `bench.ts` (the
+engine's own hot paths). Raw results: `results/session-calls-{before,after}-{mock,real}.json`,
+`results/credit-lemma-{before,after}.json`, `results/bench-{before,after}.json`. "Before"
+is the working tree with this round's files restored from commit 20ca71a (other agents'
+changes, such as story generation, are in both).
+
+### Verdict (plain language)
+
+- **A cliff answer no longer repeats the next-word search.** `scoreCliffAnswer` takes the
+  alternatives `cliffPositions` already found (`CreditOptions.alternatives`, and
+  `actualLogprob` for the story's own word), and both sessions pass them. On the real
+  model an answer went from about 20 model calls (1.7 to 1.9 s typical) to 2 to 4 (0.2
+  to 0.35 s); a one-word answer that is one of the alternatives, or the story's word,
+  costs 0, another word 2 (a score and a boundary call), a multi-word answer 4. Results are identical where
+  the alternatives are the same: 111 of 111 cliff answers (probability, credit, reason),
+  44 of 44 mock session steps and 35 of 35 real-model session steps.
+- **Lemma credit is in, but kept to partial credit, because the analysis cannot tell a
+  natural pronoun-less form from a wrong one.** "reír" when the model expects "reírse" is
+  natural; "levantar" when it expects "levantarse" ("Juan no quería levantar") is wrong.
+  Both have the same lemma and features, similar own probabilities (2e-2 and 7e-4) and
+  similar alternatives (0.13 and 0.15): any weight that gives reír full credit gives
+  levantar full credit too. The default (`lemmaWeight` 0.02, `lemmaFloor` 2e-5) can lift
+  an answer to partial and never to full. At the current partial floor (1e-4) it changes
+  no credit of the 111 measured answers; it matters if the floor is raised or the model
+  underrates a form (at 5e-4 it keeps reír credited).
+- **New finding: the 1e-4 floor credits two pronoun-less wrong forms** (partial, by their
+  own probability, before and after this round): "fue a su cuarto a acostar" (5.8e-4; the
+  correct acostarse has 9.0e-4) and "Juan no quería levantar" (7.3e-4). The model barely
+  tells them apart from natural rare answers (reír 5.6e-4 after "empezó a"), so a floor
+  cannot either.
+- **Sessions are safe to call at any time.** While an async step waits for the model,
+  every other call (the sync ones included) is refused with `refused: 'busy'` and changes
+  nothing; reads see the state from before the step; a failed step rolls back.
+- **The engine's own work per step got cheaper** where it ran on every step: lexicon
+  lookups 15x, slang matching 7x, sentence views 13x, a lyric step with an instant model
+  7x (bench below). The largest engine cost left in a story step is candidate selection
+  in `story/select.ts` (about 2 ms per sentence on desktop Node).
+
+### 1. Model calls per session step
+
+`session-calls.ts` puts a counting wrapper between the session and the model and books
+every call under the step being run. Story: an early learner (`learners.ts`), three
+model sentences, one answer per kind on copies of the session restored at each cliff
+(the model's best other word, a wrong word, a wrong form of the story's word, the story's
+word), then the learner turn and a retell round. Lyrics: four lines of a short song in
+street register, the same answer kinds, and a sing-back per line.
+
+Real model, before -> after (mean calls per step, min-max; typical seconds at 88 ms per
+call; measured seconds in brackets, upper bounds):
+
+| step | calls before | calls after | typical s before | typical s after | measured s before -> after |
+|---|---|---|---|---|---|
+| story next (generation + cliff selection + options) | 74.7 (40-93), 1 generate | 74.7 (40-93), 1 generate | 6.5 + generation | 6.5 + generation | 281 -> 368 |
+| answer: the model's best other word | 20.3 (6-32) | 2.7 (2-4) | 1.79 | 0.23 | 72 -> 1.3 |
+| answer: a wrong word (mesa) | 21.7 (8-34) | 4.0 (4-4) | 1.91 | 0.35 | 67 -> 10 |
+| answer: a wrong form (casas, unos) | 21.7 (8-34) | 4.0 (4-4) | 1.91 | 0.35 | 26 -> 8.2 |
+| answer: the story's words | 19.7 (6-32) | 2.0 (2-2) | 1.73 | 0.18 | 26 -> 3.8 |
+| learner turn (judgeSentence + scoreWords) | 10 | 10 | 0.88 | 0.88 | 38 -> 49 |
+| retell round | 0 | 0 | 0 | 0 | 0 |
+| lyric next (cliff selection) | 48.0 (31-70) | 48.0 (31-70) | 4.2 | 4.2 | 79 -> 201 |
+| lyric answer: the model's best other word | 25.0 (19-33) | 0.7 (0-2) | 2.20 | 0.06 | 42 -> 0.01 |
+| lyric answer: a wrong word | 36.7 (21-64) | 12.3 (2-31) | 3.23 | 1.09 | 109 -> 44 |
+| lyric answer: the lyric's words | 14.0 (0-23) | 0.7 (0-2) | 1.23 | 0.06 | 55 -> 1.3 |
+| sing-back (echo) | 0 | 0 | 0 | 0 | 0 |
+
+The three story cliffs of this run were all two words long ("casa grande" twice, "un
+país"), so the story's words were scored (2 calls) and a one-word answer was compared
+with the first actual word (2 calls); on a one-word cliff the story's word costs 0 calls
+(`actualLogprob`) and an answer among the alternatives 0 (the mock run and
+`engine/src/session/answerCalls.test.ts`). The 31-call lyric answer is "mesa" at the slang
+cliff "corillo": judged again in neutral form at another context, with its own search.
+All 35 steps give the same result before and after (`calls-summary.py before-real:after-real`).
+
+Mock model (`createMockModel`), before -> after: answer steps 17 to 19 calls -> 0 to 4
+(mean 0 to 3.5); lyric answers 13 to 18 -> 1 to 6; next, turn, retell and echo
+unchanged (57, 10, 0, 0). Every one of the 44 steps gives the same result before and
+after (`calls-summary.py before-mock:after-mock`).
+
+Notes:
+- Cliff selection is unchanged: `next()` is 1 generate call plus about 4 scoring calls
+  and 35 to 87 next-token calls (up to 2 batches of 3 positions, each a next-word search).
+  It is the step a prefetch on the landing screen hides (`StorySession.prefetch`).
+- Retell and echo make no model call. The learner turn is one judgement (1 plus one call
+  per variant) and one `scoreWords` call: 10 calls here.
+- A slang cliff whose answer earns less than full credit is also judged in neutral form
+  (`scoreLyricAnswer` step 4): another context, so it still makes its own next-word
+  search (the 17-call mock lyric answer above).
+
+### 2. Lemma credit
+
+`credit-lemma.ts`: the six cliffs of section 4 (40 natural and 23 wrong answers; "vamos a
+casa" natural, as there) and a supplementary set written before the lemma-credit code:
+six cliffs where the model is likely to expect a pronominal or clitic form, with 26
+natural answers, 12 wrong ones (4 of them pronoun-less forms that need their pronoun:
+acostar, sentar, divertir, levantar) and 7 wrong inflections of the story's word (which
+should keep the partial 'form' credit). The after run computes each cliff's alternatives
+once and passes them in; the before engine searches per answer.
+
+| set | before | after (defaults: lemmaWeight 0.02, lemmaFloor 2e-5) |
+|---|---|---|
+| section 4 natural | 40/40 credited (16 full) | 40/40 (16 full) |
+| section 4 wrong | 0/23 | 0/23 |
+| section 4 wrong forms (lee, leyó, leía) | 3/3 'form' | 3/3 'form' |
+| lemma set natural | 25/26 (12 full) | 25/26 (12 full) |
+| lemma set wrong | 2/12 (partial: acostar, levantar) | 2/12 (the same, by their own probability) |
+| lemma set wrong forms | 7/7 'form' | 7/7 'form' |
+
+Sweep over the same alternatives (natural credited / wrong credited, lemma set; section 4
+never changes at any weight: 40/40 and 0/23 at floor 1e-4):
+
+| lemmaWeight | floor 1e-4 | floor 5e-4 | floor 2e-3 |
+|---|---|---|---|
+| 0 (off) | 25/26 (12 full), 2/12 (0 full) | 22/26, 2/12 | 19/26, 1/12 (levantar: 'form') |
+| **0.02 (default)** | 25/26 (12 full), 2/12 (0 full) | 23/26 (+reír), 2/12 | 19/26, 1/12 (levantar: 'plausible' via levantarse instead of 'form', both partial) |
+| 0.1 | 25/26 (13 full: despertarse via despertar), 2/12 (0 full) | 23/26, 2/12 | 20/26, 1/12 |
+| 0.5 | 25/26 (14 full), 2/12 (**1 full: levantar**) | 23/26, 2/12 (1 full) | 20/26, 1/12 (1 full) |
+| 1 | 25/26 (15 full), 2/12 (**1 full**) | 23/26, 2/12 (1 full) | 20/26, 1/12 (1 full) |
+
+What the numbers say:
+- Lemma credit never touches a wrong inflection: lee, leyó, leía, reía, ríe, duerme,
+  entramos, bailaron, levanta, dice keep 'form' (features differ from every alternative).
+- The rule cannot separate reír (natural) from levantar (wrong): reír at the payaso cliff
+  reaches full credit from weight 0.38 (0.38 x 0.133 = fullFloor), levantar from 0.34.
+  The analysis also has no enclitics, so a wrong pronoun ("no pudimos verse" for vernos)
+  matches ver as vernos does (not measured; follows from the rule). Hence 0.02: 0.02 x P
+  stays below fullFloor 0.05 and 0.02 below fullRatio 0.25, so it can only lift to
+  partial, and only from an alternative of at least 0.005.
+- "sentarnos" (natural, 3.5e-5) gets no credit before or after: below the floor, and no
+  form of sentar among the alternatives (ver has 0.96 there).
+- `lemmaFloor` 2e-5: the most likely wrong answer of section 4 has 1.0e-5 ("hacia la
+  verde"); pronoun-less forms the model rejects sit far lower (sentar 3.1e-7, divertir
+  5.5e-7).
+
+### 3. Session robustness
+
+Choice: **refuse, do not queue.** Every public step method of `StorySession` (`next`,
+`handleUtterance`, `command`, `pickOption`, `startRegisterTask`, `played`, `tapWord`,
+`revealWord`, `setSettings`) and `LyricSession` (`next`, `openLine`, `handleUtterance`,
+`command`, `pickOption`, `startEcho`, `played`, `setRegister`, `setSettings`, `markLine`,
+`showSong`) called while an async step runs returns at once `{ screen, events: [],
+refused: 'busy' }` (`StepRefusal`) with the screen from before the running step, and
+changes nothing. A queued call would land on whatever screen the running step ends on (a
+tap on a word of the old sentence, a second "next" after a double tap). Overlapping async
+steps used to throw; they are refused the same way now. `isBusy` tells the app
+beforehand. `snapshot()`, `screen`, `settings`, `prior` and `stageAt()` read the state
+from before the running step, so a snapshot taken while busy restores to that state;
+`setModel()` during a step is applied when the step ends; a step that throws (a model
+error) restores the state from before it, so the app can retry. `prefetch()` already did
+nothing while a step ran.
+
+Tests (`engine/src/session/busy.test.ts`, mock model behind a model that holds its calls):
+every call during a pending answer and during a pending next() is refused and leaves the
+snapshot unchanged; refusals resolve before the running step; the running step ends
+exactly as on a twin session without the interleaved calls; a snapshot taken during
+next() restores to a session whose next() gives the same step; a failed step leaves the
+snapshot as it was and a retry equals the twin; setModel waits. The app's controller
+already serializes its calls (`app/src/session/story/createStoryController.ts`), so
+nothing changes for it.
+
+### 4. Small fixes
+
+- `parseLyrics`: an LRC time with seconds of 60 or more (`[99:99.99]`, `<01:75>`) is not
+  a time: it is removed from the line and gives none (it used to become 100:39.99).
+- `estimateDurationMs('')` (and spaces or punctuation only) is 0 ms (was 150 ms).
+- `anchorFormOf` is exported from the corrections barrel. `boundedWords` was already
+  reachable from `src/index.ts` (`scoring/index.ts` re-exports all of `wordScores.ts`);
+  a test now pins both.
+- `proof/score.py`: the start-token comment says what the code does: `token_eos()` is
+  `<|im_end|>` (151645) for these GGUFs, not `<|endoftext|>`.
+
+### 5. The engine's own speed (mock and instant models, desktop Node)
+
+`bench.ts`, median ms per call, before -> after (Node 22, same loaded machine, back to
+back). Hermes on a phone has no JIT and is often 5 to 10 times slower on code like this.
+The "instant model" answers at once (every token -2 nats, a fixed next-token list,
+generation from a fixed list), so only engine code is timed.
+
+| case | runs on every step | before | after |
+|---|---|---|---|
+| pack.analyze, 40 sentence words (warm) | yes | 0.224 | 0.015 |
+| pack.analyze, first use on a new pack (cold) | no | 9.207 | 8.537 |
+| pack.segment, 8 sentences | yes | 0.053 | 0.052 |
+| pack.inflect, 40 analyses | yes | 0.611 | 0.530 |
+| generateVariants, 8 sentences | learner turn | 3.604 | 2.412 |
+| judgeSentence (mock model included), 1 sentence | learner turn | 4.417 | 5.016 |
+| scoreWords (mock model included), 1 sentence | learner turn | 0.846 | 0.919 |
+| slangIn + scoringContext (street), 1 sentence | yes | 0.101 | 0.013 |
+| findSlangMatches, 8 sentences | yes | 1.053 | 0.157 |
+| sentenceWords, 8 sentences | yes | 4.418 | 0.350 |
+| buildSentenceView, 8 sentences | yes | 0.220 | 0.207 |
+| estimateVocabulary (frequency list) | yes | 0.437 | 0.401 |
+| chooseTargets | yes | 0.343 | 0.303 |
+| parseLyrics, 35 source lines | no | 0.389 | 0.344 |
+| StorySession canned: next + answer | yes | 1.447 | 0.818 |
+| StorySession mock (mock model included): next + answer | yes | 97.669 | 84.394 |
+| instant model: StorySession next (sentence) | yes | 11.612 | 8.560 |
+| instant model: StorySession answer | yes | 1.375 | 0.438 |
+| instant model: StorySession learner turn | yes | 0.875 | 0.896 |
+| instant model: LyricSession next + answer | yes | 37.243 | 5.258 |
+| LyricSession mock (mock model included): next + answer | yes | 72.870 | 30.316 |
+
+What changed:
+- The Spanish analyzer keeps the analyses of up to `DEFAULT_ANALYZE_OPTIONS.cacheSize`
+  (20000) words and returns copies (normalization, the clitic and accent-insensitive
+  searches and the duplicate check ran on every lookup; the vocabulary line alone walks
+  the 1788-lemma frequency list).
+- `slangIn` and `slangExemption` segmented every entry of every register pack on every
+  call; the segmented forms are now kept per language pack and register pack.
+- `findSlangMatches` rebuilt its index of the register packs on every call (every
+  sentence view, selection candidate and answer); it is now built once per pack and
+  option set. `sentenceWords`, `registerPairs`, `slangNotes` and the lyric cliffs use it.
+- Results are unchanged (`src/lyrics/lookupCache.test.ts`; full suite).
+
+Left (not in this round's files): `story/select.ts` candidate checks (`rejectReasons`,
+`detectPromptLeak`, `normalizedWords` segment each candidate several times: about 2 ms of
+the 3.5 to 9 ms of a story next() with the instant model), `handoverStage` (0.6 ms, twice
+per next()), `generateVariants` (0.3 to 1 ms per sentence; once per learner turn).
+
+### Open issues
+
+1. The partial floor credits pronoun-less forms that need their pronoun (acostar,
+   levantar: partial). Neither the floor nor lemma credit can separate them from natural
+   ones (reír); a pack list of verbs whose pronoun is optional, or required, in the
+   language pack would let lemma credit give full credit to the first and nothing to
+   the second.
+2. `Analysis` has no field for enclitics, so lemma credit cannot check the pronoun's
+   person (verse vs vernos).
+3. A multi-word answer still costs 4 calls (the answer and the actual words, each with a
+   boundary call); computing the actual words' log-probability at cliff selection (which
+   a prefetch hides) would make it 2.
+4. Slang answers judged in neutral form still make their own next-word search.
+5. `story/select.ts` is the largest engine cost left in a story step (see section 5).

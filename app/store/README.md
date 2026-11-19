@@ -45,6 +45,7 @@ Six screens, in this order on both stores, for three sizes:
 | Folder | Pixels | Store slot |
 |---|---|---|
 | `iphone-6.9/` | 1320 x 2868 (440 x 956 pt at 3x) | App Store, 6.9-inch display (required) |
+| `iphone-6.3/` | 1206 x 2622 | App Store Connect "iPhone with Dynamic Island (medium display)" (6.3", iPhone 16/17 Pro) |
 | `iphone-6.5/` | 1284 x 2778 (428 x 926 pt at 3x) | App Store, 6.5-inch display (optional when the 6.9-inch set is there) |
 | `android-phone/` | 1080 x 2160 (432 x 864 dp at 2.5x) | Play Console, Phone screenshots |
 

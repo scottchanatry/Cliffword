@@ -37,6 +37,7 @@ const MAX_PNG_BYTES = 1.5 * 1024 * 1024;
 const DEVICES = [
   { name: 'iphone-6.9', viewport: { width: 440, height: 956 }, deviceScaleFactor: 3 },
   { name: 'iphone-6.5', viewport: { width: 428, height: 926 }, deviceScaleFactor: 3 },
+  { name: 'iphone-6.3', viewport: { width: 402, height: 874 }, deviceScaleFactor: 3 },
   { name: 'android-phone', viewport: { width: 432, height: 864 }, deviceScaleFactor: 2.5, android: true },
 ];
 

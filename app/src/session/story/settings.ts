@@ -7,7 +7,7 @@
  *   the engine's multiplies it (1 = as derived). 1 + bias maps one onto the other.
  * - showExplicit, register, regions and nativeAnswersAllowed carry over as they are.
  */
-import type { PriorSpec, SessionSettings, StartMode, TextMode } from '@cliffword/engine';
+import type { LibraryStart, PriorSpec, SessionSettings, StartMode, TextMode } from '@cliffword/engine';
 import type { AppSettings, StartLevel, TextMode as AppTextMode } from '../../storage/repos/settings';
 
 const TO_ENGINE: Readonly<Record<AppTextMode, TextMode>> = { auto: 'auto', text: 'all_text', tiles: 'all_tiles' };
@@ -55,4 +55,33 @@ export function sameSessionSettings(a: SessionSettings, b: SessionSettings): boo
 export function startModeFor(start: StartLevel, history: { storedPrior: PriorSpec | null; earlierSessions: number }): StartMode {
   if (history.storedPrior?.kind === 'placement' || history.earlierSessions > 0) return 'continue';
   return start === 'placement' ? 'placement' : 'brand_new';
+}
+
+/**
+ * What a library session starts with: the experience, the level, the form of address and the
+ * experience's choices, from the settings onboarding and Settings store.
+ */
+export function libraryStartFor(s: Pick<AppSettings, 'trackId' | 'level' | 'address' | 'trackChoices'>): LibraryStart {
+  const start: LibraryStart = { startLevel: s.level, address: s.address };
+  if (s.trackId) {
+    start.trackId = s.trackId;
+    const choices = s.trackChoices[s.trackId];
+    if (choices) start.choices = { ...choices };
+  }
+  return start;
+}
+
+/**
+ * The learner prior for a level picked at onboarding: brand new (0) only knows cognates; any
+ * other level starts from the default intermediate estimate (src/learner/prior.ts).
+ */
+export function startLevelForLevel(level: number): StartLevel {
+  return level <= 0 ? 'brandNew' : 'placement';
+}
+
+/** Same choices (key -> option id). */
+export function sameChoices(a: Readonly<Record<string, string>> | undefined, b: Readonly<Record<string, string>> | undefined): boolean {
+  const ka = Object.keys(a ?? {});
+  const kb = Object.keys(b ?? {});
+  return ka.length === kb.length && ka.every((k) => (a ?? {})[k] === (b ?? {})[k]);
 }

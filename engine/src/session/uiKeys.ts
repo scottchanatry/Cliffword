@@ -5,7 +5,9 @@
  * lyrics.answer.*).
  *
  * Placeholders: cliff.hint {sound}; landing.timesInHundred {n}; landing.justAsNatural {word};
- * story.asks {speaker}; retell.round {round} {rounds} {seconds}; stats.understood {n}
+ * story.asks {speaker}; cliff.missed {answer}; turn.example {example}; episode.done
+ * {episode} {title}; episode.level* {level}; track.done {title};
+ * retell.round {round} {rounds} {seconds}; stats.understood {n}
  * {m}; echo.landed {n} {m}; repair.expected {expected}; repair.fix {fix} {expected};
  * lyrics.answer.* {answer} {lyric} {street} {neutral}.
  */
@@ -31,6 +33,21 @@ export const SESSION_UI_KEYS: readonly string[] = [
   'repair.fix',
   // No sentence could be made.
   'story.noSentence',
+  // Library mode: cliff prompts per mode, the missed answer, the model's check, turns,
+  // the end of an episode and of a track.
+  'cliff.recall.listen',
+  'cliff.recall.pick',
+  'cliff.hint.say',
+  'cliff.missed',
+  'landing.modelChecked',
+  'turn.example',
+  'turn.accepted',
+  'turn.trySpanish',
+  'episode.done',
+  'episode.levelUp',
+  'episode.levelDown',
+  'episode.levelSame',
+  'track.done',
   // Retell, repeats.
   'retell.round',
   'stats.understood',

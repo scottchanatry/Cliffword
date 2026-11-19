@@ -4,7 +4,7 @@
  * word and number segments of the sentence (engine sentenceWords), so the same segmentation
  * maps a TTS word boundary back to the tile being spoken.
  */
-import type { LanguagePack, SentenceView, SpeakCue, StoryScreen } from '@cliffword/engine';
+import { leadAfter, type LanguagePack, type SentenceView, type SpeakCue, type StoryScreen } from '@cliffword/engine';
 import type { WordSpan } from '../../adapters/speechOut/types';
 import { withCommandHints } from '../common/listen';
 import { wordSpansOf } from '../common/speaker';
@@ -66,14 +66,38 @@ export function planCue(pack: Pick<LanguagePack, 'segment'>, cueText: string, se
 }
 
 /**
+ * A library line's cue as the engine makes it: the whole line while it plays (recall), the line
+ * with its gap (recall at the gap, hint: before, a pause, after), or (predict) up to the cliff.
+ * null for a cliff that is not a library one.
+ */
+export function libraryCliffCue(pack: Pick<LanguagePack, 'segment'>, screen: Extract<StoryScreen, { kind: 'cliff' }>): SpeakCue | null {
+  if (screen.meta.mode !== 'library' || !screen.mode || screen.mode === 'predict') return null;
+  const { text, speechRate: rate } = screen.sentence;
+  if (screen.mode === 'recall' && screen.phase === 'playing') return { text, rate, what: 'line' };
+  const words = wordSpansOf(pack, text);
+  const first = words[screen.cliff.wordIndex];
+  const last = words[screen.cliff.wordIndex + screen.cliff.length - 1];
+  if (!first || !last) return null;
+  const before = text.slice(0, first.start).trim();
+  const rest = text.slice(last.end).trim();
+  // Closing punctuation alone is no second part.
+  const after = wordSpansOf(pack, rest).length > 0 ? rest : '';
+  const sep = leadAfter(before);
+  return { text: after ? `${before}${sep}…${sep}${after}` : before, rate, what: 'sentence', gap: { before, after } };
+}
+
+/**
  * The cue that plays the current screen again ("Hear it again", and after a restart, when
- * the step's own cue is gone): the sentence up to the cliff, the whole line, the answer, the
- * target phrase, the character's question, the scene or the register prompt.
+ * the step's own cue is gone): the sentence up to the cliff (a library line as libraryCliffCue
+ * plays it), the whole line, the answer, the target phrase, the character's question, the scene
+ * or the register prompt.
  */
 export function cueForScreen(pack: Pick<LanguagePack, 'segment'>, screen: StoryScreen | null): SpeakCue | null {
   if (!screen) return null;
   switch (screen.kind) {
     case 'cliff': {
+      const library = libraryCliffCue(pack, screen);
+      if (library) return library;
       const start = wordSpansOf(pack, screen.sentence.text)[screen.cliff.wordIndex]?.start;
       if (start === undefined) return null;
       const text = screen.sentence.text.slice(0, start).trimEnd();
@@ -88,6 +112,9 @@ export function cueForScreen(pack: Pick<LanguagePack, 'segment'>, screen: StoryS
     case 'turn':
     case 'repair':
       return { text: screen.prompt.line, rate: 1, what: 'prompt' };
+    case 'episodeDone':
+    case 'trackDone':
+      return null;
     case 'retell':
       return screen.scene ? { text: screen.scene, rate: 1, what: 'scene' } : null;
     case 'register':

@@ -5,7 +5,7 @@
  */
 import { slangNorm, SPANISH_REGISTERS } from '../../lang/es/registers';
 import type { RegisterPack } from '../../lang/types';
-import type { PairPack, StarterStory } from '../types';
+import type { LibraryStory, LibraryTrack, PairPack, StarterStory } from '../types';
 import { COGNATES } from './cognates';
 import { EXPLANATIONS } from './explanations';
 import { FALSE_FRIENDS } from './falseFriends';
@@ -13,6 +13,12 @@ import { glossEs, toTargetEs } from './glossary';
 import { NATIVE_LEXICON_WORDS } from './nativeLexicon';
 import { EN_ES_STARTER } from './starter';
 import { UI_STRINGS } from './ui';
+
+// The authored series (Story flow content) live in ./stories, written by the series
+// writers: EN_ES_TRACKS (all six experiences, picker order) and EN_ES_LIBRARY (the
+// episodes). A pack created with library: null (or tracks: null) carries none and
+// StorySession falls back to the generated flow.
+import { EN_ES_LIBRARY, EN_ES_TRACKS } from './stories';
 
 export interface EnEsPairPackOptions {
   /**
@@ -26,9 +32,22 @@ export interface EnEsPairPackOptions {
    * null for a pack without one (sessions then need a model to say anything).
    */
   starter: StarterStory | null;
+  /**
+   * The authored series (PairPack.library): the Story flow's content. Defaults to
+   * EN_ES_LIBRARY; pass null for a pack without one (StorySession then plays the
+   * generated flow).
+   */
+  library: readonly LibraryStory[] | null;
+  /** The experiences of the picker (PairPack.tracks). Defaults to EN_ES_TRACKS; null for none. */
+  tracks: readonly LibraryTrack[] | null;
 }
 
-export const DEFAULT_EN_ES_OPTIONS: EnEsPairPackOptions = { registers: SPANISH_REGISTERS, starter: EN_ES_STARTER };
+export const DEFAULT_EN_ES_OPTIONS: EnEsPairPackOptions = {
+  registers: SPANISH_REGISTERS,
+  starter: EN_ES_STARTER,
+  library: EN_ES_LIBRARY,
+  tracks: EN_ES_TRACKS,
+};
 
 /**
  * Index the English glosses of slang entries by lemma and by norm (first entry wins,
@@ -54,7 +73,8 @@ export function slangGlossIndex(registers: readonly RegisterPack[]): Map<string,
  * back to the English gloss of a slang lexeme from the register packs; toTarget() maps
  * an English word (inflected forms included: went, houses, walking) or a listed phrase
  * (hardware store) to Spanish lemmas; falseFriends maps each false-friend lemma to its
- * warning; explanations and interface strings are frozen copies.
+ * warning; explanations and interface strings are frozen copies; the series (tracks and
+ * library) are shared, read-only data.
  */
 export function createEnEsPairPack(opts: Partial<EnEsPairPackOptions> = {}): PairPack {
   const o: EnEsPairPackOptions = { ...DEFAULT_EN_ES_OPTIONS, ...opts };
@@ -70,6 +90,8 @@ export function createEnEsPairPack(opts: Partial<EnEsPairPackOptions> = {}): Pai
     explanations: Object.freeze({ ...EXPLANATIONS }),
     ui: Object.freeze({ ...UI_STRINGS }),
     ...(o.starter ? { starter: o.starter } : {}),
+    ...(o.library && o.library.length > 0 ? { library: o.library } : {}),
+    ...(o.tracks && o.tracks.length > 0 ? { tracks: o.tracks } : {}),
   };
 }
 
@@ -92,3 +114,4 @@ export { EXPLANATIONS, EXPLANATION_KEYS } from './explanations';
 export type { ExplanationKey } from './explanations';
 export { UI_STRINGS } from './ui';
 export { EN_ES_STARTER } from './starter';
+export { EN_ES_LIBRARY, EN_ES_TRACKS } from './stories';

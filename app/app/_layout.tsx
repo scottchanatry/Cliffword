@@ -4,10 +4,10 @@ import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
-import { ShareIntentBridge } from '../src/adapters/share/ShareIntentBridge';
 import { useSettings } from '../src/appState/AppStateProvider';
 import { AppBootstrap } from '../src/bootstrap/AppBootstrap';
 import { AppProviders } from '../src/providers/AppProviders';
+import { isOnboarded } from '../src/storage/repos/settings';
 import { colors, useAppFonts } from '../src/theme';
 
 void SplashScreen.preventAutoHideAsync().catch(() => undefined);
@@ -19,8 +19,8 @@ const hideSplash = () => void SplashScreen.hideAsync().catch(() => undefined);
 
 /**
  * Fonts (web only; native embeds them), then AppProviders (services, packs, i18n), then
- * ShareIntentBridge (items shared from other apps go to the share inbox; nothing on the web),
- * then AppBootstrap (storage, settings, learner) holding the splash, then the root stack.
+ * AppBootstrap (storage, settings, learner) holding the splash, then the root stack. Share-in
+ * (expo-share-intent, src/adapters/share) is not in this build: no share extension, no bridge.
  */
 export default function RootLayout() {
   const [fontsLoaded, fontError] = useAppFonts();
@@ -37,32 +37,31 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={styles.root}>
       <AppProviders>
-        <ShareIntentBridge>
-          <StatusBar style="dark" />
-          <AppBootstrap onSettled={onSettled}>
-            <RootStack />
-          </AppBootstrap>
-        </ShareIntentBridge>
+        <StatusBar style="dark" />
+        <AppBootstrap onSettled={onSettled}>
+          <RootStack />
+        </AppBootstrap>
       </AppProviders>
     </GestureHandlerRootView>
   );
 }
 
 /**
- * Until onboarding is done only the onboarding screen exists (every other URL redirects to it);
- * afterwards onboarding redirects to the Story tab.
+ * Until onboarding is done (in its current version: isOnboarded) only the onboarding screens exist
+ * (every other URL redirects to them); afterwards onboarding redirects to the Story tab.
  */
 function RootStack() {
   const { settings } = useSettings();
+  const onboarded = isOnboarded(settings);
   return (
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.ground } }}>
-      <Stack.Protected guard={settings.onboarded} redirectTo="/onboarding">
+      <Stack.Protected guard={onboarded} redirectTo="/onboarding">
         <Stack.Screen name="(tabs)" />
         <Stack.Screen name="profile" options={{ presentation: 'modal' }} />
         {/* Brought text (articles, transcripts): app/text/_layout.tsx. */}
         <Stack.Screen name="text" />
       </Stack.Protected>
-      <Stack.Protected guard={!settings.onboarded} redirectTo="/">
+      <Stack.Protected guard={!onboarded} redirectTo="/">
         <Stack.Screen name="onboarding" options={{ gestureEnabled: false }} />
       </Stack.Protected>
     </Stack>

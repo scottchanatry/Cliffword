@@ -9,6 +9,7 @@ import { ExpoHapticsAdapter } from '../adapters/haptics/ExpoHapticsAdapter';
 import { FakeModelManager } from '../adapters/model/FakeModelManager';
 import { MockModelAdapter } from '../adapters/model/MockModelAdapter';
 import { UnsupportedMusicPlayer } from '../adapters/music/UnsupportedMusicPlayer';
+import { FixedNetworkInfo } from '../adapters/network/FixedNetworkInfo';
 import { MemoryShareInbox } from '../adapters/share/MemoryShareInbox';
 import type { BrowserSpeechEnv } from '../adapters/speechIn/browserTypes';
 import { createBrowserSpeechIn } from '../adapters/speechIn/createBrowserSpeechIn';
@@ -34,6 +35,8 @@ export function createWebServices(
     music: overrides.music ?? new UnsupportedMusicPlayer(),
     share: overrides.share ?? new MemoryShareInbox(clock),
     haptics: overrides.haptics ?? new ExpoHapticsAdapter(),
+    // The preview's model is ready at once: nothing waits for Wi-Fi.
+    network: overrides.network ?? new FixedNetworkInfo('unknown'),
     // '../storage/open' is open.web.ts in the web bundle (sql.js in memory).
     storage:
       overrides.storage ?? createStorageService(STORAGE_BACKEND, () => openStorage({ clock: storageClockFor(clock) })),

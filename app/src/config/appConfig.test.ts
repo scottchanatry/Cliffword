@@ -12,6 +12,7 @@ const APP_ROOT = path.resolve(__dirname, '../..');
 interface AppJson {
   expo: {
     icon: string;
+    ios: { infoPlist: Record<string, unknown> };
     android: { adaptiveIcon: Record<string, string> };
     web: { favicon: string };
     plugins: (string | [string, Record<string, unknown>])[];
@@ -35,6 +36,18 @@ function pluginOptions(name: string): Record<string, unknown> | undefined {
 }
 
 describe('app.json', () => {
+  it('builds no share extension and asks for no Apple Music access (Music is off in this build)', () => {
+    const names = appJson.expo.plugins.map((p) => (Array.isArray(p) ? p[0] : p));
+    expect(names).not.toContain('expo-share-intent');
+    expect(JSON.stringify(appJson)).not.toMatch(/share-extension|appExtensions|group\.app\.cliffword/);
+    expect(appJson.expo.ios.infoPlist).not.toHaveProperty('NSAppleMusicUsageDescription');
+    expect(appJson.expo.ios.infoPlist).not.toHaveProperty('NSPhotoLibraryUsageDescription');
+    // Neither native module is linked: no share-intent module, no MusicKit code in the binary.
+    const pkg = JSON.parse(fs.readFileSync(path.join(APP_ROOT, 'package.json'), 'utf8')) as { expo?: { autolinking?: { exclude?: string[] } } };
+    expect(pkg.expo?.autolinking?.exclude).toEqual(expect.arrayContaining(['expo-share-intent', 'cliffword-music']));
+    expect(fs.existsSync(path.join(APP_ROOT, 'app/+native-intent.tsx'))).toBe(false);
+  });
+
   it('raises the iOS deployment target to 17.0 with expo-build-properties', () => {
     expect(pluginOptions('expo-build-properties')).toEqual({ ios: { deploymentTarget: '17.0' } });
   });

@@ -1,0 +1,5 @@
+{
+  "extends": "../../engine/tsconfig.json",
+  "compilerOptions": { "types": ["node"], "typeRoots": ["../../app/node_modules/@types"], "noEmit": true, "skipLibCheck": true },
+  "include": ["*.ts"]
+}

@@ -25,7 +25,8 @@ import type { DifficultyParams, GenerateOptions, LanguageModel, LanguagePack, Se
 const tick = (): Promise<void> => new Promise((r) => (globalThis as unknown as { setTimeout(fn: () => void, ms: number): unknown }).setTimeout(r, 0));
 
 const es = createDefaultSpanishPack();
-const pair = createDefaultPairPack();
+// The generated flow (the library would make StorySession play the authored series).
+const pair = createDefaultPairPack({ library: false });
 
 /** A caseless toy pack written without spaces: greedy longest match over a small dictionary. */
 const JA_WORDS: Record<string, string> = {

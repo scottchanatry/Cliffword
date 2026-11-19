@@ -17,6 +17,7 @@ import {
   alignTranscript,
   createMockModel,
   generateVariants,
+  validateLibrary,
   joinSentences,
   judgeSentence,
   matchCommand,
@@ -30,6 +31,8 @@ import type {
   LanguageModel,
   CorrectionRule,
   LanguagePack,
+  LibraryStory,
+  LibraryTrack,
   PairPack,
   Pos,
   Segment,
@@ -354,6 +357,59 @@ describe.each(segmenters)('a language without spaces (%s)', (_name, segment) => 
     expect(outcome.scoredBy).toBe('model');
     // Plain data all the way through.
     expect(JSON.parse(JSON.stringify(s.snapshot()))).toEqual(s.snapshot());
+  });
+
+  it('plays a library episode ported from another pair: the neutral layer kept, the lines re-rendered', async () => {
+    // Episode 1 of the en-es test series, ported: same ids, intents, concepts, speakers and
+    // functions; Japanese lines, Chinese translations, a local name.
+    const track: LibraryTrack = {
+      id: 'zh-ja.track.market',
+      title: '市场日',
+      tagline: '卖水果的人什么都知道。',
+      city: '東京',
+      country: '日本',
+      dialect: 'mx',
+      cast: [{ id: 'vendor', role: 'the fruit seller at the market', quirk: 'gives everyone a nickname', name: '先生' }],
+      setting: 'A small-town open-air market on a hot morning.',
+    };
+    const story: LibraryStory = {
+      id: 'zh-ja.lib.market.e1',
+      track: track.id,
+      episode: 1,
+      tier: 'beginner',
+      level: 0,
+      title: '先生',
+      titleNative: '老师',
+      characters: ['先生'],
+      beats: ['You arrive at the market', 'The seller introduces herself', 'She says what she likes', 'She says where she goes'],
+      functions: ['greet.hello', 'intro.name'],
+      sentences: [
+        { id: 'e1.l01', intent: 'The seller greets you and says who she is', function: 'intro.name', speaker: 'vendor', text: '私は先生です。', translation: '我是老师。', cliff: { word: '先生', distractors: ['猫', '本'], hint: '老师', concept: 'a person' } },
+        { id: 'e1.l02', intent: 'She says what she likes', speaker: 'vendor', text: '私は猫が好きです。', translation: '我喜欢猫。', cliff: { word: '猫', distractors: ['学校', '東京'], hint: '猫', concept: 'an animal' } },
+        { id: 'e1.l03', intent: 'She says where she goes', speaker: 'vendor', text: '私は東京に行きます。', translation: '我去东京。', cliff: { word: '東京', distractors: ['本', '犬'], hint: '东京', concept: 'a place' } },
+      ],
+    };
+    expect(validateLibrary(pack, { tracks: [track], library: [story] }, { minLines: 3, minBeats: 4 })).toEqual([]);
+    const s = StorySession.create({ model: null, pack, pair: { ...PAIR, tracks: [track], library: [story] }, learner: new LearnerModel(), now: T0, seed: 5 });
+    const first = await s.next(T0 + 1000);
+    const c = screenOf(first, 'cliff');
+    expect(c).toMatchObject({ mode: 'recall', phase: 'playing', speaker: '先生', translation: '我是老师。' });
+    expect(c.sentence.words.every((x) => x.spaceAfter === false)).toBe(true);
+    const gap = s.played(T0 + 1500);
+    expect(gap.speak?.text).toBe('私は…です。');
+    expect(gap.speak?.text).not.toMatch(/\s/u);
+    const g = screenOf(gap, 'cliff');
+    const right = g.cliff.options?.find((o) => o.text === '先生');
+    const landed = screenOf(await s.pickOption(right?.index ?? -1, T0 + 2000), 'landing');
+    expect(landed).toMatchObject({ expected: '先生', translation: '我是老师。', outcome: { credit: 'full' } });
+    let t = T0 + 3000;
+    let step = await s.next(t);
+    for (let i = 0; i < 10 && step.screen.kind !== 'episodeDone'; i++) {
+      if (step.screen.kind === 'cliff') await s.handleUtterance(s.snapshot().state.current?.cliff.answer ?? '', (t += 1000));
+      step = await s.next((t += 1000));
+    }
+    expect(screenOf(step, 'episodeDone')).toMatchObject({ episode: 1, title: '先生', cliffs: 3, unaided: 2, levelAfter: 0 });
+    expect(screenOf(await s.next((t += 1000)), 'trackDone').track).toBe(track.id);
   });
 
   it('gets no Spanish generation prompt: a bare tagged continuation, or the wording of its own story data', async () => {

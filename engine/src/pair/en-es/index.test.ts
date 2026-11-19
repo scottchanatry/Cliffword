@@ -126,3 +126,24 @@ describe('slangGlossIndex', () => {
     expect(slangGlossIndex([]).size).toBe(0);
   });
 });
+
+describe('the authored series in the en-es pack', () => {
+  it('carries the series by default and leaves them out on request', async () => {
+    const { TEST_LIBRARY, TEST_TRACKS } = await import('../../content/testLibrary');
+    const withSeries = createEnEsPairPack({ library: TEST_LIBRARY, tracks: TEST_TRACKS });
+    expect(withSeries.library).toBe(TEST_LIBRARY);
+    expect(withSeries.tracks).toBe(TEST_TRACKS);
+    const without = createEnEsPairPack({ library: null, tracks: null });
+    expect(without.library).toBeUndefined();
+    expect(without.tracks).toBeUndefined();
+    expect(createEnEsPairPack().library).toBe(DEFAULT_EN_ES_OPTIONS.library && DEFAULT_EN_ES_OPTIONS.library.length > 0 ? DEFAULT_EN_ES_OPTIONS.library : undefined);
+  });
+
+  it('ships series that pass the engine validator in every variant combination', async () => {
+    const { createDefaultSpanishPack } = await import('../../packs');
+    const { validateLibrary } = await import('../../content/validate');
+    const pair = createEnEsPairPack();
+    // Track metadata may come before any episode (coming-soon experiences).
+    expect(validateLibrary(createDefaultSpanishPack(), { tracks: pair.tracks ?? [], library: pair.library ?? [] })).toEqual([]);
+  });
+});

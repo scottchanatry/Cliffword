@@ -41,6 +41,20 @@
  * on screen (model-written or canned), the app version and the platform into a mailto: to
  * CONTACT_EMAIL and opens it; the notice then says it went to the mail app, or that none opened.
  *
+ * Library mode (the authored experiences; the session plays the pair's library): nothing plays
+ * on the Story home (vm.view 'home'). start() restores or creates the session with the settings'
+ * experience, level, form of address and choices (libraryStartFor) and stops there; openEpisode()
+ * opens the episode screen and goes on (next() from idle or the end of an episode, else the line
+ * on screen plays again). Settings stay in step both ways: a changed experience, level, address
+ * or choice reaches the session (chooseTrack, setLibraryProfile), and the level an episode ends
+ * on is stored back (settings.level). In recall mode the whole line plays first and
+ * session.played() then shows the gap; the gapped line plays its two parts with a short pause.
+ * On a cliff screen the controller prefetches (the model's alternatives for the feedback).
+ *
+ * The mic button (micTap): a tap listens in tap mode (src/session/common/autoStop.ts: it stops
+ * after about 1.5 s of silence when levels come, else after 6 s); a second tap stops it. Press
+ * and hold is push-to-talk through holdBegin / holdStart / holdEnd.
+ *
  * Hold to speak (src/session/common/hold.ts, shared with the Music tab): holdBegin checks the
  * permission, holdStart listens in the pack's locale (recognitionLocales; on the device unless
  * network recognition is allowed) with the screen's words, options and commands as hints,
@@ -69,6 +83,7 @@ import type { Unsubscribe } from '../../adapters/listeners';
 import type { ModelAdapter } from '../../adapters/model/types';
 import type { FinalTranscript, SpeechIn } from '../../adapters/speechIn/types';
 import type { SpeechOut } from '../../adapters/speechOut/types';
+import { RETELL_ENABLED } from '../../config/features';
 import { CONTACT_EMAIL } from '../../config/links';
 import { tKey } from '../../i18n/tKey';
 import { createTranslator } from '../../i18n/translator';
@@ -76,6 +91,7 @@ import type { ServicePacks } from '../../services/types';
 import { createId, type StorageClock } from '../../storage/clock';
 import type { AppSettings } from '../../storage/repos/settings';
 import type { Storage } from '../../storage/storage';
+import { AutoStop, type AutoStopOptions } from '../common/autoStop';
 import { HoldToSpeak, LISTEN_IDLE } from '../common/hold';
 import { listenOptionsFor } from '../common/listen';
 import { dayKey, persistStep, storageClockOf } from '../common/persist';
@@ -84,7 +100,7 @@ import { Speaker } from '../common/speaker';
 import { typedTranscript, utteranceOf } from '../common/utterance';
 import type { StoryActions, StoryController, StoryViewModel } from '../contract';
 import { reportableSentence, sentenceReportUrl, type ReportAppInfo } from './report';
-import { sameSessionSettings, sessionSettingsFor, startModeFor, toAppTextMode, toEngineTextMode } from './settings';
+import { libraryStartFor, sameSessionSettings, sessionSettingsFor, startModeFor, toAppTextMode, toEngineTextMode } from './settings';
 import { cueForScreen, planCue, sentenceOf, storyHintWords, wordSpansOf, type CuePlan } from './speech';
 
 export interface StoryControllerDeps {
@@ -120,6 +136,8 @@ export interface StoryControllerDeps {
   appInfo?: ReportAppInfo;
   /** Engine session options (tests shorten chapters). */
   sessionOptions?: Partial<StorySessionOptions>;
+  /** Tap-mode listening: silence and cap (tests shorten them). Default DEFAULT_AUTO_STOP. */
+  autoStop?: Partial<AutoStopOptions>;
   /** Unexpected failures (a step that threw, a write that failed). Default: console.warn. */
   onError?: (error: unknown) => void;
 }
@@ -148,6 +166,9 @@ export function initialStoryViewModel(textMode: TextMode = 'auto', modelMode: St
     spokenTodayMs: 0,
     notice: null,
     previous: [],
+    library: null,
+    view: 'home',
+    micLatched: false,
   };
 }
 
@@ -171,7 +192,19 @@ const NEXT_KINDS: ReadonlySet<ScreenKind> = new Set<ScreenKind>([
   'register',
   'placementDone',
   'error',
+  'episodeDone',
 ]);
+
+/** Library screens where "Continue" starts something new (next()), rather than playing the line again. */
+const START_KINDS: ReadonlySet<ScreenKind> = new Set<ScreenKind>(['idle', 'episodeDone', 'error']);
+
+/** The pause between the two parts of a gapped line (before the gap, after it), ms. */
+const GAP_PAUSE_MS = 700;
+
+/** How often tap-mode listening checks for silence, ms. */
+const AUTO_STOP_TICK_MS = 200;
+
+const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
 
 const anyScreen: Guard = (screen) => screen !== null;
 
@@ -212,6 +245,8 @@ class StoryControllerImpl implements StoryControllerHandle {
   private speechOutNoticed = false;
   /** The last sentence report on its way to the mail app (idle() waits for it). */
   private reporting: Promise<void> = Promise.resolve();
+  /** Tap-mode listening: its silence check (from the moment listening began) and its timer. */
+  private latch: { auto: AutoStop | null; timer: ReturnType<typeof setInterval> } | null = null;
 
   constructor(private readonly deps: StoryControllerDeps) {
     this.current = deps.learner;
@@ -233,7 +268,7 @@ class StoryControllerImpl implements StoryControllerHandle {
     this.hold = new HoldToSpeak({
       speechIn: deps.speechIn,
       haptics: deps.haptics,
-      publish: (listen) => this.set({ listen }),
+      publish: (listen) => this.publishListen(listen),
       current: () => this.vm.listen,
       canHold: () => !this.disposed && this.vm.screen !== null,
       // Listening stops speech: never talk over the learner.
@@ -281,6 +316,14 @@ class StoryControllerImpl implements StoryControllerHandle {
       dismissNotice: () => {
         if (this.vm.notice) this.set({ notice: null });
       },
+      openEpisode: () => this.openEpisode(),
+      closeEpisode: () => this.closeEpisode(),
+      replayEpisode: (episode) => {
+        if (this.disposed || !this.session?.playsLibrary) return;
+        this.set({ view: 'episode' });
+        void this.step(anyScreen, (session, at) => session.replayEpisode(episode, at), { busy: true, quiet: true });
+      },
+      micTap: () => this.micTap(),
       ...(deps.openUrl ? { reportSentence: () => this.reportSentence() } : {}),
     };
   }
@@ -321,6 +364,7 @@ class StoryControllerImpl implements StoryControllerHandle {
 
   dispose(): void {
     if (this.disposed) return;
+    this.stopLatch();
     this.hold.dispose();
     this.stopSpeaking();
     this.disposed = true;
@@ -340,10 +384,45 @@ class StoryControllerImpl implements StoryControllerHandle {
       const session = this.session;
       if (!session) return;
       const want = sessionSettingsFor(settings);
-      if (sameSessionSettings(session.settings, want)) return;
-      const at = this.deps.clock.now();
-      await this.apply(session.setSettings(want, at), { at, credited: 0 });
+      if (!sameSessionSettings(session.settings, want)) {
+        const at = this.deps.clock.now();
+        await this.apply(session.setSettings(want, at), { at, credited: 0 });
+      }
+      await this.syncLibrary(session);
     });
+  }
+
+  /**
+   * Library mode: bring the session in line with the settings (the experience and its choices,
+   * the level, the form of address). A new experience goes back to the Story home first, so its
+   * line does not play over the picker.
+   */
+  private async syncLibrary(session: StorySession): Promise<void> {
+    const progress = session.libraryProgress;
+    if (!progress || this.disposed) return;
+    const s = this.settings;
+    if (progress.level !== s.level || progress.address !== s.address) {
+      const at = this.deps.clock.now();
+      await this.apply(session.setLibraryProfile({ level: s.level, address: s.address }, at), { at, credited: 0 });
+    }
+    const asked = s.trackId ? progress.tracks.find((t) => t.id === s.trackId && !t.comingSoon) : undefined;
+    const track = asked ?? progress.tracks.find((t) => t.id === progress.track);
+    if (!track) return;
+    const choices = s.trackChoices[track.id] ?? {};
+    const missing = Object.entries(choices).some(([key, option]) => track.choices[key] !== option);
+    if (track.id === progress.track && !missing) return;
+    if (track.id !== progress.track) {
+      this.closeEpisodeNow();
+    }
+    const at = this.deps.clock.now();
+    let step: StoryStep;
+    try {
+      step = await session.chooseTrack(track.id, at, choices);
+    } catch (e) {
+      this.report(e);
+      return;
+    }
+    await this.apply(step, { at, credited: 0 });
   }
 
   /** Every queued call and what it set off (settled speech promises may queue session.played()), and a report on its way. */
@@ -422,13 +501,18 @@ class StoryControllerImpl implements StoryControllerHandle {
     const { storage, clock } = this.deps;
     const at = clock.now();
     await this.refreshSpokenToday(at);
-    const options = { applyEvents: false, ...(this.deps.sessionOptions ? { options: this.deps.sessionOptions } : {}) };
+    const sessionOptions: Partial<StorySessionOptions> = {
+      ...this.deps.sessionOptions,
+      library: { retell: RETELL_ENABLED, ...this.deps.sessionOptions?.library },
+    };
+    const options = { applyEvents: false, options: sessionOptions };
+    const library = libraryStartFor(this.settings);
     let session: StorySession | null = null;
     const record = await storage.sessions.active<StorySessionSnapshot>('story');
     if (record) {
       if (record.version === STORY_SESSION_FORMAT) {
         try {
-          session = StorySession.restore(record.snapshot, this.sessionDeps(), options);
+          session = StorySession.restore(record.snapshot, this.sessionDeps(), { ...options, library });
           this.sessionId = record.id;
         } catch (e) {
           this.report(e);
@@ -447,6 +531,12 @@ class StoryControllerImpl implements StoryControllerHandle {
       } else {
         this.publishRestored(session.screen);
       }
+      if (session.playsLibrary) {
+        // The Story home comes first: nothing plays until the learner opens the episode.
+        await this.syncLibrary(session);
+        this.set({ library: session.libraryProgress });
+        return;
+      }
       if (session.screen.kind !== 'idle') return;
     } else {
       const startMode = startModeFor(this.settings.startLevel, {
@@ -459,10 +549,17 @@ class StoryControllerImpl implements StoryControllerHandle {
         seed: this.deps.seed?.() ?? at >>> 0,
         settings: sessionSettingsFor(this.settings),
         startMode,
+        library,
         ...options,
       });
       this.session = session;
       this.sessionId = createId(at);
+      if (session.playsLibrary) {
+        // Store the new session now (a brand-new prior is reported with its first step); the
+        // first line waits for the learner.
+        await this.apply({ screen: session.screen, events: [] }, { at, credited: 0 });
+        return;
+      }
     }
     const first = clock.now();
     let step: StoryStep;
@@ -480,7 +577,7 @@ class StoryControllerImpl implements StoryControllerHandle {
     if (screen.kind === 'cliff') this.cliffWordIndex = screen.cliff.wordIndex;
     this.chapter = screen.meta.chapter;
     this.resolved = screen.kind === 'cliff' ? null : sentenceOf(screen);
-    this.set({ screen, previous: [] });
+    this.set({ screen, previous: [], library: this.session?.libraryProgress ?? null });
   }
 
   /** Publish a step: persist it, then the screen, the meaning, the speech. */
@@ -505,9 +602,19 @@ class StoryControllerImpl implements StoryControllerHandle {
     this.trackSentences(screen);
     const before = this.vm.screen;
     const meaning = step.meaning ?? (before?.kind === screen.kind ? this.vm.meaning : null);
-    this.set({ screen, meaning, spokenTodayMs, previous: [...this.previous] });
+    this.set({ screen, meaning, spokenTodayMs, previous: [...this.previous], library: session.libraryProgress });
+    if (screen.kind === 'episodeDone') this.storeLevel(screen.levelAfter);
     if (step.speak) await this.play(step.speak, { hearIndex: ctx.hearIndex });
     if (screen.kind === 'landing' || screen.kind === 'noSe') this.prefetch();
+    // Library: the model's alternatives for the feedback, searched while the learner thinks.
+    else if (screen.kind === 'cliff' && screen.meta.mode === 'library') this.prefetch();
+  }
+
+  /** The level an episode ended on, kept in the settings (Settings shows it; a new session starts there). */
+  private storeLevel(level: number): void {
+    if (this.settings.level === level) return;
+    this.settings = { ...this.settings, level };
+    this.deps.updateSettings?.({ level }).catch((e: unknown) => this.report(e));
   }
 
   /**
@@ -573,6 +680,77 @@ class StoryControllerImpl implements StoryControllerHandle {
   // ---------------------------------------------------------------------------
   // Actions
   // ---------------------------------------------------------------------------
+
+  /** Library: the episode screen, going on where the experience is. */
+  private openEpisode(): void {
+    const session = this.session;
+    if (this.disposed || !session?.playsLibrary) return;
+    this.set({ view: 'episode' });
+    const screen = this.vm.screen;
+    if (!screen) return;
+    if (START_KINDS.has(screen.kind)) {
+      void this.step((s) => s !== null && START_KINDS.has(s.kind), (sess, at) => sess.next(at), { busy: true, quiet: true });
+      return;
+    }
+    this.replay();
+  }
+
+  private closeEpisode(): void {
+    if (this.disposed) return;
+    this.closeEpisodeNow();
+  }
+
+  /** Back to the Story home: listening and speech stop. */
+  private closeEpisodeNow(): void {
+    this.hold.cancel();
+    this.stopSpeaking();
+    if (this.vm.view !== 'home') this.set({ view: 'home' });
+  }
+
+  /** The mic button's tap: start listening in tap mode, or stop and send. */
+  private micTap(): void {
+    if (this.disposed || !this.vm.screen) return;
+    const { phase } = this.vm.listen;
+    if (phase === 'idle' || phase === 'error') {
+      this.hold.begin();
+      if (!this.hold.active) return;
+      this.stopLatch();
+      this.latch = { auto: null, timer: setInterval(() => this.checkLatch(), AUTO_STOP_TICK_MS) };
+      this.set({ micLatched: true });
+      this.hold.start();
+    } else if (phase === 'warming' || phase === 'listening') {
+      this.hold.end();
+    }
+  }
+
+  /** Every listen state goes through here: the view model, and tap mode's silence check. */
+  private publishListen(listen: StoryViewModel['listen']): void {
+    this.set({ listen });
+    const latch = this.latch;
+    if (!latch) return;
+    if (listen.phase === 'listening') {
+      const at = this.deps.clock.now();
+      latch.auto ??= new AutoStop(at, this.deps.autoStop);
+      latch.auto.observe(listen, at);
+      if (latch.auto.due(at)) this.hold.end();
+    } else if (listen.phase !== 'warming') {
+      this.stopLatch();
+    }
+  }
+
+  private checkLatch(): void {
+    const latch = this.latch;
+    if (!latch || this.disposed) return;
+    if (latch.auto && this.vm.listen.phase === 'listening' && latch.auto.due(this.deps.clock.now())) this.hold.end();
+  }
+
+  private stopLatch(): void {
+    const latch = this.latch;
+    if (!latch) return;
+    clearInterval(latch.timer);
+    this.latch = null;
+    if (this.vm.micLatched) this.set({ micLatched: false });
+  }
 
   private hearWord(index: number): void {
     const visible: Guard = (s) => {
@@ -658,6 +836,12 @@ class StoryControllerImpl implements StoryControllerHandle {
   private async play(cue: SpeakCue, opts: { hearIndex?: number } = {}): Promise<void> {
     if (this.disposed) return;
     if (cue.what !== 'word') this.lastCue = cue;
+    // Library: nothing plays on the Story home (openEpisode plays the line on screen).
+    if (this.vm.library && this.vm.view !== 'episode') return;
+    if (cue.gap && cue.gap.before && cue.gap.after && opts.hearIndex === undefined) {
+      await this.playGapped(cue, cue.gap);
+      return;
+    }
     if (this.hold.holding) {
       // The learner is about to speak or speaking: do not talk over them; a no-sé answer still moves on.
       this.afterPlayed(cue, true, this.speakToken);
@@ -700,9 +884,54 @@ class StoryControllerImpl implements StoryControllerHandle {
       });
   }
 
+  /**
+   * A line with its gap: the words before it, a short pause, the words after it (the cue's
+   * text, with an ellipsis, is for a player that cannot pause).
+   */
+  private async playGapped(cue: SpeakCue, gap: { before: string; after: string }): Promise<void> {
+    if (this.hold.holding) return;
+    const token = ++this.speakToken;
+    const pack = this.deps.packs.lang;
+    if (this.vm.speakingWord !== null || this.vm.speakingOption !== null) this.set({ speakingWord: null, speakingOption: null });
+    await this.speaker.voice();
+    const sentence = sentenceOf(this.vm.screen)?.text ?? null;
+    void (async () => {
+      const parts = [gap.before, gap.after];
+      for (let i = 0; i < parts.length; i++) {
+        if (token !== this.speakToken || this.disposed || this.hold.holding) return;
+        if (i > 0) {
+          await sleep(GAP_PAUSE_MS);
+          if (token !== this.speakToken || this.disposed || this.hold.holding) return;
+        }
+        const part = parts[i] as string;
+        const plan = planCue(pack, part, sentence, i === 0 ? 0 : undefined);
+        const outcome = await this.speaker.say(part, {
+          rate: cue.rate,
+          words: plan.spans,
+          onWord: (b) => {
+            if (token === this.speakToken) this.set({ speakingWord: plan.viewIndex[b.index] ?? null });
+          },
+        });
+        if (token !== this.speakToken || this.disposed) return;
+        if (this.vm.speakingWord !== null) this.set({ speakingWord: null });
+        if (outcome === 'failed' && !this.speechOutNoticed) {
+          this.speechOutNoticed = true;
+          this.set({ notice: { key: tKey('story.notice.speechOut') } });
+        }
+        if (outcome !== 'completed') return;
+      }
+    })();
+  }
+
   private afterPlayed(cue: SpeakCue, completed: boolean, token: number, failed = false): void {
     const screen = this.vm.screen;
     if (!completed || this.disposed) return;
+    if (cue.what === 'line' && screen?.kind === 'cliff' && screen.phase === 'playing') {
+      // Recall: the whole line has played; the gap comes next.
+      void this.step((s) => s?.kind === 'cliff' && s.phase === 'playing', (session, at) => session.played(at));
+      return;
+    }
+    if (screen?.meta.mode === 'library') return;
     if (cue.what === 'answer' && screen?.kind === 'noSe' && screen.step === 'play_answer') {
       void this.step((s) => s?.kind === 'noSe' && s.step === 'play_answer', (session, at) => session.played(at));
       return;

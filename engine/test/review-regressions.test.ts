@@ -67,7 +67,8 @@ import { LEXICON } from '../src/lang/es/lexicon';
 
 const T0 = Date.UTC(2026, 10, 15, 8, 0, 0);
 const pack = createDefaultSpanishPack();
-const pair = createDefaultPairPack();
+// The generated flow (the library would make StorySession play the authored series).
+const pair = createDefaultPairPack({ library: false });
 const model = createMockModel();
 
 /** Texts of the variants a rule (by id prefix) makes for a sentence. */

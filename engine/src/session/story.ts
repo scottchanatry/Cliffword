@@ -29,6 +29,30 @@
  *    practice targets, and "Up next" also offers register switching, brought text and
  *    lyric cliffs.
  *
+ * Library source (the default when PairPack.library has stories; options.source)
+ * -----------------------------------------------------------------------------
+ * The Story flow plays authored series instead of generated sentences (steps 1 to 5 are
+ * then off: no starter, no generation, no placement, no retell unless options.library
+ * asks for it). The learner is in one track (an "experience") and plays its episodes in
+ * order; each track keeps its own progress (chooseTrack switches, replayEpisode replays a
+ * finished episode). An episode is the story of its tier for the learner level
+ * (content/library.ts), with every gender variant resolved for the learner's address and
+ * the track's choices (content/variants.ts). Each line has one cliff, asked by the
+ * learner level's mode:
+ * - recall (levels 0-1): the whole line is shown and played (phase 'playing'; played() or
+ *   next() moves on), then shown again with the gap (phase 'gap'): pick one of three
+ *   options, or say or type the word. Every word but the gap is text.
+ * - hint (2-3): the translation shows the gap word in bold; say or type it. One miss or a
+ *   "no sé" brings the options; a second "no sé" gives the answer.
+ * - predict (4-5): say what comes next; any natural answer counts (the model scores it).
+ *   "no sé" brings the options, a second one the answer.
+ * Every answer lands with the learner's answer, the story's words, up to three other
+ * natural answers (the listed ones, then the model's alternatives when a model is set)
+ * and the translation. Characters' questions are learner turns (judged by the model with
+ * self-repair; without one any reply with target-language words is accepted and an
+ * example answer is shown). After the last line: 'episodeDone', with the level rule
+ * (content/library.ts levelAfterEpisode); after the last episode: 'trackDone'.
+ *
  * Language-neutral: words come from LanguagePack.segment(), target-language data from
  * the packs, and display text is UiText (PairPack.ui keys).
  *
@@ -47,7 +71,7 @@
  */
 import type { SpokenCommand } from '../lang/types';
 import type { LanguageModel } from '../model/types';
-import type { StarterSentence, StarterStory } from '../pair/types';
+import type { LibraryStory, LibraryTurn, StarterSentence, StarterStory } from '../pair/types';
 import type { CliffRung, DifficultyParams, LearnerEvent } from '../learner/types';
 import { lexemeKey, lexemeOf } from '../learner/types';
 import { LearnerModel } from '../learner/model';
@@ -59,6 +83,20 @@ import { scoringContext, slangExemption, slangIn } from '../scoring/context';
 import { scoreWords } from '../scoring/wordScores';
 import { chooseTargets } from '../story/targets';
 import { generateNextSentence, type NextSentenceTuning } from '../story/next';
+import {
+  clampLevel,
+  cliffModeForLevel,
+  episodesOfTrack,
+  hintSpan,
+  isComingSoon,
+  levelAfterEpisode,
+  nextEpisodeOf,
+  speakerName,
+  storyForEpisode,
+  type CliffMode,
+  type LevelRuleOptions,
+} from '../content/library';
+import { resolveVariants, variantContext } from '../content/variants';
 import type { Pos } from '../lang/types';
 import { pickCliff, rankCliffPositions, type CliffPickOptions } from '../story/cliffPick';
 import { matchCommand, type CommandOptions } from '../speaking/commands';
@@ -110,11 +148,35 @@ import {
 } from './common';
 import { DEFAULT_VIEW_OPTIONS, buildSentenceView, sentenceWords, type SentenceWord, type ViewOptions } from './view';
 import { DEFAULT_HANDOVER_OPTIONS, bridgeFamiliar, handoverStage, type HandoverOptions, type StoryStage } from './handover';
+import {
+  KEEP_RESULTS,
+  feedbackAlternatives,
+  gapParts,
+  hasTargetWords,
+  initialLibraryState,
+  libraryAvailable,
+  libraryProgressView,
+  newTrackProgress,
+  resolvedStory,
+  startTrack,
+  storyById,
+  trackOf,
+  type EpisodePlay,
+  type LibraryState,
+  type TrackProgress,
+} from './library';
 import { ModelGate } from './prefetch';
 import {
   STORY_SESSION_FORMAT,
   type AdvancedTask,
   type CliffOutcome,
+  type CliffPhase,
+  type LearnerAddress,
+  type LibraryMeta,
+  type LibraryProgress,
+  type LibraryStart,
+  type TranslationHint,
+  type TurnReplyView,
   type CliffPrompt,
   type MeaningView,
   type PlacementNews,
@@ -177,7 +239,45 @@ export interface StorySessionOptions {
   handover: Partial<HandoverOptions>;
   /** Next-sentence generation tuning (story/next.ts DEFAULT_NEXT_SENTENCE_TUNING). */
   generation: Partial<NextSentenceTuning>;
+  /**
+   * Where story lines come from. 'auto' (default): the library (PairPack.library) when
+   * the pair has stories, else 'generated'. 'library': the same ('generated' when the pair
+   * has none). 'generated': the starter, placement and model-generated sentences (the
+   * earlier flow, kept behind this option).
+   */
+  source: 'auto' | 'library' | 'generated';
+  /** Library mode tuning. */
+  library: Partial<LibrarySessionOptions>;
 }
+
+/** Tunable numbers of library mode. See DEFAULT_LIBRARY_SESSION_OPTIONS. */
+export interface LibrarySessionOptions {
+  /** The level rule after each episode (content/library.ts DEFAULT_LEVEL_RULE). */
+  levelRule: Partial<LevelRuleOptions>;
+  /** Other natural answers shown after an answer. */
+  maxAlternatives: number;
+  /**
+   * With a model, search its alternatives at the cliff (one cliffPositions search, which
+   * prefetch() on the cliff screen runs ahead) so the feedback lists natural answers after
+   * a picked option too, and a spoken answer reuses them.
+   */
+  modelAlternatives: boolean;
+  /** Timed retell rounds after each episode (off: kept in the engine, out of the Story flow). */
+  retell: boolean;
+}
+
+/**
+ * Defaults: the redesign's level rule; three other answers (the brief's landing line
+ * shows the answer and three others); model alternatives on (the model is what makes the
+ * feedback richer than the listed answers); retell off (the owner's decision for the
+ * test build).
+ */
+export const DEFAULT_LIBRARY_SESSION_OPTIONS: Readonly<LibrarySessionOptions> = {
+  levelRule: {},
+  maxAlternatives: 3,
+  modelAlternatives: true,
+  retell: false,
+};
 
 /**
  * Defaults (judgement calls unless noted; calibrate from learner logs):
@@ -230,15 +330,58 @@ export const DEFAULT_STORY_SESSION_OPTIONS: Readonly<StorySessionOptions> = {
   cliffPick: {},
   handover: {},
   generation: {},
+  source: 'auto',
+  library: {},
 };
 
-type Phase = 'idle' | 'cliff' | 'landing' | 'noSe' | 'native' | 'turn' | 'repair' | 'upNext' | 'retell' | 'register' | 'placementDone';
+type Phase =
+  | 'idle'
+  | 'cliff'
+  | 'landing'
+  | 'noSe'
+  | 'native'
+  | 'turn'
+  | 'repair'
+  | 'upNext'
+  | 'retell'
+  | 'register'
+  | 'placementDone'
+  | 'episodeDone'
+  | 'trackDone';
+
+/** A library line on screen (CurrentSentence.lib). Plain data. */
+interface LibraryLine {
+  storyId: string;
+  /** Index of the line in its story. */
+  line: number;
+  lineId: string;
+  mode: CliffMode;
+  phase: CliffPhase;
+  /** Learner level of the episode. */
+  level: number;
+  speaker: string | null;
+  concept: string;
+  /** cliff.hint: the gap word's gloss. */
+  gloss: string | null;
+  distractors: string[];
+  /** Options were offered (always in recall; after a miss or "no sé" in hint and predict). */
+  helped: boolean;
+  /** "no sé" said at this line. */
+  noSe: number;
+  /** The answer that missed before the options (hint mode). */
+  missed: string | null;
+  /** Space before the line, and the scoring context before it (cliffPositions). */
+  lead: string;
+  sentenceContext: string;
+  /** The model's alternatives at the cliff were searched. */
+  altsReady: boolean;
+}
 
 /** The sentence on screen. Plain data (part of the snapshot). */
 interface CurrentSentence {
   text: string;
-  source: 'model' | 'starter' | 'probe';
-  /** Index of the starter sentence or probe. */
+  source: 'model' | 'starter' | 'probe' | 'library';
+  /** Index of the starter sentence or probe (the line index for library lines). */
   index: number | null;
   words: SentenceWord[];
   cliff: { wordIndex: number; length: number; start: number; end: number; answer: string; key: string };
@@ -263,6 +406,8 @@ interface CurrentSentence {
   outcome: CliffOutcome | null;
   resolved: boolean;
   finished: boolean;
+  /** Library lines only. */
+  lib?: LibraryLine;
 }
 
 interface NativeState {
@@ -280,6 +425,8 @@ interface TurnState {
   repair: RepairState;
   said: SaidWord[];
   native: { heard: string; target: string | null } | null;
+  /** Library turns only. */
+  lib?: { id: string; translation: string; example: string; revealed: boolean; reply: TurnReplyView | null };
 }
 
 interface RetellState {
@@ -327,6 +474,10 @@ export interface StoryState {
   promptIndex: number;
   spokenMs: number;
   screen: StoryScreen;
+  /** Where lines come from (see StorySessionOptions.source). */
+  source: 'library' | 'generated';
+  /** Library mode: the learner's tracks, level and address. */
+  library: LibraryState | null;
 }
 
 /** What StorySession.prefetch prepared. */
@@ -355,12 +506,29 @@ export interface StorySessionCreate extends SessionDeps {
   /** Apply events to the learner (default true). Turn off when the app applies persisted events itself. */
   applyEvents?: boolean;
   options?: Partial<StorySessionOptions>;
+  /** Library mode: the track, start level, form of address and track choices. */
+  library?: LibraryStart;
 }
 
 const CONTENT_ROLE_POS = new Set(['NOUN', 'VERB', 'ADJ', 'ADV']);
 
 function mergeOptions(o: Partial<StorySessionOptions> = {}): StorySessionOptions {
   return { ...DEFAULT_STORY_SESSION_OPTIONS, ...o };
+}
+
+/** Whether a session with these options plays the pair's library. */
+function playsLibrary(source: StorySessionOptions['source'], pair: StorySessionCreate['pair']): boolean {
+  if (source === 'generated') return false;
+  return libraryAvailable(pair) && startTrack(pair, undefined) !== '';
+}
+
+/**
+ * Library mode has no placement: the learner says how much they know (startLevel). A
+ * brand-new learner (level 0) gets the brandNew prior unless the app asked otherwise.
+ */
+function libraryStartMode(asked: StartMode | undefined, start: LibraryStart | undefined): StartMode {
+  if (asked === 'brand_new' || asked === 'continue') return asked;
+  return clampLevel(start?.startLevel ?? 0) === 0 ? 'brand_new' : 'continue';
 }
 
 function idleMeta(): StoryMeta {
@@ -389,8 +557,13 @@ export class StorySession {
   ) {
     this.deps = { ...deps };
     this.state = state;
-    // Snapshots from before the bridge have no introduced list.
+    // Snapshots from before the bridge have no introduced list; before the library, no source.
     if (!Array.isArray(this.state.introduced)) this.state.introduced = [];
+    if (this.state.source !== 'library' && this.state.source !== 'generated') this.state.source = 'generated';
+    if (this.state.library === undefined || (this.state.source === 'library' && !this.state.library)) {
+      this.state.library = null;
+      this.state.source = 'generated';
+    }
     this.o = mergeOptions(opts.options);
     this.applyEvents = opts.applyEvents !== false;
     if (opts.gated !== false) this.useModel(deps.model);
@@ -415,9 +588,10 @@ export class StorySession {
    * inside the first story. Nothing is generated until next().
    */
   static create(c: StorySessionCreate): StorySession {
-    const startMode: StartMode = c.startMode ?? 'continue';
-    const settings = resolveSessionSettings(c.settings);
     const opts = mergeOptions(c.options);
+    const library = playsLibrary(opts.source, c.pair);
+    const startMode: StartMode = library ? libraryStartMode(c.startMode, c.library) : c.startMode ?? 'continue';
+    const settings = resolveSessionSettings(c.settings);
     const state: StoryState = {
       seed: c.seed >>> 0,
       steps: 0,
@@ -448,6 +622,8 @@ export class StorySession {
       promptIndex: 0,
       spokenMs: 0,
       screen: { kind: 'idle', meta: idleMeta() },
+      source: library ? 'library' : 'generated',
+      library: library ? initialLibraryState(c.pair, c.library) : null,
     };
     const session = new StorySession(c, state, { applyEvents: c.applyEvents, options: c.options });
     if (startMode === 'brand_new') session.replacePrior();
@@ -457,16 +633,37 @@ export class StorySession {
 
   /**
    * Rebuild a session from snapshot(). Pass the learner as the app stored it (with the
-   * prior of the latest step's `prior`). Throws on a snapshot of another format or kind.
+   * prior of the latest step's `prior`). A format 1 snapshot (before the library) starts a
+   * fresh library session when the pair has a library (its seed and settings kept,
+   * opts.library as for create), and is restored as it was otherwise. Throws on a
+   * snapshot of another format or kind.
    */
   static restore(
     snapshot: StorySessionSnapshot,
     deps: SessionDeps,
-    opts: { applyEvents?: boolean; options?: Partial<StorySessionOptions> } = {},
+    opts: { applyEvents?: boolean; options?: Partial<StorySessionOptions>; library?: LibraryStart } = {},
   ): StorySession {
-    if (!snapshot || snapshot.format !== STORY_SESSION_FORMAT || snapshot.kind !== 'story' || !snapshot.state) {
+    if (!snapshot || snapshot.kind !== 'story' || !snapshot.state || typeof snapshot.state !== 'object') {
       throw new Error('StorySession.restore: unsupported snapshot');
     }
+    const format = snapshot.format as number;
+    if (format === 1) {
+      const old = snapshot.state as Partial<StoryState>;
+      if (playsLibrary(mergeOptions(opts.options).source, deps.pair)) {
+        return StorySession.create({
+          ...deps,
+          now: 0,
+          seed: typeof old.seed === 'number' && Number.isFinite(old.seed) ? old.seed : 0,
+          ...(old.settings ? { settings: old.settings } : {}),
+          startMode: 'continue',
+          ...(opts.library ? { library: opts.library } : {}),
+          ...(opts.applyEvents !== undefined ? { applyEvents: opts.applyEvents } : {}),
+          ...(opts.options ? { options: opts.options } : {}),
+        });
+      }
+      return new StorySession(deps, plain({ ...snapshot.state, source: 'generated', library: null } as StoryState), opts);
+    }
+    if (format !== STORY_SESSION_FORMAT) throw new Error('StorySession.restore: unsupported snapshot');
     return new StorySession(deps, plain(snapshot.state), opts);
   }
 
@@ -560,6 +757,14 @@ export class StorySession {
     const before = gate.recordedCalls;
     const run = (async (): Promise<PrefetchInfo> => {
       try {
+        if (ghost.isLibrary()) {
+          // Library lines cost no model call; the model's alternatives at the cliff do. On a
+          // cliff screen they are searched for the cliff on screen, elsewhere for the next one.
+          const kind = ghost.state.phase === 'cliff' ? 'cliff' : (await ghost.advance(at)).screen.kind;
+          const cur = ghost.state.current;
+          if (ghost.state.phase === 'cliff' && cur?.lib && ghost.deps.model) await ghost.ensureAlternatives(cur, ghost.deps.model);
+          return { prepared: kind === 'cliff', modelCalls: gate.recordedCalls - before, next: kind };
+        }
         const step = await ghost.advance(at);
         return { prepared: step.screen.kind === 'cliff', modelCalls: gate.recordedCalls - before, next: step.screen.kind };
       } catch {
@@ -591,7 +796,8 @@ export class StorySession {
     try {
       return await this.advance(at);
     } finally {
-      this.gate?.clear();
+      // Library mode keeps a prefetch's alternatives of the new cliff for the answer.
+      if (!this.isLibrary()) this.gate?.clear();
     }
   }
 
@@ -620,6 +826,8 @@ export class StorySession {
   /** The no-sé answer (or a native target phrase) finished playing. */
   played(at: number): StoryStep {
     if (this.busy) return this.refused();
+    // Library recall: the whole line has played; now the gap.
+    if (this.state.phase === 'cliff' && this.state.current?.lib?.phase === 'playing') return this.toGap(at);
     if (this.state.phase === 'noSe' && this.state.noSe) {
       this.state.noSe = advanceNoSe(this.state.noSe, { type: 'played' }, this.deps.pack, this.noSeOpts());
       this.state.screen = this.noSeScreen(at);
@@ -775,6 +983,7 @@ export class StorySession {
   }
 
   private meta(): StoryMeta {
+    if (this.isLibrary()) return this.libraryMeta();
     const cur = this.state.current;
     return {
       chapter: this.state.chapter,
@@ -800,22 +1009,33 @@ export class StorySession {
     const w = cur.words[index];
     if (!w || (w.explicit && !this.state.settings.showExplicit)) return false;
     if (cur.resolved) return true;
+    if (cur.lib?.phase === 'playing') return true;
+    if (cur.lib && cur.lib.mode !== 'predict') return index < cur.cliff.wordIndex || index >= cur.cliff.wordIndex + cur.cliff.length;
     return index < cur.cliff.wordIndex;
   }
 
   private view(at: number): SentenceView {
     const cur = this.state.current as CurrentSentence;
+    const lib = cur.lib;
+    // Library: the whole line is shown while it plays (recall); levels 0-1 read every word.
+    const playing = lib?.phase === 'playing' && !cur.resolved;
+    const settings: SessionSettings =
+      lib && lib.level <= 1 && this.state.settings.textMode === 'auto' ? { ...this.state.settings, textMode: 'all_text' } : this.state.settings;
     return buildSentenceView(
       cur.text,
       cur.words,
-      { cliff: { wordIndex: cur.cliff.wordIndex, length: cur.cliff.length, answered: cur.resolved }, revealed: cur.revealed },
+      {
+        cliff: playing ? null : { wordIndex: cur.cliff.wordIndex, length: cur.cliff.length, answered: cur.resolved },
+        revealed: cur.revealed,
+        showAfter: lib !== undefined && lib.mode !== 'predict',
+      },
       {
         pack: this.deps.pack,
         pair: this.deps.pair,
         learner: this.deps.learner,
         now: at,
         params: cur.params,
-        settings: this.state.settings,
+        settings,
         rate: this.rate(),
         options: { ...DEFAULT_VIEW_OPTIONS, ...this.o.view },
       },
@@ -824,6 +1044,7 @@ export class StorySession {
 
   private cliffPrompt(): CliffPrompt {
     const cur = this.state.current as CurrentSentence;
+    if (cur.lib) return this.libraryPrompt(cur, cur.lib);
     const p: CliffPrompt = {
       wordIndex: cur.cliff.wordIndex,
       length: cur.cliff.length,
@@ -841,7 +1062,9 @@ export class StorySession {
     const s = this.state.screen;
     const cur = this.state.current;
     if (!cur) return;
-    if (s.kind === 'cliff') this.state.screen = { kind: 'cliff', meta: this.meta(), sentence: this.view(at), cliff: this.cliffPrompt() };
+    if (s.kind === 'cliff') {
+      this.state.screen = cur.lib ? this.libraryCliffScreen(at) : { kind: 'cliff', meta: this.meta(), sentence: this.view(at), cliff: this.cliffPrompt() };
+    }
     else if (s.kind === 'landing') this.state.screen = { ...s, meta: this.meta(), sentence: this.view(at) };
     else if (s.kind === 'noSe') this.state.screen = { ...s, meta: this.meta(), sentence: this.view(at) };
   }
@@ -856,6 +1079,7 @@ export class StorySession {
   // -------------------------------------------------------------------------
 
   private async advance(at: number): Promise<StoryStep> {
+    if (this.isLibrary()) return this.libraryAdvance(at);
     const s = this.state;
     const events: LearnerEvent[] = [];
     let news: PlacementNews | undefined;
@@ -1495,6 +1719,7 @@ export class StorySession {
       case 'next':
         return { ...(await this.advanceStep(at)), ...tag };
       case 'dont_know': {
+        if (s.phase === 'cliff' && s.current?.lib) return { ...this.libraryNoSe(at), ...tag };
         if (s.phase === 'cliff') return { ...this.startNoSeFlow(at), ...tag };
         if ((s.phase === 'turn' || s.phase === 'repair') && s.turn) return { ...this.giveUp(at), ...tag };
         if (s.phase === 'register' && s.register) return { ...this.registerReveal(), ...tag };
@@ -1507,6 +1732,8 @@ export class StorySession {
       }
       case 'done': {
         if (s.phase === 'retell') return { ...this.retellRound('', info, true), ...tag };
+        // Library: "listo" moves on like "siguiente" (episodes end on their own).
+        if (this.isLibrary()) return { ...(await this.advanceStep(at)), ...tag };
         if (this.placementActive() || s.phase === 'upNext' || s.phase === 'placementDone' || s.chapterSentences.length === 0) {
           return { ...(await this.advanceStep(at)), ...tag };
         }
@@ -1538,7 +1765,7 @@ export class StorySession {
     let speak: SpeakCue | undefined;
     switch (s.phase) {
       case 'cliff':
-        speak = this.speakUpToCliff();
+        speak = cur?.lib ? this.libraryCue() : this.speakUpToCliff();
         break;
       case 'landing':
         speak = { text: cur?.text ?? '', rate, what: 'sentence' };
@@ -1619,6 +1846,7 @@ export class StorySession {
 
   private async answer(transcript: string, at: number): Promise<StoryStep> {
     const cur = this.state.current as CurrentSentence;
+    if (cur.lib) return this.libraryAnswer(transcript, at, cur, cur.lib);
     const pack = this.deps.pack;
     if (cur.options) {
       const idx = cur.options.findIndex((o) => sameWords(pack, transcript, o.text));
@@ -1654,7 +1882,8 @@ export class StorySession {
    * Canned sentences were never rated: their answers search as usual.
    */
   private precomputed(cur: CurrentSentence): { alternatives?: NextWord[]; actualLogprob?: number } {
-    if (cur.source !== 'model' || !alternativesReusable({}, {})) return {};
+    const rated = cur.source === 'model' || (cur.source === 'library' && cur.lib?.altsReady === true && cur.alternatives.length > 0);
+    if (!rated || !alternativesReusable({}, {})) return {};
     const out: { alternatives?: NextWord[]; actualLogprob?: number } = { alternatives: cur.alternatives };
     if (cur.actualProb !== null && cur.actualProb > 0) out.actualLogprob = Math.log(cur.actualProb);
     return out;
@@ -1663,6 +1892,7 @@ export class StorySession {
   private async chooseOption(index: number, at: number): Promise<StoryStep> {
     const cur = this.state.current;
     if (this.state.phase !== 'cliff' || !cur || !cur.options) return this.step([]);
+    if (cur.lib) return this.libraryPick(index, at, cur, cur.lib);
     const opt = cur.options[index];
     if (!opt) return this.step([]);
     const result = optionResult(opt.text, opt.natural, opt.natural ? cur.actualProb : opt.prob, cur.alternatives);
@@ -1707,6 +1937,7 @@ export class StorySession {
     this.state.noSe = startNoSe({ answer: cur.cliff.answer, key: cur.cliff.key, at });
     cur.resolved = true;
     this.state.outcomes.push(0);
+    if (cur.lib) this.countCliff(false);
     const news = this.recordProbe(false);
     this.state.phase = 'noSe';
     this.state.screen = this.noSeScreen(at);
@@ -1726,6 +1957,11 @@ export class StorySession {
       ui: st.ui,
     };
     if (st.last) screen.repeat = alignmentView(st.last);
+    const lib = this.state.current?.lib;
+    if (lib) {
+      screen.translation = this.state.current?.translation ?? null;
+      screen.speaker = lib.speaker;
+    }
     return screen;
   }
 
@@ -1753,6 +1989,7 @@ export class StorySession {
     };
     cur.resolved = true;
     this.state.outcomes.push(0);
+    if (cur.lib) this.countCliff(false);
     // Placement measures understanding: naming the expected word in the native language shows it.
     const news = this.recordProbe(nr.phrases.some((p) => p.fromExpected));
     this.state.phase = 'native';
@@ -1803,7 +2040,16 @@ export class StorySession {
         }
       }
     }
-    if (!model) return this.step(events);
+    if (!model) {
+      if (turn.lib) {
+        // No model to judge: any reply with target-language words counts; the example follows.
+        const accepted = hasTargetWords(pack, this.deps.pair.nativeLexicon, transcript);
+        turn.lib.reply = { heard: transcript.trim(), accepted, scoredBy: 'canned', ui: { key: accepted ? 'turn.accepted' : 'turn.trySpanish' } };
+        turn.lib.revealed = true;
+        this.state.screen = this.repairScreen();
+      }
+      return this.step(events);
+    }
     const { register, regions } = this.regOpts();
     const storyText = this.storyText();
     turn.repair = await attemptRepair(turn.repair, model, pack, transcript, at, {
@@ -1819,7 +2065,14 @@ export class StorySession {
       if (h.heat > sw.heat) sw.heat = h.heat;
     }
     turn.said = said;
-    if (isRepairFinal(turn.repair)) events.push(...repairEvents(turn.repair, pack, { ...this.o.repair, register, regions }));
+    if (isRepairFinal(turn.repair)) {
+      events.push(...repairEvents(turn.repair, pack, { ...this.o.repair, register, regions }));
+      if (turn.lib) {
+        turn.lib.revealed = true;
+        const accepted = turn.repair.phase === 'ok' || turn.repair.phase === 'repaired';
+        turn.lib.reply = { heard: transcript.trim(), accepted, scoredBy: 'model', ui: { key: accepted ? 'turn.accepted' : 'turn.trySpanish' } };
+      }
+    }
     this.state.phase = 'repair';
     this.state.screen = this.repairScreen();
     return this.step(events);
@@ -1827,6 +2080,12 @@ export class StorySession {
 
   private giveUp(at: number): StoryStep {
     const turn = this.state.turn as TurnState;
+    if (turn.lib && turn.repair.phase === 'awaiting_attempt') {
+      // Library: "no sé" before a reply shows (and plays) an example answer; next() moves on.
+      turn.lib.revealed = true;
+      this.state.screen = this.repairScreen();
+      return this.step([], { speak: { text: turn.lib.example, rate: this.rate(), what: 'answer' } });
+    }
     const before = turn.repair;
     turn.repair = repairFlow(turn.repair, { type: 'give_up', at }, this.deps.pack, { ...this.o.repair, ...this.regOpts() });
     const events = turn.repair !== before && isRepairFinal(turn.repair) ? repairEvents(turn.repair, this.deps.pack, { ...this.o.repair, ...this.regOpts() }) : [];
@@ -1843,9 +2102,18 @@ export class StorySession {
   private repairScreen(): StoryScreen {
     const turn = this.state.turn as TurnState;
     const r = turn.repair;
+    const lib = turn.lib;
+    const example = lib?.revealed ? lib.example : null;
+    const exampleUi: UiText | null = example !== null ? { key: 'turn.example', params: { example } } : null;
     if (r.phase === 'awaiting_attempt') {
       const screen: StoryScreen = { kind: 'turn', meta: this.meta(), prompt: { speaker: turn.speaker, line: turn.line }, ui: { key: 'story.asks', params: { speaker: turn.speaker } } };
       if (turn.native) screen.native = turn.native;
+      if (lib) {
+        screen.translation = lib.translation;
+        screen.example = example;
+        screen.exampleUi = exampleUi;
+        screen.reply = lib.reply;
+      }
       return screen;
     }
     const screen: StoryScreen = {
@@ -1863,6 +2131,11 @@ export class StorySession {
       done: isRepairFinal(r),
     };
     if (turn.native) screen.native = turn.native;
+    if (lib) {
+      screen.translation = lib.translation;
+      screen.example = example;
+      screen.exampleUi = exampleUi;
+    }
     return screen;
   }
 
@@ -1995,5 +2268,701 @@ export class StorySession {
   private registerReveal(): StoryStep {
     const t = this.state.register as RegisterState;
     return this.step([], { speak: { text: t.expected, rate: this.rate(), what: 'answer' } });
+  }
+
+  // -------------------------------------------------------------------------
+  // Library: authored series (see the module comment)
+  // -------------------------------------------------------------------------
+
+  /**
+   * Library mode: switch to another experience (track) and show where it was: its line in
+   * progress, its next episode, or 'trackDone'. The track left keeps its progress (a line
+   * not answered yet is shown again on return; a turn or retell on screen is dropped).
+   * `choices` (choice key -> option id) are stored with the track. A coming-soon track,
+   * or a session that does not play the library, changes nothing.
+   */
+  async chooseTrack(trackId: string, at: number, choices?: Record<string, string>): Promise<StoryStep> {
+    return this.run(async () => this.switchTrack(trackId, at, choices));
+  }
+
+  /**
+   * Library mode: play a finished episode of the current track again (an episode in
+   * progress resumes after it). An episode not finished yet changes nothing.
+   */
+  async replayEpisode(episode: number, at: number): Promise<StoryStep> {
+    return this.run(async () => {
+      if (!this.isLibrary()) return this.step([]);
+      const prog = this.progress();
+      if (!prog.completed.includes(episode)) return this.step([]);
+      const s = this.state;
+      const events = s.current?.resolved ? this.finishSentence(at) : [];
+      if (prog.play && !prog.play.replay) prog.paused = prog.play;
+      prog.play = null;
+      if (!this.startEpisode(prog, episode, true)) {
+        prog.play = prog.paused;
+        prog.paused = null;
+        return this.step(events);
+      }
+      this.clearTransient();
+      s.phase = 'idle';
+      return this.presentLibrary(at, events);
+    });
+  }
+
+  /**
+   * Library mode: change the learner's form of address (from the next line) or level
+   * (from the next episode; the episode on screen keeps its mode).
+   */
+  setLibraryProfile(change: { address?: LearnerAddress; level?: number }, at: number): StoryStep {
+    if (this.busy) return this.refused();
+    if (!this.isLibrary()) return this.step([]);
+    const lib = this.lib;
+    if (change.address === 'm' || change.address === 'f') lib.address = change.address;
+    if (typeof change.level === 'number' && Number.isFinite(change.level)) lib.level = clampLevel(change.level);
+    this.resolvedCache = null;
+    this.state.screen = { ...this.state.screen, meta: this.meta() } as StoryScreen;
+    void at;
+    return this.step([]);
+  }
+
+  /** Library mode: the learner level, address and every track with its progress (null otherwise). */
+  get libraryProgress(): LibraryProgress | null {
+    const st = this.readState();
+    if (st.source !== 'library' || !st.library) return null;
+    return plain(libraryProgressView(this.deps.pair, st.library));
+  }
+
+  /** True when this session plays the pair's library. */
+  get playsLibrary(): boolean {
+    const st = this.readState();
+    return st.source === 'library' && st.library !== null;
+  }
+
+  private isLibrary(): boolean {
+    return this.state.source === 'library' && this.state.library !== null;
+  }
+
+  private get lib(): LibraryState {
+    return this.state.library as LibraryState;
+  }
+
+  private libOpts(): LibrarySessionOptions {
+    return { ...DEFAULT_LIBRARY_SESSION_OPTIONS, ...this.o.library };
+  }
+
+  /** A track's progress (created on first use). */
+  private progress(trackId: string = this.lib.track): TrackProgress {
+    const lib = this.lib;
+    let p = lib.tracks[trackId];
+    if (!p) {
+      p = newTrackProgress(this.deps.pair.library, trackId);
+      lib.tracks[trackId] = p;
+    }
+    return p;
+  }
+
+  private resolvedCache: { key: string; story: LibraryStory } | null = null;
+
+  /** The story of a play, resolved for the learner (null when the library no longer has it). */
+  private playStory(play: EpisodePlay): LibraryStory | null {
+    const raw = storyById(this.deps.pair, play.storyId);
+    if (!raw) return null;
+    const choices = this.progress(raw.track).choices;
+    const key = JSON.stringify([raw.id, this.lib.address, choices]);
+    if (this.resolvedCache?.key === key) return this.resolvedCache.story;
+    const story = resolvedStory(this.deps.pair, raw, this.lib.address, choices);
+    this.resolvedCache = { key, story };
+    return story;
+  }
+
+  /** A speaker's display name: a cast member's local name (its variants resolved) or the name as written. */
+  private speakerOf(speaker: string | undefined): string | null {
+    const track = trackOf(this.deps.pair, this.lib.track);
+    const name = speakerName(track, speaker);
+    return name === null ? null : resolveVariants(name, variantContext(track, this.lib.address, this.progress().choices));
+  }
+
+  private clearTransient(): void {
+    const s = this.state;
+    s.current = null;
+    s.noSe = null;
+    s.native = null;
+    s.turn = null;
+    s.retell = null;
+    s.register = null;
+  }
+
+  /** Start an episode of the current track: the story of its tier for the learner level. */
+  private startEpisode(prog: TrackProgress, episode: number, replay: boolean): EpisodePlay | null {
+    const lib = this.lib;
+    const story = storyForEpisode(this.deps.pair.library, lib.track, episode, lib.level);
+    if (!story) return null;
+    const play: EpisodePlay = { episode, storyId: story.id, line: 0, lineDone: false, turns: [], cliffs: 0, unaided: 0, replay, level: lib.level };
+    prog.play = play;
+    this.state.chapter = episode;
+    this.state.chapterSentences = [];
+    this.state.story = [];
+    return play;
+  }
+
+  /** A cliff of the episode was reached and resolved (answered, picked, skipped, "no sé"). */
+  private countCliff(unaided: boolean): void {
+    const play = this.lib.tracks[this.lib.track]?.play;
+    if (!play || play.lineDone) return;
+    play.cliffs += 1;
+    if (unaided) play.unaided += 1;
+    play.lineDone = true;
+  }
+
+  private async switchTrack(trackId: string, at: number, choices: Record<string, string> | undefined): Promise<StoryStep> {
+    if (!this.isLibrary() || isComingSoon(this.deps.pair.library, trackId)) return this.step([]);
+    const s = this.state;
+    const events = s.current?.resolved ? this.finishSentence(at) : [];
+    this.clearTransient();
+    this.lib.track = trackId;
+    const prog = this.progress(trackId);
+    if (choices) prog.choices = { ...prog.choices, ...choices };
+    this.resolvedCache = null;
+    s.phase = 'idle';
+    return this.presentLibrary(at, events);
+  }
+
+  private async libraryAdvance(at: number): Promise<StoryStep> {
+    const s = this.state;
+    const events: LearnerEvent[] = [];
+    switch (s.phase) {
+      case 'cliff': {
+        const cur = s.current as CurrentSentence;
+        // "Siguiente" while the line plays shows the gap; at the gap it skips the cliff.
+        if (cur.lib?.phase === 'playing') return this.toGap(at);
+        events.push({ type: 'cliff_skip', key: cur.cliff.key, at });
+        s.outcomes.push(0);
+        cur.resolved = true;
+        this.countCliff(false);
+        break;
+      }
+      case 'landing':
+      case 'noSe':
+      case 'native':
+        this.countCliff(false);
+        break;
+      case 'turn':
+      case 'repair':
+        s.turn = null;
+        break;
+      case 'upNext':
+        return this.startRetell(at);
+      case 'retell':
+        if (s.retell && s.retell.round < this.o.retellLanes.length) {
+          s.retell.round = this.o.retellLanes.length;
+          s.screen = this.retellScreen();
+          return this.step([]);
+        }
+        s.retell = null;
+        return this.finishEpisode(at, events);
+      default:
+        break;
+    }
+    events.push(...this.finishSentence(at));
+    return this.presentLibrary(at, events);
+  }
+
+  /**
+   * What comes next in the current track: the turn after the line just done, the next
+   * line, the episode's end, a new episode, or 'trackDone'.
+   */
+  private async presentLibrary(at: number, events: LearnerEvent[]): Promise<StoryStep> {
+    const s = this.state;
+    const lib = this.lib;
+    const prog = this.progress();
+    s.noSe = null;
+    s.native = null;
+    s.register = null;
+    s.turn = null;
+    // Each pass moves forward (a line, an episode or the track's end), so this ends.
+    for (let guard = 0; guard < 10000; guard++) {
+      let play = prog.play;
+      if (!play) {
+        if (prog.done) return this.trackDoneStep(events);
+        play = this.startEpisode(prog, prog.next, false);
+        if (!play) {
+          // The episode is not written (the library changed): go on with the next written one.
+          const nxt = nextEpisodeOf(this.deps.pair.library, lib.track, prog.next);
+          if (nxt === null) prog.done = true;
+          else prog.next = nxt;
+          continue;
+        }
+      }
+      const story = this.playStory(play);
+      if (!story) {
+        // The story left the library: start the episode again with what is there now.
+        prog.play = null;
+        if (play.replay) {
+          prog.play = prog.paused;
+          prog.paused = null;
+        }
+        continue;
+      }
+      if (play.lineDone) {
+        play.line += 1;
+        play.lineDone = false;
+      }
+      const after = play.line - 1;
+      const turn = (story.turns ?? []).find((t) => t.after === after && !play.turns.includes(t.id));
+      if (turn) {
+        play.turns.push(turn.id);
+        return this.startLibraryTurn(turn, events);
+      }
+      if (play.line >= story.sentences.length) return this.libraryEpisodeEnd(at, events);
+      const cur = this.libraryLine(story, play, at);
+      if (!cur) {
+        // A line whose cliff cannot be located is skipped (the validator reports it).
+        play.lineDone = true;
+        continue;
+      }
+      s.current = cur;
+      s.chapterSentences = story.sentences.slice(0, play.line + 1).map((x) => x.text);
+      s.phase = 'cliff';
+      s.screen = this.libraryCliffScreen(at);
+      return this.step(events, { speak: this.libraryCue() });
+    }
+    s.phase = 'idle';
+    s.screen = { kind: 'error', meta: this.meta(), ui: { key: 'story.noSentence' } };
+    return this.step(events);
+  }
+
+  /** The line of a play as the current sentence; null when its cliff cannot be located. */
+  private libraryLine(story: LibraryStory, play: EpisodePlay, at: number): CurrentSentence | null {
+    const line = story.sentences[play.line];
+    if (!line) return null;
+    const pack = this.deps.pack;
+    const span = locateAnswer(pack, line.text, line.cliff.word);
+    if (!span) return null;
+    const words = sentenceWords(pack, line.text, this.regOpts());
+    const first = words[span.wordIndex];
+    if (!first) return null;
+    this.state.story = story.sentences
+      .slice(0, play.line)
+      .map((x) => x.text)
+      .slice(-this.o.keepSentences);
+    const storyText = this.storyText();
+    const lead = leadAfter(storyText);
+    const sentenceContext = this.scoringCtx(storyText, lead + line.text);
+    const upToCliff = lead + line.text.slice(0, span.start);
+    const mode = cliffModeForLevel(play.level);
+    const answer = line.text.slice(span.start, span.end);
+    const cur: CurrentSentence = {
+      text: line.text,
+      source: 'library',
+      index: play.line,
+      words,
+      cliff: { ...span, answer, key: first.key },
+      context: sentenceContext + upToCliff,
+      before: storyText + upToCliff,
+      rung: mode === 'recall' ? 'options' : mode === 'hint' ? 'hint' : 'free',
+      options: null,
+      hint: null,
+      alternatives: [],
+      actualProb: null,
+      accept: [...(line.cliff.accept ?? [])],
+      targets: [],
+      translation: line.translation,
+      params: this.params(at),
+      slow: 1,
+      replays: 0,
+      tapped: [],
+      revealed: [],
+      probe: null,
+      outcome: null,
+      resolved: false,
+      finished: false,
+      lib: {
+        storyId: story.id,
+        line: play.line,
+        lineId: line.id,
+        mode,
+        phase: mode === 'recall' ? 'playing' : 'gap',
+        level: play.level,
+        speaker: this.speakerOf(line.speaker),
+        concept: line.cliff.concept ?? '',
+        gloss: line.cliff.hint ?? null,
+        distractors: [...line.cliff.distractors],
+        helped: mode === 'recall',
+        noSe: 0,
+        missed: null,
+        lead,
+        sentenceContext,
+        altsReady: false,
+      },
+    };
+    if (mode === 'recall') this.libraryOptions(cur);
+    return cur;
+  }
+
+  /** The answer and the line's two distractors in a seeded order. */
+  private libraryOptions(cur: CurrentSentence): void {
+    const pack = this.deps.pack;
+    const lib = cur.lib as LibraryLine;
+    const seen = new Set([looseText(pack, cur.cliff.answer)]);
+    const distractors: string[] = [];
+    for (const d of lib.distractors) {
+      const k = looseText(pack, d);
+      if (!k || seen.has(k) || distractors.length >= DEFAULT_OPTION_CHOICE_OPTIONS.count) continue;
+      seen.add(k);
+      distractors.push(d);
+    }
+    const { options, naturalIndex } = arrangeOptions(cur.cliff.answer, distractors, rng(this.nextSeed()));
+    cur.options = options.map((opt, i) => ({ text: opt.text, natural: i === naturalIndex, prob: null }));
+  }
+
+  /** The options are on screen: recall at the gap, or after a miss or "no sé". */
+  private optionsShown(lib: LibraryLine): boolean {
+    return lib.mode === 'recall' ? lib.phase === 'gap' : lib.helped;
+  }
+
+  private libraryPrompt(cur: CurrentSentence, lib: LibraryLine): CliffPrompt {
+    const shown = cur.options !== null && this.optionsShown(lib);
+    let ui: UiText;
+    if (lib.mode === 'recall') ui = { key: lib.phase === 'playing' ? 'cliff.recall.listen' : 'cliff.recall.pick' };
+    else if (lib.helped && lib.missed !== null) ui = { key: 'cliff.missed', params: { answer: lib.missed } };
+    else if (lib.helped) ui = { key: 'cliff.pickOne' };
+    else if (lib.mode === 'hint') ui = { key: 'cliff.hint.say' };
+    else ui = { key: 'cliff.prompt' };
+    const p: CliffPrompt = {
+      wordIndex: cur.cliff.wordIndex,
+      length: cur.cliff.length,
+      rung: shown ? 'options' : lib.mode === 'hint' ? 'hint' : lib.mode === 'predict' ? 'free' : 'options',
+      ui,
+      nativeAllowed: this.state.settings.nativeAnswersAllowed,
+    };
+    if (shown && cur.options) p.options = cur.options.map((x, index) => ({ index, text: x.text }));
+    return p;
+  }
+
+  private translationHint(cur: CurrentSentence, lib: LibraryLine): TranslationHint | null {
+    if (lib.gloss === null || lib.gloss.trim() === '') return null;
+    const span = hintSpan(cur.translation ?? '', lib.gloss);
+    return span ? { text: lib.gloss, start: span.start, end: span.end, found: true } : { text: lib.gloss, start: 0, end: 0, found: false };
+  }
+
+  private libraryCliffScreen(at: number): StoryScreen {
+    const cur = this.state.current as CurrentSentence;
+    const lib = cur.lib as LibraryLine;
+    return {
+      kind: 'cliff',
+      meta: this.meta(),
+      sentence: this.view(at),
+      cliff: this.cliffPrompt(),
+      mode: lib.mode,
+      phase: lib.phase,
+      translation: lib.mode === 'predict' ? null : cur.translation,
+      translationHint: lib.mode === 'hint' ? this.translationHint(cur, lib) : null,
+      speaker: lib.speaker,
+      concept: lib.concept,
+      missed: lib.missed,
+    };
+  }
+
+  private libraryMeta(): StoryMeta {
+    const s = this.state;
+    const lib = this.lib;
+    const prog = lib.tracks[lib.track];
+    const play = prog?.play ?? null;
+    const story = play ? this.playStory(play) : null;
+    const cur = s.current?.lib ? s.current : null;
+    const onLine = cur !== null && (s.phase === 'cliff' || s.phase === 'landing' || s.phase === 'noSe' || s.phase === 'native');
+    const lines = story?.sentences.length ?? 0;
+    const line = onLine && cur?.lib ? cur.lib.line + 1 : play ? Math.min(play.line + (play.lineDone ? 1 : 0), lines) : 0;
+    const meta: LibraryMeta = {
+      track: lib.track,
+      trackTitle: trackOf(this.deps.pair, lib.track)?.title ?? '',
+      episode: play?.episode ?? s.chapter,
+      episodes: episodesOfTrack(this.deps.pair.library, lib.track).length,
+      storyId: play?.storyId ?? null,
+      tier: story?.tier ?? null,
+      line,
+      lines,
+      level: lib.level,
+      mode: cliffModeForLevel(play?.level ?? lib.level),
+      speaker: onLine && cur?.lib ? cur.lib.speaker : null,
+      lineId: onLine && cur?.lib ? cur.lib.lineId : null,
+      replay: play?.replay ?? false,
+    };
+    return { chapter: meta.episode, title: story?.title ?? '', sentence: line, spokenMs: s.spokenMs, mode: 'library', canned: this.deps.model === null, library: meta };
+  }
+
+  /** The whole line (recall, while it plays). */
+  private fullLineCue(): SpeakCue {
+    const cur = this.state.current as CurrentSentence;
+    return { text: cur.text, rate: this.rate(), what: 'line' };
+  }
+
+  /** The line with its gap (recall at the gap, hint). */
+  private gapCue(): SpeakCue {
+    const cur = this.state.current as CurrentSentence;
+    const parts = gapParts(cur.text, cur.cliff.start, cur.cliff.end);
+    const after = looseText(this.deps.pack, parts.after) === '' ? '' : parts.after;
+    // A space around the pause only where the script puts spaces between words.
+    const sep = leadAfter(parts.before);
+    return { text: after ? `${parts.before}${sep}…${sep}${after}` : parts.before, rate: this.rate(), what: 'sentence', gap: { before: parts.before, after } };
+  }
+
+  /** The cue of a library cliff: the whole line while it plays, the gapped line, or (predict) up to the cliff. */
+  private libraryCue(): SpeakCue {
+    const lib = this.state.current?.lib;
+    if (!lib || lib.mode === 'predict') return this.speakUpToCliff();
+    return lib.phase === 'playing' ? this.fullLineCue() : this.gapCue();
+  }
+
+  private toGap(at: number): StoryStep {
+    const cur = this.state.current as CurrentSentence;
+    if (cur.lib) cur.lib.phase = 'gap';
+    this.state.screen = this.libraryCliffScreen(at);
+    return this.step([], { speak: this.libraryCue() });
+  }
+
+  /**
+   * The model's alternatives at the cliff (one cliffPositions search, reused by the
+   * answer's scoring), once per line; off with options.library.modelAlternatives false.
+   */
+  private async ensureAlternatives(cur: CurrentSentence, model: LanguageModel): Promise<void> {
+    const lib = cur.lib;
+    if (!lib || lib.altsReady || !this.libOpts().modelAlternatives) return;
+    const pack = this.deps.pack;
+    const sentenceText = lib.lead + cur.text;
+    const first = cur.words[cur.cliff.wordIndex];
+    const wordSegs = pack.segment(sentenceText).filter((x) => x.kind === 'word');
+    const idx = first ? wordSegs.findIndex((x) => x.start === first.start + lib.lead.length) : -1;
+    if (idx < 0) {
+      lib.altsReady = true;
+      return;
+    }
+    const [pos] = await cliffPositions(model, pack, lib.sentenceContext, sentenceText, { positions: [idx] });
+    lib.altsReady = true;
+    if (!pos) return;
+    cur.alternatives = pos.alternatives;
+    if (cur.cliff.length === 1 && Number.isFinite(pos.actualLogprob)) cur.actualProb = Math.exp(pos.actualLogprob);
+  }
+
+  private async libraryAnswer(transcript: string, at: number, cur: CurrentSentence, lib: LibraryLine): Promise<StoryStep> {
+    const pack = this.deps.pack;
+    if (lib.phase === 'playing') lib.phase = 'gap';
+    if (this.state.settings.nativeAnswersAllowed) {
+      const nr = nativeReply(transcript, pack, this.deps.pair, { at, expected: cur.cliff.answer });
+      if (nr.hasNative && nr.targetPhrase !== null) return this.toNative(transcript, nr, at);
+    }
+    const model = this.deps.model;
+    let result: CliffResult;
+    let equivalence: LyricEquivalence | undefined;
+    let scoredBy: CliffOutcome['scoredBy'];
+    if (model) {
+      await this.ensureAlternatives(cur, model);
+      const r = await scoreLyricAnswer(model, pack, { context: cur.context, answer: cur.cliff.answer, before: cur.before, ...this.precomputed(cur) }, transcript, this.regOpts());
+      result = r;
+      equivalence = r.equivalence;
+      scoredBy = 'model';
+      if (!lib.altsReady && r.alternatives.length > 0) {
+        cur.alternatives = r.alternatives;
+        lib.altsReady = true;
+      }
+      if (result.credit !== 'full') {
+        const listed = cur.accept.find((a) => sameWords(pack, transcript, a));
+        if (listed !== undefined) result = { ...result, credit: 'full', reason: 'likely' };
+      }
+    } else {
+      result = cannedResult(pack, transcript, cur.cliff.answer, cur.accept);
+      scoredBy = 'canned';
+    }
+    if (result.credit === 'none' && lib.mode === 'hint' && !lib.helped) {
+      // One miss at the hint level: the options come next.
+      lib.helped = true;
+      lib.missed = transcript.trim();
+      this.libraryOptions(cur);
+      cur.rung = 'options';
+      this.state.screen = this.libraryCliffScreen(at);
+      return this.step([{ type: 'cliff_answer', key: cur.cliff.key, at, credit: 'none', rung: 'hint' }]);
+    }
+    return this.libraryLand(result, scoredBy, at, 'said', equivalence);
+  }
+
+  private async libraryPick(index: number, at: number, cur: CurrentSentence, lib: LibraryLine): Promise<StoryStep> {
+    if (!cur.options || !this.optionsShown(lib)) return this.step([]);
+    const opt = cur.options[index];
+    if (!opt) return this.step([]);
+    const model = this.deps.model;
+    if (model) await this.ensureAlternatives(cur, model);
+    const result = optionResult(opt.text, opt.natural, opt.natural ? cur.actualProb : opt.prob, cur.alternatives);
+    return this.libraryLand(result, 'options', at, 'option');
+  }
+
+  /** "no sé" at a library cliff: the options first (hint, predict), then the answer. */
+  private libraryNoSe(at: number): StoryStep {
+    const cur = this.state.current as CurrentSentence;
+    const lib = cur.lib as LibraryLine;
+    lib.noSe += 1;
+    if (lib.mode !== 'recall' && !lib.helped) {
+      lib.helped = true;
+      lib.missed = null;
+      this.libraryOptions(cur);
+      cur.rung = 'options';
+      this.state.screen = this.libraryCliffScreen(at);
+      return this.step([]);
+    }
+    return this.startNoSeFlow(at);
+  }
+
+  private libraryLand(result: CliffResult, scoredBy: CliffOutcome['scoredBy'], at: number, how: 'said' | 'option', equivalence?: LyricEquivalence): StoryStep {
+    const cur = this.state.current as CurrentSentence;
+    const lib = cur.lib as LibraryLine;
+    // The help the learner had: options (picked, or offered after a miss or "no sé" in hint
+    // and predict), else the cue of the mode (recall: the line was just heard).
+    const helped = lib.helped && lib.mode !== 'recall';
+    const rung: CliffRung = how === 'option' || helped ? 'options' : lib.mode === 'predict' ? 'free' : 'hint';
+    const landing = { ...DEFAULT_LANDING_OPTIONS, ...this.o.landing };
+    const outcome = buildOutcome(result, {
+      pack: this.deps.pack,
+      expected: cur.cliff.answer,
+      rung,
+      scoredBy: scoredBy === 'options' && cur.actualProb === null ? 'canned' : scoredBy,
+      actualProb: cur.actualProb,
+      ...(equivalence ? { equivalence } : {}),
+      options: landing,
+    });
+    if (scoredBy === 'options') outcome.scoredBy = 'options';
+    if (outcome.scoredBy === 'model') outcome.notes.push({ key: 'landing.modelChecked' });
+    const unaided = how === 'said' && result.credit !== 'none' && !helped && lib.noSe === 0;
+    cur.outcome = outcome;
+    cur.resolved = true;
+    this.state.outcomes.push(result.credit === 'none' ? 0 : 1);
+    this.countCliff(unaided);
+    const top = cur.alternatives[0]?.prob ?? 0;
+    const floor = top > 0 ? Math.min(landing.naturalFloor, landing.naturalRatio * top) : landing.naturalFloor;
+    const alternatives = feedbackAlternatives(this.deps.pack, {
+      expected: cur.cliff.answer,
+      answer: result.answer,
+      accept: cur.accept,
+      model: this.deps.model ? cur.alternatives : [],
+      floor,
+      max: Math.max(0, Math.floor(this.libOpts().maxAlternatives)),
+    });
+    this.state.phase = 'landing';
+    this.state.screen = {
+      kind: 'landing',
+      meta: this.meta(),
+      sentence: this.view(at),
+      outcome,
+      mode: lib.mode,
+      answer: result.answer,
+      expected: cur.cliff.answer,
+      alternatives,
+      translation: cur.translation,
+      scoredBy: outcome.scoredBy,
+      speaker: lib.speaker,
+    };
+    const events: LearnerEvent[] = [{ type: 'cliff_answer', key: cur.cliff.key, at, credit: result.credit, rung }];
+    return this.step(events);
+  }
+
+  private startLibraryTurn(turn: LibraryTurn, events: LearnerEvent[]): StoryStep {
+    const speaker = this.speakerOf(turn.speaker) ?? '';
+    this.state.turn = {
+      speaker,
+      line: turn.line,
+      repair: startRepair(),
+      said: [],
+      native: null,
+      lib: { id: turn.id, translation: turn.translation, example: turn.example, revealed: false, reply: null },
+    };
+    this.state.phase = 'turn';
+    this.state.screen = this.repairScreen();
+    return this.step(events, { speak: { text: turn.line, rate: this.rate(), what: 'prompt' } });
+  }
+
+  /** The last line is done: the retell when asked for (options.library.retell), else the episode's end. */
+  private libraryEpisodeEnd(at: number, events: LearnerEvent[]): StoryStep {
+    if (this.libOpts().retell) {
+      this.state.current = null;
+      this.state.phase = 'upNext';
+      this.state.screen = { kind: 'upNext', meta: this.meta(), next: 'retell', advanced: [] };
+      return this.step(events);
+    }
+    return this.finishEpisode(at, events);
+  }
+
+  /** Close the episode: the level rule, the results, the track's next episode, 'episodeDone'. */
+  private finishEpisode(at: number, events: LearnerEvent[]): StoryStep {
+    const s = this.state;
+    const lib = this.lib;
+    const prog = this.progress();
+    const play = prog.play;
+    if (!play) return this.trackDoneStep(events);
+    const story = this.playStory(play);
+    const before = lib.level;
+    const after = levelAfterEpisode(before, play.cliffs, play.unaided, this.libOpts().levelRule);
+    lib.level = after;
+    prog.results = [
+      ...prog.results,
+      { episode: play.episode, storyId: play.storyId, cliffs: play.cliffs, unaided: play.unaided, levelBefore: before, levelAfter: after, replay: play.replay, at },
+    ].slice(-KEEP_RESULTS);
+    if (play.replay) {
+      prog.play = prog.paused;
+      prog.paused = null;
+    } else {
+      if (!prog.completed.includes(play.episode)) prog.completed.push(play.episode);
+      const nxt = nextEpisodeOf(this.deps.pair.library, lib.track, play.episode);
+      if (nxt === null) prog.done = true;
+      else prog.next = Math.max(prog.next, nxt);
+      prog.play = null;
+    }
+    this.clearTransient();
+    let next: { episode: number; title: string; titleNative: string } | null = null;
+    const upcoming = prog.play ? this.playStory(prog.play) : prog.done ? null : storyForEpisode(this.deps.pair.library, lib.track, prog.next, lib.level);
+    if (upcoming) {
+      const r = prog.play ? upcoming : resolvedStory(this.deps.pair, upcoming, lib.address, prog.choices);
+      next = { episode: r.episode, title: r.title, titleNative: r.titleNative };
+    }
+    const change: -1 | 0 | 1 = after > before ? 1 : after < before ? -1 : 0;
+    s.phase = 'episodeDone';
+    s.chapter = play.episode;
+    s.screen = {
+      kind: 'episodeDone',
+      meta: this.meta(),
+      track: lib.track,
+      episode: play.episode,
+      title: story?.title ?? '',
+      titleNative: story?.titleNative ?? '',
+      cliffs: play.cliffs,
+      unaided: play.unaided,
+      levelBefore: before,
+      levelAfter: after,
+      levelChange: change,
+      next,
+      replay: play.replay,
+      ui: { key: 'episode.done', params: { episode: play.episode, title: story?.titleNative ?? '' } },
+      levelUi: { key: change > 0 ? 'episode.levelUp' : change < 0 ? 'episode.levelDown' : 'episode.levelSame', params: { level: after } },
+    };
+    return this.step(events);
+  }
+
+  private trackDoneStep(events: LearnerEvent[]): StoryStep {
+    const s = this.state;
+    const lib = this.lib;
+    const pair = this.deps.pair;
+    this.clearTransient();
+    const track = trackOf(pair, lib.track);
+    const suggestions = (pair.tracks ?? [])
+      .filter((t) => t.id !== lib.track && !isComingSoon(pair.library, t.id) && lib.tracks[t.id]?.done !== true)
+      .map((t) => ({ id: t.id, title: t.title, tagline: t.tagline }));
+    s.phase = 'trackDone';
+    s.screen = {
+      kind: 'trackDone',
+      meta: this.meta(),
+      track: lib.track,
+      title: track?.title ?? '',
+      episodes: episodesOfTrack(pair.library, lib.track).length,
+      suggestions,
+      ui: { key: 'track.done', params: { title: track?.title ?? '' } },
+    };
+    return this.step(events);
   }
 }

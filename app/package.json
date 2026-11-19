@@ -20,6 +20,7 @@
     "expo-keep-awake": "~58.0.4",
     "expo-linking": "~58.0.17",
     "expo-localization": "~58.0.5",
+    "expo-network": "~58.0.5",
     "expo-router": "~58.0.31",
     "expo-share-intent": "^9.0.0",
     "expo-speech": "~58.0.4",
@@ -72,5 +73,13 @@
     "postinstall": "patch-package",
     "patch:llama.rn": "patch-package llama.rn --exclude '^package\\.json$|^ios/rnllama\\.xcframework/|^android/src/main/jniLibs/'"
   },
-  "private": true
+  "private": true,
+  "expo": {
+    "autolinking": {
+      "exclude": [
+        "expo-share-intent",
+        "cliffword-music"
+      ]
+    }
+  }
 }

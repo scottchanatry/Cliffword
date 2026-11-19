@@ -22,6 +22,10 @@ export const UI_STRINGS: Readonly<Record<string, string>> = {
   'cliff.hint': 'It starts with “{sound}”.',
   'cliff.answerInEnglish': 'You can answer in English. You’ll hear the Spanish to repeat.',
   'cliff.repeatAloud': 'Now say it out loud.',
+  'cliff.recall.listen': 'Listen to the whole line.',
+  'cliff.recall.pick': 'Which word is missing? Tap it, or say it.',
+  'cliff.hint.say': 'Say the word in bold in Spanish.',
+  'cliff.missed': 'Not quite (“{answer}”). Pick the one that fits.',
 
   // Where the answer landed
   'landing.actual': 'That’s exactly what the story said.',
@@ -31,6 +35,7 @@ export const UI_STRINGS: Readonly<Record<string, string>> = {
   'landing.unlikely': 'Not quite. Here’s what a Spanish speaker would say.',
   'landing.timesInHundred': 'About {n} times in 100, a Spanish speaker says that here.',
   'landing.justAsNatural': '“{word}” is just as natural.',
+  'landing.modelChecked': 'Checked by the on-device language model.',
 
   // Spoken commands (said in Spanish)
   'commands.title': 'Say these any time',
@@ -50,6 +55,14 @@ export const UI_STRINGS: Readonly<Record<string, string>> = {
   'repair.expected': 'Expected: {expected}',
   'repair.fix': 'Try: {fix}',
   'story.asks': '{speaker} asks you',
+  'turn.example': 'You could say: “{example}”',
+  'turn.accepted': 'Nice answer!',
+  'turn.trySpanish': 'Try answering in Spanish.',
+  'episode.done': 'Episode {episode} done: {title}',
+  'episode.levelUp': 'Level up! You’re now at level {level}.',
+  'episode.levelDown': 'Let’s take it a bit easier: level {level}.',
+  'episode.levelSame': 'You’re at level {level}.',
+  'track.done': 'You finished {title}! Pick your next experience.',
   'story.noSentence': 'No sentence is ready yet. Try again in a moment.',
   'falseFriend.title': 'Looks like English, but isn’t',
 

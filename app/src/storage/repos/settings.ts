@@ -22,13 +22,31 @@ export const START_LEVELS: readonly StartLevel[] = ['brandNew', 'placement'];
 
 /**
  * Where onboarding stopped (app/onboarding): stored after each step, so a killed app resumes
- * there. 'done' once onboarding finished (onboarded is then true).
+ * there. 'done' once onboarding finished (onboarded is then true). The steps of the earlier
+ * onboarding (model, voice, slang) read as 'welcome'.
  */
-export type OnboardingStep = 'welcome' | 'model' | 'voice' | 'slang' | 'done';
-export const ONBOARDING_STEPS: readonly OnboardingStep[] = ['welcome', 'model', 'voice', 'slang', 'done'];
+export type OnboardingStep = 'welcome' | 'experience' | 'level' | 'address' | 'choices' | 'mic' | 'done';
+export const ONBOARDING_STEPS: readonly OnboardingStep[] = ['welcome', 'experience', 'level', 'address', 'choices', 'mic', 'done'];
+
+/**
+ * The onboarding the app shows now. A learner onboarded by an earlier one (onboardingVersion
+ * lower: the build with placement, model and slang steps) goes through this one once, to pick
+ * an experience, a level and a form of address (isOnboarded).
+ */
+export const ONBOARDING_VERSION = 2;
+
+/** How characters address the learner: '{you:a|b}' variants in the stories agree with it. */
+export type Address = 'm' | 'f';
+
+/** Learner level of the story library, 0-5 (0-1 recall, 2-3 hint, 4-5 predict). */
+export const MIN_LEVEL = 0;
+export const MAX_LEVEL = 5;
 
 /** Longest stored voice id (platform voice identifiers are short; anything longer is junk). */
 const MAX_VOICE_ID = 256;
+
+/** Track ids, choice keys and option ids: short ids ('en-es.track.dating', 'partner', 'mateo'). */
+const ID = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/;
 
 export interface AppSettings {
   /** Correction register: neutral Spanish or street (slang is never marked). */
@@ -64,6 +82,22 @@ export interface AppSettings {
    * stored value still reads and validates.
    */
   progressResetPending: boolean;
+  /** The onboarding the learner finished (ONBOARDING_VERSION once the current one is done). */
+  onboardingVersion: number;
+  /** The experience (LibraryTrack.id) the Story tab plays; null until one is picked. */
+  trackId: string | null;
+  /** How characters address the learner ("as a man" 'm', "as a woman" 'f'). */
+  address: Address;
+  /**
+   * The learner level 0-5: onboarding's "How much Spanish do you know?" (brand new 0, a little 2,
+   * comfortable 4), then the level the story moved to after each episode, or a manual override
+   * in Settings.
+   */
+  level: number;
+  /** Track choices, per track: track id -> choice key -> option id ('partner' -> 'mateo'). */
+  trackChoices: Readonly<Record<string, Readonly<Record<string, string>>>>;
+  /** The first-episode guide (coach marks for listen, answer, feedback) was shown. */
+  guideSeen: boolean;
 }
 
 export type SettingKey = keyof AppSettings;
@@ -84,7 +118,40 @@ export const DEFAULT_SETTINGS: Readonly<AppSettings> = Object.freeze({
   modelDeclined: false,
   allowNetworkRecognition: false,
   progressResetPending: false,
+  onboardingVersion: 0,
+  trackId: null,
+  address: 'm',
+  level: 0,
+  trackChoices: Object.freeze({}),
+  guideSeen: false,
 } satisfies AppSettings);
+
+/** Onboarding is done, in its current version (the root guard). */
+export function isOnboarded(s: Pick<AppSettings, 'onboarded' | 'onboardingVersion'>): boolean {
+  return s.onboarded && s.onboardingVersion >= ONBOARDING_VERSION;
+}
+
+/** The patch that marks onboarding done in its current version. */
+export const ONBOARDED: Readonly<Pick<AppSettings, 'onboarded' | 'onboardingStep' | 'onboardingVersion'>> = Object.freeze({
+  onboarded: true,
+  onboardingStep: 'done',
+  onboardingVersion: ONBOARDING_VERSION,
+});
+
+function normalizeChoices(v: unknown): AppSettings['trackChoices'] | undefined {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return undefined;
+  const out: Record<string, Record<string, string>> = {};
+  for (const [track, choices] of Object.entries(v as Record<string, unknown>)) {
+    if (!ID.test(track) || !choices || typeof choices !== 'object' || Array.isArray(choices)) return undefined;
+    const inner: Record<string, string> = {};
+    for (const [key, option] of Object.entries(choices as Record<string, unknown>)) {
+      if (!ID.test(key) || typeof option !== 'string' || !ID.test(option)) return undefined;
+      inner[key] = option;
+    }
+    out[track] = Object.freeze(inner);
+  }
+  return Object.freeze(out);
+}
 
 export const SPEECH_RATE_BIAS_LIMIT = 0.5;
 
@@ -116,6 +183,12 @@ const NORMALIZE: { [K in SettingKey]: Normalizer<K> } = {
   modelDeclined: (v) => (isBool(v) ? v : undefined),
   allowNetworkRecognition: (v) => (isBool(v) ? v : undefined),
   progressResetPending: (v) => (isBool(v) ? v : undefined),
+  onboardingVersion: (v) => (typeof v === 'number' && Number.isInteger(v) && v >= 0 && v <= 1000 ? v : undefined),
+  trackId: (v) => (v === null || (typeof v === 'string' && ID.test(v)) ? v : undefined),
+  address: (v) => (v === 'm' || v === 'f' ? v : undefined),
+  level: (v) => (typeof v === 'number' && Number.isFinite(v) ? Math.max(MIN_LEVEL, Math.min(MAX_LEVEL, Math.round(v))) : undefined),
+  trackChoices: normalizeChoices,
+  guideSeen: (v) => (isBool(v) ? v : undefined),
 };
 
 const KEYS = Object.keys(DEFAULT_SETTINGS) as SettingKey[];

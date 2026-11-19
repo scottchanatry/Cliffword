@@ -57,6 +57,15 @@ function PreviewStory({ initial }: { initial: StoryViewModel }) {
       replay: none,
       setTextMode: (textMode) => setVm((v) => ({ ...v, textMode })),
       startRegisterTask: none,
+      openEpisode: () => setVm((v) => ({ ...v, view: 'episode' })),
+      closeEpisode: () => setVm((v) => ({ ...v, view: 'home' })),
+      replayEpisode: () => setVm((v) => ({ ...v, view: 'episode' })),
+      micTap: () =>
+        setVm((v) =>
+          v.listen.phase === 'listening'
+            ? { ...v, listen: { phase: 'idle' }, micLatched: false }
+            : { ...v, listen: { phase: 'listening', level: 0.6, partial: '' }, micLatched: true },
+        ),
       // As the app offers it; the gallery shows the thanks notice instead of opening mail.
       reportSentence: () => setVm((v) => ({ ...v, notice: { key: tKey('story.notice.reported') } })),
     };

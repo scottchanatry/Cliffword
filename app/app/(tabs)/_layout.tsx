@@ -2,6 +2,7 @@ import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { ProfileButton } from '../../src/components/ProfileButton';
 import { TabIcon } from '../../src/components/TabIcon';
+import { MUSIC_ENABLED } from '../../src/config/features';
 import { useI18n } from '../../src/i18n';
 import { colors, layout, typography } from '../../src/theme';
 import { Text } from '../../src/ui';
@@ -18,6 +19,11 @@ function HeaderTitle() {
 /** Tab bar content height above the safe area: icon, label and padding without clipping. */
 const TAB_BAR_HEIGHT = 60;
 
+/**
+ * The tabs: Story, and Music while MUSIC_ENABLED (src/config/features.ts). With Music off the
+ * Story tab is the only one, so the tab bar is hidden and the music routes are unreachable
+ * (href null here, and their layout redirects to the Story tab).
+ */
 export default function TabsLayout() {
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
@@ -35,11 +41,13 @@ export default function TabsLayout() {
         tabBarActiveTintColor: colors.ink,
         tabBarInactiveTintColor: colors.muted,
         tabBarLabelStyle: { fontFamily: typography.tab.fontFamily, fontSize: typography.tab.fontSize },
-        tabBarStyle: {
-          height: TAB_BAR_HEIGHT + insets.bottom,
-          backgroundColor: colors.ground,
-          borderTopColor: colors.borderSoft,
-        },
+        tabBarStyle: MUSIC_ENABLED
+          ? {
+              height: TAB_BAR_HEIGHT + insets.bottom,
+              backgroundColor: colors.ground,
+              borderTopColor: colors.borderSoft,
+            }
+          : { display: 'none' },
       }}
     >
       <Tabs.Screen
@@ -56,6 +64,7 @@ export default function TabsLayout() {
           title: t('tab.music'),
           tabBarIcon: ({ color }) => <TabIcon name="music" color={color} />,
           tabBarButtonTestID: 'tab-music',
+          ...(MUSIC_ENABLED ? {} : { href: null }),
         }}
       />
     </Tabs>

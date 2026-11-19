@@ -21,6 +21,12 @@ export interface DefaultPackOptions {
    * omitted; [] loads none.
    */
   regions?: readonly string[];
+  /**
+   * createDefaultPairPack: include the authored series (PairPack.library and tracks),
+   * default true. false gives a pack whose StorySession plays the generated flow (tests of
+   * that flow use it).
+   */
+  library?: boolean;
 }
 
 /**
@@ -45,12 +51,13 @@ export function createDefaultSpanishPack(opts: DefaultPackOptions = {}): Languag
 
 /**
  * The English -> Spanish pair pack, with slang glosses from the same register packs as
- * createDefaultSpanishPack (all regions unless opts.regions is given) and the canned
- * starter story (EN_ES_STARTER) that StorySession uses at zero knowledge and in canned
- * mode.
+ * createDefaultSpanishPack (all regions unless opts.regions is given), the canned
+ * starter story (EN_ES_STARTER) of the generated flow, and the authored series
+ * (PairPack.tracks and library) that StorySession plays by default (opts.library false
+ * leaves them out).
  */
 export function createDefaultPairPack(opts: DefaultPackOptions = {}): PairPack {
-  return createEnEsPairPack({ registers: spanishRegistersFor(opts.regions) });
+  return createEnEsPairPack({ registers: spanishRegistersFor(opts.regions), ...(opts.library === false ? { library: null, tracks: null } : {}) });
 }
 
 /**

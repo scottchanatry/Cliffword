@@ -4,9 +4,12 @@
  * returning plain-data, JSON-serializable screens. A null model is canned mode: starter
  * sentences (PairPack.starter) with answers checked by string and form.
  *
- * - StorySession: story cliffs with three rungs, "no sé", native-language answers, spoken
- *   commands, learner turns with self-repair, timed retell rounds, placement inside the
- *   first story, register switching at the top.
+ * - StorySession: authored series by default (PairPack.library: episodes in order per
+ *   track, cliff modes recall / hint / predict by learner level, the level rule after each
+ *   episode; session/library.ts), or the generated flow (options.source 'generated'):
+ *   story cliffs with three rungs, "no sé", native-language answers, spoken commands,
+ *   learner turns with self-repair, timed retell rounds, placement inside the first
+ *   story, register switching at the top.
  * - LyricSession: lyric (or brought-text) cliffs, sing-back echo, slang notes, the
  *   register toggle, line play info for timed and manual playback.
  * - snapshot() / restore() on both, with a format number (STORY_SESSION_FORMAT,
@@ -42,8 +45,23 @@ export {
 export type { AnswerSpan, Distractor, LandingOptions, OptionChoiceOptions, OutcomeContext } from './cliff';
 export { DEFAULT_VIEW_OPTIONS, buildSentenceView, sentenceWords } from './view';
 export type { SentenceWord, ViewContext, ViewOptions, ViewState } from './view';
-export { DEFAULT_STORY_SESSION_OPTIONS, StorySession } from './story';
-export type { PrefetchInfo, StorySessionCreate, StorySessionOptions, StorySessionSnapshot, StoryState } from './story';
+export { DEFAULT_LIBRARY_SESSION_OPTIONS, DEFAULT_STORY_SESSION_OPTIONS, StorySession } from './story';
+export type { LibrarySessionOptions, PrefetchInfo, StorySessionCreate, StorySessionOptions, StorySessionSnapshot, StoryState } from './story';
+export {
+  KEEP_RESULTS,
+  feedbackAlternatives,
+  gapParts,
+  hasTargetWords,
+  initialLibraryState,
+  libraryAvailable,
+  libraryProgressView,
+  newTrackProgress,
+  resolvedStory,
+  startTrack,
+  storyById,
+  trackOf,
+} from './library';
+export type { EpisodePlay, LibraryState, TrackProgress } from './library';
 export { DEFAULT_HANDOVER_OPTIONS, bridgeFamiliar, handoverStage, starterLimit } from './handover';
 export type { HandoverInput, HandoverOptions, StoryStage } from './handover';
 export { ModelGate } from './prefetch';

@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
-import { router, Stack } from 'expo-router';
+import { Redirect, router, Stack } from 'expo-router';
+import { MUSIC_ENABLED } from '../../src/config/features';
 import { useI18n } from '../../src/i18n';
 import { borders, colors, layout, radii } from '../../src/theme';
 import { Text } from '../../src/ui';
@@ -32,9 +33,10 @@ function BackButton() {
 /**
  * Brought text: paste an article or a transcript (a sheet), then read it with cliffs and surprise
  * shading. Outside the tabs, so the stack draws the header (the wordmark, the safe area and a
- * back button).
+ * back button). Brought text belongs to Music: while Music is off it goes to the Story tab.
  */
 export default function TextLayout() {
+  if (!MUSIC_ENABLED) return <Redirect href="/" />;
   return (
     <Stack
       screenOptions={{

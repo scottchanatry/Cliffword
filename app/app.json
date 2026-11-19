@@ -13,11 +13,9 @@
       "bundleIdentifier": "app.cliffword",
       "supportsTablet": false,
       "infoPlist": {
-        "NSMicrophoneUsageDescription": "Cliffword uses the microphone while you hold to speak, so it can hear your answers to the story and the lines you sing back.",
+        "NSMicrophoneUsageDescription": "Cliffword listens only while the microphone button is on, so it can hear your answers to the story.",
         "NSSpeechRecognitionUsageDescription": "Cliffword turns what you say into text so it can check your answers and show which words were unexpected.",
-        "NSAppleMusicUsageDescription": "Cliffword plays songs from your Apple Music library and pauses them at a line so you can say or sing it back.",
-        "ITSAppUsesNonExemptEncryption": false,
-        "NSPhotoLibraryUsageDescription": "Cliffword never opens your photo library. It only reads the text and links you share to it from other apps, such as a Spotify song link."
+        "ITSAppUsesNonExemptEncryption": false
       },
       "entitlements": {
         "com.apple.developer.kernel.increased-memory-limit": true
@@ -212,27 +210,11 @@
       [
         "expo-speech-recognition",
         {
-          "microphonePermission": "Cliffword uses the microphone while you hold to speak, so it can hear your answers to the story and the lines you sing back.",
+          "microphonePermission": "Cliffword listens only while the microphone button is on, so it can hear your answers to the story.",
           "speechRecognitionPermission": "Cliffword turns what you say into text so it can check your answers and show which words were unexpected.",
           "androidSpeechServicePackages": [
             "com.google.android.googlequicksearchbox",
             "com.google.android.as"
-          ]
-        }
-      ],
-      [
-        "expo-share-intent",
-        {
-          "iosActivationRules": {
-            "NSExtensionActivationSupportsWebURLWithMaxCount": 1,
-            "NSExtensionActivationSupportsWebPageWithMaxCount": 1,
-            "NSExtensionActivationSupportsText": true
-          },
-          "iosShareExtensionName": "Cliffword Share",
-          "iosShareExtensionBundleIdentifier": "app.cliffword.share-extension",
-          "iosAppGroupIdentifier": "group.app.cliffword",
-          "androidIntentFilters": [
-            "text/plain"
           ]
         }
       ],

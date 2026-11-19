@@ -22,11 +22,17 @@ import type { RepairPhase } from '../speaking/repair';
 import type { Lyrics } from '../lyrics/parse';
 import type { SlangNote } from '../lyrics/slang';
 import type { EchoStatus } from '../lyrics/echo';
+import type { CliffMode } from '../content/library';
+import type { LibraryGender, LibraryTier } from '../pair/types';
 
 export type { UiText } from '../lyrics/text';
+export type { CliffMode } from '../content/library';
 
-/** Snapshot format of StorySession; bump when the stored shape changes. */
-export const STORY_SESSION_FORMAT = 1;
+/**
+ * Snapshot format of StorySession; bump when the stored shape changes. 2: the library
+ * source (authored series); restoring a format 1 snapshot starts a fresh library session.
+ */
+export const STORY_SESSION_FORMAT = 2;
 /** Snapshot format of LyricSession; bump when the stored shape changes. */
 export const LYRIC_SESSION_FORMAT = 1;
 
@@ -75,6 +81,12 @@ export interface SpeakCue {
   /** Speech rate, 1 = natural speed. */
   rate: number;
   what: 'sentence' | 'answer' | 'word' | 'prompt' | 'line' | 'scene';
+  /**
+   * A line with its gap (library recall and hint modes): the words before and after the
+   * hidden words. `text` is then before + ' … ' + after, for a player that cannot pause;
+   * a player that can plays `before`, a short silence, then `after`.
+   */
+  gap?: { before: string; after: string };
 }
 
 /** The meaning of a word the learner asked about (the "what does it mean" command). */
@@ -238,23 +250,178 @@ export interface RegisterTaskView {
 }
 
 export interface StoryMeta {
-  /** 1-based chapter (scene). */
+  /** 1-based chapter (scene); the episode number in library mode. */
   chapter: number;
-  /** Starter title in the target language, '' for generated scenes. */
+  /** Starter or episode title in the target language, '' for generated scenes. */
   title: string;
-  /** Sentences shown in this chapter. */
+  /** Sentences shown in this chapter (episode). */
   sentence: number;
   /** Credited speaking time in this session, ms. */
   spokenMs: number;
-  mode: 'story' | 'placement' | 'starter';
+  mode: 'story' | 'placement' | 'starter' | 'library';
   /** No model: canned sentences, answers checked by string and form. */
   canned: boolean;
+  /** Library mode: where the learner is in the series. */
+  library?: LibraryMeta;
+}
+
+/** The learner's form of address: '{you:a|b}' variants agree with it. */
+export type LearnerAddress = LibraryGender;
+
+/** Recall mode shows and plays the whole line first ('playing'), then hides the gap ('gap'). */
+export type CliffPhase = 'playing' | 'gap';
+
+/** Where a library session is: the series, the episode, the line, the learner level. */
+export interface LibraryMeta {
+  /** LibraryTrack.id. */
+  track: string;
+  /** Track card title in the learner's native language ('' when the track has no metadata). */
+  trackTitle: string;
+  /** Episode on screen (or next to play). */
+  episode: number;
+  /** Written episodes of the track. */
+  episodes: number;
+  /** LibraryStory.id of the episode being played, null between episodes. */
+  storyId: string | null;
+  tier: LibraryTier | null;
+  /** 1-based line on screen; 0 before the first line. */
+  line: number;
+  /** Lines of the episode; 0 between episodes. */
+  lines: number;
+  /** Learner level 0-5 (moves after each episode). */
+  level: number;
+  /** Cliff mode of the level. */
+  mode: CliffMode;
+  /** Who says the line on screen: a cast member's local name, null for narration. */
+  speaker: string | null;
+  /** LibrarySentence.id of the line on screen. */
+  lineId: string | null;
+  /** The episode is a replay of a finished one. */
+  replay: boolean;
+}
+
+/** The gap word's gloss and where it sits in the translation (hint mode: shown in bold). */
+export interface TranslationHint {
+  /** cliff.hint, e.g. 'piano'. */
+  text: string;
+  /** Character span of the gloss in the translation, when found there. */
+  start: number;
+  end: number;
+  found: boolean;
+}
+
+/** A reply to a character's question in library mode. */
+export interface TurnReplyView {
+  heard: string;
+  /** canned: the reply holds target-language words; model: the judge found it natural (ok or repaired). */
+  accepted: boolean;
+  scoredBy: 'model' | 'canned';
+  /** turn.accepted or turn.trySpanish. */
+  ui: UiText;
+}
+
+/** Results of a finished episode (kept per track in the library state). */
+export interface EpisodeResult {
+  episode: number;
+  storyId: string;
+  /** Cliffs of the episode the learner reached (answered, picked, skipped or "no sé"). */
+  cliffs: number;
+  /** Cliffs answered by voice or typing, with credit, before options or "no sé". */
+  unaided: number;
+  levelBefore: number;
+  levelAfter: number;
+  replay: boolean;
+  at: number;
+}
+
+/** What a library session starts with (StorySessionCreate.library). */
+export interface LibraryStart {
+  /** LibraryTrack.id to start (the first playable track when missing or coming soon). */
+  trackId?: string;
+  /** "How much do you know?": brand new 0, a little 2, comfortable 4 (any 0-5). */
+  startLevel?: number;
+  /** How characters address the learner (default 'm'). */
+  address?: LearnerAddress;
+  /** Track choices for the starting track: choice key -> option id. */
+  choices?: Record<string, string>;
+}
+
+/** One track as the experience picker shows it, with the learner's progress. */
+export interface TrackProgressView {
+  id: string;
+  title: string;
+  tagline: string;
+  city: string;
+  country: string;
+  /** No written episode: shown as coming soon, cannot be started. */
+  comingSoon: boolean;
+  /** Written episodes. */
+  episodes: number;
+  /** Finished episode numbers. */
+  completed: number[];
+  /** Episode the track continues with, null when the track is done or coming soon. */
+  next: number | null;
+  done: boolean;
+  /** The learner is in this track now. */
+  current: boolean;
+  /** An episode in progress: its number and the lines done. */
+  playing: { episode: number; line: number; lines: number } | null;
+  /** Choices made for this track (key -> option id). */
+  choices: Record<string, string>;
+  /** Choice keys of the track not made yet (asked before the first episode). */
+  missingChoices: string[];
+}
+
+/** The library side of a session for the picker and the profile. */
+export interface LibraryProgress {
+  level: number;
+  address: LearnerAddress;
+  track: string;
+  tracks: TrackProgressView[];
 }
 
 export type StoryScreen =
   | { kind: 'idle'; meta: StoryMeta }
-  | { kind: 'cliff'; meta: StoryMeta; sentence: SentenceView; cliff: CliffPrompt }
-  | { kind: 'landing'; meta: StoryMeta; sentence: SentenceView; outcome: CliffOutcome; shadow?: AlignmentView }
+  | {
+      kind: 'cliff';
+      meta: StoryMeta;
+      sentence: SentenceView;
+      cliff: CliffPrompt;
+      /** Library mode: how the cliff is asked (by the learner's level). */
+      mode?: CliffMode;
+      /** Library recall mode: 'playing' (the whole line is shown and played) before 'gap'. */
+      phase?: CliffPhase;
+      /** Library mode: the line in the learner's language (null in predict mode before the answer). */
+      translation?: string | null;
+      /** Library hint mode: the gap word's gloss, bold in the translation. */
+      translationHint?: TranslationHint | null;
+      /** Library mode: who says the line (null for narration). */
+      speaker?: string | null;
+      /** Library mode: what the gap stands for, in plain English ('the price'). */
+      concept?: string;
+      /** Library hint mode: the answer that missed, before the options were offered. */
+      missed?: string | null;
+    }
+  | {
+      kind: 'landing';
+      meta: StoryMeta;
+      sentence: SentenceView;
+      outcome: CliffOutcome;
+      shadow?: AlignmentView;
+      /** Library mode fields: the feedback after every answer. */
+      mode?: CliffMode;
+      /** The learner's answer as given ('' for a skip). */
+      answer?: string;
+      /** The story's own words. */
+      expected?: string;
+      /** Up to 3 other natural answers: the listed ones, then the model's top alternatives when a model is loaded. */
+      alternatives?: string[];
+      /** The line in the learner's language. */
+      translation?: string | null;
+      /** 'model' when the on-device model checked the answer. */
+      scoredBy?: CliffOutcome['scoredBy'];
+      speaker?: string | null;
+    }
   | {
       kind: 'noSe';
       meta: StoryMeta;
@@ -263,6 +430,9 @@ export type StoryScreen =
       answer: string;
       ui: UiText | null;
       repeat?: AlignmentView;
+      /** Library mode: the line in the learner's language, and who says it. */
+      translation?: string | null;
+      speaker?: string | null;
     }
   | {
       kind: 'nativeReply';
@@ -284,6 +454,14 @@ export type StoryScreen =
       ui: UiText;
       /** The learner answered in the native language: the target words to say instead. */
       native?: { heard: string; target: string | null };
+      /** Library mode: the question in the learner's language. */
+      translation?: string;
+      /** Library mode: a natural answer, once the learner replied or said "no sé" (null before). */
+      example?: string | null;
+      /** turn.example ({example}) with the example, when shown. */
+      exampleUi?: UiText | null;
+      /** Library mode without a model: the reply and whether it was accepted. */
+      reply?: TurnReplyView | null;
     }
   | {
       kind: 'repair';
@@ -301,6 +479,10 @@ export type StoryScreen =
       ui: UiText | null;
       done: boolean;
       native?: { heard: string; target: string | null };
+      /** Library mode: the question in the learner's language, and a natural answer once done. */
+      translation?: string;
+      example?: string | null;
+      exampleUi?: UiText | null;
     }
   | { kind: 'upNext'; meta: StoryMeta; next: 'retell'; advanced: AdvancedTask[] }
   | {
@@ -318,6 +500,42 @@ export type StoryScreen =
     }
   | { kind: 'register'; meta: StoryMeta; task: RegisterTaskView }
   | { kind: 'placementDone'; meta: StoryMeta; vocabulary: number; thresholdRank: number; items: number }
+  /** Library mode: an episode ended. next() starts the next one (or shows trackDone). */
+  | {
+      kind: 'episodeDone';
+      meta: StoryMeta;
+      track: string;
+      episode: number;
+      /** Episode title in the target language and in the learner's language. */
+      title: string;
+      titleNative: string;
+      /** Cliffs reached, and those answered without options or "no sé". */
+      cliffs: number;
+      unaided: number;
+      levelBefore: number;
+      levelAfter: number;
+      levelChange: -1 | 0 | 1;
+      /** The episode that comes next, null when the track is complete. */
+      next: { episode: number; title: string; titleNative: string } | null;
+      replay: boolean;
+      /** episode.done ({episode} {title}). */
+      ui: UiText;
+      /** episode.levelUp, episode.levelDown or episode.levelSame ({level}). */
+      levelUi: UiText;
+    }
+  /** Library mode: every episode of the track is done; other experiences are suggested. */
+  | {
+      kind: 'trackDone';
+      meta: StoryMeta;
+      track: string;
+      /** Track card title in the learner's language. */
+      title: string;
+      episodes: number;
+      /** Playable tracks not finished yet, in picker order. */
+      suggestions: { id: string; title: string; tagline: string }[];
+      /** track.done ({title}). */
+      ui: UiText;
+    }
   /** No sentence could be made (no model sentence and no starter content); next() tries again. */
   | { kind: 'error'; meta: StoryMeta; ui: UiText };
 

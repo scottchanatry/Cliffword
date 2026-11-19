@@ -47,7 +47,8 @@ const T0 = Date.UTC(2026, 10, 15, 8, 0, 0);
 const NOW = T0 + 3 * DAY;
 
 const pack = createDefaultSpanishPack();
-const pair = createDefaultPairPack();
+// The generated flow (the library would make StorySession play the authored series).
+const pair = createDefaultPairPack({ library: false });
 const COGNATES = cognateLexemeKeys(pair);
 const LIST_KEYS = frequencyLexemeKeys(pack);
 const TAIL_END = 20_000;

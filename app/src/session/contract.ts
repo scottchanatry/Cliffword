@@ -14,6 +14,7 @@
  * apply to the current screen is ignored.
  */
 import type {
+  LibraryProgress,
   LyricScreen,
   MeaningView,
   SentenceView,
@@ -99,6 +100,24 @@ export interface StoryViewModel extends CommonViewState {
    * null.
    */
   speakingOption?: number | null;
+  /**
+   * Optional (added for the experiences): the library side of the session (the learner level,
+   * the form of address, every experience with its progress), for the Story home and the
+   * experience picker. null or absent: the session does not play the library (the generated
+   * flow; StoryView renders it as before).
+   */
+  library?: LibraryProgress | null;
+  /**
+   * Optional (added for the experiences): what the Story tab shows in library mode. 'home': the
+   * current experience, its episode list and "Change experience" (nothing plays); 'episode': the
+   * episode screen (lines, feedback, turns, the end of an episode or of the track).
+   */
+  view?: 'home' | 'episode';
+  /**
+   * Optional (added for the experiences): the microphone is on in tap mode (a tap started it; a
+   * second tap or about 1.5 s of silence stops it), not push-to-talk.
+   */
+  micLatched?: boolean;
 }
 
 export interface StoryActions extends CommonActions {
@@ -116,6 +135,21 @@ export interface StoryActions extends CommonActions {
   setTextMode(mode: TextMode): void;
   /** Begin the register-switch task offered at the top of the frequency list. */
   startRegisterTask(): void;
+  /**
+   * Library mode: open the episode screen and go on where the experience is (the next line or
+   * episode; a line on screen plays again). Nothing plays on the home screen.
+   */
+  openEpisode(): void;
+  /** Library mode: back to the Story home; speech and listening stop. */
+  closeEpisode(): void;
+  /** Library mode: play a finished episode of the current experience again (opens the episode screen). */
+  replayEpisode(episode: number): void;
+  /**
+   * The big microphone button, tapped: idle or after an error it starts listening in tap mode
+   * (it stops by itself after about 1.5 s of silence, or after 6 s); listening, it stops and
+   * sends what was heard. Press and hold is push-to-talk (holdBegin, holdStart, holdEnd).
+   */
+  micTap(): void;
   /**
    * Optional (added for the stores' AI-generated content rules, docs/STORE.md decision 6):
    * "Report this sentence" on a screen that shows a story sentence (cliff, landing, noSe,

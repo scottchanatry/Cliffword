@@ -7,8 +7,9 @@
  * - llama.rn is only in native bundles, imported by createDeviceModel.ts alone;
  * - the model download (ExpoModelManager, fileHash, the cliffword-native module in app/modules) is
  *   only in native bundles, reached through createModelManager.ts (web: createModelManager.web.ts);
- * - expo-share-intent is only in native bundles, imported by ShareIntentBridge.tsx alone (web:
- *   ShareIntentBridge.web.tsx), and the persistent share inbox comes through createNativeShareInbox;
+ * - expo-share-intent is in no bundle: share-in is out of this build (no share extension in
+ *   app.json, no ShareIntentBridge in the root layout, no +native-intent); the persistent share
+ *   inbox still comes through createNativeShareInbox;
  * - the Apple Music module (app/modules/cliffword-music) is only in native bundles, imported by
  *   createNativeMusicPlayer.ts alone (web: createNativeMusicPlayer.web.ts).
  * The export step of the verify chain bundles for real; this test catches a wrong import early.
@@ -144,19 +145,11 @@ describe.each(['ios', 'android'] as const)('%s bundle', (platform) => {
     expect(packages.get('expo')).toEqual(expect.arrayContaining(['modules/cliffword-native/index.ts']));
   });
 
-  it('reaches expo-share-intent only through ShareIntentBridge, and the persistent inbox through createNativeShareInbox', () => {
-    expect(packagesMatching(packages, /^expo-share-intent/)).toEqual(['expo-share-intent']);
-    expect(packages.get('expo-share-intent')).toEqual(['src/adapters/share/ShareIntentBridge.tsx']);
+  it('reaches no expo-share-intent (share-in is out of this build), and the persistent inbox through createNativeShareInbox', () => {
+    expect(packagesMatching(packages, /^expo-share-intent/)).toEqual([]);
     const list = rel(files);
-    expect(list).toEqual(
-      expect.arrayContaining([
-        'app/+native-intent.tsx',
-        'src/adapters/share/ShareIntentBridge.tsx',
-        'src/adapters/share/createNativeShareInbox.ts',
-        'src/adapters/share/ExpoShareInbox.ts',
-      ]),
-    );
-    expect(list).not.toContain('src/adapters/share/ShareIntentBridge.web.tsx');
+    expect(list).toEqual(expect.arrayContaining(['src/adapters/share/createNativeShareInbox.ts', 'src/adapters/share/ExpoShareInbox.ts']));
+    expect(list.filter((f) => /ShareIntentBridge|\+native-intent/.test(f))).toEqual([]);
     expect(list).not.toContain('src/adapters/share/createNativeShareInbox.web.ts');
   });
 
@@ -210,13 +203,11 @@ describe('web bundle', () => {
     }
   });
 
-  it('keeps expo-share-intent out (ShareIntentBridge.web.tsx and an in-memory inbox instead)', () => {
+  it('keeps expo-share-intent out (an in-memory inbox instead)', () => {
     const list = rel(files);
     expect(packagesMatching(packages, /^expo-share-intent/)).toEqual([]);
-    expect(list).toEqual(
-      expect.arrayContaining(['src/adapters/share/ShareIntentBridge.web.tsx', 'src/adapters/share/createNativeShareInbox.web.ts']),
-    );
-    expect(list).not.toContain('src/adapters/share/ShareIntentBridge.tsx');
+    expect(list).toContain('src/adapters/share/createNativeShareInbox.web.ts');
+    expect(list.filter((f) => /ShareIntentBridge/.test(f))).toEqual([]);
     expect(list).not.toContain('src/adapters/share/createNativeShareInbox.ts');
   });
 

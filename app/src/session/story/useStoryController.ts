@@ -134,4 +134,8 @@ const NO_ACTIONS: StoryActions = {
   pickOption: noop,
   closeMeaning: noop,
   dismissNotice: noop,
+  openEpisode: noop,
+  closeEpisode: noop,
+  replayEpisode: noop,
+  micTap: noop,
 };

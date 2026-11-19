@@ -101,7 +101,7 @@ const sources = Object.entries(import.meta.glob(['./*.ts', '!./*.test.ts'], { qu
 
 describe('session module rules', () => {
   it('reads no clock and no randomness, and imports no language or pair data', () => {
-    expect(sources.map((s) => s.file).sort()).toEqual(['cliff.ts', 'common.ts', 'handover.ts', 'index.ts', 'lyric.ts', 'prefetch.ts', 'story.ts', 'types.ts', 'uiKeys.ts', 'view.ts']);
+    expect(sources.map((s) => s.file).sort()).toEqual(['cliff.ts', 'common.ts', 'handover.ts', 'index.ts', 'library.ts', 'lyric.ts', 'prefetch.ts', 'story.ts', 'types.ts', 'uiKeys.ts', 'view.ts']);
     for (const { file, code } of sources) {
       expect(code, file).not.toMatch(/Date\.now|new Date|Math\.random|performance\.now/);
       expect(code, file).not.toMatch(/from '\.\.\/(lang\/es|pair\/en-es|packs)/);

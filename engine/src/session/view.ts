@@ -125,6 +125,11 @@ export interface ViewState {
   cliff: { wordIndex: number; length: number; answered: boolean } | null;
   /** Words the learner held to see (shown as text for the rest of the sentence). */
   revealed: readonly number[];
+  /**
+   * Words after an unanswered cliff are drawn as usual (text or tile) instead of 'future':
+   * the whole line was heard (library recall and hint modes).
+   */
+  showAfter?: boolean;
 }
 
 export interface ViewContext {
@@ -142,7 +147,8 @@ export interface ViewContext {
 /**
  * The view of a sentence. Display per word:
  * - masked: explicit slang while showExplicit is off;
- * - gap: hidden by an unanswered cliff; future: after an unanswered cliff (not heard yet);
+ * - gap: hidden by an unanswered cliff; future: after an unanswered cliff (not heard yet),
+ *   unless state.showAfter;
  * - text or tile: textMode all_text / all_tiles, else showText (pKnown(sound) below the
  *   tile threshold shows text); a word the learner held to see stays text; once the
  *   cliff is answered its words are text (the answer is revealed).
@@ -166,7 +172,7 @@ export function buildSentenceView(text: string, words: readonly SentenceWord[], 
     if (revealed.has(w.index)) shown = true;
     let display: WordDisplay = shown ? 'text' : 'tile';
     if (cliff && !cliff.answered && inCliff) display = 'gap';
-    else if (cliff && !cliff.answered && afterCliff) display = 'future';
+    else if (cliff && !cliff.answered && afterCliff && !state.showAfter) display = 'future';
     else if (cliff && cliff.answered && inCliff) display = 'text';
     if (w.explicit && !ctx.settings.showExplicit) display = 'masked';
     const counted = w.kind === 'word' && (w.pos === null || !o.neverNewPos.includes(w.pos));

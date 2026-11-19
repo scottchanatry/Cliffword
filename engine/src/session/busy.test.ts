@@ -17,7 +17,8 @@ import { LyricSession } from './lyric';
 import type { LyricStep, StoryStep } from './types';
 
 const pack = createDefaultSpanishPack();
-const pair = createDefaultPairPack();
+// The generated flow (the library would make StorySession play the authored series).
+const pair = createDefaultPairPack({ library: false });
 const T0 = Date.UTC(2026, 10, 15, 8, 0, 0);
 const KEYS = frequencyLexemeKeys(pack);
 const mock = createMockModel();

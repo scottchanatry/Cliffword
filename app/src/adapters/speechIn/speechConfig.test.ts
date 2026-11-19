@@ -40,7 +40,7 @@ describe('expo-speech-recognition config', () => {
     const info = appJson.expo.ios.infoPlist;
     expect(options.microphonePermission).toBe(info.NSMicrophoneUsageDescription);
     expect(options.speechRecognitionPermission).toBe(info.NSSpeechRecognitionUsageDescription);
-    expect(options.microphonePermission).toMatch(/hold to speak/);
+    expect(options.microphonePermission).toMatch(/microphone button/);
   });
 
   it('declares the microphone on Android and the Google recognition services', () => {

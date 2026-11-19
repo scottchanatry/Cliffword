@@ -13,7 +13,8 @@ import { DEFAULT_HANDOVER_OPTIONS, bridgeFamiliar, handoverStage, starterLimit }
 import { StorySession } from './story';
 
 const pack = createDefaultSpanishPack();
-const pair = createDefaultPairPack();
+// The generated flow (the library would make StorySession play the authored series).
+const pair = createDefaultPairPack({ library: false });
 const T0 = Date.UTC(2026, 10, 15, 8, 0, 0);
 const KEYS = frequencyLexemeKeys(pack);
 const STARTER = pair.starter!;

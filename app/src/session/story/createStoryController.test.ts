@@ -1,10 +1,12 @@
 /**
- * The story controller over the real engine StorySession, the en-es packs and the test
- * services: FakeSpeechIn plays the learner, FakeSpeechOut the voice, FakeClock the time,
+ * The story controller over the real engine StorySession in its generated flow (the en-es packs
+ * without the library: generatedPacks; library mode is createStoryController.library.test.ts)
+ * and the test services: FakeSpeechIn plays the learner, FakeSpeechOut the voice, FakeClock the time,
  * sql.js the storage, and MockModelAdapter the model (unloaded for canned mode).
  */
 import {
   SKILLS,
+  STORY_SESSION_FORMAT,
   StorySession,
   frequencyLexemeKeys,
   type LearnerModel,
@@ -17,9 +19,10 @@ import type { ScriptedUtterance } from '../../adapters/speechIn/FakeSpeechIn';
 import { FakeSpeechOut } from '../../adapters/speechOut/FakeSpeechOut';
 import { bootstrap } from '../../bootstrap/bootstrap';
 import { learnerPrior } from '../../learner/prior';
-import { defaultPacks, sharedMockModel } from '../../services/defaults';
+import { sharedMockModel } from '../../services/defaults';
 import { createTestServices, type TestServices } from '../../services/testServices';
 import type { Storage } from '../../storage/storage';
+import { generatedPacks, generatedPair } from '../../testing/packs';
 import type { AppSettings } from '../../storage/repos/settings';
 import type { StoryViewModel } from '../contract';
 import { createStoryController, type StoryControllerDeps, type StoryControllerHandle } from './createStoryController';
@@ -66,7 +69,7 @@ interface SetupOptions {
 const live: StoryControllerHandle[] = [];
 
 async function setup(opts: SetupOptions = {}): Promise<Harness> {
-  const packs = opts.pair ? { lang: defaultPacks().lang, pair: opts.pair } : defaultPacks();
+  const packs = opts.pair ? { lang: generatedPacks().lang, pair: opts.pair } : generatedPacks();
   const services = createTestServices({
     model: new MockModelAdapter({ model: sharedMockModel(), status: opts.model ?? 'unloaded' }),
     packs,
@@ -173,7 +176,7 @@ async function spokenTotal(storage: Storage): Promise<number> {
   return storage.spokenTime.total();
 }
 
-const marketPair = (): PairPack => ({ ...defaultPacks().pair, starter: MARKET });
+const marketPair = (): PairPack => generatedPair({ starter: MARKET });
 
 describe('a brand-new learner (canned, no model)', () => {
   it('starts the starter story at its first cliff, with the brandNew prior stored and the learner handed over', async () => {
@@ -189,7 +192,7 @@ describe('a brand-new learner (canned, no model)', () => {
     expect(await h.storage.learner.latestPrior()).toEqual({ kind: 'brandNew' });
     expect(h.replaced).toEqual([h.controller.learner]);
     const rec = await h.storage.sessions.active('story');
-    expect(rec).toMatchObject({ kind: 'story', version: 1, active: true });
+    expect(rec).toMatchObject({ kind: 'story', version: STORY_SESSION_FORMAT, active: true });
     expect(h.errors).toEqual([]);
   });
 

@@ -12,10 +12,11 @@ import type { PairPack, StarterStory } from '../pair/types';
 import { EN_ES_STARTER } from '../pair/en-es/starter';
 import { buildPrior } from './common';
 import { StorySession, type StorySessionCreate } from './story';
-import type { StoryScreen, StoryStep } from './types';
+import { STORY_SESSION_FORMAT, type StoryScreen, type StoryStep } from './types';
 
 const pack = createDefaultSpanishPack();
-const pair: PairPack = { ...createDefaultPairPack(), starter: EN_ES_STARTER };
+// The generated flow (the library would make StorySession play the authored series).
+const pair: PairPack = { ...createDefaultPairPack({ library: false }), starter: EN_ES_STARTER };
 const model = createMockModel();
 const T0 = Date.UTC(2026, 10, 15, 8, 0, 0);
 
@@ -577,7 +578,7 @@ describe('model sentences', () => {
 
   it('shows an error screen (and tries again on next) when there is nothing at all to say', async () => {
     // createDefaultPairPack() now carries EN_ES_STARTER; this case needs a pack without one.
-    const s = make({ pair: { ...createDefaultPairPack(), starter: undefined } });
+    const s = make({ pair: { ...createDefaultPairPack({ library: false }), starter: undefined } });
     const st = await s.next(T0);
     expect(screenOf(st, 'error').ui).toEqual({ key: 'story.noSentence' });
     expect((await s.next(T0 + 1)).screen.kind).toBe('error');
@@ -593,7 +594,7 @@ describe('snapshot and restore', () => {
     await s.next((t += 1000));
     await s.command('slower', (t += 1000));
     const snap = s.snapshot();
-    expect(snap.format).toBe(1);
+    expect(snap.format).toBe(STORY_SESSION_FORMAT);
     expect(snap.kind).toBe('story');
     const json = JSON.parse(JSON.stringify(snap));
     expect(json).toEqual(snap);
@@ -618,7 +619,7 @@ describe('snapshot and restore', () => {
   it('rejects snapshots of another format or kind', () => {
     const snap = make().snapshot();
     const deps = { model: null, pack, pair, learner: new LearnerModel() };
-    expect(() => StorySession.restore({ ...snap, format: 2 as 1 }, deps)).toThrow(/unsupported/);
+    expect(() => StorySession.restore({ ...snap, format: 99 as typeof STORY_SESSION_FORMAT }, deps)).toThrow(/unsupported/);
     expect(() => StorySession.restore({ ...snap, kind: 'lyric' as 'story' }, deps)).toThrow(/unsupported/);
   });
 

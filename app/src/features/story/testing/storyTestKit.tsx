@@ -32,6 +32,10 @@ export function mockStoryActions(): MockStoryActions {
     'setTextMode',
     'startRegisterTask',
     'reportSentence',
+    'openEpisode',
+    'closeEpisode',
+    'replayEpisode',
+    'micTap',
   ];
   return Object.fromEntries(names.map((n) => [n, jest.fn()])) as MockStoryActions;
 }

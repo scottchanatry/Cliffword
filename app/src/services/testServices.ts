@@ -19,6 +19,7 @@ import { FakeHaptics } from '../adapters/haptics/FakeHaptics';
 import { FakeModelManager } from '../adapters/model/FakeModelManager';
 import { MockModelAdapter } from '../adapters/model/MockModelAdapter';
 import { FakeMusicPlayer } from '../adapters/music/FakeMusicPlayer';
+import { FixedNetworkInfo } from '../adapters/network/FixedNetworkInfo';
 import { MemoryShareInbox } from '../adapters/share/MemoryShareInbox';
 import { FakeSpeechIn } from '../adapters/speechIn/FakeSpeechIn';
 import { FakeSpeechOut } from '../adapters/speechOut/FakeSpeechOut';
@@ -36,6 +37,7 @@ export interface TestServices extends Services {
   readonly music: FakeMusicPlayer;
   readonly share: MemoryShareInbox;
   readonly haptics: FakeHaptics;
+  readonly network: FixedNetworkInfo;
   readonly clock: FakeClock;
 }
 
@@ -58,6 +60,8 @@ export function createTestServices<O extends ServiceOverrides = Record<never, ne
     music: o.music ?? new FakeMusicPlayer({ clock }),
     share: o.share ?? new MemoryShareInbox(clock),
     haptics: o.haptics ?? new FakeHaptics(),
+    // Mobile data unless a test sets Wi-Fi (network.set('wifi')): no download starts by itself.
+    network: o.network ?? new FixedNetworkInfo('cellular'),
     storage: o.storage ?? createStorageService('sql.js-memory', () => openMemoryStorage(storageClock)),
   };
   // The cast keeps the concrete fake types built above (or the overrides' types); see TestServicesWith.

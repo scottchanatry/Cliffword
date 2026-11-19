@@ -95,6 +95,10 @@
  * | DEFAULT_LYRIC_ANSWER_OPTIONS      | neutralCredit, streetCredit... | full, partial      |
  * | DEFAULT_ECHO_OPTIONS              | nearRatio, nearCost            | 0.2, 0.5           |
  * | DEFAULT_STORY_SESSION_OPTIONS     | chapter, positions, candidates | 6, 3, 2            |
+ * | DEFAULT_STORY_SESSION_OPTIONS     | source                         | auto (library)     |
+ * | DEFAULT_LIBRARY_SESSION_OPTIONS   | maxAlternatives, retell        | 3, off             |
+ * | DEFAULT_LEVEL_RULE                | upAt, downBelow                | 0.8, 0.5 (owner)   |
+ * | DEFAULT_VALIDATE_LIBRARY_OPTIONS  | lines, beats, episodes         | 10-16, 4-8, 8      |
  * | DEFAULT_OPTION_CHOICE_OPTIONS     | distractor floor               | partialFloor       |
  * | DEFAULT_TOP_N_OPTIONS             | n                              | 10 (simulation)    |
  * | DEFAULT_HTTP_MODEL_OPTIONS        | timeoutMs                      | 120000             |
@@ -167,9 +171,13 @@ export { DEFAULT_SPLIT_TEXT_OPTIONS } from './lyrics/units';
 export { DEFAULT_SESSION_SETTINGS } from './session/common';
 export { DEFAULT_LANDING_OPTIONS, DEFAULT_OPTION_CHOICE_OPTIONS } from './session/cliff';
 export { DEFAULT_VIEW_OPTIONS } from './session/view';
-export { DEFAULT_STORY_SESSION_OPTIONS } from './session/story';
+export { DEFAULT_LIBRARY_SESSION_OPTIONS, DEFAULT_STORY_SESSION_OPTIONS } from './session/story';
 export { DEFAULT_HANDOVER_OPTIONS } from './session/handover';
 export { DEFAULT_LYRIC_SESSION_OPTIONS } from './session/lyric';
+
+// Authored content (the library)
+export { DEFAULT_LEVEL_RULE } from './content/library';
+export { DEFAULT_VALIDATE_LIBRARY_OPTIONS } from './content/validate';
 
 // Model adapters (model/contract.ts DEFAULT_CONTRACT_OPTIONS is test-only: it imports vitest)
 export { DEFAULT_HTTP_MODEL_OPTIONS } from './model/http';

@@ -8,6 +8,7 @@ import path from 'path';
 import { StyleSheet } from 'react-native';
 import { fireEvent, renderRouter, screen, waitFor, within } from 'expo-router/testing-library';
 import { MockModelAdapter } from '../../src/adapters/model/MockModelAdapter';
+import { MUSIC_ENABLED } from '../../src/config/features';
 import { UnsupportedMusicPlayer } from '../../src/adapters/music/UnsupportedMusicPlayer';
 import { saveLyrics } from '../../src/music/lyricsData';
 import { setAppServices } from '../../src/services/appServices';
@@ -64,7 +65,11 @@ function expectAccessibleControls() {
   }
 }
 
-describe('Music tab', () => {
+// Music is off in this build (src/config/features.ts): the routes redirect to the Story tab
+// (musicHidden.test.tsx). These tests run again when it is turned back on.
+const describeMusic = MUSIC_ENABLED ? describe : describe.skip;
+
+describeMusic('Music tab', () => {
   it('pastes lyrics, previews them, saves the song and opens its page with the slang notes', async () => {
     const storage = await onboarded();
     await renderRouter(APP_DIR, { initialUrl: '/music' });
@@ -220,7 +225,7 @@ describe('Music tab', () => {
   });
 });
 
-describe('brought text', () => {
+describeMusic('brought text', () => {
   it('pastes an article, saves it on the device and opens it at its first cliff', async () => {
     const storage = await onboarded();
     await renderRouter(APP_DIR, { initialUrl: '/music' });

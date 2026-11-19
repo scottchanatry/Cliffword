@@ -11,8 +11,9 @@
  * calls reject with ModelNotReadyError until then, and modelAvailability() tells the UI why.
  * Music: MusicKitPlayer over modules/cliffword-music on iOS (createNativeMusicPlayer);
  * UnsupportedMusicPlayer on Android and on an iOS binary without the module.
- * Share-in: ExpoShareInbox (createNativeShareInbox) over the share_inbox table, fed by
- * ShareIntentBridge (expo-share-intent) in the root layout.
+ * Share-in: ExpoShareInbox (createNativeShareInbox) over the share_inbox table (nothing feeds it
+ * in this build: the share extension and ShareIntentBridge are out). Network: expo-network
+ * (createNativeNetworkInfo), so the model downloads by itself on Wi-Fi only.
  * Native-only imports for those adapters must stay out of the web bundle. Services.ts imports
  * this file on every platform, so import each native adapter through a module that has a
  * .web.ts twin (Metro platform extensions), e.g. createDeviceModel.ts + createDeviceModel.web.ts.
@@ -24,6 +25,7 @@ import { createModelManager } from '../adapters/model/createModelManager';
 import { keepModelLoaded } from '../adapters/model/keepModelLoaded';
 import type { ModelAdapter } from '../adapters/model/types';
 import { createNativeMusicPlayer } from '../adapters/music/createNativeMusicPlayer';
+import { createNativeNetworkInfo } from '../adapters/network/createNativeNetworkInfo';
 import { createNativeShareInbox } from '../adapters/share/createNativeShareInbox';
 import { createNativeSpeechIn } from '../adapters/speechIn/createNativeSpeechIn';
 import { ExpoSpeechOut } from '../adapters/speechOut/ExpoSpeechOut';
@@ -59,6 +61,8 @@ export function createNativeServices(platform: 'ios' | 'android', overrides: Ser
     // Shared links and text, kept in share_inbox (web: createNativeShareInbox.web.ts, in memory).
     share: overrides.share ?? createNativeShareInbox(storage, clock),
     haptics: overrides.haptics ?? new ExpoHapticsAdapter(),
+    // Wi-Fi or mobile data (web: createNativeNetworkInfo.web.ts, always 'unknown').
+    network: overrides.network ?? createNativeNetworkInfo(),
     storage,
   };
 }

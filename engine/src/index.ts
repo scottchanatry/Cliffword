@@ -17,6 +17,8 @@
  * - lyrics:      pasted lyrics and brought text: parsing, slang notes, register pairs,
  *                lyric cliffs, surprise maps, sing-back echo, the shared word aligner
  * - session:     StorySession and LyricSession, the state machines the app drives
+ * - content:     the authored library's language-neutral layer: functional syllabus,
+ *                gender variants, episode and tier selection, level rule, validation
  * - model:       the LanguageModel contract, the deterministic mock, the HTTP adapter for
  *                proof/model_server.py and the top-N bounded wrapper
  *
@@ -150,6 +152,9 @@ export type { GapOptions, NativeGap, NativeGapWord } from './gaps/capture';
 export * from './speaking';
 export * from './lyrics';
 export * from './session';
+// Authored content: the shared syllabus, gender variants, series and episode selection,
+// library validation (docs/STORY-FORMAT.md)
+export * from './content';
 
 // Packs for Spanish for English speakers
 export * from './packs';

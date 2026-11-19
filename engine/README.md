@@ -25,7 +25,8 @@ npx vitest run     # all tests, including integration and simulated learners
 | `src/lang/es/` | The Spanish pack: segmenter that keeps clipped forms (`'tá`, `pa'`) whole, normalizer, conjugation and inflection, analyzer (exact, then enclitics, then accent-insensitive; a noun or adjective in its own dictionary form first), homographs in context (`chooseSpanishAnalysis`: la comida, he estado, ella vino), a 1788-lemma frequency lexicon that includes every cognate of the pair pack. `clitics.ts`: enclitics attached keeping the host's stress (leyéndolo, dámelo) and split off again. `commands.ts`: spoken commands, fillers and street endings (`SPANISH_COMMANDS`, `SPANISH_FILLERS`, `SPANISH_STREET_ENDINGS`). `story.ts`: story-generation data (`SPANISH_STORY_DATA`: prompt wording, level names, length hints, example lines, region names, leak patterns, meta words, answer labels) and `SPANISH_ABBREVIATIONS`. `createSpanishPack`. |
 | `src/lang/es/rules.ts` | The 29 Spanish correction rules as data: ser/estar (not before a slang predicate), por/para, gender and number (never breaking an agreement that holds; number street tolerant), subject-verb agreement (subject before the verb, and gustar-type verbs with the noun after), aspect, mood, personal a (also across an adverb and before nadie/alguien), articles (also at a sentence start and before clock hours), a + el = al and de + el = del, possessive to article with body parts and clothes, and object pronouns (move rules for placement, participles after haber, doubled pronouns, clitic order, le/les to se before lo/la). |
 | `src/lang/es/registers/` | Slang register packs for Puerto Rico, the Dominican Republic, Cuba, Colombia and shared Caribbean clipped forms, with meaning, region, formality and explicit flag (common explicit lyric words included). `findSlang`. |
-| `src/pair/types.ts` | The `PairPack` contract. |
+| `src/pair/types.ts` | The `PairPack` contract, including the authored library: `LibraryTrack` (a series: card text, cast, setting, choices), `LibraryStory` (an episode: track, episode, tier, beats, functions), `LibrarySentence` and `LibraryTurn` with their language-neutral layer (ids, intents, syllabus functions, cliff concepts). `docs/STORY-FORMAT.md` documents it. |
+| `src/content/` | The authored library's language-neutral machinery: the shared functional syllabus (`syllabus.ts`, `SYLLABUS`, ids like `greet.hello`, `shop.price`), gender variants (`variants.ts`: `resolveVariants`, `resolveStory`, `variantContext`, `allVariantContexts`, `unresolvedTokens`), episodes, tiers, cliff modes and the level rule (`library.ts`: `storyForEpisode`, `tierForLevel`, `cliffModeForLevel`, `levelAfterEpisode`, `trackCards`, `hintSpan`), validation of a pair's series (`validate.ts`: `validateLibrary`, `validateStory`, `validateTracks`), and a small test library (`testLibrary.ts`). |
 | `src/pair/en-es/` | English speakers learning Spanish: glosses both ways (every lexicon lemma has one), phrase translations, cognates, false friends, an English lexicon for spotting English inside Spanish replies, correction explanations, interface strings (every key a session screen can carry), and the starter story `EN_ES_STARTER` (zero-knowledge scene, canned mode, placement ladder), which `createDefaultPairPack()` includes. |
 | `src/scoring/` | Word surprise and heat (`scoreWords`), whole-word next-word lists from sub-word tokens (`nextWords`), cliff positions (`cliffPositions`) and answer credit (`scoreCliffAnswer`). |
 | `src/corrections/` | Rule-made variants (`generateVariants`) scored against the learner's sentence; the winning rule explains (`judgeSentence`). |
@@ -34,7 +35,7 @@ npx vitest run     # all tests, including integration and simulated learners
 | `src/gaps/` | Native-language words inside target-language replies (`findNativeGaps`) and the learner events they imply (`gapEvents`). |
 | `src/speaking/` | Spoken commands (`matchCommand`), expected vs heard words and "Understood N of M" (`alignTranscript`), timed retell (`retellMetrics`, `retellProgress`, `retellCoverage`, `RETELL_LANES`), minutes spoken per local day and streak (`addSpoken`, `spokenStats`), self-repair before a fix (`repairFlow`, `judgeAttempt`, `attemptRepair`, `repairEvents`), "no sé" (`startNoSe`, `advanceNoSe`), native-language answers (`nativeReply`), tile durations (`estimateDurationMs`). |
 | `src/lyrics/` | Pasted lyrics and LRC (`parseLyrics`), slang notes (`slangNotes`), neutral/street line pairs (`registerPairs`), lyric and brought-text cliffs (`lyricCliffs`, `broughtTextCliffs`, `scoreLyricAnswer`), surprise maps (`surpriseMap`), sing-back (`echoLine`), and the one word aligner the engine uses (`alignWords`; speaking reuses it). |
-| `src/session/` | `StorySession` and `LyricSession`: pure, deterministic state machines over `{ model, pack, pair, learner }` that return plain-data screens and the learner events of each step, with `snapshot()` / `restore()`. A null model is canned mode (starter sentences). `handover.ts`: starter, bridge and free generation stages (`handoverStage`, `bridgeFamiliar`, `DEFAULT_HANDOVER_OPTIONS`). `prefetch.ts`: `ModelGate`, which serializes a session's model calls and replays a prefetch's answers (`StorySession.prefetch`). |
+| `src/session/` | `StorySession` and `LyricSession`: pure, deterministic state machines over `{ model, pack, pair, learner }` that return plain-data screens and the learner events of each step, with `snapshot()` / `restore()`. `StorySession` plays the pair's authored library by default (`library.ts`: per-track progress, the picker view, feedback alternatives); the generated flow (starter, placement, generation) is behind `options.source: 'generated'`. A null model is canned mode. `handover.ts`: starter, bridge and free generation stages (`handoverStage`, `bridgeFamiliar`, `DEFAULT_HANDOVER_OPTIONS`). `prefetch.ts`: `ModelGate`, which serializes a session's model calls and replays a prefetch's answers (`StorySession.prefetch`). |
 | `src/packs.ts` | `createDefaultSpanishPack()`, `createDefaultPairPack()` and helpers that turn pack data into learner keys. |
 | `src/config.ts` | Every `DEFAULT_*` options object in one place, with the source of each value (proof test or judgement). |
 | `src/index.ts` | The public API. |
@@ -52,7 +53,8 @@ Import from `src/index.ts` (the package `main`).
   `createSpanishPack({ rules: SPANISH_RULES, registers: SPANISH_REGISTERS })`, or only the
   register packs of the given regions (a Caribbean member region also loads the shared
   Caribbean pack). `createDefaultPairPack()` is the en-es pair pack with slang glosses from
-  the same registers. `frequencyLexemeKeys(pack)`, `cognateLexemeKeys(pair)` and
+  the same registers, the starter story and the authored series (`{ library: false }`
+  leaves the series out). `frequencyLexemeKeys(pack)`, `cognateLexemeKeys(pair)` and
   `slangLexemeKeys(pack)` give learner keys (`"es:tener"`).
 - **Scoring.** `scoreWords(model, pack, context, text)` gives a `WordScore` (log-probability,
   surprisal, heat 0 to 3) per word in one model call. `nextWords(model, context)` gives the
@@ -107,7 +109,13 @@ Import from `src/index.ts` (the package `main`).
   cliffs per line or sentence; `scoreLyricAnswer` adds spelling and street tolerance to
   `scoreCliffAnswer`. `surpriseMap` shades any text; `echoLine(expected, heard, pack, {
   register })` grades a sung-back line.
-- **Sessions.** `StorySession.create({ model, pack, pair, learner, now, seed, startMode })`
+- **Library (authored series).** `PairPack.tracks` and `PairPack.library` hold the
+  experiences and their episodes (`docs/STORY-FORMAT.md`). `validateLibrary(pack, pair)`
+  checks a pair's series in every variant combination. `resolveStory(story,
+  variantContext(track, address, choices))` resolves `{you:a|b}`, `{partner:a|b}` and
+  `{partner.name}`. `trackCards(tracks, library)` gives the picker's cards (coming soon
+  when a track has no story); `StorySession.libraryProgress` adds the learner's progress.
+- **Sessions.** `StorySession.create({ model, pack, pair, learner, now, seed, startMode, library })`
   then `next(at)`, `handleUtterance(transcript, at, { durationMs, words })`,
   `command`, `pickOption`, `played`, `tapWord`, `revealWord`, `setSettings`,
   `snapshot()` and `StorySession.restore(snapshot, deps)`. `LyricSession.create({ ...,
@@ -140,6 +148,76 @@ Import from `src/index.ts` (the package `main`).
 
 All randomness is seeded and all time is passed in (ms since epoch), so every function is
 deterministic. Every tunable default is re-exported from `src/config.ts`.
+
+## The library: authored series
+
+The Story flow plays authored series by default: `StorySession` uses the pair's library
+when `PairPack.library` has stories (`options.source`: `'auto'` default, `'library'`, or
+`'generated'` for the earlier starter, placement and generation flow, kept in the
+engine). Model generation of story sentences, placement, retell and register tasks are
+off in it (`options.library.retell` turns the retell back on).
+
+```ts
+const session = StorySession.create({
+  model: null, pack, pair, learner, now, seed,
+  library: { trackId: 'en-es.track.living', startLevel: 0, address: 'f', choices: {} },
+});
+await session.next(now);                  // cliff (recall: phase 'playing', the whole line)
+session.played(now);                      // the line finished playing: phase 'gap'
+await session.pickOption(1, now);         // or handleUtterance('mercado', now)
+await session.next(now);                  // next line, a turn, 'episodeDone' or 'trackDone'
+await session.chooseTrack('en-es.track.dating', now, { partner: 'valentina' });
+await session.replayEpisode(1, now);      // a finished episode again
+session.setLibraryProfile({ address: 'm', level: 2 }, now);
+session.libraryProgress;                  // level, address, every track with its progress
+```
+
+- **Learner level** (0-5, in the snapshot) starts at `library.startLevel` ("How much do
+  you know?": 0, 2 or 4) and moves after each episode (`levelAfterEpisode`): up one at
+  80% or more of the episode's cliffs answered by voice or typing with credit, before
+  options or "no sé"; down one under 50%. A tap on an option, a skip, an English answer
+  or "no sé" counts as helped. Level 0 without an explicit `startMode` gives the brandNew
+  prior; `startMode: 'placement'` is ignored (no placement test).
+- **Episodes** play in order per track; each track keeps its own progress (next episode,
+  the episode in progress with its line, turns asked and counts, finished episodes and
+  their `EpisodeResult`s, the track's choices). The tier comes from the level at the
+  episode's start (`storyForEpisode`: the nearest written tier). Every string of the
+  episode is resolved for the learner's address and the track's choices before use
+  (cast names too).
+- **Cliff modes** (`cliffModeForLevel`, from the episode's starting level): `recall`
+  (0-1: phase `'playing'` shows and speaks the whole line, `played()` or `next()` moves to
+  `'gap'` with three options in a seeded order; every word but the gap is text), `hint`
+  (2-3: `translation` and `translationHint` (the bold span); one miss or "no sé" brings
+  the options, `missed` holds the miss), `predict` (4-5: words after the gap are
+  `'future'`; "no sé" brings the options, a second one the answer). Speak cues: the whole
+  line (`what: 'line'`), then the gapped line (`gap: { before, after }`, `text` with an
+  ellipsis), or up to the cliff in predict mode.
+- **Feedback**: the landing screen carries `answer`, `expected`, `alternatives` (up to 3:
+  `cliff.accept`, then the model's alternatives at or above the "just as natural" floor
+  when a model is set), `translation`, `scoredBy` (`'model'` when the model scored it, and
+  the `landing.modelChecked` note) and `speaker`. With a model, the alternatives come from
+  one `cliffPositions` search per line, which a said answer reuses (no second search); a
+  tap waits for it unless `prefetch(at)` ran on the cliff screen (it searches the cliff on
+  screen; on a landing screen, the next line's). `options.library.modelAlternatives: false`
+  turns the search off.
+- **Turns** after the line they follow (`LibraryTurn.after`): with a model, the judge and
+  self-repair flow (repair screen); without one, a reply with target-language words is
+  accepted (`reply`), an English reply gets the target phrase as before, and the
+  `example` is shown after a reply or "no sé".
+- **Screens** added or extended (all fields optional on the existing kinds): `cliff`
+  (`mode`, `phase`, `translation`, `translationHint`, `speaker`, `concept`, `missed`),
+  `landing` (above), `noSe` (`translation`, `speaker`), `turn` / `repair` (`translation`,
+  `example`, `exampleUi`, `reply`), and the new kinds `episodeDone` (title, cliffs,
+  unaided, level before and after, `levelUi`, the next episode) and `trackDone` (other
+  playable tracks not finished, as suggestions). `StoryMeta.mode` is `'library'` and
+  `StoryMeta.library` says where the learner is (track, episode, line of lines, level,
+  mode, speaker, line id, replay). New UiText keys are in `SESSION_UI_KEYS` and the en-es
+  strings.
+- **Snapshots**: `STORY_SESSION_FORMAT` is 2. Restoring a format 1 snapshot starts a
+  fresh library session (seed and settings kept; pass `restore(..., { library })` for the
+  learner's level and address) when the pair has a library, and restores it as it was
+  otherwise. A story id that left the library restarts that episode with what is there; a
+  line whose cliff cannot be located is skipped.
 
 ## How a story step flows
 
@@ -708,6 +786,15 @@ three dated 2026-11-16 sections and "Engine round 3: review and summary".
   band whenever an in-band candidate was offered (on the bridge for the brand-new
   learner), that every step has a next screen and that every generated sentence was asked
   for with targets.
+- The library: `src/content/content.test.ts` (syllabus ids, variants both ways and with a
+  partner, unresolved tokens, tiers, modes, the level rule, picker cards, the validator on
+  the test library and on broken copies) and `src/session/library.test.ts` (each cliff
+  mode canned and with the mock model, feedback, prefetch of the alternatives, variants in
+  play, episode order with turns, `episodeDone` up, down and same, `trackDone`, switching
+  tracks keeps progress, replays, turns without a model, snapshot and restore mid-episode
+  and mid-turn, format 1 restore, a story that left the library, and brand-new, a-little
+  and comfortable simulated learners through both test tracks without stalls). Tests of
+  the generated flow use `createDefaultPairPack({ library: false })`.
 - `test/round3-review.test.ts`: the round-3 review regressions (pack stop strings,
   segmenter-based heading and list rejects, abbreviations in brought text, prefetch with
   the next command and with a model switch, the copied-opening frame).

@@ -1,5 +1,5 @@
 import { openTestStorage } from '../testing/openTestStorage';
-import { DEFAULT_SETTINGS, InvalidSettingError, SPEECH_RATE_BIAS_LIMIT, type AppSettings } from './settings';
+import { DEFAULT_SETTINGS, InvalidSettingError, isOnboarded, ONBOARDED, ONBOARDING_VERSION, SPEECH_RATE_BIAS_LIMIT, type AppSettings } from './settings';
 
 describe('SettingsRepo', () => {
   let storage: Awaited<ReturnType<typeof openTestStorage>>;
@@ -25,6 +25,12 @@ describe('SettingsRepo', () => {
       modelDeclined: false,
       allowNetworkRecognition: false,
       progressResetPending: false,
+      onboardingVersion: 0,
+      trackId: null,
+      address: 'm',
+      level: 0,
+      trackChoices: {},
+      guideSeen: false,
     };
     expect(await storage.settings.getAll()).toEqual(expected);
     expect(DEFAULT_SETTINGS).toEqual(expected);
@@ -86,8 +92,8 @@ describe('SettingsRepo', () => {
   });
 
   it('checks the onboarding, voice and recognition settings', async () => {
-    await storage.settings.update({ onboardingStep: 'voice', voiceId: 'com.apple.voice.es-MX.Paulina', modelDeclined: true });
-    expect(await storage.settings.getAll()).toMatchObject({ onboardingStep: 'voice', voiceId: 'com.apple.voice.es-MX.Paulina', modelDeclined: true });
+    await storage.settings.update({ onboardingStep: 'address', voiceId: 'com.apple.voice.es-MX.Paulina', modelDeclined: true });
+    expect(await storage.settings.getAll()).toMatchObject({ onboardingStep: 'address', voiceId: 'com.apple.voice.es-MX.Paulina', modelDeclined: true });
     await storage.settings.set('voiceId', null);
     expect(await storage.settings.get('voiceId')).toBeNull();
     await storage.settings.update({ allowNetworkRecognition: true, progressResetPending: true });
@@ -98,6 +104,40 @@ describe('SettingsRepo', () => {
     // A damaged stored value reads as the default.
     await storage.db.run("UPDATE settings SET value = '\"later\"' WHERE key = 'onboardingStep'");
     expect(await storage.settings.get('onboardingStep')).toBe('welcome');
+  });
+
+  it('checks the experience settings: track, address, level, track choices, the guide', async () => {
+    await storage.settings.update({
+      trackId: 'en-es.track.living',
+      address: 'f',
+      level: 4.4,
+      trackChoices: { 'en-es.track.dating': { partner: 'valentina' } },
+      guideSeen: true,
+    });
+    expect(await storage.settings.getAll()).toMatchObject({
+      trackId: 'en-es.track.living',
+      address: 'f',
+      level: 4,
+      trackChoices: { 'en-es.track.dating': { partner: 'valentina' } },
+      guideSeen: true,
+    });
+    await storage.settings.set('level', 9);
+    expect(await storage.settings.get('level')).toBe(5);
+    await expect(storage.settings.set('address', 'x' as never)).rejects.toBeInstanceOf(InvalidSettingError);
+    await expect(storage.settings.set('trackId', 'no spaces allowed')).rejects.toBeInstanceOf(InvalidSettingError);
+    await expect(storage.settings.set('trackChoices', { t: { partner: 3 } } as never)).rejects.toBeInstanceOf(InvalidSettingError);
+    await expect(storage.settings.set('level', Number.NaN)).rejects.toBeInstanceOf(InvalidSettingError);
+    // The earlier onboarding's steps read as the welcome screen.
+    await storage.db.run("UPDATE settings SET value = '\"slang\"' WHERE key = 'onboardingStep'");
+    expect(await storage.settings.get('onboardingStep')).toBe('welcome');
+  });
+
+  it('counts a learner as onboarded only for the current onboarding', async () => {
+    await storage.settings.update({ onboarded: true, onboardingStep: 'done' });
+    expect(isOnboarded(await storage.settings.getAll())).toBe(false);
+    await storage.settings.update(ONBOARDED);
+    expect(await storage.settings.get('onboardingVersion')).toBe(ONBOARDING_VERSION);
+    expect(isOnboarded(await storage.settings.getAll())).toBe(true);
   });
 
   it('resets one setting or all of them', async () => {

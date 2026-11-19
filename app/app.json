@@ -16,7 +16,8 @@
         "NSMicrophoneUsageDescription": "Cliffword uses the microphone while you hold to speak, so it can hear your answers to the story and the lines you sing back.",
         "NSSpeechRecognitionUsageDescription": "Cliffword turns what you say into text so it can check your answers and show which words were unexpected.",
         "NSAppleMusicUsageDescription": "Cliffword plays songs from your Apple Music library and pauses them at a line so you can say or sing it back.",
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "Cliffword never opens your photo library. It only reads the text and links you share to it from other apps, such as a Spotify song link."
       },
       "entitlements": {
         "com.apple.developer.kernel.increased-memory-limit": true

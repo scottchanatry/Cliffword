@@ -7,6 +7,7 @@
 import { act, waitFor } from '@testing-library/react-native';
 import { getLocales, type Locale } from 'expo-localization';
 import { createTestServices, type TestServices } from '../../services/testServices';
+import { generatedPacks } from '../../testing/packs';
 import { renderWithAppState } from '../../testing/renderWithAppState';
 import { createLyricController } from '../lyric/createLyricController';
 import { useLyricController } from '../lyric/useLyricController';
@@ -62,7 +63,8 @@ describe('deviceLocales', () => {
 describe('the controller hooks', () => {
   it('useStoryController passes them on: holding to speak listens with es-AR among the locales', async () => {
     jest.mocked(getLocales).mockReturnValue(ARGENTINA);
-    const services = createTestServices() as unknown as TestServices;
+    // The generated flow starts at a cliff at once (the experiences start on the home).
+    const services = createTestServices({ packs: generatedPacks() }) as unknown as TestServices;
     const seen: UseStoryController[] = [];
     function Probe() {
       seen.push(useStoryController());

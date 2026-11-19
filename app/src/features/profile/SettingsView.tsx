@@ -1,16 +1,19 @@
 import { useState, type ReactNode } from 'react';
-import { Platform, Pressable, StyleSheet, View } from 'react-native';
-import type { Register } from '@cliffword/engine';
+import { Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import type { LibraryChoice, Register } from '@cliffword/engine';
 import type { MusicAuthorization } from '../../adapters/music/types';
 import { formatBytes } from '../../adapters/model/modelFileMessages';
 import { CHROME_MAX_SCALE } from '../../components/words/fontScale';
+import { MUSIC_ENABLED } from '../../config/features';
 import { CONTACT_EMAIL, externalLinkUrl, type ExternalLink } from '../../config/links';
 import { tKey, useI18n, type CatalogKey } from '../../i18n';
-import type { AppSettings, TextMode } from '../../storage/repos/settings';
-import { colors, layout, spacing } from '../../theme';
+import { MAX_LEVEL, MIN_LEVEL, type Address, type AppSettings, type TextMode } from '../../storage/repos/settings';
+import { colors, layout, radii, spacing } from '../../theme';
 import { Card, InterfaceText, Screen } from '../../ui';
 import { RegionPills, type RegionCode } from '../music/RegionPills';
 import { SourceRow } from '../music/SourceRow';
+import { ExperiencePicker } from '../story/library/ExperiencePicker';
 import { ConfirmSheet } from './ConfirmSheet';
 import { DangerRow } from './DangerRow';
 import { LinkRow } from './LinkRow';
@@ -34,11 +37,37 @@ const REGISTERS: readonly { value: Register; label: CatalogKey }[] = [
   { value: 'street', label: tKey('settings.register.street') },
 ];
 
+const ADDRESSES: readonly { value: Address; label: CatalogKey }[] = [
+  { value: 'm', label: tKey('settings.address.m') },
+  { value: 'f', label: tKey('settings.address.f') },
+];
+
+const LEVELS = Array.from({ length: MAX_LEVEL - MIN_LEVEL + 1 }, (_, i) => String(MIN_LEVEL + i));
+
+const MODE_KEYS: readonly CatalogKey[] = [
+  tKey('mode.recall'),
+  tKey('mode.recall'),
+  tKey('mode.hint'),
+  tKey('mode.hint'),
+  tKey('mode.predict'),
+  tKey('mode.predict'),
+];
+
+/** The experience in the settings: its title and its choices (none for most). */
+export interface SettingsExperience {
+  title: string | null;
+  choices: readonly LibraryChoice[];
+}
+
 /** Apple Music access as the settings row shows it; 'checking' until the player answered. */
 export type MusicAccess = MusicAuthorization | 'checking';
 
 export interface SettingsViewProps {
   settings: AppSettings;
+  /** The experience the Story tab plays (settings.trackId), with its choices. */
+  experience?: SettingsExperience;
+  /** Store another experience and its choices (the Story tab follows). Absent: no Change. */
+  onPickExperience?: (trackId: string, choices: Record<string, string>) => void;
   /** Translated names of the learner's language and the one they learn. */
   nativeName: string;
   targetName: string;
@@ -84,6 +113,9 @@ export function SettingsView(props: SettingsViewProps) {
   const [deletedModel, setDeletedModel] = useState(false);
   const [notice, setNotice] = useState<string | null>(null);
   const [linkNotice, setLinkNotice] = useState<string | null>(null);
+  const [picking, setPicking] = useState(false);
+  const trackId = settings.trackId;
+  const chosen = trackId ? (settings.trackChoices[trackId] ?? {}) : {};
   const size = formatBytes(model.descriptor.bytes, t);
 
   const openLink = (link: ExternalLink) => {
@@ -126,6 +158,64 @@ export function SettingsView(props: SettingsViewProps) {
       ) : null}
 
       <Section title={t('settings.section.story')}>
+        {props.experience ? (
+          <View style={[styles.field, styles.fieldDivider, styles.experienceRow]} testID="settings-experience">
+            <View style={styles.experienceText}>
+              <InterfaceText variant="rowTitle" maxFontSizeMultiplier={CHROME_MAX_SCALE}>
+                {t('settings.experience')}
+              </InterfaceText>
+              <InterfaceText variant="body" tone="muted" maxFontSizeMultiplier={CHROME_MAX_SCALE} testID="settings-experience-title">
+                {props.experience.title ?? '—'}
+              </InterfaceText>
+            </View>
+            {props.onPickExperience ? (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={t('picker.change')}
+                onPress={() => setPicking(true)}
+                style={({ pressed }) => [styles.change, pressed && styles.changePressed]}
+                testID="settings-experience-change"
+              >
+                <InterfaceText variant="pillStrong" maxFontSizeMultiplier={CHROME_MAX_SCALE}>
+                  {t('settings.experience.change')}
+                </InterfaceText>
+              </Pressable>
+            ) : null}
+          </View>
+        ) : null}
+        {(props.experience?.choices ?? []).map((choice) => (
+          <Field key={choice.key} title={choice.prompt} divider>
+            <SegmentedControl
+              label={choice.prompt}
+              options={choice.options.map((o) => ({ value: o.id, label: o.label }))}
+              value={chosen[choice.key] ?? choice.options[0]?.id ?? ''}
+              onChange={(option) => trackId && onChange({ trackChoices: { ...settings.trackChoices, [trackId]: { ...chosen, [choice.key]: option } } })}
+              testID={`settings-choice-${choice.key}`}
+            />
+          </Field>
+        ))}
+        <Field title={t('settings.address')} divider>
+          <SegmentedControl
+            label={t('settings.address')}
+            options={ADDRESSES.map((a) => ({ value: a.value, label: t(a.label) }))}
+            value={settings.address}
+            onChange={(address) => onChange({ address })}
+            testID="settings-address"
+          />
+        </Field>
+        <Field
+          title={t('settings.level')}
+          hint={`${t('settings.level.value', { level: settings.level, mode: t(MODE_KEYS[settings.level] ?? 'mode.recall') })} ${t('settings.level.hint')}`}
+          divider
+        >
+          <SegmentedControl
+            label={t('settings.level')}
+            options={LEVELS.map((l) => ({ value: l, label: t('settings.level.a11y', { level: l }) }))}
+            value={String(settings.level)}
+            onChange={(level) => onChange({ level: Number(level) })}
+            testID="settings-level"
+          />
+        </Field>
         <Field title={t('settings.text')} hint={t('settings.text.hint')} divider>
           <SegmentedControl
             label={t('settings.text')}
@@ -161,7 +251,7 @@ export function SettingsView(props: SettingsViewProps) {
         </View>
       </Section>
 
-      <Section title={t('settings.section.slang')}>
+      <Section title={MUSIC_ENABLED ? t('settings.section.slang') : t('settings.section.slangOnly')}>
         <Field title={t('settings.register')} hint={t('settings.register.hint')} divider>
           <SegmentedControl
             label={t('settings.register')}
@@ -171,18 +261,22 @@ export function SettingsView(props: SettingsViewProps) {
             testID="settings-register"
           />
         </Field>
-        <Field title={t('settings.regions')} hint={t('settings.regions.hint')} divider>
+        <Field title={t('settings.regions')} hint={t('settings.regions.hint')} divider={MUSIC_ENABLED}>
           <RegionPills selected={settings.regions} onToggle={props.onToggleRegion} />
         </Field>
-        <ToggleRow
-          title={t('settings.explicit')}
-          hint={settings.showExplicit ? t('music.explicit.onHint') : t('music.explicit.offHint')}
-          value={settings.showExplicit}
-          onChange={(showExplicit) => onChange({ showExplicit })}
-          divider
-          testID="settings-explicit"
-        />
-        <AppleMusicRow {...props.music} />
+        {MUSIC_ENABLED ? (
+          <>
+            <ToggleRow
+              title={t('settings.explicit')}
+              hint={settings.showExplicit ? t('music.explicit.onHint') : t('music.explicit.offHint')}
+              value={settings.showExplicit}
+              onChange={(showExplicit) => onChange({ showExplicit })}
+              divider
+              testID="settings-explicit"
+            />
+            <AppleMusicRow {...props.music} />
+          </>
+        ) : null}
       </Section>
 
       <Section title={t('settings.section.speech')}>
@@ -198,13 +292,15 @@ export function SettingsView(props: SettingsViewProps) {
       <ModelCard {...model} deleted={deletedModel} onDelete={() => setConfirm('model')} />
 
       <Section title={t('settings.section.data')}>
-        <DangerRow
-          title={t('settings.deleteContent')}
-          hint={t('settings.deleteContent.hint')}
-          onPress={() => setConfirm('content')}
-          divider
-          testID="settings-delete-content"
-        />
+        {MUSIC_ENABLED ? (
+          <DangerRow
+            title={t('settings.deleteContent')}
+            hint={t('settings.deleteContent.hint')}
+            onPress={() => setConfirm('content')}
+            divider
+            testID="settings-delete-content"
+          />
+        ) : null}
         <DangerRow title={t('settings.resetProgress')} hint={t('settings.resetProgress.hint')} onPress={() => setConfirm('reset')} testID="settings-reset" />
       </Section>
 
@@ -263,6 +359,22 @@ export function SettingsView(props: SettingsViewProps) {
         <InterfaceText variant="caption" tone="muted" accessibilityLiveRegion="polite" maxFontSizeMultiplier={CHROME_MAX_SCALE} testID="settings-link-notice">
           {linkNotice}
         </InterfaceText>
+      ) : null}
+
+      {picking && props.onPickExperience ? (
+        <Modal visible animationType="slide" onRequestClose={() => setPicking(false)} testID="settings-picker">
+          <SafeAreaView style={styles.picker} edges={['top', 'left', 'right', 'bottom']}>
+            <ExperiencePicker
+              library={null}
+              currentId={trackId}
+              onClose={() => setPicking(false)}
+              onPick={(id, choices) => {
+                setPicking(false);
+                props.onPickExperience?.(id, choices);
+              }}
+            />
+          </SafeAreaView>
+        </Modal>
       ) : null}
 
       {confirm ? (
@@ -348,6 +460,20 @@ const styles = StyleSheet.create({
   card: { paddingVertical: spacing.xs, gap: 0 },
   field: { gap: spacing.sm, paddingVertical: spacing.md },
   fieldDivider: { borderBottomWidth: 1, borderBottomColor: colors.borderSoft },
+  experienceRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md },
+  experienceText: { flex: 1, gap: spacing.xxs },
+  change: {
+    minHeight: layout.minTouch,
+    minWidth: layout.minTouch,
+    paddingHorizontal: spacing.lg,
+    borderRadius: radii.pill,
+    borderWidth: 1,
+    borderColor: colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  changePressed: { backgroundColor: colors.borderSoft },
+  picker: { flex: 1, backgroundColor: colors.ground },
   version: {
     minHeight: layout.primaryHeight,
     flexDirection: 'row',

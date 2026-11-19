@@ -50,9 +50,32 @@ export const colors = {
   borderDashed: '#B5B9AF',
   /** Progress track. */
   track: '#D5D8D0',
+  /** Dims the screen behind a coach mark (ink at 35%). */
+  scrim: 'rgba(22, 24, 29, 0.35)',
 } as const;
 
 export type ColorName = keyof typeof colors;
+
+/**
+ * Experience card motifs (no flags, no photos): a ground color and two shape colors per regional
+ * variety of a series (LibraryTrack.dialect). Decorative only; text never sits on them.
+ */
+export const motifColors = {
+  /** Caribbean sea, sun, coral. */
+  pr: { ground: '#0E7C86', a: '#FFC145', b: '#FF7A6B' },
+  /** Walled-town orange, palm green, sand. */
+  co: { ground: '#E8833A', a: '#2D9C5B', b: '#FFE08A' },
+  /** Evening blue, café cream, tango violet. */
+  ar: { ground: '#4F7FDB', a: '#F7F3E8', b: '#9B6BDB' },
+  /** Market pink, cactus green, marigold. */
+  mx: { ground: '#D9467F', a: '#2BB673', b: '#FFD166' },
+  /** Clay red, grey-sky white, slate. */
+  pe: { ground: '#C0533B', a: '#F4E3C1', b: '#5D6D7E' },
+  /** Rainforest green, mint, banana yellow. */
+  cr: { ground: '#2E8B57', a: '#A8E6CF', b: '#F9C74F' },
+} as const;
+
+export type MotifName = keyof typeof motifColors;
 
 /** Heat level 0 (expected) to 3 (most surprising), as the engine's WordScore.heat. */
 export const heatColors: readonly [string | null, string, string, string] = [

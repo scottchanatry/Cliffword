@@ -4,6 +4,8 @@ import { useLearner } from '../../appState/AppStateProvider';
 import { MockModelAdapter } from '../../adapters/model/MockModelAdapter';
 import { sharedMockModel } from '../../services/defaults';
 import { createTestServices, type TestServices } from '../../services/testServices';
+import { ONBOARDED } from '../../storage/repos/settings';
+import { generatedPacks, libraryPacks, livingTrack } from '../../testing/packs';
 import { renderWithAppState } from '../../testing/renderWithAppState';
 import type { StoryActions, StoryViewModel } from '../contract';
 import { useStoryController } from './useStoryController';
@@ -22,8 +24,40 @@ function Probe({ seen }: { seen: Seen[] }) {
 }
 
 describe('useStoryController', () => {
-  it('starts the story, hands the rebuilt learner to the app state and keeps the same controller', async () => {
-    const services = createTestServices({ model: new MockModelAdapter({ model: sharedMockModel(), status: 'unloaded' }) }) as unknown as TestServices;
+  it('experiences: starts on the home, opens the episode, hands the rebuilt learner over, keeps one controller', async () => {
+    const services = createTestServices({ packs: libraryPacks(), model: new MockModelAdapter({ model: sharedMockModel(), status: 'unloaded' }) }) as unknown as TestServices;
+    const seen: Seen[] = [];
+    const { boot, unmount } = await renderWithAppState(<Probe seen={seen} />, {
+      services,
+      settings: { ...ONBOARDED, startLevel: 'brandNew', trackId: livingTrack().id, level: 0 },
+    });
+    const last = () => seen[seen.length - 1] as Seen;
+    await waitFor(() => expect(last().vm.library?.track).toBe(livingTrack().id));
+    expect(last().vm.view).toBe('home');
+    expect(last().vm.screen?.kind).toBe('idle');
+    expect(services.speechOut.spokenTexts).toEqual([]);
+    await act(async () => last().actions.openEpisode());
+    await waitFor(() => {
+      const s = last().vm.screen;
+      expect(s?.kind === 'cliff' ? s.phase : s?.kind).toBe('gap');
+    });
+    // Brand new: the session rebuilt the learner with its prior; the app state now holds it.
+    expect(last().learner).not.toBe(boot.learner.learner);
+    const storage = await services.storage.open();
+    const rec = await storage.sessions.active<{ state: { current: { cliff: { answer: string; key: string } } } }>('story');
+    const answer = rec?.snapshot.state.current.cliff;
+    const screen = last().vm.screen as Extract<StoryViewModel['screen'], { kind: 'cliff' }>;
+    const right = screen.cliff.options?.find((o) => o.text === answer?.answer)?.index;
+    await act(async () => last().actions.pickOption(right ?? -1));
+    await waitFor(() => expect(last().vm.screen?.kind).toBe('landing'));
+    expect(last().learner.memoryOf(answer?.key ?? '', 'meaning')).toBeDefined();
+    expect(await storage.sessions.list({ kind: 'story' })).toHaveLength(1);
+    unmount();
+    await services.storage.close();
+  });
+
+  it('generated flow: starts the story, hands the rebuilt learner to the app state and keeps the same controller', async () => {
+    const services = createTestServices({ packs: generatedPacks(), model: new MockModelAdapter({ model: sharedMockModel(), status: 'unloaded' }) }) as unknown as TestServices;
     const seen: Seen[] = [];
     const { boot, unmount } = await renderWithAppState(<Probe seen={seen} />, { services, settings: { onboarded: true, startLevel: 'brandNew' } });
     const last = () => seen[seen.length - 1] as Seen;

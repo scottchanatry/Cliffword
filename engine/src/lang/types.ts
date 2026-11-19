@@ -600,6 +600,15 @@ export interface LanguagePack {
    */
   readonly abbreviations?: readonly string[];
   /**
+   * Optional: a short narration placed before the learner's reply to a character's question
+   * when the model judges it, saying who answers, by the learner's form of address (Spanish:
+   * 'Él responde:' / 'Ella responde:'). In a language whose adjectives agree with the
+   * speaker, the judge otherwise guesses the speaker's gender and "corrects" it (Qwen3-1.7B
+   * turned a man's "Estoy cansado, gracias." into "cansada"). Omit it in languages without
+   * that agreement.
+   */
+  readonly replyCue?: Readonly<Partial<Record<'m' | 'f', string>>>;
+  /**
    * Optional: story-generation data (prompt wording, level names, examples, region names,
    * leak patterns, meta words, labels), see lang/storyData.ts. Without it the story
    * module builds a bare continuation prompt and applies no language-specific cleaning.

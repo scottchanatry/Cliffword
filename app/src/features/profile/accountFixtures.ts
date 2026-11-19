@@ -9,8 +9,7 @@ import { DEFAULT_MODEL } from '../../adapters/model/descriptor';
 import type { ModelFileState, ModelInfo } from '../../adapters/model/types';
 import type { SpeechAvailability } from '../../adapters/speechIn/types';
 import type { Voice } from '../../adapters/speechOut/types';
-import { DEFAULT_SETTINGS, type AppSettings } from '../../storage/repos/settings';
-import type { PracticeHeard } from '../onboarding/useHoldPractice';
+import { DEFAULT_SETTINGS, ONBOARDED, type AppSettings } from '../../storage/repos/settings';
 import type { SelfTestReport, SentenceResult } from './selftest';
 import { SELF_TEST_PAIRS, SELF_TEST_TOLERANCE } from './selftestData';
 import type { SkillCounts, WeekBar } from './stats';
@@ -18,12 +17,11 @@ import type { MusicAccess } from './SettingsView';
 
 export const ACCOUNT_FIXTURE_NAMES = [
   'onboarding-welcome',
-  'onboarding-model',
-  'onboarding-model-downloading',
-  'onboarding-model-error',
-  'onboarding-voice',
-  'onboarding-voice-denied',
-  'onboarding-slang',
+  'onboarding-experience',
+  'onboarding-level',
+  'onboarding-address',
+  'onboarding-mic',
+  'onboarding-mic-denied',
   'profile',
   'profile-new',
   'settings',
@@ -67,8 +65,6 @@ export const SPEECH_READY: SpeechAvailability = { status: 'ready', permission: '
 export const SPEECH_NEEDS_PERMISSION: SpeechAvailability = { ...SPEECH_READY, status: 'needs-permission', permission: 'undetermined' };
 export const SPEECH_DENIED: SpeechAvailability = { ...SPEECH_READY, status: 'permission-denied', permission: 'denied' };
 
-export const PRACTICE_HEARD: PracticeHeard = { text: 'otra vez', command: 'again' };
-
 /** 2026-11-16 (a Monday) and the six days before it. */
 const WEEK_DAYS = ['2026-11-10', '2026-11-11', '2026-11-12', '2026-11-13', '2026-11-14', '2026-11-15', '2026-11-16'] as const;
 const WEEK_MS = [184_000, 0, 412_000, 266_000, 95_000, 341_000, 303_000] as const;
@@ -111,9 +107,11 @@ export const PROFILE_FIXTURES: Readonly<Record<'profile' | 'profile-new', Profil
 
 export const SETTINGS_FIXTURE: AppSettings = {
   ...DEFAULT_SETTINGS,
-  onboarded: true,
-  onboardingStep: 'done',
+  ...ONBOARDED,
   voiceId: 'com.apple.voice.enhanced.es-MX.Paulina',
+  trackId: 'en-es.track.living',
+  level: 1,
+  address: 'f',
 };
 
 export const MUSIC_ACCESS_FIXTURE: MusicAccess = 'authorized';

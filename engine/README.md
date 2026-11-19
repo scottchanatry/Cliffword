@@ -151,6 +151,15 @@ deterministic. Every tunable default is re-exported from `src/config.ts`.
 
 ## The library: authored series
 
+The en-es pair ships its series in `src/pair/en-es/stories`: `EN_ES_TRACKS` (the six
+experiences of the picker, in order) and `EN_ES_LIBRARY` (every written episode; in this
+build the eight beginner episodes of Living in San Juan, so the other five experiences
+are "coming soon"). `createDefaultPairPack()` carries both, and the app plays them. Each
+story has a language-neutral layer (beats, syllabus functions, line ids, intents, cliff
+concepts; the track's cast and setting), so a series can be ported to another pair by
+rewriting only the target-language lines and the local color: `docs/STORY-FORMAT.md`.
+What changed in the redesign and why: `docs/REDESIGN.md`.
+
 The Story flow plays authored series by default: `StorySession` uses the pair's library
 when `PairPack.library` has stories (`options.source`: `'auto'` default, `'library'`, or
 `'generated'` for the earlier starter, placement and generation flow, kept in the
@@ -194,21 +203,30 @@ session.libraryProgress;                  // level, address, every track with it
   ellipsis), or up to the cliff in predict mode.
 - **Feedback**: the landing screen carries `answer`, `expected`, `alternatives` (up to 3:
   `cliff.accept`, then the model's alternatives at or above the "just as natural" floor
-  when a model is set), `translation`, `scoredBy` (`'model'` when the model scored it, and
+  when a model is set, and only those of the story word's word class: `alternativeFits`
+  keeps a model word that shares an open class (noun, verb, adjective, adverb, number,
+  interjection) with the story's word, so the next-word search's articles and
+  prepositions ("Pancho tiene ___." got "tu, el, mi" from Qwen3) are never shown; a
+  closed-class story word gets no model alternative), `translation`, `scoredBy` (`'model'` when the model scored it, and
   the `landing.modelChecked` note) and `speaker`. With a model, the alternatives come from
   one `cliffPositions` search per line, which a said answer reuses (no second search); a
   tap waits for it unless `prefetch(at)` ran on the cliff screen (it searches the cliff on
   screen; on a landing screen, the next line's). `options.library.modelAlternatives: false`
   turns the search off.
 - **Turns** after the line they follow (`LibraryTurn.after`): with a model, the judge and
-  self-repair flow (repair screen); without one, a reply with target-language words is
+  self-repair flow (repair screen), reading the reply after the story so far, the
+  character's question and the language pack's `replyCue` for who answers by the learner's
+  address (Spanish `'Él responde:'` / `'Ella responde:'`; without them, Qwen3 corrected a
+  woman's "Estoy cansada, gracias." to "cansado" and a man's "cansado" to "cansada"); a
+  reply it finds natural carries `ui` `turn.accepted` on the
+  repair screen, so the example shown after it does not read as a correction; without one, a reply with target-language words is
   accepted (`reply`), an English reply gets the target phrase as before, and the
   `example` is shown after a reply or "no sé".
 - **Screens** added or extended (all fields optional on the existing kinds): `cliff`
   (`mode`, `phase`, `translation`, `translationHint`, `speaker`, `concept`, `missed`),
   `landing` (above), `noSe` (`translation`, `speaker`), `turn` / `repair` (`translation`,
   `example`, `exampleUi`, `reply`), and the new kinds `episodeDone` (title, cliffs,
-  unaided, level before and after, `levelUi`, the next episode) and `trackDone` (other
+  unaided, `correct` (answered right in any way, a tapped option too), level before and after, `levelUi`, the next episode) and `trackDone` (other
   playable tracks not finished, as suggestions). `StoryMeta.mode` is `'library'` and
   `StoryMeta.library` says where the learner is (track, episode, line of lines, level,
   mode, speaker, line id, replay). New UiText keys are in `SESSION_UI_KEYS` and the en-es
@@ -689,6 +707,14 @@ three dated 2026-11-16 sections and "Engine round 3: review and summary".
 
 ## Known limits
 
+- Library feedback alternatives come from a next-word search that sees only the words
+  before the gap; `alternativeFits` drops other word classes, but a word of the same class
+  that does not fit what follows can still show (Qwen3 offered "buscando" for "Estás ___.").
+- The reply cue (`LanguagePack.replyCue`) tells the judge who answers, which fixes
+  "Estoy cansado/cansada" for both addresses on Qwen3-1.7B, but it can pull an exclamative
+  toward the speaker: a woman's "¡Qué rico!" got a "¡Qué rica!" hint. The judge still
+  hints "es muy rico" for "está muy rico" and "está" for "es muy pequeña" (both fine).
+
 - Corrections never restore a missing accent (by design, so ser/estar is not credited for
   an accent fix). Typed text without accents can therefore get a wrong explanation: with
   the mock, "Ella esta cansada." gives a gender hint. Speech recognition writes accents;
@@ -795,6 +821,17 @@ three dated 2026-11-16 sections and "Engine round 3: review and summary".
   and mid-turn, format 1 restore, a story that left the library, and brand-new, a-little
   and comfortable simulated learners through both test tracks without stalls). Tests of
   the generated flow use `createDefaultPairPack({ library: false })`.
+- The shipped series: `src/pair/en-es/stories/living.test.ts` (the contract validator on
+  all six tracks, the Spanish series checks of `proof/stories/validate.ts`, the beginner
+  levels, both addresses, the language-neutral layer, the picker) and
+  `src/pair/en-es/stories/living.play.test.ts` (Living in San Juan through `StorySession`
+  with the app's own pair pack, canned and with the mock model, as a man and as a woman:
+  every episode in order, no stall, no variant brace on any screen or speech cue, every
+  cliff answerable in its mode (recall: the word is among the options; hint: the gloss is
+  found in the translation; predict: the story word gets credit), the turns accepted,
+  `episodeDone` eight times and `trackDone`). `src/session/alternatives.test.ts` (the
+  feedback alternatives against Qwen3's real next-word lists) and
+  `src/session/libraryTurn.test.ts` (the judge reads a turn reply after the question).
 - `test/round3-review.test.ts`: the round-3 review regressions (pack stop strings,
   segmenter-based heading and list rejects, abbreviations in brought text, prefetch with
   the next command and with a model switch, the copied-opening frame).

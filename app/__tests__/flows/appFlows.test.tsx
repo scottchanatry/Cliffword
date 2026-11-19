@@ -1,14 +1,15 @@
 /**
  * The app end to end through the real router and root layout, on the test services (FakeSpeechIn
- * plays the learner, FakeSpeechOut the voice, the model unloaded: canned mode, sql.js storage):
+ * plays the learner, FakeSpeechOut the voice, the model unloaded: matching mode, sql.js storage):
  *
- * - first launch: onboarding (brand new) -> the Story tab's canned first story -> its cliff -> a
- *   spoken answer -> the landing -> the next sentence;
- * - the Music tab: paste lyrics -> the song page -> a line's cliff -> a sung answer -> the
- *   result -> the sing-back;
- * - profile -> settings -> explicit lyrics off -> the Music tab masks the explicit word;
- * - reset progress: onboarding is not shown again, the story starts again from its first cliff;
- * - a restart (new services over the same storage) lands on the same story screen.
+ * - first launch: onboarding (Living in San Juan, brand new, as a woman, typing) -> the Story
+ *   home -> episode 1 -> the guide -> the line, then its gap -> an answer said with the mic ->
+ *   feedback -> the next line -> back to the home;
+ * - Settings: another level and form of address reach the story;
+ * - reset progress: onboarding is not shown again, the experience starts again at episode 1;
+ * - a restart (new services over the same storage) comes back to the home, then to the same
+ *   screen, playing nothing until the learner opens the episode;
+ * - (while Music is on) the Music tab and explicit lyrics, as before.
  *
  * Every screen on the way is checked for named controls with 44 dp targets.
  */
@@ -24,7 +25,10 @@ import { setAppServices } from '../../src/services/appServices';
 import { defaultPacks, sharedMockModel } from '../../src/services/defaults';
 import { createStorageService, storageClockFor, type StorageService } from '../../src/services/storageService';
 import { createTestServices, type TestServices } from '../../src/services/testServices';
+import { MUSIC_ENABLED } from '../../src/config/features';
+import { ONBOARDED } from '../../src/storage/repos/settings';
 import { loadSqlJs } from '../../src/storage/sql/sqljs';
+import { livingTrack } from '../../src/testing/packs';
 import { openMemoryStorage } from '../../src/storage/testing/openTestStorage';
 import { layout } from '../../src/theme';
 
@@ -71,7 +75,7 @@ function install(overrides: { clock?: FakeClock; storage?: StorageService } = {}
 
 async function onboarded(services: TestServices, extra: Record<string, unknown> = {}) {
   const storage = await services.storage.open();
-  await storage.settings.update({ onboarded: true, onboardingStep: 'done', startLevel: 'brandNew', ...extra });
+  await storage.settings.update({ ...ONBOARDED, startLevel: 'brandNew', trackId: livingTrack().id, guideSeen: true, ...extra });
   return storage;
 }
 
@@ -111,57 +115,108 @@ async function eventually<T>(read: () => Promise<T>, ok: (value: T) => boolean):
   return value;
 }
 
+/** The cliff's answer, from the stored session (the engine's own data). */
+async function storyAnswer(services: TestServices): Promise<string> {
+  const storage = await services.storage.open();
+  const rec = await storage.sessions.active<{ state: { current: { cliff: { answer: string } } | null } }>('story');
+  return rec?.snapshot.state.current?.cliff.answer ?? '';
+}
+
+/** Tap the mic, say `text` for `ms`, tap again. */
+async function sayWithMic(services: TestServices, text: string, ms = 1400) {
+  await fireEvent.press(screen.getByTestId('mic-button'));
+  await waitFor(() => expect(services.speechIn.isListening).toBe(true));
+  services.clock.advance(ms);
+  services.speechIn.queueUtterance(text);
+  await fireEvent.press(screen.getByTestId('mic-button'));
+}
+
 describe('first launch', () => {
-  it('onboarding (brand new), the canned first story, a spoken answer, the landing, the next sentence', async () => {
+  it('onboarding, the Story home, episode 1 with its guide, a said answer, feedback, the next line', async () => {
     const services = install();
-    const starter = services.packs.pair.starter;
-    if (!starter) throw new Error('the en-es pair has a starter story');
     await renderRouter(APP_DIR, { initialUrl: '/' });
 
-    // Onboarding: welcome -> model (not now) -> voice -> slang -> done.
+    // Onboarding: welcome -> San Juan -> brand new -> as a woman -> type instead.
     expect(await screen.findByTestId('onboarding-screen')).toBeOnTheScreen();
     expectAccessibleControls();
-    await fireEvent.press(screen.getByRole('button', { name: 'I’m brand new' }));
-    await fireEvent.press(await screen.findByRole('button', { name: 'Not now' }));
-    await fireEvent.press(await screen.findByTestId('voice-continue'));
-    await fireEvent.press(await screen.findByTestId('onboarding-finish'));
+    await fireEvent.press(screen.getByRole('button', { name: 'Get started' }));
+    await fireEvent.press(await screen.findByTestId(`experience-${livingTrack().id}`));
+    await fireEvent.press(await screen.findByTestId('level-new'));
+    await fireEvent.press(await screen.findByTestId('address-f'));
+    await fireEvent.press(await screen.findByTestId('mic-finish'));
 
-    // The Story tab: the starter story, canned (no model), stops at its first cliff.
-    expect(await screen.findByTestId('story-screen')).toBeOnTheScreen();
+    // The Story home: nothing plays until the episode opens.
+    expect(await screen.findByTestId('story-home')).toBeOnTheScreen();
     expect(screen).toHavePathname('/');
-    expect(await screen.findByTestId('cliff-card')).toBeOnTheScreen();
-    expect(screen.getByTestId('story-screen')).toHaveTextContent(/Marta/);
-    await waitFor(() => expect(services.speechOut.spokenTexts[0]).toBe('Marta es una'));
+    expect(services.speechOut.spokenTexts).toEqual([]);
     expectAccessibleControls();
     const storage = await services.storage.open();
-    expect(await storage.settings.getAll()).toMatchObject({ onboarded: true, startLevel: 'brandNew', modelDeclined: true });
+    expect(await storage.settings.getAll()).toMatchObject({ onboarded: true, level: 0, address: 'f', trackId: livingTrack().id, guideSeen: false });
 
-    // A spoken answer: hold, say "artista", let go.
-    await speak(services, 'hold-button', 'artista');
-    expect(await screen.findByTestId('landing-headline')).toBeOnTheScreen();
-    expect(screen.queryByTestId('cliff-card')).toBeNull();
+    // Episode 1: the guide, the whole line, then its gap with three options.
+    await fireEvent.press(screen.getByTestId('home-continue'));
+    expect(await screen.findByTestId('guide-listen')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByTestId('guide-skip'));
+    expect(await screen.findByTestId('cliff-options')).toBeOnTheScreen();
+    expect(screen.getByTestId('episode-progress')).toHaveTextContent(/^Line 1 of /);
+    const answer = await storyAnswer(services);
+    expect(services.speechOut.spokenTexts[0]).toContain(answer);
+    expectAccessibleControls();
+
+    // Said with the mic: feedback, checked by matching (the model is not loaded).
+    await sayWithMic(services, answer);
+    expect(await screen.findByTestId('feedback')).toBeOnTheScreen();
+    expect(screen.getByTestId('feedback-answer')).toHaveTextContent(`You said: ${answer}`);
+    expect(screen.getByTestId('feedback-story')).toHaveTextContent(`The story says: ${answer}`);
+    expect(screen.getByTestId('feedback-checked')).toHaveTextContent('Checked by matching. The language model is still downloading.');
     const events = await eventually(
       () => storage.learner.eventsSince(),
-      (e) => e.length > 0,
+      (e) => e.some((x) => x.event.type === 'cliff_answer'),
     );
-    expect(events.map((e) => e.event)).toEqual(expect.arrayContaining([expect.objectContaining({ type: 'cliff_answer', key: 'es:artista', credit: 'full' })]));
-    // Minutes spoken: the voiced answer is credited, and shown in the header.
+    expect(events.map((e) => e.event)).toEqual(expect.arrayContaining([expect.objectContaining({ type: 'cliff_answer', credit: 'full' })]));
+    // Minutes spoken: the voiced answer is credited.
     expect(await eventually(() => storage.spokenTime.total(), (ms) => ms > 0)).toBeGreaterThan(0);
     expectAccessibleControls();
 
-    // Siguiente: the next sentence of the starter story, at its cliff.
-    const spokenBefore = services.speechOut.spokenTexts.length;
-    await fireEvent.press(screen.getByTestId('command-next'));
-    expect(await screen.findByTestId('cliff-card')).toBeOnTheScreen();
-    const second = starter.sentences[1]?.text ?? '';
-    await waitFor(() => expect(services.speechOut.spokenTexts.length).toBeGreaterThan(spokenBefore));
-    // The sentence up to its cliff is read (then the options, on the options rung).
-    expect(services.speechOut.spokenTexts.slice(spokenBefore).some((text) => text.length > 0 && second.startsWith(text))).toBe(true);
-    expect(screen.queryByTestId('onboarding-screen')).toBeNull();
+    // Next: line 2; close: the home says Continue.
+    await fireEvent.press(screen.getByTestId('episode-next'));
+    await waitFor(() => expect(screen.getByTestId('episode-progress')).toHaveTextContent(/^Line 2 of /));
+    await fireEvent.press(screen.getByTestId('episode-close'));
+    expect(await screen.findByTestId('story-home')).toBeOnTheScreen();
+    expect(screen.getByTestId('home-continue').props.accessibilityLabel).toMatch(/^Continue: Episode 1 · /);
+    expect(await storage.settings.get('guideSeen')).toBe(true);
   });
 });
 
-describe('the Music tab', () => {
+describe('settings reach the story', () => {
+  it('another level and form of address in Settings reach the session', async () => {
+    const services = install();
+    const storage = await onboarded(services);
+    await renderRouter(APP_DIR, { initialUrl: '/' });
+    expect(await screen.findByTestId('story-home')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('button', { name: 'Open profile and settings' }));
+    await fireEvent.press(await screen.findByRole('link', { name: 'Settings' }));
+    expect(await screen.findByTestId('settings-screen')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByRole('radio', { name: '2' }));
+    await fireEvent.press(screen.getByRole('radio', { name: 'As a woman' }));
+    await waitFor(() => expect(screen.getByRole('radio', { name: 'As a woman' }).props.accessibilityState?.checked).toBe(true));
+    expect(await storage.settings.getAll()).toMatchObject({ level: 2, address: 'f' });
+    await fireEvent.press(screen.getByRole('button', { name: 'Back' }));
+    await fireEvent.press(await screen.findByTestId('close-profile'));
+    expect(await screen.findByTestId('story-home')).toBeOnTheScreen();
+    await waitFor(() => expect(screen.getByTestId('home-level')).toHaveTextContent('Level 2 · say the word in bold'));
+    const rec = await eventually(
+      () => storage.sessions.active<{ state: { library: { level: number; address: string } } }>('story'),
+      (r) => r?.snapshot.state.library.level === 2,
+    );
+    expect(rec?.snapshot.state.library).toMatchObject({ level: 2, address: 'f' });
+  });
+});
+
+// Music is off in this build (src/config/features.ts); these run again when it is back on.
+const describeMusic = MUSIC_ENABLED ? describe : describe.skip;
+
+describeMusic('the Music tab', () => {
   it('pastes lyrics, opens the song, answers a line by singing, gets the result and sings it back', async () => {
     const services = install();
     const storage = await onboarded(services, { regions: ['PR', 'CARIB'] });
@@ -213,7 +268,7 @@ describe('the Music tab', () => {
   });
 });
 
-describe('settings reach the other tabs', () => {
+describeMusic('settings reach the other tabs', () => {
   it('turning explicit lyrics off in Settings masks the explicit word on the song page', async () => {
     const services = install();
     const storage = await onboarded(services, { regions: ['PR', 'CARIB'] });
@@ -246,17 +301,18 @@ describe('settings reach the other tabs', () => {
 });
 
 describe('reset progress', () => {
-  it('clears the progress and restarts the story; onboarding is not shown again', async () => {
+  it('clears the progress and starts the experience again; onboarding is not shown again', async () => {
     const services = install();
     const storage = await onboarded(services);
     await renderRouter(APP_DIR, { initialUrl: '/' });
-    expect(await screen.findByTestId('cliff-card')).toBeOnTheScreen();
+    await fireEvent.press(await screen.findByTestId('home-continue'));
+    expect(await screen.findByTestId('cliff-options')).toBeOnTheScreen();
 
-    // Some progress: answer the first cliff, move to the next sentence.
-    await speak(services, 'hold-button', 'artista');
-    expect(await screen.findByTestId('landing-headline')).toBeOnTheScreen();
-    await fireEvent.press(screen.getByTestId('command-next'));
-    expect(await screen.findByTestId('cliff-card')).toBeOnTheScreen();
+    // Some progress: answer the first line, move to the next one.
+    await sayWithMic(services, await storyAnswer(services));
+    expect(await screen.findByTestId('feedback')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByTestId('episode-next'));
+    await waitFor(() => expect(screen.getByTestId('episode-progress')).toHaveTextContent(/^Line 2 of /));
     expect((await eventually(() => storage.learner.eventsSince(), (e) => e.length > 0)).length).toBeGreaterThan(0);
     const before = await storage.sessions.active('story');
 
@@ -266,27 +322,26 @@ describe('reset progress', () => {
     await fireEvent.press(await screen.findByRole('button', { name: 'Reset progress' }));
     await fireEvent.press(await screen.findByTestId('confirm-sheet-confirm'));
 
-    // The Story tab again, at the first cliff of the starter story, with nothing learned.
+    // The Story home again, episode 1 from its start, nothing learned.
     await waitFor(() => expect(screen).toHavePathname('/'));
-    expect(await screen.findByTestId('cliff-options')).toBeOnTheScreen();
-    expect(within(screen.getByTestId('cliff-options')).getByText('artista')).toBeOnTheScreen();
+    expect(await screen.findByTestId('story-home')).toBeOnTheScreen();
+    expect(screen.getByTestId('home-continue').props.accessibilityLabel).toMatch(/^Start: Episode 1 · /);
     expect(screen.queryByTestId('onboarding-screen')).toBeNull();
     expect(await storage.learner.eventsSince()).toEqual([]);
     expect(await storage.spokenTime.total()).toBe(0);
     const after = await eventually(
       () => storage.sessions.active('story'),
-      (s) => s !== null,
+      (x) => x !== null,
     );
     expect(after?.id).not.toBe(before?.id);
-    expect(await storage.settings.getAll()).toMatchObject({ onboarded: true, onboardingStep: 'done' });
-
+    expect(await storage.settings.getAll()).toMatchObject({ onboarded: true, onboardingStep: 'done', trackId: livingTrack().id });
     // The old session wrote nothing back after the reset.
-    expect((await storage.sessions.list({ kind: 'story' })).map((s) => s.id)).toEqual([after?.id]);
+    expect((await storage.sessions.list({ kind: 'story' })).map((x) => x.id)).toEqual([after?.id]);
   });
 });
 
 describe('restart', () => {
-  it('new services over the same storage restore the story screen where the learner left it', async () => {
+  it('new services over the same storage come back to the home, then to the same screen', async () => {
     const clock = new FakeClock();
     let ids = 0;
     const inner = createStorageService('sql.js-memory', () => openMemoryStorage(storageClockFor(clock, () => `flow-${++ids}`)));
@@ -294,31 +349,34 @@ describe('restart', () => {
     shared = inner;
     const persistent: StorageService = { backend: inner.backend, open: () => inner.open(), close: async () => undefined };
 
-    // First run: answer the first cliff and land.
+    // First run: answer the first line and get the feedback.
     const first = install({ clock, storage: persistent });
     await onboarded(first);
     const app = await renderRouter(APP_DIR, { initialUrl: '/' });
-    expect(await screen.findByTestId('cliff-card')).toBeOnTheScreen();
-    await speak(first, 'hold-button', 'artista');
-    expect(await screen.findByTestId('landing-headline')).toBeOnTheScreen();
-    const headline = screen.getByTestId('landing-headline').props.children as string;
+    await fireEvent.press(await screen.findByTestId('home-continue'));
+    expect(await screen.findByTestId('cliff-options')).toBeOnTheScreen();
+    const answer = await storyAnswer(first);
+    await sayWithMic(first, answer);
+    expect(await screen.findByTestId('feedback')).toBeOnTheScreen();
     const storage = await persistent.open();
     await eventually(
-      () => storage.sessions.active<{ screen?: { kind?: string } }>('story'),
-      (s) => s !== null,
+      () => storage.sessions.active<{ state: { screen?: { kind?: string } } }>('story'),
+      (x) => x?.snapshot.state.screen?.kind === 'landing',
     );
     await app.unmount();
     setAppServices(undefined);
 
-    // Second run: new services (voice, microphone, model, app state) over the same storage.
+    // Second run: new services over the same storage. The home first, playing nothing.
     clock.advance(3_600_000);
     const second = install({ clock, storage: persistent });
     await renderRouter(APP_DIR, { initialUrl: '/' });
-    expect(await screen.findByTestId('landing-headline')).toBeOnTheScreen();
-    expect(screen.getByTestId('landing-headline').props.children).toBe(headline);
-    expect(screen.queryByTestId('onboarding-screen')).toBeNull();
-    // Restoring plays nothing: audio only follows a learner's action.
+    expect(await screen.findByTestId('story-home')).toBeOnTheScreen();
     expect(second.speechOut.spokenTexts).toEqual([]);
+    expect(screen.queryByTestId('onboarding-screen')).toBeNull();
+    // Continue: the same feedback, where the learner left it.
+    await fireEvent.press(screen.getByTestId('home-continue'));
+    expect(await screen.findByTestId('feedback')).toBeOnTheScreen();
+    expect(screen.getByTestId('feedback-story')).toHaveTextContent(`The story says: ${answer}`);
     expectAccessibleControls();
   });
 });

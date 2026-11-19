@@ -12,26 +12,34 @@ import type { StoryActions, StoryViewModel } from '../../session/contract';
 import { sharedMockModel } from '../../services/defaults';
 import { useServices } from '../../services/ServicesProvider';
 import { colors } from '../../theme';
-import { isStoryFixtureName, storyFixtures, type StoryFixtures } from './fixtures';
+import { isStoryFixtureName, storyFixtures } from './fixtures';
+import { isLibraryFixtureName, libraryFixtures } from './library/libraryFixtures';
 import { StoryView } from './StoryView';
 
+/** A story fixture, or a library one ('lib-...': an experience's home and episode screens). */
 export function StoryPreview({ name }: { name: string }) {
   const { packs } = useServices();
-  const [fixtures, setFixtures] = useState<StoryFixtures | null>(null);
+  const [vm, setVm] = useState<StoryViewModel | null>(null);
   useEffect(() => {
     let live = true;
-    void storyFixtures({ lang: packs.lang, pair: packs.pair, model: sharedMockModel() }).then((f) => {
-      if (live) setFixtures(f);
+    const deps = { lang: packs.lang, pair: packs.pair, model: sharedMockModel() };
+    const load = isLibraryFixtureName(name)
+      ? libraryFixtures(deps).then((f) => f[name])
+      : isStoryFixtureName(name)
+        ? storyFixtures(deps).then((f) => f[name])
+        : Promise.resolve(null);
+    void load.then((f) => {
+      if (live) setVm(f);
     });
     return () => {
       live = false;
     };
-  }, [packs]);
+  }, [packs, name]);
 
-  if (!isStoryFixtureName(name)) return null;
+  if (!isStoryFixtureName(name) && !isLibraryFixtureName(name)) return null;
   return (
     <SafeAreaView style={styles.root} edges={['top', 'left', 'right', 'bottom']} testID="story-preview">
-      {fixtures ? <PreviewStory key={name} initial={fixtures[name]} /> : <ActivityIndicator style={styles.wait} color={colors.muted} />}
+      {vm ? <PreviewStory key={name} initial={vm} /> : <ActivityIndicator style={styles.wait} color={colors.muted} />}
     </SafeAreaView>
   );
 }
@@ -70,7 +78,7 @@ function PreviewStory({ initial }: { initial: StoryViewModel }) {
       reportSentence: () => setVm((v) => ({ ...v, notice: { key: tKey('story.notice.reported') } })),
     };
   }, []);
-  return <StoryView vm={vm} actions={actions} />;
+  return <StoryView vm={vm} actions={actions} library={{ onPickExperience: () => setVm((v) => ({ ...v, view: 'home' })), guideSeen: true, model: { kind: 'wifi' } }} />;
 }
 
 const styles = StyleSheet.create({

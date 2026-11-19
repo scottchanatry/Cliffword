@@ -144,7 +144,12 @@ export interface StoryFixtureDeps {
 
 /** Builds every fixture by running engine sessions (a few seconds with the mock model). */
 export async function buildStoryFixtures({ lang, pair, model }: StoryFixtureDeps): Promise<StoryFixtures> {
-  const p: PairPack = { ...pair, starter: PREVIEW_STARTER };
+  // The generated flow's screens: the pair without its library (a library would make the
+  // sessions play the experiences; ./library has those views).
+  const { library: _library, tracks: _tracks, ...generated } = pair;
+  void _library;
+  void _tracks;
+  const p: PairPack = { ...generated, starter: PREVIEW_STARTER };
   let t = T0;
   const at = () => (t += 1500);
 

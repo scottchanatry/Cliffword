@@ -2051,7 +2051,11 @@ export class StorySession {
       return this.step(events);
     }
     const { register, regions } = this.regOpts();
-    const storyText = this.storyText();
+    // Library: the reply answers the character's question, so the judge reads it after the
+    // question (without it, 'Estoy cansada, gracias.' after a greeting got 'cansado' back),
+    // then the pack's cue for who answers, by the learner's address (pack.replyCue).
+    const cue = turn.lib ? (pack.replyCue?.[this.lib.address] ?? '') : '';
+    const storyText = turn.lib ? joinSentences([this.storyText(), turn.line, cue].filter((x) => x !== '')) : this.storyText();
     turn.repair = await attemptRepair(turn.repair, model, pack, transcript, at, {
       judge: { before: storyText, register, regions },
       flow: { ...this.o.repair, register, regions },
@@ -2127,7 +2131,9 @@ export class StorySession {
       expected: r.expected,
       explanation: r.explainKey ? this.deps.pair.explanations[r.explainKey] ?? null : null,
       explainKey: r.explainKey,
-      ui: r.ui,
+      // Library: a reply the model found natural says so ('Nice answer!'), so the example
+      // shown after it does not read as a correction.
+      ui: r.ui ?? lib?.reply?.ui ?? null,
       done: isRepairFinal(r),
     };
     if (turn.native) screen.native = turn.native;
@@ -2397,7 +2403,7 @@ export class StorySession {
     const lib = this.lib;
     const story = storyForEpisode(this.deps.pair.library, lib.track, episode, lib.level);
     if (!story) return null;
-    const play: EpisodePlay = { episode, storyId: story.id, line: 0, lineDone: false, turns: [], cliffs: 0, unaided: 0, replay, level: lib.level };
+    const play: EpisodePlay = { episode, storyId: story.id, line: 0, lineDone: false, turns: [], cliffs: 0, unaided: 0, correct: 0, replay, level: lib.level };
     prog.play = play;
     this.state.chapter = episode;
     this.state.chapterSentences = [];
@@ -2405,12 +2411,17 @@ export class StorySession {
     return play;
   }
 
-  /** A cliff of the episode was reached and resolved (answered, picked, skipped, "no sé"). */
-  private countCliff(unaided: boolean): void {
+  /**
+   * A cliff of the episode was reached and resolved (answered, picked, skipped, "no sé"):
+   * `unaided` counts toward the level rule, `correct` (any credit, a tapped option too) is
+   * what the episode's summary reports as right.
+   */
+  private countCliff(unaided: boolean, correct: boolean = unaided): void {
     const play = this.lib.tracks[this.lib.track]?.play;
     if (!play || play.lineDone) return;
     play.cliffs += 1;
     if (unaided) play.unaided += 1;
+    if (correct) play.correct = (play.correct ?? 0) + 1;
     play.lineDone = true;
   }
 
@@ -2834,7 +2845,7 @@ export class StorySession {
     cur.outcome = outcome;
     cur.resolved = true;
     this.state.outcomes.push(result.credit === 'none' ? 0 : 1);
-    this.countCliff(unaided);
+    this.countCliff(unaided, result.credit !== 'none');
     const top = cur.alternatives[0]?.prob ?? 0;
     const floor = top > 0 ? Math.min(landing.naturalFloor, landing.naturalRatio * top) : landing.naturalFloor;
     const alternatives = feedbackAlternatives(this.deps.pack, {
@@ -2902,7 +2913,7 @@ export class StorySession {
     lib.level = after;
     prog.results = [
       ...prog.results,
-      { episode: play.episode, storyId: play.storyId, cliffs: play.cliffs, unaided: play.unaided, levelBefore: before, levelAfter: after, replay: play.replay, at },
+      { episode: play.episode, storyId: play.storyId, cliffs: play.cliffs, unaided: play.unaided, correct: play.correct ?? play.unaided, levelBefore: before, levelAfter: after, replay: play.replay, at },
     ].slice(-KEEP_RESULTS);
     if (play.replay) {
       prog.play = prog.paused;
@@ -2933,6 +2944,7 @@ export class StorySession {
       titleNative: story?.titleNative ?? '',
       cliffs: play.cliffs,
       unaided: play.unaided,
+      correct: play.correct ?? play.unaided,
       levelBefore: before,
       levelAfter: after,
       levelChange: change,

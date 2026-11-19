@@ -49,6 +49,7 @@ export { DEFAULT_LIBRARY_SESSION_OPTIONS, DEFAULT_STORY_SESSION_OPTIONS, StorySe
 export type { LibrarySessionOptions, PrefetchInfo, StorySessionCreate, StorySessionOptions, StorySessionSnapshot, StoryState } from './story';
 export {
   KEEP_RESULTS,
+  alternativeFits,
   feedbackAlternatives,
   gapParts,
   hasTargetWords,

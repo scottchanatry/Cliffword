@@ -411,16 +411,17 @@ describe('episodes and tracks', () => {
 
   it('moves the level down under 50% unaided and keeps it between', async () => {
     const down = make({ library: { startLevel: 1 } });
-    expect(await playEpisode(down, { now: T0 }, () => 'pick')).toMatchObject({ unaided: 0, levelAfter: 0, levelChange: -1, levelUi: { key: 'episode.levelDown' } });
+    // Every option picked right: all correct, none unaided.
+    expect(await playEpisode(down, { now: T0 }, () => 'pick')).toMatchObject({ unaided: 0, correct: 4, levelAfter: 0, levelChange: -1, levelUi: { key: 'episode.levelDown' } });
     const floor = make({ library: { startLevel: 0 } });
     expect(await playEpisode(floor, { now: T0 }, () => 'noSe')).toMatchObject({ cliffs: 4, unaided: 0, levelAfter: 0, levelChange: 0, levelUi: { key: 'episode.levelSame' } });
     const stay = make({ library: { startLevel: 3 } });
     // 2 of 4 unaided: 50% stays.
-    expect(await playEpisode(stay, { now: T0 }, (i) => (i < 2 ? 'say' : 'wrong'))).toMatchObject({ cliffs: 4, unaided: 2, levelAfter: 3, levelChange: 0 });
+    expect(await playEpisode(stay, { now: T0 }, (i) => (i < 2 ? 'say' : 'wrong'))).toMatchObject({ cliffs: 4, unaided: 2, correct: 2, levelAfter: 3, levelChange: 0 });
     const skip = make({ library: { startLevel: 4 } });
     expect(await playEpisode(skip, { now: T0 }, () => 'skip')).toMatchObject({ cliffs: 4, unaided: 0, levelAfter: 3 });
     expect(state(skip).library?.tracks[MARKET]?.results).toEqual([
-      { episode: 1, storyId: 'test.market.e1', cliffs: 4, unaided: 0, levelBefore: 4, levelAfter: 3, replay: false, at: expect.any(Number) },
+      { episode: 1, storyId: 'test.market.e1', cliffs: 4, unaided: 0, correct: 0, levelBefore: 4, levelAfter: 3, replay: false, at: expect.any(Number) },
     ]);
   });
 

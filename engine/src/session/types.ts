@@ -328,6 +328,8 @@ export interface EpisodeResult {
   cliffs: number;
   /** Cliffs answered by voice or typing, with credit, before options or "no sé". */
   unaided: number;
+  /** Cliffs answered with credit, a tapped option included (missing in results from before it). */
+  correct?: number;
   levelBefore: number;
   levelAfter: number;
   replay: boolean;
@@ -509,9 +511,10 @@ export type StoryScreen =
       /** Episode title in the target language and in the learner's language. */
       title: string;
       titleNative: string;
-      /** Cliffs reached, and those answered without options or "no sé". */
+      /** Cliffs reached, those answered without options or "no sé" (the level rule), and those answered right in any way (a tapped option too). */
       cliffs: number;
       unaided: number;
+      correct: number;
       levelBefore: number;
       levelAfter: number;
       levelChange: -1 | 0 | 1;

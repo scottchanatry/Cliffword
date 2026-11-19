@@ -111,7 +111,7 @@ export const LIVING_WORDS = {
   ],
   places: ['panadería', 'tienda', 'plaza', 'playa', 'gasolinera', 'farmacia', 'restaurante', 'barrio', 'calle'],
   cognates: ['dominó', 'sandalia'],
-  known: ['siesta', 'jamón', 'pico', 'auto', 'atasco', 'estacionas', 'aparcas'],
+  known: ['siesta', 'jamón', 'pico', 'auto', 'atasco', 'estacionas', 'aparcas', 'camiseta', 'cafetería', 'intacto', 'mascota'],
   chunks: [
     // 1
     ['hola', 'buenos días', '¿cómo estás?', 'estoy bien', 'estoy cansado', 'me llamo', 'mucho gusto', 'no entiendo', '¿puedes repetir?', 'por favor', 'gracias', 'ya lo sé'],
@@ -124,7 +124,7 @@ export const LIVING_WORDS = {
     // 5
     ['a la derecha', 'a la izquierda', 'vamos a llegar tarde', 'necesito gasolina', 'lleno, por favor', '¿estás bien?', 'lo siento mucho', 'no pasa nada', 'tranquilo'],
     // 6
-    ['hace calor', 'hace mucho sol', '¿tienes bloqueador?', '¿qué quieres comer?', '¡qué rico!', '¿vamos al agua?', '¿dónde está mi sandalia?'],
+    ['hace calor', 'hace mucho sol', '¿tienes bloqueador?', '¿qué quieres comer?', '¡qué rico!', '¿vamos al agua?', 'yo cuido las cosas', '¿dónde está mi sandalia?'],
     // 7
     ['¿qué vas a comer?', 'está muy rico', 'pica mucho', 'un poquito', 'estoy lleno', 'la cuenta, por favor', 'me duele', '¿qué te duele?'],
     // 8
@@ -195,10 +195,10 @@ const E1: LibraryStory = {
       id: 'e1.l05',
       speaker: 'neighbor',
       text: 'Es Pancho. ¡Pancho es mi bebé!',
-      translation: 'It was Pancho. Pancho is my baby!',
+      translation: "That's Pancho. Pancho is my baby!",
       intent: 'She explains the noise: it was her rooster, whom she calls her baby.',
       function: 'intro.family',
-      cliff: { word: 'bebé', distractors: ['hola', 'agua'], hint: 'baby', concept: 'what the rooster is to her' },
+      cliff: { word: 'bebé', accept: ['hijo', 'mascota'], distractors: ['hola', 'agua'], hint: 'baby', concept: 'what the rooster is to her' },
     },
     {
       id: 'e1.l06',
@@ -251,7 +251,7 @@ const E1: LibraryStory = {
       translation: 'Pancho is in your house.',
       intent: 'The rooster is inside your house.',
       function: 'place.where',
-      cliff: { word: 'casa', distractors: ['hola', 'bien'], hint: 'house', concept: 'a place (your home)' },
+      cliff: { word: 'casa', accept: ['cuarto', 'cama'], distractors: ['hola', 'bien'], hint: 'house', concept: 'a place (your home)' },
     },
     {
       id: 'e1.l12',
@@ -378,11 +378,11 @@ const E2: LibraryStory = {
     {
       id: 'e2.l04',
       speaker: 'baker',
-      text: '¡Claro! ¿Cuánto es? Dos dólares, please.',
-      translation: 'Sure! How much is it? Two dollars, please.',
+      text: '¡Claro! Son dos dólares, please.',
+      translation: "Sure! That's two dollars, please.",
       intent: 'He agrees to speak the local language, gives the price, and still says please in English.',
       function: 'shop.price',
-      cliff: { word: 'Dos', distractors: ['Sol', 'Pan'], hint: 'Two', concept: 'the price' },
+      cliff: { word: 'dos', distractors: ['sol', 'pan'], hint: 'two', concept: 'the price' },
     },
     {
       id: 'e2.l05',
@@ -412,19 +412,18 @@ const E2: LibraryStory = {
     },
     {
       id: 'e2.l08',
-      speaker: 'grocer',
-      text: '¿Un gallo? ¿Gallo o pollo?',
-      translation: 'A rooster? Rooster or chicken?',
-      intent: 'You asked for a rooster instead of a chicken; the store owner is alarmed and checks which one you mean.',
+      text: 'Tú quieres pollo, pero dices gallo.',
+      translation: 'You want chicken, but you say rooster.',
+      intent: 'You mean to ask for chicken, but out comes the word for rooster (the first word you learned here).',
       function: 'shop.want',
       cliff: { word: 'pollo', distractors: ['pelo', 'bolsa'], hint: 'chicken', concept: 'a food (meat)' },
     },
     {
       id: 'e2.l09',
       speaker: 'grocer',
-      text: 'Pollo es comida. Gallo es Pancho.',
-      translation: 'Chicken is food. Rooster is Pancho.',
-      intent: 'He explains the difference: one is food, the other is your neighbor\'s rooster.',
+      text: '¿Gallo? Pollo es comida. Gallo es Pancho.',
+      translation: 'Rooster? Chicken is food. Rooster is Pancho.',
+      intent: "The store owner is horrified and explains the difference: one is food, the other is your neighbor's rooster.",
       function: 'talk.meaning',
       cliff: { word: 'comida', distractors: ['camisa', 'música'], hint: 'food', concept: 'a category (food)' },
     },
@@ -453,7 +452,7 @@ const E2: LibraryStory = {
       translation: "Here's your bag. Have a good day!",
       intent: 'He hands you your bag and wishes you a good day.',
       function: 'shop.pay',
-      cliff: { word: 'bolsa', distractors: ['tengo', 'bueno'], hint: 'bag', concept: 'a thing (to carry your shopping)' },
+      cliff: { word: 'bolsa', accept: ['pedido', 'comida'], distractors: ['tengo', 'bueno'], hint: 'bag', concept: 'a thing (to carry your shopping)' },
     },
     {
       id: 'e2.l13',
@@ -568,7 +567,7 @@ const E3: LibraryStory = {
       translation: 'Hi! Here everything is perfect.',
       intent: 'The shop assistant greets you: in her shop, everything is perfect.',
       function: 'courtesy.compliment',
-      cliff: { word: 'perfecto', distractors: ['perro', 'tengo'], hint: 'perfect', concept: 'an opinion (how good it is)' },
+      cliff: { word: 'perfecto', accept: ['bonito'], distractors: ['perro', 'tengo'], hint: 'perfect', concept: 'an opinion (how good it is)' },
     },
     {
       id: 'e3.l04',
@@ -599,9 +598,9 @@ const E3: LibraryStory = {
     },
     {
       id: 'e3.l07',
-      text: 'Tú: talla mediana. Ella: talla grande.',
-      translation: 'You: size medium. Her: size large.',
-      intent: 'You ask for medium; she brings you large.',
+      text: 'Tú quieres mediana. Migdalia trae grande.',
+      translation: 'You want medium. Migdalia brings large.',
+      intent: 'You ask for medium; the assistant brings you large.',
       function: 'shop.size',
       cliff: { word: 'grande', distractors: ['gracias', 'hambre'], hint: 'large', concept: 'a size' },
     },
@@ -647,7 +646,7 @@ const E3: LibraryStory = {
       translation: 'And this small blue shirt... for Pancho!',
       intent: 'Twist: she also buys a tiny blue shirt for her rooster, the guest of honor.',
       function: 'shop.want',
-      cliff: { word: 'camisa', distractors: ['gato', 'perro'], hint: 'shirt', concept: 'a thing to wear' },
+      cliff: { word: 'camisa', accept: ['camiseta'], distractors: ['gato', 'perro'], hint: 'shirt', concept: 'a thing to wear' },
     },
     {
       id: 'e3.l13',
@@ -693,7 +692,7 @@ const E3: LibraryStory = {
       speaker: 'clerk',
       line: '¿Te gusta?',
       translation: 'Do you like it?',
-      example: 'No, es muy pequeña. ¿Tienes otra talla?',
+      example: 'No, no me gusta. ¿Tienes talla mediana?',
       intent: 'The assistant asks if you like the tiny shirt.',
       function: 'shop.size',
     },
@@ -733,7 +732,7 @@ const E4: LibraryStory = {
       translation: 'A coffee with Yari, in the square.',
       intent: 'You meet your new friend for coffee in the town square.',
       function: 'place.where',
-      cliff: { word: 'plaza', distractors: ['playa', 'plato'], hint: 'square', concept: 'a place (in town)' },
+      cliff: { word: 'plaza', accept: ['cafetería'], distractors: ['playa', 'plato'], hint: 'square', concept: 'a place (in town)' },
     },
     {
       id: 'e4.l02',
@@ -809,8 +808,8 @@ const E4: LibraryStory = {
     {
       id: 'e4.l10',
       speaker: 'friend',
-      text: 'Pero en hora boricua, ¡una hora más!',
-      translation: 'But in Puerto Rican time, one more hour!',
+      text: 'Pero en Puerto Rico, ¡una hora más!',
+      translation: 'But in Puerto Rico, add an hour!',
       intent: 'Whatever time you say, she adds an hour: local time runs late.',
       function: 'plan.time',
       cliff: { word: 'hora', distractors: ['hola', 'ahora'], hint: 'hour', concept: 'a unit of time' },
@@ -938,7 +937,7 @@ const E5: LibraryStory = {
       translation: 'What happened? It\'s Pancho! Hi, Pancho.',
       intent: "Your friend discovers the stowaway: your neighbor's rooster.",
       function: 'talk.surprise',
-      cliff: { word: 'pasó', distractors: ['peso', 'piso'], hint: 'happened', concept: 'what happened' },
+      cliff: { word: 'pasó', accept: ['pasa'], distractors: ['peso', 'piso'], hint: 'happened', concept: 'what happened' },
     },
     {
       id: 'e5.l04',
@@ -1033,7 +1032,7 @@ const E5: LibraryStory = {
       translation: 'Dominoes at the beach, like every Sunday.',
       intent: 'He is here for his weekly dominoes game on the beach.',
       function: 'time.days',
-      cliff: { word: 'domingos', distractors: ['dólares', 'gatos'], hint: 'Sunday', concept: 'a day of the week' },
+      cliff: { word: 'domingos', accept: ['días'], distractors: ['dólares', 'gatos'], hint: 'Sunday', concept: 'a day of the week' },
     },
     {
       id: 'e5.l15',
@@ -1080,7 +1079,7 @@ const E5: LibraryStory = {
 /**
  * Episode 6: Domingo de playa (level 1).
  * Chunks: Hace calor / Hace mucho sol; ¿Tienes bloqueador?; ¿Qué quieres comer? - Quiero
- * dos..., por favor / ¡Qué rico!; ¿Vamos al agua?; ¿Dónde está mi sandalia?
+ * dos..., por favor / ¡Qué rico!; ¿Vamos al agua?; Yo cuido las cosas; ¿Dónde está mi sandalia?
  * Local words: wepa (woo-hoo), bloqueador (sunscreen; standard protector solar), kiosko
  * (beach snack stand), alcapurrias and bacalaítos (fried snacks), coco frío, ¡ay, bendito!.
  * English mixed in: hi, hello, okay, come here. Sounds: mmm.
@@ -1112,7 +1111,7 @@ const E6: LibraryStory = {
       translation: "Woo-hoo! So hot! It's really sunny.",
       intent: 'At the beach, your friend celebrates the heat and the sun.',
       function: 'describe.weather',
-      cliff: { word: 'sol', distractors: ['sal', 'pan'], hint: 'sunny', concept: 'the weather' },
+      cliff: { word: 'sol', accept: ['calor'], distractors: ['sal', 'pan'], hint: 'sunny', concept: 'the weather' },
     },
     {
       id: 'e6.l02',
@@ -1156,12 +1155,12 @@ const E6: LibraryStory = {
       translation: 'Mmm... so good! Shall we go in the water?',
       intent: 'The snacks are delicious; she suggests a swim.',
       function: 'food.taste',
-      cliff: { word: 'agua', distractors: ['hambre', 'azul'], hint: 'water', concept: 'a place (the sea)' },
+      cliff: { word: 'agua', accept: ['mar'], distractors: ['hambre', 'azul'], hint: 'water', concept: 'a place (the sea)' },
     },
     {
       id: 'e6.l07',
       speaker: 'grandpa',
-      text: 'Vayan, tranquilos. Yo miro las cosas.',
+      text: 'Vayan, tranquilos. Yo cuido las cosas.',
       translation: "Go on, relax. I'll watch your things.",
       intent: "Your friend's grandfather offers to watch your things while you swim.",
       function: 'help.ask',
@@ -1216,7 +1215,7 @@ const E6: LibraryStory = {
       translation: 'Pancho! Come here! Come here, Pancho!',
       intent: 'Your friend chases the rooster, giving orders in both languages.',
       function: 'help.ask',
-      cliff: { word: 'aquí', distractors: ['agua', 'azul'], hint: 'here', concept: 'a place (here)' },
+      cliff: { word: 'aquí', accept: ['acá'], distractors: ['agua', 'azul'], hint: 'here', concept: 'a place (here)' },
     },
     {
       id: 'e6.l14',
@@ -1312,7 +1311,7 @@ const E7: LibraryStory = {
       translation: 'Tuesday. The most famous mofongo restaurant.',
       intent: "Tuesday: your friend takes you to the most famous restaurant for the city's signature dish.",
       function: 'describe.things',
-      cliff: { word: 'famoso', distractors: ['fiesta', 'gracias'], hint: 'famous', concept: 'an opinion (how well known)' },
+      cliff: { word: 'famoso', accept: ['popular'], distractors: ['fiesta', 'gracias'], hint: 'famous', concept: 'an opinion (how well known)' },
     },
     {
       id: 'e7.l02',
@@ -1321,7 +1320,7 @@ const E7: LibraryStory = {
       translation: 'Welcome! Here the mofongo is huge.',
       intent: 'The waiter welcomes you and warns that the portions are enormous.',
       function: 'courtesy.welcome',
-      cliff: { word: 'enorme', distractors: ['noche', 'hombre'], hint: 'huge', concept: 'a size' },
+      cliff: { word: 'enorme', accept: ['grande'], distractors: ['noche', 'hombre'], hint: 'huge', concept: 'a size' },
     },
     {
       id: 'e7.l03',
@@ -1338,7 +1337,7 @@ const E7: LibraryStory = {
       translation: 'Mofongo with rooster? With Pancho? Impossible!',
       intent: "The waiter is horrified: even he knows your neighbor's rooster.",
       function: 'talk.surprise',
-      cliff: { word: 'Imposible', distractors: ['Importante', 'Pequeño'], hint: 'Impossible', concept: 'a reaction (no way)' },
+      cliff: { word: 'Imposible', accept: ['Nunca'], distractors: ['Importante', 'Pequeño'], hint: 'Impossible', concept: 'a reaction (no way)' },
     },
     {
       id: 'e7.l05',
@@ -1372,7 +1371,7 @@ const E7: LibraryStory = {
       translation: 'An hour later, the plate is still full.',
       intent: 'An hour later, the plate is still full: the portion is enormous.',
       function: 'food.hungry',
-      cliff: { word: 'lleno', distractors: ['luego', 'lunes'], hint: 'full', concept: 'how much is left' },
+      cliff: { word: 'lleno', accept: ['intacto'], distractors: ['luego', 'lunes'], hint: 'full', concept: 'how much is left' },
     },
     {
       id: 'e7.l09',
@@ -1430,8 +1429,8 @@ const E7: LibraryStory = {
     {
       id: 'e7.l15',
       speaker: 'pharmacist',
-      text: '¡Tito! Mañana es tu fiesta sorpresa... ¡Ay, no!',
-      translation: 'Tito! Tomorrow is your surprise party... Oh, no!',
+      text: '¡Tito! El sábado es tu fiesta sorpresa... ¡Ay, no!',
+      translation: 'Tito! Saturday is your surprise party... Oh, no!',
       intent: 'She spots the grandfather and blurts out his secret surprise party.',
       function: 'social.party',
       cliff: { word: 'sorpresa', distractors: ['princesa', 'semana'], hint: 'surprise', concept: 'a kind of party' },
@@ -1463,7 +1462,7 @@ const E7: LibraryStory = {
       speaker: 'waiter',
       line: '¿No te gusta?',
       translation: "Don't you like it?",
-      example: 'Sí, está muy rico. Pero estoy {you:lleno|llena}.',
+      example: 'Sí, me gusta mucho. Pero estoy {you:lleno|llena}.',
       intent: 'The waiter asks why you stopped eating: do you not like it?',
       function: 'food.hungry',
     },
@@ -1638,7 +1637,7 @@ const E8: LibraryStory = {
       translation: "Welcome to the neighborhood. You're from here now.",
       intent: 'Your neighbor makes it official: you belong to the neighborhood now.',
       function: 'courtesy.welcome',
-      cliff: { word: 'aquí', distractors: ['agua', 'ahora'], hint: 'here', concept: 'a place (where you belong)' },
+      cliff: { word: 'aquí', accept: ['acá'], distractors: ['agua', 'ahora'], hint: 'here', concept: 'a place (where you belong)' },
     },
     {
       id: 'e8.l16',

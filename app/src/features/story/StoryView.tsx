@@ -1,6 +1,8 @@
 /**
  * The Story tab: renders the controller's StoryViewModel (src/session/contract.ts) and calls
- * its StoryActions. The engine's StoryScreen is the view data: each kind has its view
+ * its StoryActions. In library mode (an experience; vm.library) it is ./library/LibraryStory:
+ * the Story home, the episode screen and the experience picker. The rest of this file is the
+ * generated flow. The engine's StoryScreen is the view data: each kind has its view
  * (cliff, landing, noSe, nativeReply, turn, repair, upNext, retell, register, placementDone,
  * error, idle) and a null screen is a calm loading state.
  *
@@ -32,10 +34,17 @@ import { ErrorView, IdleView, LoadingView, PlacementDoneView } from './SimpleVie
 import { RepairView, TurnView } from './TurnView';
 import { TypeAnswerSheet } from './TypeAnswerSheet';
 import { UpNextView } from './UpNextView';
+import { LibraryStory, type LibraryStoryOptions } from './library/LibraryStory';
 
 export interface StoryViewProps {
   vm: StoryViewModel;
   actions: StoryActions;
+  /**
+   * Library mode (vm.library set: the session plays an experience): the Story home, the episode
+   * screen and the picker (./library). These are what the route adds: storing a picked
+   * experience, the first-episode guide, the language model's line.
+   */
+  library?: LibraryStoryOptions;
 }
 
 /**
@@ -57,7 +66,13 @@ export function showsReportableSentence(screen: StoryScreen | null): boolean {
   }
 }
 
-export function StoryView({ vm, actions }: StoryViewProps) {
+export function StoryView({ vm, actions, library }: StoryViewProps) {
+  if (vm.library) return <LibraryStory vm={vm} actions={actions} {...library} />;
+  return <GeneratedStoryView vm={vm} actions={actions} />;
+}
+
+/** The generated flow (a pair without a library, or options.source 'generated'). */
+function GeneratedStoryView({ vm, actions }: StoryViewProps) {
   const { t } = useI18n();
   const [typing, setTyping] = useState(false);
   const toggleListen = useListenToggle(vm.listen, actions);

@@ -3,18 +3,18 @@
  * name, with a little local state (settings choices, voice, practice) so the screens can be tried
  * by hand; nothing is stored. Reached only through the guarded (dev) preview route.
  */
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { locateAnswer } from '@cliffword/engine';
-import type { ListenState } from '../../session/contract';
+import { formatBytes } from '../../adapters/model/modelFileMessages';
 import { useServices } from '../../services/ServicesProvider';
 import { languageName, useI18n } from '../../i18n';
 import type { AppSettings } from '../../storage/repos/settings';
 import { colors } from '../../theme';
-import { ModelStepView } from '../onboarding/ModelStepView';
-import { SlangStepView } from '../onboarding/SlangStepView';
-import { PRACTICE_COMMANDS, type HoldPractice } from '../onboarding/useHoldPractice';
-import { VoiceStepView } from '../onboarding/VoiceStepView';
+import { addressExample, experienceCards, trackOfPair, welcomeSample } from '../experiences/experiences';
+import { AddressStepView } from '../onboarding/AddressStepView';
+import { ExperienceStepView } from '../onboarding/ExperienceStepView';
+import { LevelStepView } from '../onboarding/LevelStepView';
+import { MicStepView } from '../onboarding/MicStepView';
 import { WelcomeView } from '../onboarding/WelcomeView';
 import {
   FIXTURE_FREE_BYTES,
@@ -23,11 +23,10 @@ import {
   MODEL_INFO_FIXTURES,
   MODEL_STATES,
   MUSIC_ACCESS_FIXTURE,
-  PRACTICE_HEARD,
   PROFILE_FIXTURES,
   SETTINGS_FIXTURE,
   SPEECH_DENIED,
-  SPEECH_READY,
+  SPEECH_NEEDS_PERMISSION,
   type AccountFixtureName,
 } from './accountFixtures';
 import { LicensesView } from './LicensesView';
@@ -56,76 +55,42 @@ function PreviewBody({ name }: { name: AccountFixtureName }) {
   const toggleRegion = (code: string) =>
     setSettings((s) => ({ ...s, regions: s.regions.includes(code) ? s.regions.filter((c) => c !== code) : [...s.regions, code] }));
   const voices: VoicesView = { voices: [...FIXTURE_VOICES], playing: false, canSample: true, playSample: none };
-  const practice = usePreviewPractice();
+  const ctx = { hasChoices: false };
 
   switch (name) {
-    case 'onboarding-welcome': {
-      const first = packs.pair.starter?.sentences[0];
-      const span = first ? locateAnswer(packs.lang, first.text, first.answer) : null;
+    case 'onboarding-welcome':
+      return <WelcomeView language={language} sample={welcomeSample(packs.pair, packs.lang)} saving={false} failed={false} onStart={none} onOpenPrivacy={none} />;
+    case 'onboarding-experience':
+      return <ExperienceStepView cards={experienceCards(packs.pair, null, settings.trackId)} ctx={ctx} saving={false} failed={false} onPick={(trackId) => change({ trackId })} onBack={none} />;
+    case 'onboarding-level':
+      return <LevelStepView language={language} ctx={ctx} level={settings.level} saving={false} failed={false} onPick={(level) => change({ level })} onBack={none} />;
+    case 'onboarding-address':
       return (
-        <WelcomeView
+        <AddressStepView
           language={language}
-          sampleBefore={first && span ? first.text.slice(0, span.start) : null}
+          ctx={ctx}
+          example={addressExample(packs.pair, settings.trackId)}
+          address={settings.address}
           saving={false}
           failed={false}
-          onPlacement={none}
-          onBrandNew={none}
-          onOpenPrivacy={none}
-        />
-      );
-    }
-    case 'onboarding-model':
-    case 'onboarding-model-downloading':
-    case 'onboarding-model-error': {
-      const state = name === 'onboarding-model' ? MODEL_STATES.absent : name === 'onboarding-model-error' ? MODEL_STATES.error : MODEL_STATES.downloading;
-      return (
-        <ModelStepView
-          {...state}
-          descriptor={{ bytes: MODEL_STATES.ready.file.progress.bytesTotal }}
-          freeBytes={name === 'onboarding-model-error' ? null : FIXTURE_FREE_BYTES}
-          saving={false}
-          failed={false}
-          onStart={none}
-          onPause={none}
-          onContinue={none}
-          onNotNow={none}
+          onPick={(address) => change({ address })}
           onBack={none}
         />
       );
-    }
-    case 'onboarding-voice':
-    case 'onboarding-voice-denied':
+    case 'onboarding-mic':
+    case 'onboarding-mic-denied':
       return (
-        <VoiceStepView
-          language={language}
-          availability={name === 'onboarding-voice' ? SPEECH_READY : SPEECH_DENIED}
+        <MicStepView
+          ctx={ctx}
+          availability={name === 'onboarding-mic' ? SPEECH_NEEDS_PERMISSION : SPEECH_DENIED}
           speechBusy={false}
           downloadMessage={null}
+          modelSize={formatBytes(MODEL_STATES.ready.file.progress.bytesTotal, t)}
+          saving={false}
+          failed={false}
           onAllow={none}
           onOpenSettings={none}
           onDownloadLanguage={none}
-          voices={voices}
-          voiceId={settings.voiceId}
-          onSelectVoice={(voiceId) => change({ voiceId })}
-          practice={practice}
-          saving={false}
-          failed={false}
-          onContinue={none}
-          onBack={none}
-        />
-      );
-    case 'onboarding-slang':
-      return (
-        <SlangStepView
-          language={language}
-          register={settings.register}
-          regions={settings.regions}
-          showExplicit={settings.showExplicit}
-          saving={false}
-          failed={false}
-          onRegister={(register) => change({ register })}
-          onToggleRegion={toggleRegion}
-          onToggleExplicit={() => change({ showExplicit: !settings.showExplicit })}
           onFinish={none}
           onBack={none}
         />
@@ -139,6 +104,8 @@ function PreviewBody({ name }: { name: AccountFixtureName }) {
       return (
         <SettingsView
           settings={settings}
+          experience={{ title: trackOfPair(packs.pair, settings.trackId)?.title ?? null, choices: trackOfPair(packs.pair, settings.trackId)?.choices ?? [] }}
+          onPickExperience={(trackId) => change({ trackId })}
           nativeName={languageName(t, packs.pair.native)}
           targetName={language}
           onChange={change}
@@ -166,27 +133,6 @@ function PreviewBody({ name }: { name: AccountFixtureName }) {
       return <SelfTestView info={info} status="ready" report={fixtureSelfTestReport(info)} progress={null} onRun={none} onBack={none} />;
     }
   }
-}
-
-/** Practice with two commands said and the last one heard; holding shows the listening state. */
-function usePreviewPractice(): HoldPractice {
-  const [listen, setListen] = useState<ListenState>({ phase: 'idle' });
-  return useMemo(
-    () => ({
-      listen,
-      practised: PRACTICE_COMMANDS.slice(0, 2),
-      heard: PRACTICE_HEARD,
-      actions: {
-        holdBegin: none,
-        holdStart: () => setListen({ phase: 'listening', level: 0.6, partial: '' }),
-        holdEnd: () => setListen({ phase: 'idle' }),
-        holdCancel: () => setListen({ phase: 'idle' }),
-      },
-      typed: none,
-      hear: none,
-    }),
-    [listen],
-  );
 }
 
 const styles = StyleSheet.create({

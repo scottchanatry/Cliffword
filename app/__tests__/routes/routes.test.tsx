@@ -11,14 +11,12 @@ import { sharedMockModel, defaultPacks } from '../../src/services/defaults';
 import { setAppServices } from '../../src/services/appServices';
 import { loadSqlJs } from '../../src/storage/sql/sqljs';
 import { createTestServices, type TestServices } from '../../src/services/testServices';
+import { ONBOARDED } from '../../src/storage/repos/settings';
+import { livingTrack } from '../../src/testing/packs';
 
 const APP_DIR = path.resolve(__dirname, '../../app');
 
 let services: TestServices;
-
-/** Region pills are toggle buttons: their checked state is in accessibilityState. */
-const checked = (name: string): boolean | 'mixed' | undefined =>
-  screen.getByRole('togglebutton', { name }).props.accessibilityState?.checked;
 
 // Load the shared, immutable parts once (sql.js WebAssembly, packs, trained mock model), so the
 // first test's startup is not slower than findBy's timeout.
@@ -62,42 +60,30 @@ function expectAccessibleControls() {
   }
 }
 
-/** Storage as a returning learner left it: onboarded. */
+/** Storage as a returning learner left it: onboarded into Living in San Juan. */
 async function onboarded() {
   const storage = await services.storage.open();
-  await storage.settings.update({ onboarded: true, startLevel: 'brandNew' });
+  await storage.settings.update({ ...ONBOARDED, startLevel: 'brandNew', trackId: livingTrack().id });
   return storage;
 }
 
 describe('first run', () => {
   it('shows a loading state, then sends a new learner to onboarding from any route', async () => {
-    await renderRouter(APP_DIR, { initialUrl: '/music' });
+    await renderRouter(APP_DIR, { initialUrl: '/profile/settings' });
     expect(await screen.findByTestId('onboarding-screen')).toBeOnTheScreen();
     expect(screen).toHavePathname('/onboarding');
-    expect(screen.getByText('Learn Spanish by saying what comes next.')).toBeOnTheScreen();
-    expect(screen.queryByTestId('music-screen')).toBeNull();
+    expect(screen.getByText('Learn Spanish with short, funny stories.')).toBeOnTheScreen();
+    expect(screen.queryByTestId('settings-screen')).toBeNull();
     expectAccessibleControls();
   });
 
-  it('stores "I’m brand new", walks the onboarding steps and opens the Story tab', async () => {
+  it('goes from the welcome to the experience picker (the rest: onboarding.test.tsx)', async () => {
     await renderRouter(APP_DIR, { initialUrl: '/' });
-    await fireEvent.press(await screen.findByRole('button', { name: 'I’m brand new' }));
-    // Model (the test model file is already there), voice, slang: see onboarding.test.tsx.
-    await fireEvent.press(await screen.findByTestId('model-continue'));
-    await fireEvent.press(await screen.findByTestId('voice-continue'));
-    await fireEvent.press(await screen.findByRole('button', { name: 'Start the story' }));
-    expect(await screen.findByTestId('story-screen')).toBeOnTheScreen();
-    expect(screen).toHavePathname('/');
+    await fireEvent.press(await screen.findByRole('button', { name: 'Get started' }));
+    expect(await screen.findByTestId('onboarding-experience')).toBeOnTheScreen();
+    expect(screen).toHavePathname('/onboarding/experience');
     const storage = await services.storage.open();
-    expect(await storage.settings.getAll()).toMatchObject({ onboarded: true, startLevel: 'brandNew', onboardingStep: 'done' });
-  });
-
-  it('stores "Start the first story" as placement', async () => {
-    await renderRouter(APP_DIR, { initialUrl: '/onboarding' });
-    await fireEvent.press(await screen.findByRole('button', { name: 'Start the first story' }));
-    expect(await screen.findByTestId('onboarding-model')).toBeOnTheScreen();
-    const storage = await services.storage.open();
-    expect(await storage.settings.get('startLevel')).toBe('placement');
+    expect(await storage.settings.get('onboardingStep')).toBe('experience');
     expect(await storage.settings.get('onboarded')).toBe(false);
   });
 
@@ -119,17 +105,25 @@ describe('first run', () => {
 });
 
 describe('returning learner', () => {
-  it('opens on the Story tab with the header, both tabs and the first cliff of the story', async () => {
+  it('opens on the Story home with the header and no tab bar; Continue opens the first line, close goes back', async () => {
     await onboarded();
     await renderRouter(APP_DIR, { initialUrl: '/' });
-    expect(await screen.findByTestId('story-screen')).toBeOnTheScreen();
+    expect(await screen.findByTestId('story-home')).toBeOnTheScreen();
     expect(screen).toHavePathname('/');
     expect(screen.getByText('Cliffword')).toBeOnTheScreen();
-    expect(screen.getByTestId('tab-story')).toBeOnTheScreen();
-    expect(screen.getByTestId('tab-music')).toBeOnTheScreen();
-    // The story controller's first screen (see story.test.tsx): the starter's first cliff.
-    expect(await screen.findByTestId('cliff-options')).toBeOnTheScreen();
+    expect(screen.getByTestId('home-title')).toHaveTextContent('Living in San Juan');
+    // Music is off: the Story tab is the only one, so there is no tab bar.
+    expect(screen.queryByTestId('tab-music')).toBeNull();
     expectAccessibleControls();
+    await fireEvent.press(screen.getByTestId('home-continue'));
+    expect(await screen.findByTestId('episode-screen')).toBeOnTheScreen();
+    // Recall: the line played (the fake voice finishes at once), then the gap with three options.
+    expect(await screen.findByTestId('cliff-options')).toBeOnTheScreen();
+    expect(screen.getByTestId('mic-button')).toBeOnTheScreen();
+    expectAccessibleControls();
+    await fireEvent.press(screen.getByTestId('episode-close'));
+    expect(await screen.findByTestId('story-home')).toBeOnTheScreen();
+    expect(screen.getByTestId('home-continue').props.accessibilityLabel).toMatch(/^Continue: Episode 1 · /);
   });
 
   it('never shows onboarding again', async () => {
@@ -139,51 +133,18 @@ describe('returning learner', () => {
     expect(screen.queryByTestId('onboarding-screen')).toBeNull();
   });
 
-  it('hides the story text as tiles and shows it again, and keeps the choice', async () => {
-    const storage = await onboarded();
-    await renderRouter(APP_DIR, { initialUrl: '/' });
-    await screen.findByTestId('cliff-options');
-    const label = () => screen.getByTestId('text-mode').props.accessibilityLabel as string;
-    const before = label();
-    await fireEvent.press(screen.getByTestId('text-mode'));
-    await waitFor(() => expect(label()).not.toBe(before));
-    expect(await storage.settings.get('textMode')).toBe('tiles');
-    const tiles = label();
-    await fireEvent.press(screen.getByTestId('text-mode'));
-    await waitFor(() => expect(label()).not.toBe(tiles));
-    expect(await storage.settings.get('textMode')).not.toBe('tiles');
-  });
-
-  it('switches to the Music tab, which shows the stored regions', async () => {
+  it.each(['/music', '/music/paste', '/text/paste'])('keeps Music out: %s goes to the Story tab', async (url) => {
     await onboarded();
-    await renderRouter(APP_DIR, { initialUrl: '/' });
-    await fireEvent.press(await screen.findByTestId('tab-music'));
-    expect(await screen.findByTestId('music-screen')).toBeOnTheScreen();
-    expect(screen).toHavePathname('/music');
-    expect(screen.getByText('Your music')).toBeOnTheScreen();
-    expect(checked('Puerto Rico')).toBe(true);
-    expect(checked('Cuba')).toBe(false);
-    expectAccessibleControls();
-  });
-
-  it('saves region and explicit-lyrics choices from the Music tab', async () => {
-    const storage = await onboarded();
-    await renderRouter(APP_DIR, { initialUrl: '/music' });
-    await fireEvent.press(await screen.findByRole('togglebutton', { name: 'Cuba' }));
-    await waitFor(() => expect(checked('Cuba')).toBe(true));
-    await fireEvent.press(screen.getByRole('togglebutton', { name: 'Puerto Rico' }));
-    await waitFor(() => expect(checked('Puerto Rico')).toBe(false));
-    expect(await storage.settings.get('regions')).toEqual(['CARIB', 'CU']);
-
-    await fireEvent.press(screen.getByRole('button', { name: 'Turn off' }));
-    expect(await screen.findByText('Off: explicit lines are skipped')).toBeOnTheScreen();
-    expect(await storage.settings.get('showExplicit')).toBe(false);
+    await renderRouter(APP_DIR, { initialUrl: url });
+    expect(await screen.findByTestId('story-home')).toBeOnTheScreen();
+    expect(screen.queryByTestId('music-screen')).toBeNull();
+    expect(screen).toHavePathname('/');
   });
 
   it('opens profile and settings from the corner button, with stored values, and closes it', async () => {
     const storage = await onboarded();
     await storage.spokenTime.addUtterance(125_000, services.clock.now());
-    await storage.settings.set('showExplicit', false);
+    await storage.settings.update({ level: 3, address: 'f' });
     await renderRouter(APP_DIR, { initialUrl: '/' });
     await fireEvent.press(await screen.findByRole('button', { name: 'Open profile and settings' }));
     expect(await screen.findByTestId('profile-screen')).toBeOnTheScreen();
@@ -193,8 +154,10 @@ describe('returning learner', () => {
     await fireEvent.press(screen.getByRole('link', { name: 'Settings' }));
     expect(await screen.findByTestId('settings-screen')).toBeOnTheScreen();
     expect(screen).toHavePathname('/profile/settings');
-    expect(screen.getByText('Spanish')).toBeOnTheScreen();
-    expect(screen.getByTestId('settings-explicit')).toHaveTextContent(/Off/);
+    expect(screen.getByTestId('settings-experience-title')).toHaveTextContent('Living in San Juan');
+    expect(screen.getByRole('radio', { name: 'As a woman' }).props.accessibilityState?.checked).toBe(true);
+    expect(screen.getByRole('radio', { name: '3' }).props.accessibilityState?.checked).toBe(true);
+    expect(screen.queryByTestId('settings-explicit')).toBeNull();
     expectAccessibleControls();
     await fireEvent.press(screen.getByTestId('settings-back'));
     expect(await screen.findByTestId('profile-screen')).toBeOnTheScreen();

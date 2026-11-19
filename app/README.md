@@ -3,7 +3,46 @@
 The Expo React Native app for Cliffword: Expo SDK 58, React Native 0.88, React 19.3 and
 TypeScript 6 in strict mode. It is its own npm project with its own `node_modules` and
 `package-lock.json`, and it uses the engine in `../engine` as source code. The product decisions
-are in `../docs/BRIEF.md`; the engine API is in `../engine/README.md`.
+are in `../docs/BRIEF.md` (the experiences redesign below overrides it where they differ, and
+`../docs/REDESIGN.md` says what changed and why); the engine API is in `../engine/README.md`; the
+story format, and how to port a series to another language pair, in `../docs/STORY-FORMAT.md`.
+
+## Experiences (the redesign)
+
+The Story tab plays authored comedy series ("experiences", `PairPack.tracks` and `library`),
+one episode at a time, one gap ("cliff") per line. In this build only **Living in San Juan** is
+written (8 beginner episodes); the other five experiences are shown as "Coming soon".
+
+- **First launch** (`app/onboarding/`): welcome (what Cliffword is, and listen / fill the gap /
+  hear how you did, drawn with a line of the first experience) -> the experience picker (big
+  cards, coming soon ones closed) -> "How much Spanish do you know?" (brand new 0, a little 2,
+  comfortable 4) -> "How should people address you?" (as a man / as a woman: `{you:a|b}` in the
+  stories) -> the experience's own choices, when it has some ("Who do you match with?") -> the
+  microphone (allow, or type instead). No placement test. Then the language model downloads by
+  itself on Wi-Fi (`useModelAutoDownload`).
+- **Story home** (`src/features/story/library/StoryHomeView.tsx`): the experience card,
+  "Continue: Episode n · title", the level and what the model does, the episodes (done ones
+  play again), "Change experience" (each experience keeps its own progress). Nothing plays here.
+- **Episode** (`EpisodeView.tsx`): one clear action at a time. By the learner's level: recall
+  (0-1: the whole line plays and shows, then the gap with three options and the mic), hint (2-3:
+  the English with the gap word in bold, the mic first, "Show options" second), predict (4-5: the
+  mic first, "No sé" second). Feedback after every answer (`Feedback.tsx`): a check or "Not
+  quite", what was said, the story's word, up to three other natural answers, the English, and
+  who checked it (the language model on the phone, or matching while it downloads). Characters'
+  questions with the example answer and the model's repair ("Nice answer!" when it found the
+  reply natural); the end of an episode ("You got n of m right", how many of them without the
+  options, the level line, "Next episode"; a learner who tapped every word right is told to say
+  or type the words to move up a level) and of the experience. The first episode shows three
+  coach marks once. The gap keeps the punctuation after it ("Son las ___. ¡Quiquiriquí!").
+- **The mic** (`MicButton.tsx`): one big round button. A tap listens and a second tap sends; it
+  also stops after about 1.5 s of silence (or 6 s without levels; `src/session/common/autoStop.ts`).
+  Press and hold is push-to-talk. Screen readers toggle it with a double tap. "Type instead"
+  under it. Hold anywhere is off.
+- **Settings**: the experience (and its choices), how characters address you, the level (it moves
+  after each episode: up at 80% answered without help, down under 50%; set it here any time).
+- **Off in this build** (`src/config/features.ts`): the Music tab and brought text
+  (`MUSIC_ENABLED`, code kept), the timed retell (`RETELL_ENABLED`), model-generated story
+  sentences (the engine's `options.source 'generated'`). Share-in is out: no share extension.
 
 ## Run, test, export
 
@@ -58,12 +97,15 @@ falls back to `index.html` for unknown paths. `python -m http.server` has no fal
 
 | Path | What |
 |---|---|
-| `app/` | The expo-router routes; in the repo the router root is `app/app/`. Put only routes here (never tests or helpers). `_layout.tsx` sets up fonts, the splash, the gesture root, `AppProviders`, `AppBootstrap` and the root stack with the onboarding guard. `(tabs)/_layout.tsx` has the Story and Music tabs and the header with the wordmark and the profile corner button. The other routes are `(tabs)/index.tsx` (Story), the Music stack `(tabs)/music/` (`index` library, `[songId]` song page, `registers`, `time`, and the `paste` and `share` sheets; see "Music controller"), `text/` (`paste`, `[textId]`: brought text), the profile modal `profile/` (`index`, `settings`, `licenses`, `selftest`), onboarding `onboarding/` (`index` welcome, `model`, `voice`, `slang`; see "Onboarding, profile and settings") and `+not-found.tsx`. `+native-intent.tsx` is not a route: it sends the iOS share-extension deep link to the Music tab. |
+| `app/` | The expo-router routes; in the repo the router root is `app/app/`. Put only routes here (never tests or helpers). `_layout.tsx` sets up fonts, the splash, the gesture root, `AppProviders`, `AppBootstrap`, the root stack with the onboarding guard (`isOnboarded`) and the model's Wi-Fi download (`useModelAutoDownload`). `(tabs)/_layout.tsx` has the Story tab (and Music while `MUSIC_ENABLED`; with one tab the tab bar is hidden) and the header with the wordmark and the profile corner button. The other routes are `(tabs)/index.tsx` (Story: the home, the episode and the picker of an experience), the Music stack `(tabs)/music/` and `text/` (both redirect to `/` while Music is off; see "Music controller"), the profile modal `profile/` (`index`, `settings`, `licenses`, `selftest`), onboarding `onboarding/` (`index` welcome, `experience`, `level`, `address`, `choices`, `mic`; see "Onboarding, profile and settings") and `+not-found.tsx`. There is no `+native-intent.tsx`: share-in is out of this build. |
 | `src/providers/AppProviders.tsx` | The providers that need no startup work: services, packs, i18n. Tests render through it. |
 | `src/bootstrap/` | Startup. `bootstrap(services)` opens storage, reads the settings and restores the learner. `AppBootstrap` shows the loading and error states around it. |
 | `src/appState/` | `AppStateProvider` and the hooks `useAppState()`, `useSettings()` and `useLearner()`. They hold the opened storage, the settings and the learner (`replaceLearner` swaps in a model the story session rebuilt with a new prior). |
 | `src/learner/prior.ts` | `learnerPrior(packs, startLevel, stored?)` and `priorSpecFor`: the learner model's prior as the engine's `PriorSpec`, rebuilt at every start (from the spec stored with the learner snapshot once placement has run). |
 | `src/session/` | `contract.ts`, the seam between controllers and views; `story/`, the Story tab's controller (see "Story controller"); `lyric/`, the Music tab's controller for a song or a brought text; `common/`, the queue, hold-to-speak, voice, listen options and step-write plumbing both controllers (and onboarding's hold practice) use. |
+| `src/config/features.ts` | Feature flags: `MUSIC_ENABLED` (false), `RETELL_ENABLED` (false). |
+| `src/features/experiences/` | The experiences as the picker, the home and Settings show them (`experiences.ts`: `experienceCards`, `episodeRows`, `continueRow`, `addressExample`, `welcomeSample`, all from the pair pack and the session's `libraryProgress`), `ExperienceList` (the picker's cards) and `TrackMotif` (a colored, flag-free motif per regional variety, theme `motifColors`). |
+| `src/features/story/library/` | The Story tab in library mode: `LibraryStory` (home, episode or picker, and the first-episode guide), `StoryHomeView`, `EpisodeView`, `Feedback`, `LineText`, `MicButton`, `CoachMark`, `ExperiencePicker`, and `libraryFixtures.ts` (gallery `lib-*`). |
 | `src/music/` | The Music tab's data: pasted lyrics (parse, preview, store), the library rows' song summary (region, slang amount, monogram), shared songs, and the hooks behind the library, paste, share, time-it and text-paste routes. |
 | `src/services/` | The service container (see "Services and adapters"). |
 | `src/adapters/` | Device adapters, one folder per capability. Each folder has a documented `types.ts` contract, fakes and web fallbacks; `listeners.ts` is shared. |
@@ -75,8 +117,8 @@ falls back to `index.html` for unknown paths. `python -m http.server` has no fal
 | `src/features/<area>/` | Screen parts for each area: story, music, text, onboarding and profile. |
 | `src/components/` | Shared components: the profile button and tab icons; `words/` (the word flow, tiles, the cliff gap, gloss chip, heat sentence, understood line) and `voice/` (hold anywhere, the hold area and button, listening rings, command chips). See "Story views". |
 | `src/preview/` | The dev fixture gallery: `enabled.ts` (`PREVIEW_ENABLED`) and `Gallery.tsx` (one fixture by name, or the list of all), which `app/(dev)/preview/[screen].tsx` requires only in development builds and preview exports (see "Routes, controllers and views"). |
-| `src/testing/` | Test helpers, never imported by app code. `renderWithProviders(ui, { services? })` renders inside `AppProviders`. `renderWithAppState(ui, { services?, settings? })` also runs the real bootstrap and renders inside `AppStateProvider`. `recordEvents(speechIn)` records a SpeechIn's events. `FakeSpeechRecognitionModule` plays expo-speech-recognition's native module (also behind the jest mock). `FakeCliffwordMusic` plays the cliffword-music module; `fakeShareIntent` drives the expo-share-intent mock (`deliver({ text, webUrl })`). |
-| `__tests__/` | App-level tests. `routes/` runs every route through the real router and root layout; `flows/appFlows.test.tsx` walks the app end to end (first launch to the story, the Music tab, settings reaching the song page, reset progress, a restart). `engine.test.ts` checks that the engine runs in Jest. `importGraph.test.ts` checks what each platform's bundle can reach. Module tests sit next to their modules as `*.test.ts(x)`. |
+| `src/testing/` | Test helpers, never imported by app code. `packs.ts`: `libraryPacks()` (the app's packs, with the experiences), `generatedPacks()` / `generatedPair()` (the same pair without its library: the earlier generated flow), `livingTrack()`. `renderWithProviders(ui, { services? })` renders inside `AppProviders`. `renderWithAppState(ui, { services?, settings? })` also runs the real bootstrap and renders inside `AppStateProvider`. `recordEvents(speechIn)` records a SpeechIn's events. `FakeSpeechRecognitionModule` plays expo-speech-recognition's native module (also behind the jest mock). `FakeCliffwordMusic` plays the cliffword-music module; `fakeShareIntent` drives the expo-share-intent mock (`deliver({ text, webUrl })`). |
+| `__tests__/` | App-level tests. expo-router's `renderRouter` turns on Jest's fake timers: in route tests never give `waitFor` an async callback (it spins forever on a storage read); read storage directly once the screen that follows the write is shown, or poll with plain awaits. `routes/` runs every route through the real router and root layout; `flows/appFlows.test.tsx` walks the app end to end (first launch to the story, the Music tab, settings reaching the song page, reset progress, a restart). `engine.test.ts` checks that the engine runs in Jest. `importGraph.test.ts` checks what each platform's bundle can reach. Module tests sit next to their modules as `*.test.ts(x)`. |
 | `public/index.html` | The web page template. It paints the page in the ground color, so neither overscroll nor the first paint flashes white. |
 | `src/config/` | `links.ts` (the privacy policy, support and marketing URLs and the contact email of docs/STORE.md, `mailtoUrl`, `externalLinkUrl`), `openUrl.ts` (expo-linking's openURL), `appInfo.ts` (`appVersion()`, `platformLabel()`). |
 | `assets/brand/` | `mark.svg`, the brand mark every icon is rendered from (word tiles on ink, the story stops at a dashed amber gap), and the generated `icon.svg`. |
@@ -108,14 +150,17 @@ RootLayout (app/_layout.tsx)
   `StorageService` forgets a failed open, so a retry reopens it. If the data was written by a
   newer version of the app (`SchemaTooNewError`), the error state asks for an update and offers
   no retry. The data is never deleted.
-- **Onboarding guard.** Until `settings.onboarded` is true, `(tabs)` and `profile` are behind
-  `Stack.Protected guard={onboarded} redirectTo="/onboarding"`, so every URL leads to
-  onboarding. Afterwards onboarding is behind `guard={!onboarded} redirectTo="/"`.
-  `+not-found` is open in both states.
-- **Onboarding.** Welcome, model, voice, slang (see "Onboarding, profile and settings"). "Start
-  the first story" stores `startLevel: 'placement'`, "I'm brand new" `'brandNew'`; each step
-  stores the next one in `settings.onboardingStep`, and the last stores `{ onboarded: true,
-  onboardingStep: 'done' }`. The guard then opens the Story tab without calling the router.
+- **Onboarding guard.** Until `isOnboarded(settings)` (`onboarded` and `onboardingVersion >=
+  ONBOARDING_VERSION`, 2), `(tabs)` and `profile` are behind `Stack.Protected
+  guard={onboarded} redirectTo="/onboarding"`, so every URL leads to onboarding. Afterwards
+  onboarding is behind `guard={!onboarded} redirectTo="/"`. `+not-found` is open in both
+  states. A learner onboarded by the earlier build (version 0) goes through the new onboarding
+  once, to pick an experience, a level and a form of address.
+- **Onboarding.** Welcome, experience, level, address, the experience's choices (only when it has
+  some), microphone (see "Onboarding, profile and settings"). The level step stores `level` and
+  `startLevel` (`'brandNew'` for 0, else `'placement'`: the learner prior); each step stores the
+  next one in `settings.onboardingStep`, and the last stores `ONBOARDED` (`onboarded`, `'done'`,
+  `onboardingVersion`). The guard then opens the Story tab without calling the router.
 - **Learner prior.** A prior is a function, so the app keeps it in the engine's form, a
   `PriorSpec`, and rebuilds it with `buildPrior` at every start (`src/learner/prior.ts`).
   `brandNew` is `PlacementTracker.brandNew(cognates)`: cognates are probably understood and
@@ -148,8 +193,8 @@ contract's props or plain props.
 
 | Route | Renders | Data |
 |---|---|---|
-| `onboarding/` `index`, `model`, `voice`, `slang` | `WelcomeView`, `ModelStepView`, `VoiceStepView`, `SlangStepView` | `useOnboarding`, `useModelFile`, `useSpeechSetup`, `useVoices`, `useHoldPractice` |
-| `(tabs)/index` (Story) | `StoryView` (`{ vm: StoryViewModel; actions: StoryActions }`): every `StoryScreen` kind, retell included (the engine's retell is a story screen, so OUTLINE's separate `retell.tsx` is not needed) | `useStoryController()` |
+| `onboarding/` `index`, `experience`, `level`, `address`, `choices`, `mic` | `WelcomeView`, `ExperienceStepView`, `LevelStepView`, `AddressStepView`, `ChoicesStepView`, `MicStepView` | `useOnboarding`, `useSpeechSetup`, the pair pack |
+| `(tabs)/index` (Story) | `StoryView` (`{ vm: StoryViewModel; actions: StoryActions; library? }`): in library mode `LibraryStory` (home, episode, picker); otherwise every `StoryScreen` kind of the generated flow | `useStoryController()`, settings (experience, guide), `useModelFile()` |
 | `(tabs)/music/index` (C3) | `MusicLibraryView` | `useMusicLibrary()` |
 | `(tabs)/music/[songId]` (A3, C1, B4, ...) | `SongView` (`{ vm: LyricViewModel; actions: LyricActions; nav }`), or `NeedsLyricsView` | `useLyricController({ kind: 'song' })`, shared by the stack's routes of one song |
 | `(tabs)/music/registers` (C2), `time`, `paste`, `share` | `SongView` (registers screen), `TapTimerView`, `PasteLyricsView`, `ShareConfirmView` | the same song controller; `useTapTimer`, `usePasteLyrics`, `useShareConfirm` |
@@ -191,10 +236,27 @@ contract's props or plain props.
 
 ## Story controller
 
-`app/(tabs)/index.tsx` renders `<StoryView vm actions />` (`src/features/story`) from
+`app/(tabs)/index.tsx` renders `<StoryView vm actions library />` (`src/features/story`) from
 `useStoryController()` (`src/session/story`). The controller (`createStoryController(deps)`)
 implements `StoryController` of `src/session/contract.ts` over the engine's `StorySession`; the
 engine's screens are the view data.
+
+- **Library mode** (the pair has a library, as the app's en-es pack does). The session is
+  created with `library: libraryStartFor(settings)` (experience, level, address, the
+  experience's choices; retell off by `RETELL_ENABLED`) and restored with the same. `start()`
+  stops on the home (`vm.view 'home'`, `vm.library` = `session.libraryProgress`): nothing plays
+  until `openEpisode()` (`next()` from idle or an episode's end, else the screen's cue again).
+  `closeEpisode()` stops speech and listening; `replayEpisode(n)`. Settings and session stay in
+  step: a changed `trackId`, choice, `level` or `address` reaches the session (`chooseTrack`,
+  `setLibraryProfile`; a new experience goes back to the home first), and `episodeDone`'s
+  `levelAfter` is stored in `settings.level`. In recall mode the cue `what: 'line'` plays the
+  whole line and then `session.played()` shows the gap; a gapped cue (`cue.gap`) plays the words
+  before the gap, 700 ms of silence, then the words after it (`libraryCliffCue` replays it). On
+  a library cliff the controller calls `session.prefetch()`, so the model's alternatives for the
+  feedback are ready when the learner answers.
+- **Tap mode** (`micTap`): `holdBegin` + `holdStart`; `vm.micLatched` while on; a second tap or
+  `AutoStop` (`src/session/common/autoStop.ts`, checked on every level and partial and every
+  200 ms) ends it with `holdEnd`. Push-to-talk keeps `holdBegin` / `holdStart` / `holdEnd`.
 
 - **Session.** On mount it restores the active `story` row of `storage.sessions` (the
   `StorySessionSnapshot`, version `STORY_SESSION_FORMAT`; another version is deactivated) or
@@ -239,6 +301,14 @@ engine's screens are the view data.
   voice.
 
 ## Story views
+
+In library mode (`vm.library`), `StoryView` renders `LibraryStory` (`src/features/story/library/`,
+see "Experiences" at the top): the home, the episode screen, the picker and the coach marks.
+`StoryView.test.tsx` and `LibraryViews.test.tsx` render every fixture (story and `lib-*`) with
+named 44 dp controls and check each screen's texts and actions (each cliff mode, the mic's tap,
+hold and screen-reader toggle, feedback by the model and by matching, turns, an episode's and
+the experience's end, the picker, the guide once). The rest of this section is the generated
+flow (a pair without a library, or the engine's `options.source 'generated'`).
 
 `StoryView` (`src/features/story/StoryView.tsx`) takes `{ vm: StoryViewModel; actions: StoryActions }`
 and renders the engine's `StoryScreen` as it is: one view per kind (`CliffView`, `LandingView`,
@@ -291,6 +361,12 @@ Display text from the engine is a `UiText`, resolved with `t(key, params)`.
   `renderStory`) are test-only.
 
 ## Music controller
+
+**Off in this build** (`MUSIC_ENABLED` false in `src/config/features.ts`): no Music tab, the
+`(tabs)/music` and `text` layouts redirect to `/`, onboarding and Settings show no music rows,
+and the music route tests are skipped (`describeMusic`). The code below is kept for later; turning
+it back on also needs the `cliffword-music` module linked again (`package.json`
+`expo.autolinking.exclude`) and `NSAppleMusicUsageDescription` in `app.json`.
 
 The Music tab is a stack (`app/(tabs)/music/`): the library (`index`, C3), a song page
 (`[songId]`: the session's screen, A3 / C1 / B4 and the rest; `?mode=cliff|echo`), the two
@@ -438,41 +514,40 @@ Routes are thin: `app/onboarding/*` and `app/profile/*` wire hooks to views that
 (`src/features/onboarding`, `src/features/profile`); the gallery and the view tests render the
 views from `src/features/profile/accountFixtures.ts`.
 
-- **Onboarding (OUTLINE 5.3).** `onboarding/_layout.tsx` is a header-less stack (no back gesture
-  on the welcome screen). `useOnboarding()` stores each step's choices with the next step
+- **Onboarding.** `onboarding/_layout.tsx` is a header-less stack (no back gesture on the welcome
+  screen). `useOnboarding()` stores each step's choices with the next step
   (`settings.onboardingStep`) before it opens that step, so a killed app resumes there:
   `OnboardingResumeProvider` reads the stored step once when onboarding opens and the welcome
-  screen forwards to it (`resumeRoute`); Back uses the history, else the previous step's route.
-  - *Welcome* (`index`): the starter story's first sentence up to its cliff with the ink gap
-    (`locateAnswer` on the pack's segmenter), "Start the first story" (placement) and "I'm brand
-    new", and a small "Privacy policy" footer link (`PRIVACY_URL`; nothing happens when no
-    browser takes it).
-  - *Model* (`model`): `useModelFile()` follows `services.modelManager` and the adapter
-    (`modelAvailability`): size, free space (`ModelManager.freeBytes?()`), the Wi-Fi note, progress
-    and "Continue while it downloads" (the download goes on), "Not now" (`modelDeclined: true`),
-    and on a failure the reason, "Try again" and "Continue without it". Every state moves on: the
-    story runs canned until the model is ready.
-  - *Voice* (`voice`): `useSpeechSetup()` shows `SpeechIn.availability()` for the pack's
-    recognition locales in the learner's regions (on device unless `allowNetworkRecognition`):
-    the permission card with the usage reasons and "Allow", a refusal with "Open Settings" (and
-    "Ask again" where the system can), the offline language download (Android 13+). The story
-    voice (`useVoices()`: installed voices for the target, region locales first, at most six plus
-    the chosen one; "Automatic" picks as the controllers do) with a sample: the starter story's
-    first sentence at the learner's speed. Hold practice (`useHoldPractice()`, a `PracticeSession`
-    over the controllers' `HoldToSpeak`): hold anywhere on the practice card (`HoldAnywhere`, the
-    card's `HoldArea` toggles for screen readers) and say one of the six commands; the engine's
-    `matchCommand` ticks it off, a tap plays it, and "Type instead" (`TypeAnswerSheet`) goes
-    through the same match when speech is off. Practice stores nothing and earns no minutes.
-  - *Slang* (`slang`): neutral or street (`RegisterChoice`, radios), the region pills (Puerto
-    Rico preselected by the defaults) and `ExplicitRow` (on) with its one-line note; "Start the
-    story" stores `onboarded: true`.
+  screen forwards to it (`resumeRoute`); Back pops to the step before (`router.dismissTo`). The
+  steps (`flow.ts`: `screensFor`, `nextStep`, `previousStep`, `stepPosition` take whether the
+  chosen experience has choices):
+  - *Welcome* (`index`): one line on what Cliffword is, three steps (listen, fill the gap, hear how
+    you did) drawn with a line of the first experience (`welcomeSample`), "Get started", and the
+    "Privacy policy" footer link.
+  - *Experience* (`experience`): `ExperienceList` of `experienceCards(pair)`: a motif, title,
+    city and country, tagline, "8 episodes" or "Coming soon" (closed). A tap stores `trackId`.
+  - *Level* (`level`): brand new / a little / comfortable (`LEVEL_CHOICES`: 0, 2, 4); stores
+    `level` and `startLevel`.
+  - *Address* (`address`): as a man / as a woman, each with a story line said that way
+    (`addressExample`); stores `address`.
+  - *Choices* (`choices`): the experience's `LibraryChoice`s as cards, Continue once each has an
+    answer; stored in `trackChoices[trackId]`. Skipped (and redirects) without choices.
+  - *Microphone* (`mic`): why (recognized on the phone, nothing recorded), "Allow microphone"
+    (onboarding ends by itself once speech is ready), "Type instead"; after a refusal, Open
+    Settings and typing; the offline language download where the platform has it; one line on the
+    language model ("downloads by itself on Wi-Fi ... any natural answer counts").
+  - *Then*: `useModelAutoDownload()` (root layout) starts the model download once per launch on
+    Wi-Fi (`services.network`), never after "Not now" (`modelDeclined`); the Settings model card
+    still starts, pauses and deletes it.
 - **Profile** (`profile/index`). `useProfileStats()`: the spoken_time rows as the engine's
   spoken-time log, read with `spokenStats` (today, total, streak) and `weekBars` (the last seven
   local days); words understood (`estimateVocabulary`), the skill mix (`skillCounts`: the same sum
   per skill, meaning, sound and speaking, with a hint for the weakest once 20 words have
   evidence). Minutes spoken is the first heading. Retell bests are not stored yet, so they are
   not shown.
-- **Settings** (`profile/settings`). Story text, speech speed (`speechRateBias` in 10 % steps,
+- **Settings** (`profile/settings`). The experience (Change opens `ExperiencePicker` in a modal;
+  a pick is stored and the Story tab follows), its choices, how characters address you, the level
+  (0-5, with the mode it means; the story applies it from the next episode), story text, speech speed (`speechRateBias` in 10 % steps,
   50 % to 150 %), answers in the native language, the story voice (`settings.voiceId`), register,
   regions, explicit lyrics, Apple Music (`authorizationStatus()`, Connect, Manage), on-device
   recognition only (`allowNetworkRecognition`, off by default), the model card (status, size,
@@ -499,13 +574,14 @@ views from `src/features/profile/accountFixtures.ts`.
   and compares each total with the proof's, within 0.15 nats; it shows the scoring path
   (`info.scoring`: native, forced decoding with its upper-bound tokens, or exact), which pairs the
   model ranks right, and timings. The mock model (web, tests) gets the verdict "mock".
-- **Gallery.** `/preview/onboarding-welcome`, `onboarding-model`,
-  `onboarding-model-downloading`, `onboarding-model-error`, `onboarding-voice`,
-  `onboarding-voice-denied`, `onboarding-slang`, `profile`, `profile-new`, `settings`,
+  While Music is off, explicit lyrics, Apple Music and "Delete all lyrics and texts" are hidden.
+- **Gallery.** `/preview/onboarding-welcome`, `onboarding-experience`, `onboarding-level`,
+  `onboarding-address`, `onboarding-mic`, `onboarding-mic-denied`, `profile`, `profile-new`, `settings`,
   `settings-downloading`, `licenses`, `selftest`, `selftest-mock` (`ACCOUNT_FIXTURE_NAMES`).
-- **Tests.** `__tests__/routes/onboarding.test.tsx` (brand new with a download in the background,
-  permission, voice, practice and slang; placement; "Not now" and the download from Settings; no
-  space; a refused microphone with typed practice; resume at a stored step), and
+- **Tests.** `__tests__/routes/onboarding.test.tsx` (brand new as a woman with the microphone
+  allowed and the model starting on Wi-Fi; comfortable with the microphone refused; an
+  experience's choices reaching the session, on a test pair where Dating has episodes; back and
+  resume; a learner onboarded by the earlier build), and
   `__tests__/routes/profile.test.tsx` (numbers from seeded spoken_time rows, settings stored and
   seen by the Music tab, stored values shown, model delete and download again, Apple Music, delete
   lyrics and texts, reset progress, licenses, the hidden self-test, the gallery);
@@ -606,8 +682,9 @@ and, in tests, deterministic (`test-1`, `test-2`, ...).
 | `speechOut` | `SpeechOut` (`speak` with word boundaries, `stop`, `voices`, `isSpeaking`) | **real**: `ExpoSpeechOut` | `ExpoSpeechOut` (speechSynthesis) | `FakeSpeechOut` | none |
 | `speechIn` | `SpeechIn` (sessions, `submitTyped`, events, levels and meter, permission, `availability`, `downloadLanguage`) | **real**: `ExpoSpeechIn` (expo-speech-recognition, on-device; `TypedSpeechIn` if the binary lacks the module) | `BrowserSpeechIn` when the browser has SpeechRecognition, else `TypedSpeechIn` | `FakeSpeechIn`; `ExpoSpeechIn` tests drive `FakeSpeechRecognitionModule` | none |
 | `music` | `MusicPlayer` (Apple Music, `pauseAt` for lyric lines) | **real on iOS**: `MusicKitPlayer` (modules/cliffword-music); Android: `UnsupportedMusicPlayer` | `UnsupportedMusicPlayer` | `FakeMusicPlayer`; `MusicKitPlayer` tests use `FakeCliffwordMusic` | none |
-| `share` | `ShareInbox` + pure `parseSpotifyShare` | **real**: `ExpoShareInbox` (share_inbox table), fed by `ShareIntentBridge` (expo-share-intent) | `MemoryShareInbox` | `MemoryShareInbox`; the bridge runs on the expo-share-intent mock | none |
+| `share` | `ShareInbox` + pure `parseSpotifyShare` | `ExpoShareInbox` (share_inbox table); nothing feeds it in this build (no share extension, no `ShareIntentBridge` in the layout) | `MemoryShareInbox` | `MemoryShareInbox` | share-in back with Music |
 | `haptics` | `Haptics` (`play('tap' \| 'selection' \| 'success' \| 'warning' \| 'error')`) | **real**: `ExpoHapticsAdapter` | `ExpoHapticsAdapter` | `FakeHaptics` | none |
+| `network` | `NetworkInfo` (`kind()`: wifi, cellular, none, unknown; `onChange`) | **real**: `ExpoNetworkInfo` (expo-network, through `createNativeNetworkInfo`) | `FixedNetworkInfo('unknown')` | `FixedNetworkInfo('cellular')` (`set('wifi')`) | none |
 | `clock` | `Clock` (`now()`) | `systemClock` | `systemClock` | `FakeClock` | none |
 | `packs` | `{ lang, pair }` | en-es, built once | same | same | more pairs |
 
@@ -758,6 +835,13 @@ library listing has no search or order, and songs carry no explicit flag.
 
 ### Share-in (expo-share-intent)
 
+**Out of this build.** The `expo-share-intent` plugin (and its iOS share extension, App Group
+and Android SEND filter) is gone from `app.json`, the package is excluded from autolinking
+(`package.json` `expo.autolinking.exclude`), `ShareIntentBridge` is not in the root layout and
+`app/+native-intent.tsx` is deleted, so no bundle reaches expo-share-intent
+(`__tests__/importGraph.test.ts`) and `src/config/appConfig.test.ts` checks the config. The code
+in `src/adapters/share/` is kept; it worked like this:
+
 Sharing a Spotify track link or a `Song - Artist` text from another app opens Cliffword:
 
 1. iOS: the share extension (`CliffwordShare`, bundle id `app.cliffword.share-extension`, App
@@ -833,6 +917,9 @@ Sharing a Spotify track link or a `Song - Artist` text from another app opens Cl
   a named progress bar. Hold to speak has a translated hint, because it works by long press, and
   an activate action that toggles listening for screen readers. Story tiles are buttons named
   "Word n" (see "Story views").
+- **The mic.** One button named "Answer out loud" ("Stop and send" while listening) with a hint;
+  a screen reader's double tap (activate) starts and stops it like a tap. The line is a button
+  that shows or hides the English; option buttons are named "Answer: <word>".
 - **Checked in the route tests.** For the onboarding steps (welcome, model, voice, slang), Story,
   Music (library, paste, share, song page at a cliff, registers, time it, a song without lyrics),
   brought text (paste, reader), profile, settings (and its confirm sheet), licenses, self-test and
@@ -878,7 +965,10 @@ Newsreader (content), Inter (interface) and Anton (Music headings) come from
   - Minimum iOS: 17.0 (`expo-build-properties`, `ios.deploymentTarget`; the SDK 58 default is
     16.4). iOS 17 needs an A12 or later, so the iPhone 8, 8 Plus and X, which cannot hold the
     1.1 GB model, cannot install the app (docs/STORE.md decision 1).
-  - Usage strings: microphone, speech recognition and Apple Music.
+  - Usage strings: microphone ("listens only while the microphone button is on") and speech
+    recognition. No Apple Music or photo library string: nothing asks for them in this build.
+  - `package.json` `expo.autolinking.exclude`: `expo-share-intent` and `cliffword-music` (no share
+    extension, no MusicKit code in the binary while Music is off).
   - `ITSAppUsesNonExemptEncryption: false`.
   - Android permissions: `RECORD_AUDIO` plus a `blockedPermissions` list.
   - `extra.eas.projectId`, web output `single`.
@@ -906,14 +996,16 @@ Newsreader (content), Inter (interface) and Anton (Music headings) come from
   and device transfer. Without them Auto Backup would include the 1.1 GB file, go over the
   25 MB quota and back up nothing, not even the learner's database.
   `src/adapters/model/cliffwordNativePlugin.test.ts` runs the plugin's mods.
-  `expo-share-intent` takes `iosActivationRules` (one web URL, one web page, or text),
+  (Not in this build: `expo-share-intent`, which took `iosActivationRules` (one web URL, one web page, or text),
   `iosShareExtensionName: "Cliffword Share"` (the share-sheet name; the Xcode target is
   `CliffwordShare`), `iosShareExtensionBundleIdentifier: "app.cliffword.share-extension"`,
   `iosAppGroupIdentifier: "group.app.cliffword"` and `androidIntentFilters: ["text/plain"]` (the
   module reads only `text/plain` as text). The plugin declares the extension for EAS
   (`extra.eas.build.experimental.ios.appExtensions`, with its App Group entitlement) when the
   config is evaluated, so app.json does not repeat it (a second entry for the same target makes
-  the plugin fail). The local `modules/cliffword-music` needs no plugin entry.
+  the plugin fail).) The local `modules/cliffword-music` needs no plugin entry (and is excluded from
+  autolinking while Music is off). `expo-network` (the Wi-Fi check) needs none either; its Android
+  library adds `ACCESS_NETWORK_STATE` and `ACCESS_WIFI_STATE`.
   `expo-localization` takes `supportsRTL: false`: the interface is English only and the content
   is Spanish, so the layout never mirrors on a phone set to an RTL language (Android
   `supportsRtl="false"` and the module's `ExpoLocalization_supportsRTL` flag on both platforms,
@@ -928,7 +1020,7 @@ Newsreader (content), Inter (interface) and Anton (Music headings) come from
     configurations have `IPHONEOS_DEPLOYMENT_TARGET = 17.0`. The project-level configurations
     keep the template's 16.4, and the `CliffwordShare` extension, which sets none, inherits it;
     an extension may target an older iOS than its app, and it only runs inside the 17.0 app.
-  - **Info.plist:** the three usage strings, `ITSAppUsesNonExemptEncryption` false, the 8
+  - **Info.plist:** the usage strings (three then; two now, without Apple Music and the photo library), `ITSAppUsesNonExemptEncryption` false, the 8
     fonts in `UIAppFonts`, URL schemes `cliffword`, `app.cliffword` and `exp+cliffword` (dev
     client), `UIUserInterfaceStyle` Light, `RCTRootViewBackgroundColor` = `#F3F4F1`, iPhone
     only.
@@ -955,14 +1047,14 @@ Newsreader (content), Inter (interface) and Anton (Music headings) come from
     - iOS: pod `CliffwordMusic` from `modules/cliffword-music/ios`, class
       `CliffwordMusicModule` (no Android project: the module is Apple-only).
     - CocoaPods is not installed here, so there is no `Podfile.lock`.
-  - **Share extension:** target `CliffwordShare` (product `CliffwordShare.appex`, embedded in
+  - **Share extension** (earlier builds; gone with share-in, not re-checked in a prebuild here): target `CliffwordShare` (product `CliffwordShare.appex`, embedded in
     PlugIns with a target dependency), `PRODUCT_BUNDLE_IDENTIFIER` `app.cliffword.share-extension`,
     `ShareExtension-Info.plist` with display name `Cliffword Share`, the three activation rules,
     `com.apple.share-services` and `AppGroupIdentifier` `group.app.cliffword`; both the app's and
     the extension's entitlements list `group.app.cliffword`; `ShareViewController.swift` opens
     the `cliffword` scheme with key `cliffwordShareKey`. The app's Info.plist has
     `AppGroupIdentifier`.
-  - **Share intent (Android):** the main activity has `launchMode="singleTask"` and an
+  - **Share intent (Android)** (earlier builds): the main activity has `launchMode="singleTask"` and an
     `android.intent.action.SEND` filter for `text/plain` (category `DEFAULT`).
   - **Localization:** `android:supportsRtl="false"`, `ExpoLocalization_supportsRTL` false in
     `strings.xml` and in Info.plist; `configChanges` ends in `locale|layoutDirection`.
@@ -998,8 +1090,8 @@ Run the native checks of this folder on a copy (see "Run, test, export"); never 
 | Patch application | `"postinstall": "patch-package"`; llama.rn and expo-speech-recognition are pinned exactly (`0.13.0-rc.11`, `58.0.1`), since each patch fits one version | `npm ci` on a clean copy: both patches `✔`, the patched trees equal `node_modules`, every postinstall (llama.rn's native artifact download, @parcel/watcher) passes |
 | `modules/cliffword-native` | Swift `CliffwordNativeModule.swift` (streaming SHA-256 with CryptoKit on its own queue, `isExcludedFromBackup`, free space for important usage); Kotlin `CliffwordNativeModule.kt` and `FileSha256.kt`; `app.plugin.js` (Android backup rules for `files/models/`) | the Kotlin hash code compiled against expo-modules-core-shaped stubs (Kotlin 2.0.21) and matched `sha256sum` on the 1.1 GB model; the plugin's mods run in Jest |
 | `modules/cliffword-music` (podspec iOS 16.4+, app 17.0) | `CliffwordMusicModule.swift`, `MusicController.swift`: MusicKit authorization, `MusicLibraryRequest`, `ApplicationMusicPlayer`, the line-end pause timer | autolinking resolves it; not compiled |
-| Config plugins | `llama.rn` (C++20, no OpenCL/Hexagon, production entitlements), `expo-speech-recognition` (usage strings, Google recognizer visibility), `expo-share-intent` (the `CliffwordShare` extension target, App Group, Android SEND filter), `expo-localization` (`supportsRTL: false`), `./modules/cliffword-native/app.plugin.js`, `./plugins/withAndroidBuildTuning` (arm64-v8a only and three llama.rn CPU variants, so the from-source llama.rn build fits the EAS time limit) | prebuild of a copy (see "Checked in prebuild output") |
-| Entitlements and capabilities | `com.apple.developer.kernel.increased-memory-limit` on every build (`ios.entitlements`); App Group `group.app.cliffword` on the app and the extension; the MusicKit app service on the `app.cliffword` App ID (no entitlement key) | prebuild output with and without `EAS_BUILD_PROFILE=production` |
+| Config plugins | `llama.rn` (C++20, no OpenCL/Hexagon, production entitlements), `expo-speech-recognition` (usage strings, Google recognizer visibility), (earlier builds: `expo-share-intent`, the `CliffwordShare` extension target, App Group, Android SEND filter), `expo-localization` (`supportsRTL: false`), `./modules/cliffword-native/app.plugin.js`, `./plugins/withAndroidBuildTuning` (arm64-v8a only and three llama.rn CPU variants, so the from-source llama.rn build fits the EAS time limit) | prebuild of a copy (see "Checked in prebuild output") |
+| Entitlements and capabilities | `com.apple.developer.kernel.increased-memory-limit` on every build (`ios.entitlements`); (earlier builds: the App Group `group.app.cliffword` on the app and the share extension, gone with share-in); the MusicKit app service on the `app.cliffword` App ID (no entitlement key) | prebuild output with and without `EAS_BUILD_PROFILE=production` |
 | Startup behavior that touches the OS | iOS audio session category `playback` at start (`createNativeSpeechIn`); the model adapter follows `AppState` on iOS (`createDeviceModel`); the model download uses expo-file-system's background `URLSession` | Jest with the fakes |
 
 The local modules' native folders (`modules/cliffword-native/ios`, `modules/cliffword-native/android`,
@@ -1012,13 +1104,12 @@ without them the app links neither module (hashing falls back to `File#digest`, 
 - **iOS compile.** The patched `RNLlamaJSI.cpp` and `CliffwordScore.cpp` against
   `rnllama.xcframework` (framework headers `<rnllama/...>`, C++20); both local modules' Swift
   (Swift 5 mode against ExpoModulesCore 58); the patched `ExpoSpeechRecognitionModule.swift`;
-  the `CliffwordShare` extension target. `pod install` with the platform at iOS 17.0
+  (no `CliffwordShare` extension target any more). `pod install` with the platform at iOS 17.0
   (`CliffwordMusic` declares 16.4) and the `LLAMA_RN_CXX20` `post_install` block.
 - **iOS signing.** EAS capability sync enables increased memory limit, extended virtual
-  addressing (production), App Groups on both App IDs (`app.cliffword`,
-  `app.cliffword.share-extension`) and MusicKit. The extension's `CFBundleVersion` follows the
-  app's under `appVersionSource: "remote"` (prebuild writes `CURRENT_PROJECT_VERSION` from
-  `ios.buildNumber`; a mismatch is an App Store Connect warning).
+  addressing (production). (Earlier builds also had App Groups on `app.cliffword` and
+  `app.cliffword.share-extension`, and MusicKit; this build has no extension and no MusicKit code.
+  The App ID's leftover capabilities do no harm.)
 - **Android compile.** llama.rn builds llama.cpp from source (`rnllamaBuildFromSource=true` in
   its own `gradle.properties`), including `CliffwordScore.cpp`, for arm64-v8a and the three
   variants of `rnllamaVariants`, within the build time limit. `CliffwordNativeModule.kt` against
@@ -1041,8 +1132,9 @@ without them the app links neither module (hashing falls back to `File#digest`, 
   - On-device speech: `supportsOnDeviceRecognition('es-US' | 'es-MX' | 'es-ES')` on iOS; a
     locale without an on-device model gives `on-device-unavailable`; the Android 13+ language
     pack download.
-  - Sharing a Spotify link from another app opens the Music tab with the item (iOS share
-    extension and Android SEND).
+  - No share extension in the archive and no App Group on the App ID's entitlements any more
+    (share-in is out); no MusicKit code linked (Music is off).
+  - The model downloads by itself on Wi-Fi after onboarding, not on mobile data (expo-network).
   - Apple Music: authorization, library listing, playback and `pauseAt` within 100 ms.
   - Android loads one of the built llama.rn variants (`androidLib` in the context); a phone
     without dotprod falls back to the generic `rnllama`.

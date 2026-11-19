@@ -241,7 +241,8 @@
             "deploymentTarget": "17.0"
           }
         }
-      ]
+      ],
+      "expo-sqlite"
     ],
     "extra": {
       "router": {},

@@ -58,6 +58,7 @@ describe('the gallery stays out of store bundles', () => {
       'src/features/music/MusicPreview',
       'src/features/profile/AccountPreview',
       'src/features/story/fixtures',
+      'src/features/story/library/libraryFixtures',
       'src/features/music/fixtures',
       'src/features/profile/accountFixtures',
     ]);

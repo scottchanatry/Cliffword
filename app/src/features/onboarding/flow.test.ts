@@ -1,22 +1,36 @@
-import { nextStep, ONBOARDING_SCREENS, previousStep, resumeRoute, stepNumber } from './flow';
+import { nextStep, ONBOARDING_SCREENS, previousStep, resumeRoute, screensFor, stepPosition } from './flow';
+
+const plain = { hasChoices: false };
+const withChoices = { hasChoices: true };
 
 describe('onboarding flow', () => {
-  it('runs welcome, model, voice, slang, then done', () => {
-    expect(ONBOARDING_SCREENS).toEqual(['welcome', 'model', 'voice', 'slang']);
-    expect(nextStep('welcome')).toBe('model');
-    expect(nextStep('model')).toBe('voice');
-    expect(nextStep('voice')).toBe('slang');
-    expect(nextStep('slang')).toBe('done');
-    expect(previousStep('welcome')).toBeNull();
-    expect(previousStep('slang')).toBe('voice');
-    expect(ONBOARDING_SCREENS.map(stepNumber)).toEqual([1, 2, 3, 4]);
+  it('runs welcome, experience, level, address, mic, then done (no choices step without choices)', () => {
+    expect(ONBOARDING_SCREENS).toEqual(['welcome', 'experience', 'level', 'address', 'choices', 'mic']);
+    expect(screensFor(plain)).toEqual(['welcome', 'experience', 'level', 'address', 'mic']);
+    expect(nextStep('welcome', plain)).toBe('experience');
+    expect(nextStep('experience', plain)).toBe('level');
+    expect(nextStep('level', plain)).toBe('address');
+    expect(nextStep('address', plain)).toBe('mic');
+    expect(nextStep('mic', plain)).toBe('done');
+    expect(previousStep('welcome', plain)).toBeNull();
+    expect(previousStep('mic', plain)).toBe('address');
+    expect(stepPosition('mic', plain)).toEqual({ n: 5, total: 5 });
+  });
+
+  it('asks the experience choices after the address when there are some', () => {
+    expect(nextStep('address', withChoices)).toBe('choices');
+    expect(nextStep('choices', withChoices)).toBe('mic');
+    expect(previousStep('mic', withChoices)).toBe('choices');
+    expect(stepPosition('mic', withChoices)).toEqual({ n: 6, total: 6 });
+    // A stored choices step whose experience no longer has choices moves on.
+    expect(nextStep('choices', plain)).toBe('mic');
+    expect(previousStep('choices', plain)).toBe('address');
   });
 
   it('resumes a stored step at its route; welcome and done stay put', () => {
     expect(resumeRoute('welcome')).toBeNull();
     expect(resumeRoute('done')).toBeNull();
-    expect(resumeRoute('model')).toBe('/onboarding/model');
-    expect(resumeRoute('voice')).toBe('/onboarding/voice');
-    expect(resumeRoute('slang')).toBe('/onboarding/slang');
+    expect(resumeRoute('experience')).toBe('/onboarding/experience');
+    expect(resumeRoute('mic')).toBe('/onboarding/mic');
   });
 });

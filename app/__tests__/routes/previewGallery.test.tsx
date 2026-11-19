@@ -38,6 +38,10 @@ describe('story preview gallery', () => {
     ['b3', 'retell-countdown'],
     ['placementDone', 'placement-done'],
     ['loading', 'story-loading'],
+    ['lib-home', 'story-home'],
+    ['lib-recall-gap', 'cliff-options'],
+    ['lib-feedback-model', 'feedback'],
+    ['lib-episode-done', 'episode-done'],
   ])('/preview/%s renders the fixture', async (name, testID) => {
     await renderRouter(APP_DIR, { initialUrl: `/preview/${name}` });
     expect(await screen.findByTestId(testID, {}, { timeout: 30000 })).toBeOnTheScreen();
@@ -48,5 +52,6 @@ describe('story preview gallery', () => {
     await renderRouter(APP_DIR, { initialUrl: '/preview/index' });
     expect(await screen.findByTestId('story-preview-index')).toBeOnTheScreen();
     expect(screen.getByText('main')).toBeOnTheScreen();
+    expect(screen.getByText('lib-home')).toBeOnTheScreen();
   });
 });

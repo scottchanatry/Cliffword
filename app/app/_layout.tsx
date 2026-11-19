@@ -6,6 +6,7 @@ import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useSettings } from '../src/appState/AppStateProvider';
 import { AppBootstrap } from '../src/bootstrap/AppBootstrap';
+import { useModelAutoDownload } from '../src/features/profile/useModelAutoDownload';
 import { AppProviders } from '../src/providers/AppProviders';
 import { isOnboarded } from '../src/storage/repos/settings';
 import { colors, useAppFonts } from '../src/theme';
@@ -48,10 +49,12 @@ export default function RootLayout() {
 
 /**
  * Until onboarding is done (in its current version: isOnboarded) only the onboarding screens exist
- * (every other URL redirects to them); afterwards onboarding redirects to the Story tab.
+ * (every other URL redirects to them); afterwards onboarding redirects to the Story tab, and the
+ * language model downloads in the background on Wi-Fi (useModelAutoDownload).
  */
 function RootStack() {
   const { settings } = useSettings();
+  useModelAutoDownload();
   const onboarded = isOnboarded(settings);
   return (
     <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.ground } }}>

@@ -11,7 +11,9 @@
  *   app.json, no ShareIntentBridge in the root layout, no +native-intent); the persistent share
  *   inbox still comes through createNativeShareInbox;
  * - the Apple Music module (app/modules/cliffword-music) is only in native bundles, imported by
- *   createNativeMusicPlayer.ts alone (web: createNativeMusicPlayer.web.ts).
+ *   createNativeMusicPlayer.ts alone (web: createNativeMusicPlayer.web.ts);
+ * - expo-network is only in native bundles, imported by ExpoNetworkInfo.ts alone, reached through
+ *   createNativeNetworkInfo.ts (web: createNativeNetworkInfo.web.ts, a fixed 'unknown').
  * The export step of the verify chain bundles for real; this test catches a wrong import early.
  */
 import fs from 'fs';
@@ -153,6 +155,13 @@ describe.each(['ios', 'android'] as const)('%s bundle', (platform) => {
     expect(list).not.toContain('src/adapters/share/createNativeShareInbox.web.ts');
   });
 
+  it('reaches expo-network only through ExpoNetworkInfo (createNativeNetworkInfo)', () => {
+    expect(packagesMatching(packages, /^expo-network/)).toEqual(['expo-network']);
+    expect(packages.get('expo-network')).toEqual(['src/adapters/network/ExpoNetworkInfo.ts']);
+    expect(importersOf(files, 'src/adapters/network/ExpoNetworkInfo.ts', platform)).toEqual(['src/adapters/network/createNativeNetworkInfo.ts']);
+    expect(rel(files)).not.toContain('src/adapters/network/createNativeNetworkInfo.web.ts');
+  });
+
   it('reaches the cliffword-music module only through createNativeMusicPlayer', () => {
     const list = rel(files);
     expect(list).toEqual(
@@ -209,6 +218,12 @@ describe('web bundle', () => {
     expect(list).toContain('src/adapters/share/createNativeShareInbox.web.ts');
     expect(list.filter((f) => /ShareIntentBridge/.test(f))).toEqual([]);
     expect(list).not.toContain('src/adapters/share/createNativeShareInbox.ts');
+  });
+
+  it('keeps expo-network out (createNativeNetworkInfo.web.ts instead)', () => {
+    expect(packagesMatching(packages, /^expo-network/)).toEqual([]);
+    expect(rel(files)).toContain('src/adapters/network/createNativeNetworkInfo.web.ts');
+    expect(rel(files)).not.toContain('src/adapters/network/ExpoNetworkInfo.ts');
   });
 
   it('keeps the cliffword-music module out (createNativeMusicPlayer.web.ts instead)', () => {

@@ -9,7 +9,7 @@
  * finished episodes and their results, and the track's choices. The learner level and
  * the form of address belong to the learner and are shared by every track.
  */
-import type { LanguagePack } from '../lang/types';
+import type { LanguagePack, Pos } from '../lang/types';
 import type { LibraryStory, LibraryTrack, PairPack } from '../pair/types';
 import type { NextWord } from '../scoring/types';
 import { episodesOfTrack, isComingSoon, clampLevel } from '../content/library';
@@ -29,6 +29,8 @@ export interface EpisodePlay {
   turns: string[];
   cliffs: number;
   unaided: number;
+  /** Cliffs answered with credit (a tapped option too); missing in snapshots from before it. */
+  correct?: number;
   replay: boolean;
   /** Learner level when the episode started (the cliff mode of the whole episode). */
   level: number;
@@ -136,13 +138,39 @@ export function libraryProgressView(pair: Pick<PairPack, 'library' | 'tracks'>, 
   return { level: lib.level, address: lib.address, track: lib.track, tracks };
 }
 
+/** Open word classes: a model alternative must share one with the story's word to be shown. */
+const OPEN_CLASSES: ReadonlySet<Pos> = new Set<Pos>(['NOUN', 'PROPN', 'VERB', 'AUX', 'ADJ', 'ADV', 'NUM', 'INTJ']);
+
+/** The word classes the pack gives a word (empty when it does not know the word). */
+function classesOf(pack: Pick<LanguagePack, 'normalize' | 'analyze'>, word: string): Set<Pos> {
+  const norm = pack.normalize(word.trim());
+  return new Set(norm ? pack.analyze(norm).map((a) => a.pos) : []);
+}
+
+/**
+ * True when a model alternative can stand in the story word's slot, judged by word class
+ * (the next-word search only sees the words before the gap, so it proposes articles and
+ * prepositions that would continue the sentence, not fill the gap: 'Pancho tiene ___.'
+ * gets 'tu', 'el', 'mi'). The alternative must share an open class (noun, verb,
+ * adjective, adverb, number, interjection) with the story's word; a story word of closed
+ * classes only (a determiner or pronoun) gets no model alternative; when the pack does not
+ * know the story's word, the alternative needs an open class or to be unknown too.
+ */
+export function alternativeFits(pack: Pick<LanguagePack, 'normalize' | 'analyze'>, expected: string, alternative: string): boolean {
+  const want = classesOf(pack, expected);
+  const have = classesOf(pack, alternative);
+  if (want.size === 0) return have.size === 0 || [...have].some((c) => OPEN_CLASSES.has(c));
+  for (const c of want) if (OPEN_CLASSES.has(c) && have.has(c)) return true;
+  return false;
+}
+
 /**
  * Other natural answers for the feedback: the listed ones (accept) first, then the model's
- * alternatives at or above `floor`, never the story's words or the learner's answer, no
- * duplicates (loose comparison), at most `max`.
+ * alternatives at or above `floor` that fit the slot (alternativeFits), never the story's
+ * words or the learner's answer, no duplicates (loose comparison), at most `max`.
  */
 export function feedbackAlternatives(
-  pack: Pick<LanguagePack, 'segment' | 'normalize' | 'foldAccents'>,
+  pack: Pick<LanguagePack, 'segment' | 'normalize' | 'foldAccents' | 'analyze'>,
   args: { expected: string; answer: string; accept: readonly string[]; model: readonly NextWord[]; floor: number; max: number },
 ): string[] {
   const seen = new Set<string>([looseText(pack, args.expected), looseText(pack, args.answer)]);
@@ -154,7 +182,7 @@ export function feedbackAlternatives(
     out.push(text.trim());
   };
   for (const a of args.accept) add(a);
-  for (const a of args.model) if (a.prob >= args.floor) add(a.word);
+  for (const a of args.model) if (a.prob >= args.floor && alternativeFits(pack, args.expected, a.word)) add(a.word);
   return out;
 }
 

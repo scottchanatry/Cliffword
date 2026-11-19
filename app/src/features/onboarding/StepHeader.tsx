@@ -3,19 +3,20 @@ import { CHROME_MAX_SCALE } from '../../components/words/fontScale';
 import { useI18n } from '../../i18n';
 import { borders, colors, layout, radii, spacing } from '../../theme';
 import { Button, InterfaceText } from '../../ui';
-import { ONBOARDING_SCREENS, stepNumber, type OnboardingScreenStep } from './flow';
+import { stepPosition, type FlowContext, type OnboardingScreenStep } from './flow';
 
 export interface StepHeaderProps {
   step: OnboardingScreenStep;
+  /** The steps this learner goes through (an experience with choices adds one). */
+  ctx?: FlowContext;
   /** Back to the previous step; none on the welcome screen. */
   onBack?: () => void;
 }
 
-/** "Back" and "Step 2 of 4", with four short bars showing how far onboarding is. */
-export function StepHeader({ step, onBack }: StepHeaderProps) {
+/** "Back" and "Step 2 of 5", with a short bar per step showing how far onboarding is. */
+export function StepHeader({ step, ctx = { hasChoices: false }, onBack }: StepHeaderProps) {
   const { t } = useI18n();
-  const n = stepNumber(step);
-  const total = ONBOARDING_SCREENS.length;
+  const { n, total } = stepPosition(step, ctx);
   return (
     <View style={styles.row}>
       {onBack ? <Button variant="outline" label={t('common.back')} onPress={onBack} style={styles.back} testID="onboarding-back" /> : <View style={styles.backSpace} />}
@@ -24,8 +25,8 @@ export function StepHeader({ step, onBack }: StepHeaderProps) {
           {t('onboarding.step', { n, total })}
         </InterfaceText>
         <View style={styles.bars}>
-          {ONBOARDING_SCREENS.map((s, i) => (
-            <View key={s} style={[styles.bar, i < n ? styles.barDone : styles.barTodo]} />
+          {Array.from({ length: total }, (_, i) => (
+            <View key={i} style={[styles.bar, i < n ? styles.barDone : styles.barTodo]} />
           ))}
         </View>
       </View>

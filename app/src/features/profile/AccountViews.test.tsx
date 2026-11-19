@@ -12,7 +12,6 @@ import { renderWithProviders as renderInProviders } from '../../testing/renderWi
 import { layout } from '../../theme';
 import { ACCOUNT_FIXTURE_NAMES, isAccountFixtureName } from './accountFixtures';
 import type { ModelFileState } from '../../adapters/model/types';
-import { ModelStepView } from '../onboarding/ModelStepView';
 import { AccountPreview } from './AccountPreview';
 import { ModelCard } from './ModelCard';
 import { RATE_STEP, ratePercent, stepRate } from './RateStepper';
@@ -52,24 +51,45 @@ describe('account views', () => {
     expect(isAccountFixtureName('main')).toBe(false);
   });
 
-  it('model step: download offer, progress with "Continue while it downloads", and a space error', async () => {
-    await renderWithProviders(<AccountPreview name="onboarding-model" />);
-    expect(screen.getByRole('button', { name: 'Download (1.1 GB)' })).toBeOnTheScreen();
-    expect(screen.getByRole('button', { name: 'Not now' })).toBeOnTheScreen();
-    expect(screen.getByTestId('model-free-space')).toHaveTextContent(/^23\.4 GB free on this phone/);
-
-    await renderWithProviders(<AccountPreview name="onboarding-model-downloading" />);
-    expect(screen.getByText('Downloading… 42%')).toBeOnTheScreen();
-    expect(screen.getByRole('progressbar').props.accessibilityValue).toEqual({ min: 0, max: 100, now: 42 });
-    expect(screen.getByRole('button', { name: 'Continue while it downloads' })).toBeOnTheScreen();
-    expect(screen.getByRole('button', { name: 'Pause download' })).toBeOnTheScreen();
-
-    await renderWithProviders(<AccountPreview name="onboarding-model-error" />);
-    expect(screen.getByTestId('model-status-line')).toHaveTextContent(/Not enough free space\. The model needs 1\.7 GB free and this phone has 900 MB/);
-    expect(screen.getByRole('button', { name: 'Continue without it' })).toBeOnTheScreen();
+  it('welcome: one line on what Cliffword is and the three steps, drawn with a line of the first experience', async () => {
+    await renderWithProviders(<AccountPreview name="onboarding-welcome" />);
+    expect(screen.getByText('Learn Spanish with short, funny stories.')).toBeOnTheScreen();
+    expect(screen.getByText('Listen')).toBeOnTheScreen();
+    expect(screen.getByText('Fill the gap')).toBeOnTheScreen();
+    expect(screen.getByText('Hear how you did')).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Get started' })).toBeOnTheScreen();
   });
 
-  it('model step and Settings card: a failed size check shows what it saw, in small print', async () => {
+  it('picker: six experiences, the five without episodes coming soon and closed', async () => {
+    await renderWithProviders(<AccountPreview name="onboarding-experience" />);
+    expect(screen.getAllByTestId(/^experience-en-es\.track\.[a-z]+$/)).toHaveLength(6);
+    expect(screen.getAllByText('Coming soon')).toHaveLength(5);
+    expect(screen.getByTestId('experience-en-es.track.living')).not.toBeDisabled();
+    expect(screen.getByTestId('experience-en-es.track.food')).toBeDisabled();
+  });
+
+  it('level and address: one tap answers; the address shows a line said to a man and to a woman', async () => {
+    await renderWithProviders(<AccountPreview name="onboarding-level" />);
+    expect(screen.getByRole('radio', { name: /^Brand new/ })).toBeOnTheScreen();
+    expect(screen.getByRole('radio', { name: /^A little/ })).toBeOnTheScreen();
+    expect(screen.getByRole('radio', { name: /^Comfortable/ })).toBeOnTheScreen();
+    await renderWithProviders(<AccountPreview name="onboarding-address" />);
+    expect(screen.getByRole('radio', { name: /^As a man\. .*vecino/ })).toBeOnTheScreen();
+    expect(screen.getByRole('radio', { name: /^As a woman\. .*vecina/ }).props.accessibilityState?.checked).toBe(true);
+  });
+
+  it('microphone: why, Allow and Type instead; after a refusal, Settings and typing; the model line', async () => {
+    await renderWithProviders(<AccountPreview name="onboarding-mic" />);
+    expect(screen.getByRole('button', { name: 'Allow microphone' })).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: 'Type instead' })).toBeOnTheScreen();
+    expect(screen.getByTestId('model-note')).toHaveTextContent('A language model (1.1 GB) downloads by itself on Wi-Fi. It checks what you say, so any natural answer counts.');
+    await renderWithProviders(<AccountPreview name="onboarding-mic-denied" />);
+    expect(screen.queryByRole('button', { name: 'Allow microphone' })).toBeNull();
+    expect(screen.getByRole('button', { name: 'Open Settings' })).toBeOnTheScreen();
+    expect(screen.getByTestId('mic-status')).toHaveTextContent(/off for Cliffword/);
+  });
+
+  it('model card: a failed size check shows what it saw, in small print', async () => {
     const bytes = 1_107_409_472;
     const file: ModelFileState = {
       status: 'error',
@@ -79,25 +99,6 @@ describe('account views', () => {
     };
     const none = () => {};
     const line = 'Details: final check, 0 of 1,107,409,472 bytes after 312 s (last reported total 1,107,409,472, 1,107,409,472 received).';
-    await renderWithProviders(
-      <ModelStepView
-        file={file}
-        availability="download-failed"
-        descriptor={{ bytes }}
-        freeBytes={90_000_000_000}
-        saving={false}
-        failed={false}
-        onStart={none}
-        onPause={none}
-        onContinue={none}
-        onNotNow={none}
-        onBack={none}
-      />,
-    );
-    expect(screen.getByTestId('model-status-line')).toHaveTextContent(/incomplete, so it was deleted/);
-    expect(screen.getByTestId('model-error-detail')).toHaveTextContent(line);
-    expectAccessibleControls();
-
     await renderWithProviders(
       <ModelCard file={file} availability="download-failed" descriptor={{ bytes }} freeBytes={null} onStart={none} onPause={none} onDelete={none} />,
     );
@@ -109,29 +110,6 @@ describe('account views', () => {
       <ModelCard file={withoutDetail} availability="download-failed" descriptor={{ bytes }} freeBytes={null} onStart={none} onPause={none} onDelete={none} />,
     );
     expect(screen.queryByTestId('model-error-detail')).toBeNull();
-  });
-
-  it('voice step: hold practice when speech is ready; Settings and typing when refused', async () => {
-    await renderWithProviders(<AccountPreview name="onboarding-voice" />);
-    expect(screen.getByTestId('practice-hold')).toBeOnTheScreen();
-    expect(screen.getByRole('button', { name: 'Otra vez, again. Done' })).toBeOnTheScreen();
-    expect(screen.getByRole('button', { name: '¿Qué significa?, meaning' })).toBeOnTheScreen();
-    expect(screen.getAllByTestId(/^practice-(again|slower|dont_know|next|done|meaning)$/)).toHaveLength(6);
-    expect(screen.getByRole('radio', { name: 'Paulina' }).props.accessibilityState?.checked).toBe(true);
-
-    await renderWithProviders(<AccountPreview name="onboarding-voice-denied" />);
-    expect(screen.queryByTestId('practice-hold')).toBeNull();
-    expect(screen.getByRole('button', { name: 'Open Settings' })).toBeOnTheScreen();
-    expect(screen.getByRole('button', { name: 'Type instead' })).toBeOnTheScreen();
-  });
-
-  it('slang step: registers as radios, Puerto Rico selected, explicit on with its note', async () => {
-    await renderWithProviders(<AccountPreview name="onboarding-slang" />);
-    expect(screen.getByRole('radio', { name: 'Neutral · works anywhere' }).props.accessibilityState?.checked).toBe(true);
-    await fireEvent.press(screen.getByRole('radio', { name: 'Street · with friends' }));
-    expect(screen.getByRole('radio', { name: 'Street · with friends' }).props.accessibilityState?.checked).toBe(true);
-    expect(screen.getByRole('togglebutton', { name: 'Puerto Rico' }).props.accessibilityState?.checked).toBe(true);
-    expect(screen.getByTestId('explicit-note')).toHaveTextContent(/^On by default/);
   });
 
   it('profile: the minutes are the first heading; a new learner gets an early skill hint', async () => {
@@ -148,13 +126,19 @@ describe('account views', () => {
     expect(screen.getByTestId('skill-hint')).toHaveTextContent('Your mix shows up after a few stories.');
   });
 
-  it('settings: switches and radios show their state; the confirm sheet asks first', async () => {
+  it('settings: the experience, the address and the level; no music rows; the confirm sheet asks first', async () => {
     await renderWithProviders(<AccountPreview name="settings" />);
-    expect(screen.getByRole('switch', { name: 'Explicit lyrics' }).props.accessibilityState?.checked).toBe(true);
+    expect(screen.getByTestId('settings-experience-title')).toHaveTextContent('Living in San Juan');
+    expect(screen.getByRole('radio', { name: 'As a woman' }).props.accessibilityState?.checked).toBe(true);
+    await fireEvent.press(screen.getByRole('radio', { name: 'As a man' }));
+    expect(screen.getByRole('radio', { name: 'As a man' }).props.accessibilityState?.checked).toBe(true);
+    expect(screen.getByRole('radio', { name: '1' }).props.accessibilityState?.checked).toBe(true);
+    expect(screen.getByText(/^Level 1: hear it, then pick the word/)).toBeOnTheScreen();
     expect(screen.getByRole('switch', { name: 'On-device recognition only' }).props.accessibilityState?.checked).toBe(true);
-    await fireEvent.press(screen.getByRole('switch', { name: 'Explicit lyrics' }));
-    expect(screen.getByRole('switch', { name: 'Explicit lyrics' }).props.accessibilityState?.checked).toBe(false);
-    expect(screen.getByTestId('settings-apple-music-hint')).toHaveTextContent(/^Connected/);
+    // Music is off: no explicit lyrics, Apple Music or lyrics rows.
+    expect(screen.queryByRole('switch', { name: 'Explicit lyrics' })).toBeNull();
+    expect(screen.queryByTestId('settings-apple-music')).toBeNull();
+    expect(screen.queryByTestId('settings-delete-content')).toBeNull();
     expect(screen.getByText('Privacy')).toBeOnTheScreen();
     expect(screen.getByText('No account, no analytics, no ads.')).toBeOnTheScreen();
     await fireEvent.press(screen.getByRole('button', { name: 'Reset progress' }));

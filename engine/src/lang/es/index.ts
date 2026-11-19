@@ -29,12 +29,21 @@ export interface SpanishPackOptions {
   streetEndings?: readonly (readonly [string, string])[];
   /** Overrides SPANISH_ABBREVIATIONS (no sentence end after "Sr."). */
   abbreviations?: readonly string[];
+  /** Overrides SPANISH_REPLY_CUE (who answers a character's question, for the judge). */
+  replyCue?: Readonly<Partial<Record<'m' | 'f', string>>>;
   /** Overrides SPANISH_STORY_DATA (story-generation prompt wording and output checks). */
   story?: StoryLanguageData;
 }
 
 /** Fixed context for scoring a Spanish sentence; the prefix measured in the proof test. */
 export const SPANISH_SCORING_PREFIX = 'Frase en español:\n';
+
+/**
+ * Who answers a character's question (LanguagePack.replyCue). Measured on Qwen3-1.7B after
+ * "¡Buenos días, vecino! ¿Cómo estás?": a man's "Estoy cansado, gracias." went from a gender
+ * hint (+2.71) to ok (-4.83) with 'Él responde:', and a woman's "cansada" stayed ok.
+ */
+export const SPANISH_REPLY_CUE: Readonly<Record<'m' | 'f', string>> = Object.freeze({ m: 'Él responde:', f: 'Ella responde:' });
 
 /**
  * Clipped forms in register packs that start or end with an apostrophe ('tá, pa'),
@@ -95,6 +104,7 @@ export function createSpanishPack(opts: SpanishPackOptions = {}): LanguagePack {
     fillers: opts.fillers ?? SPANISH_FILLERS,
     streetEndings: opts.streetEndings ?? SPANISH_STREET_ENDINGS,
     abbreviations: opts.abbreviations ?? SPANISH_ABBREVIATIONS,
+    replyCue: opts.replyCue ?? SPANISH_REPLY_CUE,
     story: opts.story ?? SPANISH_STORY_DATA,
   };
 }

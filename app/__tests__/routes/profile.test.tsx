@@ -9,13 +9,16 @@ import { Linking, StyleSheet } from 'react-native';
 import { fireEvent, renderRouter, screen, waitFor, within } from 'expo-router/testing-library';
 import { estimateVocabulary, frequencyLexemeKeys } from '@cliffword/engine';
 import { FakeMusicPlayer } from '../../src/adapters/music/FakeMusicPlayer';
+import { MUSIC_ENABLED } from '../../src/config/features';
 import { CONTACT_EMAIL, PRIVACY_URL, SUPPORT_URL } from '../../src/config/links';
 import { learnerPrior } from '../../src/learner/prior';
 import { setAppServices } from '../../src/services/appServices';
 import { defaultPacks, sharedMockModel } from '../../src/services/defaults';
 import { createTestServices } from '../../src/services/testServices';
 import type { Services } from '../../src/services/types';
+import { ONBOARDED } from '../../src/storage/repos/settings';
 import { loadSqlJs } from '../../src/storage/sql/sqljs';
+import { livingTrack } from '../../src/testing/packs';
 import { layout } from '../../src/theme';
 
 const APP_DIR = path.resolve(__dirname, '../../app');
@@ -44,7 +47,7 @@ function install<S extends Services>(services: S): S {
 /** Storage as a returning learner left it. */
 async function onboarded(services: Services) {
   const storage = await services.storage.open();
-  await storage.settings.update({ onboarded: true, onboardingStep: 'done', startLevel: 'brandNew' });
+  await storage.settings.update({ ...ONBOARDED, startLevel: 'brandNew', trackId: livingTrack().id });
   return storage;
 }
 
@@ -106,8 +109,34 @@ describe('profile', () => {
   });
 });
 
+// Music is off in this build (src/config/features.ts); its rows come back with it.
+const itMusic = MUSIC_ENABLED ? it : it.skip;
+
 describe('settings', () => {
-  it('stores each change, and the Music tab sees explicit lyrics off and the regions', async () => {
+  it('stores the story rows: another experience refused while coming soon, the address, the level', async () => {
+    const services = install(createTestServices());
+    const storage = await onboarded(services);
+    await openSettings();
+    expectAccessibleControls();
+    expect(screen.getByTestId('settings-experience-title')).toHaveTextContent('Living in San Juan');
+    await fireEvent.press(screen.getByRole('radio', { name: 'As a woman' }));
+    await fireEvent.press(screen.getByRole('radio', { name: '4' }));
+    await waitFor(() => expect(checked('radio', '4')).toBe(true));
+    expect(screen.getByText(/^Level 4: say what comes next/)).toBeOnTheScreen();
+    expect(await storage.settings.getAll()).toMatchObject({ address: 'f', level: 4 });
+    // Change: the picker, with the experiences not written yet closed.
+    await fireEvent.press(screen.getByTestId('settings-experience-change'));
+    expect(await screen.findByTestId('experience-picker')).toBeOnTheScreen();
+    expect(screen.getByTestId('experience-en-es.track.food')).toBeDisabled();
+    await fireEvent.press(screen.getByTestId('picker-close'));
+    expect(screen.queryByTestId('experience-picker')).toBeNull();
+    // Music is off: no explicit lyrics, Apple Music or lyrics rows.
+    expect(screen.queryByTestId('settings-explicit')).toBeNull();
+    expect(screen.queryByTestId('settings-apple-music')).toBeNull();
+    expect(screen.queryByTestId('settings-delete-content')).toBeNull();
+  });
+
+  itMusic('stores each change, and the Music tab sees explicit lyrics off and the regions', async () => {
     const services = install(createTestServices());
     const storage = await onboarded(services);
     await openSettings();
@@ -179,7 +208,7 @@ describe('settings', () => {
     await waitFor(() => expect(services.modelManager.status()).toBe('ready'));
   });
 
-  it('connects Apple Music from its row', async () => {
+  itMusic('connects Apple Music from its row', async () => {
     const services = install(createTestServices({ music: new FakeMusicPlayer({ authorization: 'notDetermined' }) }));
     await onboarded(services);
     await openSettings();
@@ -189,7 +218,7 @@ describe('settings', () => {
     expect(services.music.authorization).toBe('authorized');
   });
 
-  it('deletes every lyric and text, keeping the songs and the story', async () => {
+  itMusic('deletes every lyric and text, keeping the songs and the story', async () => {
     const services = install(createTestServices());
     const storage = await onboarded(services);
     const song = await storage.songs.upsert({ source: 'manual', title: 'Luna de Santurce', artist: 'Rayo K.' });
@@ -227,18 +256,18 @@ describe('settings', () => {
     await storage.modelFiles.upsert({ id: 'qwen3-1.7b-q4_k_m', path: '/models/q.gguf', status: 'ready' });
 
     await renderRouter(APP_DIR, { initialUrl: '/' });
-    expect(await screen.findByTestId('story-screen')).toBeOnTheScreen();
-    expect(await screen.findByTestId('cliff-card')).toBeOnTheScreen();
+    expect(await screen.findByTestId('story-home')).toBeOnTheScreen();
     await fireEvent.press(screen.getByRole('button', { name: 'Open profile and settings' }));
     await fireEvent.press(await screen.findByRole('link', { name: 'Settings' }));
     await fireEvent.press(await screen.findByRole('button', { name: 'Reset progress' }));
     expect(await screen.findByText('Reset your progress?')).toBeOnTheScreen();
     await fireEvent.press(screen.getByTestId('confirm-sheet-confirm'));
 
-    // Back on the Story tab (no onboarding), where the first story starts again.
+    // Back on the Story tab (no onboarding), where the experience starts again.
     await waitFor(() => expect(screen).toHavePathname('/'));
     expect(screen.queryByTestId('onboarding-screen')).toBeNull();
-    expect(await screen.findByTestId('cliff-options')).toBeOnTheScreen();
+    expect(await screen.findByTestId('story-home')).toBeOnTheScreen();
+    expect(screen.getByTestId('home-continue').props.accessibilityLabel).toMatch(/^Start: Episode 1 · /);
 
     expect(await storage.learner.eventsForKey('es:mercado')).toEqual([]);
     expect(await storage.spokenTime.total()).toBe(0);
@@ -313,7 +342,7 @@ describe('settings', () => {
 });
 
 describe('gallery', () => {
-  it.each(['onboarding-welcome', 'onboarding-voice', 'profile', 'settings', 'selftest'])('/preview/%s renders the fixture', async (name) => {
+  it.each(['onboarding-welcome', 'onboarding-mic', 'profile', 'settings', 'selftest'])('/preview/%s renders the fixture', async (name) => {
     install(createTestServices());
     await renderRouter(APP_DIR, { initialUrl: `/preview/${name}` });
     expect(await screen.findByTestId('account-preview')).toBeOnTheScreen();

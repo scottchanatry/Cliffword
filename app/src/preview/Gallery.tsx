@@ -12,13 +12,14 @@ import { MusicPreview } from '../features/music/MusicPreview';
 import { ACCOUNT_FIXTURE_NAMES, isAccountFixtureName } from '../features/profile/accountFixtures';
 import { AccountPreview } from '../features/profile/AccountPreview';
 import { STORY_FIXTURE_NAMES, isStoryFixtureName } from '../features/story/fixtures';
+import { LIBRARY_FIXTURE_NAMES, isLibraryFixtureName } from '../features/story/library/libraryFixtures';
 import { StoryPreview } from '../features/story/StoryPreview';
 import { useI18n } from '../i18n';
 import { colors, layout, spacing } from '../theme';
 import { Text } from '../ui';
 
 export function PreviewGallery({ name }: { name: string }) {
-  if (isStoryFixtureName(name)) return <StoryPreview name={name} />;
+  if (isStoryFixtureName(name) || isLibraryFixtureName(name)) return <StoryPreview name={name} />;
   if (isMusicFixtureName(name)) return <MusicPreview name={name} />;
   if (isAccountFixtureName(name)) return <AccountPreview name={name} />;
   return <PreviewIndex />;
@@ -27,7 +28,7 @@ export function PreviewGallery({ name }: { name: string }) {
 /** Every fixture name, by area, each a link (the 44 dp row is the target). */
 function PreviewIndex() {
   const { t } = useI18n();
-  const groups = [STORY_FIXTURE_NAMES, MUSIC_FIXTURE_NAMES, ACCOUNT_FIXTURE_NAMES];
+  const groups = [LIBRARY_FIXTURE_NAMES, STORY_FIXTURE_NAMES, MUSIC_FIXTURE_NAMES, ACCOUNT_FIXTURE_NAMES];
   return (
     <SafeAreaView style={styles.root} testID="story-preview-index">
       <ScrollView contentContainerStyle={styles.list}>

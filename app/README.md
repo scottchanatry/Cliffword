@@ -888,9 +888,10 @@ Newsreader (content), Inter (interface) and Anton (Music headings) come from
   - `enableOpenCLAndHexagon: false`, so Android loads llama.rn's CPU library variants and no
     OpenCL or Hexagon `uses-native-library` entries are added (the adapter runs Android on the
     CPU);
-  - `enableEntitlements` with `entitlementsProfile: "production"`, which adds
-    `com.apple.developer.kernel.extended-virtual-addressing` and `increased-memory-limit` to
-    production builds.
+  - `enableEntitlements: false`: the plugin would add
+    `com.apple.developer.kernel.extended-virtual-addressing` to production builds, which the
+    App Store provisioning profile does not carry (build 3 failed on it) and a 1.1 GB model
+    does not need. `increased-memory-limit` comes from `ios.entitlements` instead.
 
   `ios.entitlements` sets `com.apple.developer.kernel.increased-memory-limit` for every build,
   because the model needs about 1.2 GB. `./modules/cliffword-native/app.plugin.js` (no options)
@@ -925,8 +926,8 @@ Newsreader (content), Inter (interface) and Anton (Music headings) come from
     client), `UIUserInterfaceStyle` Light, `RCTRootViewBackgroundColor` = `#F3F4F1`, iPhone
     only.
   - **Entitlements and build settings:**
-    - `Cliffword.entitlements` has `increased-memory-limit`, and with
-      `EAS_BUILD_PROFILE=production` also `extended-virtual-addressing`;
+    - `Cliffword.entitlements` has `increased-memory-limit` and the App Group, in every
+      profile (no `extended-virtual-addressing`);
     - the app target uses `gnu++20`, and the Podfile `post_install` forces C++20 on every pod
       (`LLAMA_RN_CXX20`);
     - there is no OpenCL `uses-native-library` in the AndroidManifest.
@@ -991,7 +992,7 @@ Run the native checks of this folder on a copy (see "Run, test, export"); never 
 | `modules/cliffword-native` | Swift `CliffwordNativeModule.swift` (streaming SHA-256 with CryptoKit on its own queue, `isExcludedFromBackup`, free space for important usage); Kotlin `CliffwordNativeModule.kt` and `FileSha256.kt`; `app.plugin.js` (Android backup rules for `files/models/`) | the Kotlin hash code compiled against expo-modules-core-shaped stubs (Kotlin 2.0.21) and matched `sha256sum` on the 1.1 GB model; the plugin's mods run in Jest |
 | `modules/cliffword-music` (podspec iOS 16.4+, app 17.0) | `CliffwordMusicModule.swift`, `MusicController.swift`: MusicKit authorization, `MusicLibraryRequest`, `ApplicationMusicPlayer`, the line-end pause timer | autolinking resolves it; not compiled |
 | Config plugins | `llama.rn` (C++20, no OpenCL/Hexagon, production entitlements), `expo-speech-recognition` (usage strings, Google recognizer visibility), `expo-share-intent` (the `CliffwordShare` extension target, App Group, Android SEND filter), `expo-localization` (`supportsRTL: false`), `./modules/cliffword-native/app.plugin.js`, `./plugins/withAndroidBuildTuning` (arm64-v8a only and three llama.rn CPU variants, so the from-source llama.rn build fits the EAS time limit) | prebuild of a copy (see "Checked in prebuild output") |
-| Entitlements and capabilities | `com.apple.developer.kernel.increased-memory-limit` on every build (`ios.entitlements`); `extended-virtual-addressing` on production builds (llama.rn plugin); App Group `group.app.cliffword` on the app and the extension; the MusicKit app service on the `app.cliffword` App ID (no entitlement key) | prebuild output with and without `EAS_BUILD_PROFILE=production` |
+| Entitlements and capabilities | `com.apple.developer.kernel.increased-memory-limit` on every build (`ios.entitlements`); App Group `group.app.cliffword` on the app and the extension; the MusicKit app service on the `app.cliffword` App ID (no entitlement key) | prebuild output with and without `EAS_BUILD_PROFILE=production` |
 | Startup behavior that touches the OS | iOS audio session category `playback` at start (`createNativeSpeechIn`); the model adapter follows `AppState` on iOS (`createDeviceModel`); the model download uses expo-file-system's background `URLSession` | Jest with the fakes |
 
 The local modules' native folders (`modules/cliffword-native/ios`, `modules/cliffword-native/android`,

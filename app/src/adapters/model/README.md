@@ -38,8 +38,8 @@ implementations:
 | `flash_attn_type` | `'off'` | With it on, llama.cpp's CPU backend moved sentence scores by up to 1.08 nats from the proof's numbers (`native-tests/scoring/README.md`). With it off they are identical. |
 
 The app needs about 1.2 GB. iOS gets `com.apple.developer.kernel.increased-memory-limit` in every
-build from `app.json` (`ios.entitlements`). llama.rn's config plugin adds it, plus
-`extended-virtual-addressing`, for the `production` EAS profile.
+build from `app.json` (`ios.entitlements`). llama.rn's own entitlements option is off: it would
+add `extended-virtual-addressing`, which the App Store profile lacks and the model does not need.
 
 ## Scoring: the native method (the llama.rn patch)
 

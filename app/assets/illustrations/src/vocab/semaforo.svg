@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" stroke-linejoin="round" stroke-linecap="round">
+  <title>Semáforo</title>
+  <desc>Semáforo: a traffic light</desc>
+  <g transform="translate(128 127) scale(0.99 0.99)">
+    <rect x="-14" y="70" width="28" height="34" rx="4" fill="#5B616B" stroke="#16181D" stroke-width="4"/>
+    <rect x="-46" y="-102" width="92" height="180" rx="24" fill="#16181D" stroke="#16181D" stroke-width="4"/>
+    <circle cx="0" cy="-58" r="22" fill="#EF6A57"/>
+    <circle cx="0" cy="-10" r="22" fill="#FFC46B"/>
+    <circle cx="0" cy="38" r="22" fill="#62AD52"/>
+    <path d="M -28 -74 Q 0 -92 28 -74" fill="none" stroke="#5B616B" stroke-width="6.1"/>
+    <path d="M -28 -26 Q 0 -44 28 -26" fill="none" stroke="#5B616B" stroke-width="6.1"/>
+    <path d="M -28 22 Q 0 4 28 22" fill="none" stroke="#5B616B" stroke-width="6.1"/>
+    <circle cx="-7" cy="31" r="6" fill="#F3F4F1"/>
+    <path d="M 31.9 26.4 L 43.2 22.3" fill="none" stroke="#16181D" stroke-width="4"/>
+    <path d="M 34 38 L 46 38" fill="none" stroke="#16181D" stroke-width="4"/>
+    <path d="M 31.9 49.6 L 43.2 53.7" fill="none" stroke="#16181D" stroke-width="4"/>
+    <path d="M -31.9 49.6 L -43.2 53.7" fill="none" stroke="#16181D" stroke-width="4"/>
+    <path d="M -34 38 L -46 38" fill="none" stroke="#16181D" stroke-width="4"/>
+    <path d="M -31.9 26.4 L -43.2 22.3" fill="none" stroke="#16181D" stroke-width="4"/>
+  </g>
+</svg>

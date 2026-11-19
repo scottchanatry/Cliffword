@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" stroke-linejoin="round" stroke-linecap="round">
+  <title>Dinero</title>
+  <desc>Dinero: bills and coins</desc>
+  <g transform="translate(123.8 125.7) scale(0.933 0.933)">
+    <g transform="translate(-6 -24) rotate(-12)">
+      <rect x="-92" y="-50" width="184" height="100" rx="10" fill="#62AD52" stroke="#16181D" stroke-width="4.3"/>
+      <rect x="-80" y="-38" width="160" height="76" rx="6" fill="none" stroke="#FFE9C7" stroke-width="3.2"/>
+      <circle cx="0" cy="0" r="24" fill="#FFE9C7" stroke="#16181D" stroke-width="3.2"/>
+      <g transform="translate(0 14) scale(0.9 0.9)">
+        <path d="M 0 0 C -12 -8 -14 -26 0 -32 C 14 -26 12 -8 0 0 Z" fill="#62AD52" stroke="#16181D" stroke-width="3.6"/>
+      </g>
+      <circle cx="-62" cy="-20" r="7" fill="#FFE9C7"/>
+      <circle cx="62" cy="20" r="7" fill="#FFE9C7"/>
+    </g>
+    <g transform="translate(4 6) rotate(4)">
+      <rect x="-92" y="-50" width="184" height="100" rx="10" fill="#62AD52" stroke="#16181D" stroke-width="4.3"/>
+      <rect x="-80" y="-38" width="160" height="76" rx="6" fill="none" stroke="#FFE9C7" stroke-width="3.2"/>
+      <circle cx="0" cy="0" r="24" fill="#FFE9C7" stroke="#16181D" stroke-width="3.2"/>
+      <g transform="translate(0 14) scale(0.9 0.9)">
+        <path d="M 0 0 C -12 -8 -14 -26 0 -32 C 14 -26 12 -8 0 0 Z" fill="#62AD52" stroke="#16181D" stroke-width="3.6"/>
+      </g>
+      <circle cx="-62" cy="-20" r="7" fill="#FFE9C7"/>
+      <circle cx="62" cy="20" r="7" fill="#FFE9C7"/>
+    </g>
+    <g transform="translate(46 66)">
+      <circle cx="0" cy="0" r="30" fill="#FFC46B" stroke="#16181D" stroke-width="4.3"/>
+      <circle cx="0" cy="0" r="21" fill="none" stroke="#F08A1D" stroke-width="3.2"/>
+      <path d="M 0 -11 Q 2 -2 11 0 Q 2 2 0 11 Q -2 2 -11 0 Q -2 -2 0 -11 Z" fill="#F08A1D" stroke="#16181D" stroke-width="3.2"/>
+    </g>
+    <g transform="translate(84 40)">
+      <circle cx="0" cy="0" r="30" fill="#FFC46B" stroke="#16181D" stroke-width="4.3"/>
+      <circle cx="0" cy="0" r="21" fill="none" stroke="#F08A1D" stroke-width="3.2"/>
+      <path d="M 0 -11 Q 2 -2 11 0 Q 2 2 0 11 Q -2 2 -11 0 Q -2 -2 0 -11 Z" fill="#F08A1D" stroke="#16181D" stroke-width="3.2"/>
+    </g>
+  </g>
+</svg>

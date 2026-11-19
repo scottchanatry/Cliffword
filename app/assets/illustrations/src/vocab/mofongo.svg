@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" stroke-linejoin="round" stroke-linecap="round">
+  <title>Mofongo</title>
+  <desc>Mofongo: mashed fried plantain in a wooden pilón</desc>
+  <g transform="translate(128 130.7) scale(1.078 1.078)">
+    <path d="M -34 58 L 34 58 L 46 92 L -46 92 Z" fill="#B4530A" stroke="#16181D" stroke-width="3.7"/>
+    <path d="M -84 -2 L 84 -2 C 82 46 52 68 0 68 C -52 68 -82 46 -84 -2 Z" fill="#B4530A" stroke="#16181D" stroke-width="3.7"/>
+    <path d="M -66 30 Q 0 48 66 30 M -50 50 Q 0 62 50 50" fill="none" stroke="#F08A1D" stroke-width="2.8"/>
+    <path d="M -66 -2 Q -72 -4 -72.2 -13.2 Q -72.4 -22.4 -67.9 -30 Q -63.4 -37.6 -63.4 -47.8 Q -63.3 -58.1 -55.6 -61.7 Q -47.9 -65.2 -44.9 -74.7 Q -41.9 -84.2 -34.4 -85.4 Q -26.8 -86.6 -20.4 -90.5 Q -14.1 -94.5 -7 -96.3 Q 0 -98.1 6.7 -94.2 Q 13.4 -90.2 21.3 -92.1 Q 29.1 -93.9 33.4 -84.9 Q 37.6 -76 45.5 -74.1 Q 53.5 -72.3 55.7 -62.9 Q 58 -53.5 62.5 -46.5 Q 66.9 -39.4 69.5 -30.9 Q 72 -22.3 70.5 -13.2 Q 69 -4 64.5 -2 Q 60 0 0 0 Q -60 0 -66 -2 Z" fill="#FFC46B" stroke="#16181D" stroke-width="3.7"/>
+    <path d="M -44 -50 Q -36 -58 -26 -56 M 8 -76 Q 18 -80 26 -72 M 30 -30 Q 40 -36 50 -30 M -30 -20 Q -20 -26 -10 -22 M -56 -20 Q -50 -28 -42 -28 M 2 -42 Q 10 -48 18 -44" fill="none" stroke="#F08A1D" stroke-width="2.8"/>
+    <g transform="translate(-22 -66) rotate(20)">
+      <path d="M -13 -6 C -6 -12 8 -12 13 -4 C 15 5 6 9 -4 8 C -12 7 -15 0 -13 -6 Z" fill="#B4530A" stroke="#16181D" stroke-width="2.8"/>
+      <path d="M -6 -4 Q 0 -8 7 -4" fill="none" stroke="#FFE9C7" stroke-width="2.3"/>
+    </g>
+    <g transform="translate(40 -54) rotate(-14)">
+      <path d="M -13 -6 C -6 -12 8 -12 13 -4 C 15 5 6 9 -4 8 C -12 7 -15 0 -13 -6 Z" fill="#B4530A" stroke="#16181D" stroke-width="2.8"/>
+      <path d="M -6 -4 Q 0 -8 7 -4" fill="none" stroke="#FFE9C7" stroke-width="2.3"/>
+    </g>
+    <g transform="translate(-48 -36) rotate(-24)">
+      <path d="M -13 -6 C -6 -12 8 -12 13 -4 C 15 5 6 9 -4 8 C -12 7 -15 0 -13 -6 Z" fill="#B4530A" stroke="#16181D" stroke-width="2.8"/>
+      <path d="M -6 -4 Q 0 -8 7 -4" fill="none" stroke="#FFE9C7" stroke-width="2.3"/>
+    </g>
+    <g transform="translate(14 -18) rotate(8)">
+      <path d="M -13 -6 C -6 -12 8 -12 13 -4 C 15 5 6 9 -4 8 C -12 7 -15 0 -13 -6 Z" fill="#B4530A" stroke="#16181D" stroke-width="2.8"/>
+      <path d="M -6 -4 Q 0 -8 7 -4" fill="none" stroke="#FFE9C7" stroke-width="2.3"/>
+    </g>
+    <g transform="translate(52 -14) rotate(30)">
+      <path d="M -13 -6 C -6 -12 8 -12 13 -4 C 15 5 6 9 -4 8 C -12 7 -15 0 -13 -6 Z" fill="#B4530A" stroke="#16181D" stroke-width="2.8"/>
+      <path d="M -6 -4 Q 0 -8 7 -4" fill="none" stroke="#FFE9C7" stroke-width="2.3"/>
+    </g>
+    <rect x="-92" y="-12" width="184" height="18" rx="9" fill="#B4530A" stroke="#16181D" stroke-width="3.7"/>
+  </g>
+</svg>

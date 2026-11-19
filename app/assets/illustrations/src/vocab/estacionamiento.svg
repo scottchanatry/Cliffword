@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" stroke-linejoin="round" stroke-linecap="round">
+  <title>Estacionamiento</title>
+  <desc>Estacionamiento: a car in a parking space</desc>
+  <g transform="translate(128 128) scale(1.04 1.04)">
+    <rect x="-98" y="-98" width="196" height="196" rx="30" fill="#5B616B" stroke="#16181D" stroke-width="3.8"/>
+    <rect x="-80" y="-84" width="10" height="168" rx="5" fill="#F3F4F1"/>
+    <rect x="70" y="-84" width="10" height="168" rx="5" fill="#F3F4F1"/>
+    <rect x="-34" y="72" width="68" height="12" rx="6" fill="#FFC46B" stroke="#16181D" stroke-width="2.9"/>
+    <g transform="translate(0 -8)">
+      <rect x="-42" y="-72" width="84" height="140" rx="30" fill="#EF6A57" stroke="#16181D" stroke-width="3.8"/>
+      <rect x="-48" y="-40" width="10" height="16" rx="4" fill="#16181D"/>
+      <rect x="38" y="-40" width="10" height="16" rx="4" fill="#16181D"/>
+      <path d="M -32 -36 C -24 -48 24 -48 32 -36 L 26 -16 C 10 -20 -10 -20 -26 -16 Z" fill="#A8DBF0" stroke="#16181D" stroke-width="2.9"/>
+      <rect x="-26" y="-14" width="52" height="50" rx="12" fill="#EF6A57" stroke="#16181D" stroke-width="2.9"/>
+      <path d="M -26 40 C -10 36 10 36 26 40 L 30 52 C 10 58 -10 58 -30 52 Z" fill="#A8DBF0" stroke="#16181D" stroke-width="2.9"/>
+      <ellipse cx="-28" cy="-64" rx="7" ry="4" fill="#FFC46B"/>
+      <ellipse cx="28" cy="-64" rx="7" ry="4" fill="#FFC46B"/>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" stroke-linejoin="round" stroke-linecap="round">
+  <title>Bolsa</title>
+  <desc>Bolsa: a shopping bag</desc>
+  <g transform="translate(128 143.9) scale(0.937 0.937)">
+    <path d="M -36 -40 C -36 -104 36 -104 36 -40" fill="none" stroke="#16181D" stroke-width="16.5"/>
+    <path d="M -36 -40 C -36 -104 36 -104 36 -40" fill="none" stroke="#F08A1D" stroke-width="8"/>
+    <g transform="translate(-20 -60) rotate(-14)">
+      <path d="M -16 0 C -18 -40 -10 -70 4 -74 C 16 -70 18 -40 16 0 Z" fill="#FFC46B" stroke="#16181D" stroke-width="4.3"/>
+      <path d="M -6 -56 L 6 -50 M -6 -38 L 6 -32" fill="none" stroke="#F08A1D" stroke-width="3.2"/>
+    </g>
+    <g transform="translate(26 -50)">
+      <g transform="rotate(-30) scale(1.3 1.3)">
+        <path d="M 0 0 C -12 -8 -14 -26 0 -32 C 14 -26 12 -8 0 0 Z" fill="#62AD52" stroke="#16181D" stroke-width="2.5"/>
+      </g>
+      <g transform="rotate(10) scale(1.4 1.4)">
+        <path d="M 0 0 C -12 -8 -14 -26 0 -32 C 14 -26 12 -8 0 0 Z" fill="#62AD52" stroke="#16181D" stroke-width="2.3"/>
+      </g>
+      <g transform="rotate(40) scale(1.2 1.2)">
+        <path d="M 0 0 C -12 -8 -14 -26 0 -32 C 14 -26 12 -8 0 0 Z" fill="#62AD52" stroke="#16181D" stroke-width="2.7"/>
+      </g>
+    </g>
+    <path d="M -72 -42 L 72 -42 L 82 92 L -82 92 Z" fill="#2E9C92" stroke="#16181D" stroke-width="4.3"/>
+    <rect x="-72" y="-42" width="144" height="16" fill="#FFE9C7" stroke="#16181D" stroke-width="3.2"/>
+    <circle cx="0" cy="30" r="24" fill="#FFC46B" stroke="#16181D" stroke-width="3.2"/>
+    <path d="M 30 30 L 38 30" fill="none" stroke="#FFE9C7" stroke-width="4.3"/>
+    <path d="M 15 56 L 19 62.9" fill="none" stroke="#FFE9C7" stroke-width="4.3"/>
+    <path d="M -15 56 L -19 62.9" fill="none" stroke="#FFE9C7" stroke-width="4.3"/>
+    <path d="M -30 30 L -38 30" fill="none" stroke="#FFE9C7" stroke-width="4.3"/>
+    <path d="M -15 4 L -19 -2.9" fill="none" stroke="#FFE9C7" stroke-width="4.3"/>
+    <path d="M 15 4 L 19 -2.9" fill="none" stroke="#FFE9C7" stroke-width="4.3"/>
+  </g>
+</svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" stroke-linejoin="round" stroke-linecap="round">
+  <title>Coco frío</title>
+  <desc>Coco frío: a cold green coconut with a straw</desc>
+  <g transform="translate(128 147.3) scale(0.963 0.963)">
+    <path d="M 4 -64 L 40 -124" fill="none" stroke="#16181D" stroke-width="18.3"/>
+    <path d="M 4 -64 L 40 -124" fill="none" stroke="#EF6A57" stroke-width="10"/>
+    <path d="M 18 -88 L 26 -84 M 28 -104 L 36 -100" fill="none" stroke="#F3F4F1" stroke-width="4.2"/>
+    <path d="M -72 12 C -78 -48 -40 -76 0 -76 C 40 -76 78 -48 72 12 C 66 62 32 86 0 86 C -32 86 -66 62 -72 12 Z" fill="#62AD52" stroke="#16181D" stroke-width="4.2"/>
+    <path d="M -30 -60 C -50 -10 -46 40 -24 76 M 30 -60 C 50 -10 46 40 24 76" fill="none" stroke="#2E9C92" stroke-width="3.1"/>
+    <ellipse cx="0" cy="-62" rx="36" ry="12" fill="#F3F4F1" stroke="#16181D" stroke-width="4.2"/>
+    <ellipse cx="0" cy="-62" rx="26" ry="7" fill="#FFE9C7"/>
+    <path d="M 4 -62 L 30 -106" fill="none" stroke="#16181D" stroke-width="18.3"/>
+    <path d="M 4 -62 L 30 -106" fill="none" stroke="#EF6A57" stroke-width="10"/>
+    <path d="M 14 -78 L 22 -76 M 22 -92 L 30 -90" fill="none" stroke="#F3F4F1" stroke-width="4.2"/>
+    <path d="M -56 0 Q -54 -30 -38 -46" fill="none" stroke="#FFE9C7" stroke-width="6.2"/>
+  </g>
+</svg>

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" stroke-linejoin="round" stroke-linecap="round">
+  <title>Protector solar</title>
+  <desc>Protector solar: a bottle of sunscreen</desc>
+  <g transform="translate(120.2 134.7) scale(1.035 1.035)">
+    <path d="M 66 -84 Q 68.5 -72.5 80 -70 Q 68.5 -67.5 66 -56 Q 63.5 -67.5 52 -70 Q 63.5 -72.5 66 -84 Z" fill="#FFC46B" stroke="#16181D" stroke-width="2.9"/>
+    <g transform="translate(-8 0) rotate(10)">
+      <rect x="-20" y="-104" width="40" height="22" rx="6" fill="#EF6A57" stroke="#16181D" stroke-width="3.9"/>
+      <rect x="-30" y="-86" width="60" height="30" rx="8" fill="#EF6A57" stroke="#16181D" stroke-width="3.9"/>
+      <path d="M -42 -58 L 42 -58 C 48 0 48 50 42 86 L -42 86 C -48 50 -48 0 -42 -58 Z" fill="#FFC46B" stroke="#16181D" stroke-width="3.9"/>
+      <rect x="-30" y="-26" width="60" height="76" rx="10" fill="#F3F4F1" stroke="#16181D" stroke-width="2.9"/>
+      <circle cx="0" cy="12" r="14" fill="#F08A1D" stroke="#16181D" stroke-width="2.9"/>
+      <path d="M 18 12 L 26 12" fill="none" stroke="#F08A1D" stroke-width="2.9"/>
+      <path d="M 12.7 24.7 L 18.4 30.4" fill="none" stroke="#F08A1D" stroke-width="2.9"/>
+      <path d="M 1.1e-15 30 L 1.6e-15 38" fill="none" stroke="#F08A1D" stroke-width="2.9"/>
+      <path d="M -12.7 24.7 L -18.4 30.4" fill="none" stroke="#F08A1D" stroke-width="2.9"/>
+      <path d="M -18 12 L -26 12" fill="none" stroke="#F08A1D" stroke-width="2.9"/>
+      <path d="M -12.7 -0.7 L -18.4 -6.4" fill="none" stroke="#F08A1D" stroke-width="2.9"/>
+      <path d="M -3.3e-15 -6 L -4.8e-15 -14" fill="none" stroke="#F08A1D" stroke-width="2.9"/>
+      <path d="M 12.7 -0.7 L 18.4 -6.4" fill="none" stroke="#F08A1D" stroke-width="2.9"/>
+      <path d="M -30 -46 L -26 70" fill="none" stroke="#FFE9C7" stroke-width="4.8"/>
+    </g>
+  </g>
+</svg>

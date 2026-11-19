@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" stroke-linejoin="round" stroke-linecap="round">
+  <title>Toalla</title>
+  <desc>Toalla: a rolled striped towel</desc>
+  <defs>
+    <clipPath id="toalla-1">
+      <path d="M -66 -46 L 84 -46 C 96 -46 100 -30 100 0 C 100 30 96 46 84 46 L -66 46 Z" fill="#F3F4F1"/>
+    </clipPath>
+  </defs>
+  <g transform="translate(120.2 128) scale(0.981 0.981)">
+    <path d="M -66 -46 L 84 -46 C 96 -46 100 -30 100 0 C 100 30 96 46 84 46 L -66 46 Z" fill="#F3F4F1"/>
+    <g clip-path="url(#toalla-1)">
+      <rect x="-50" y="-60" width="22" height="120" fill="#2E9C92"/>
+      <rect x="-10" y="-60" width="22" height="120" fill="#EF6A57"/>
+      <rect x="30" y="-60" width="22" height="120" fill="#2E9C92"/>
+      <rect x="70" y="-60" width="22" height="120" fill="#EF6A57"/>
+    </g>
+    <path d="M -66 -46 L 84 -46 C 96 -46 100 -30 100 0 C 100 30 96 46 84 46 L -66 46 Z" fill="none" stroke="#16181D" stroke-width="4.1"/>
+    <ellipse cx="-66" cy="0" rx="30" ry="46" fill="#F3F4F1" stroke="#16181D" stroke-width="4.1"/>
+    <path d="M -66 -2 C -60 -6 -56 2 -60 8 C -66 16 -78 10 -78 0 C -78 -14 -64 -22 -54 -16 C -42 -8 -44 14 -56 24 C -70 34 -90 26 -92 8" fill="none" stroke="#2E9C92" stroke-width="3.1"/>
+    <path d="M 100 -30 L 112 -30" fill="none" stroke="#16181D" stroke-width="3.1"/>
+    <path d="M 100 -14 L 112 -14" fill="none" stroke="#16181D" stroke-width="3.1"/>
+    <path d="M 100 2 L 112 2" fill="none" stroke="#16181D" stroke-width="3.1"/>
+    <path d="M 100 18 L 112 18" fill="none" stroke="#16181D" stroke-width="3.1"/>
+    <path d="M 100 34 L 112 34" fill="none" stroke="#16181D" stroke-width="3.1"/>
+  </g>
+</svg>

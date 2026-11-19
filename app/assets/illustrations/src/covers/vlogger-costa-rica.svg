@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600" width="1200" height="600" stroke-linejoin="round" stroke-linecap="round">
+  <title>Vlogger in Costa Rica</title>
+  <desc>A sloth on a jungle branch films itself with a selfie stick; a volcano puffs in the distance.</desc>
+  <defs>
+    <clipPath id="vlogger-costa-rica-1">
+      <path d="M -17 -172 Q 0 -174.2 17 -172 Q 17 -154 0 -154 Q -17 -154 -17 -172 Z" fill="#16181D"/>
+    </clipPath>
+  </defs>
+  <rect x="0" y="0" width="1200" height="600" fill="#A8DBF0"/>
+  <path d="M 640 420 L 900 150 Q 930 130 960 150 L 1220 420 Z" fill="#C3B3EA"/>
+  <path d="M 882 168 Q 930 190 978 168 L 960 150 Q 930 130 900 150 Z" fill="#5B616B"/>
+  <g transform="translate(930 120) scale(0.75 0.75)">
+    <path d="M -100 20 Q -100 -10 -70 -10 Q -62 -45 -25 -42 Q -5 -70 30 -55 Q 62 -60 70 -25 Q 100 -22 100 10 Q 100 20 90 20 Z" fill="#F3F4F1"/>
+  </g>
+  <g transform="translate(1010 70) scale(0.55 0.55)">
+    <path d="M -100 20 Q -100 -10 -70 -10 Q -62 -45 -25 -42 Q -5 -70 30 -55 Q 62 -60 70 -25 Q 100 -22 100 10 Q 100 20 90 20 Z" fill="#F3F4F1"/>
+  </g>
+  <g transform="translate(220 90) scale(0.8 0.8)">
+    <path d="M -100 20 Q -100 -10 -70 -10 Q -62 -45 -25 -42 Q -5 -70 30 -55 Q 62 -60 70 -25 Q 100 -22 100 10 Q 100 20 90 20 Z" fill="#F3F4F1"/>
+  </g>
+  <path d="M -10 380 Q 200 280 420 360 Q 640 420 860 330 Q 1050 270 1210 340 L 1210 610 L -10 610 Z" fill="#2E9C92"/>
+  <path d="M -10 470 Q 260 380 520 460 Q 760 520 1000 430 Q 1120 400 1210 430 L 1210 610 L -10 610 Z" fill="#62AD52"/>
+  <path d="M 60 610 C 80 460 90 330 70 200 L 150 200 C 150 330 160 460 190 610 Z" fill="#B4530A" stroke="#16181D" stroke-width="4"/>
+  <path d="M 110 250 C 300 230 520 260 820 300 C 840 304 846 326 824 330 C 520 300 300 290 120 310 Z" fill="#B4530A" stroke="#16181D" stroke-width="4"/>
+  <path d="M 300 268 Q 340 262 380 270 M 600 290 Q 640 288 680 298" fill="none" stroke="#F08A1D" stroke-width="3"/>
+  <circle cx="-10" cy="40" r="80" fill="#2E9C92" stroke="#16181D" stroke-width="4"/>
+  <circle cx="110" cy="10" r="70" fill="#2E9C92" stroke="#16181D" stroke-width="4"/>
+  <circle cx="220" cy="60" r="56" fill="#2E9C92" stroke="#16181D" stroke-width="4"/>
+  <circle cx="20" cy="150" r="66" fill="#62AD52" stroke="#16181D" stroke-width="4"/>
+  <circle cx="140" cy="110" r="74" fill="#62AD52" stroke="#16181D" stroke-width="4"/>
+  <circle cx="250" cy="170" r="46" fill="#62AD52" stroke="#16181D" stroke-width="4"/>
+  <circle cx="-30" cy="220" r="50" fill="#2E9C92" stroke="#16181D" stroke-width="4"/>
+  <g transform="translate(100 90) rotate(30)">
+    <path d="M -16 6 Q 0 -10 16 6" fill="none" stroke="#F3F4F1" stroke-width="3"/>
+  </g>
+  <g transform="translate(180 150) rotate(-20)">
+    <path d="M -16 6 Q 0 -10 16 6" fill="none" stroke="#F3F4F1" stroke-width="3"/>
+  </g>
+  <g transform="translate(20 120) rotate(40)">
+    <path d="M -16 6 Q 0 -10 16 6" fill="none" stroke="#F3F4F1" stroke-width="3"/>
+  </g>
+  <g transform="translate(210 40) rotate(10)">
+    <path d="M -16 6 Q 0 -10 16 6" fill="none" stroke="#F3F4F1" stroke-width="3"/>
+  </g>
+  <path d="M 760 296 C 770 360 750 420 770 500" fill="none" stroke="#62AD52" stroke-width="6"/>
+  <ellipse cx="764" cy="340" rx="12" ry="7" fill="#62AD52" stroke="#16181D" stroke-width="3"/>
+  <ellipse cx="774" cy="390" rx="12" ry="7" fill="#62AD52" stroke="#16181D" stroke-width="3"/>
+  <ellipse cx="764" cy="440" rx="12" ry="7" fill="#62AD52" stroke="#16181D" stroke-width="3"/>
+  <ellipse cx="764" cy="480" rx="12" ry="7" fill="#62AD52" stroke="#16181D" stroke-width="3"/>
+  <g transform="translate(440 286) scale(0.92 0.92)">
+    <path d="M -40 -6 Q -50 40 -36 70" fill="none" stroke="#16181D" stroke-width="38.7"/>
+    <path d="M -40 -6 Q -50 40 -36 70" fill="none" stroke="#FFC46B" stroke-width="30"/>
+    <path d="M 36 -6 Q 44 40 30 74" fill="none" stroke="#16181D" stroke-width="38.7"/>
+    <path d="M 36 -6 Q 44 40 30 74" fill="none" stroke="#FFC46B" stroke-width="30"/>
+    <path d="M -46 82 q 0 12 -8 16 M -36 86 q 0 12 -6 16 M 22 86 q 0 12 -6 16 M 32 86 q 0 12 -4 16" fill="none" stroke="#16181D" stroke-width="4.3"/>
+    <path d="M -70 0 C -84 -90 -60 -170 0 -170 C 60 -170 84 -90 70 0 C 40 14 -40 14 -70 0 Z" fill="#FFC46B" stroke="#16181D" stroke-width="4.3"/>
+    <path d="M -30 -10 C -40 -60 -30 -110 0 -112 C 30 -110 40 -60 30 -10 Z" fill="#FFE9C7"/>
+    <circle cx="0" cy="-200" r="72" fill="#FFC46B" stroke="#16181D" stroke-width="4.3"/>
+    <path d="M 0 -260 C -40 -270 -66 -236 -60 -200 C -56 -168 -30 -150 0 -150 C 30 -150 56 -168 60 -200 C 66 -236 40 -270 0 -260 Z" fill="#FFE9C7" stroke="#16181D" stroke-width="4.3"/>
+    <path d="M -54 -196 C -50 -224 -26 -230 -14 -214 C -8 -200 -18 -186 -34 -184 C -44 -183 -54 -186 -54 -196 Z" fill="#B4530A"/>
+    <path d="M 54 -196 C 50 -224 26 -230 14 -214 C 8 -200 18 -186 34 -184 C 44 -183 54 -186 54 -196 Z" fill="#B4530A"/>
+    <circle cx="-30" cy="-206" r="14" fill="#F3F4F1" stroke="#16181D" stroke-width="3.3"/>
+    <circle cx="-25.8" cy="-206.5" r="7.8" fill="#16181D"/>
+    <circle cx="-28.8" cy="-209.7" r="2.7" fill="#F3F4F1"/>
+    <circle cx="30" cy="-206" r="14" fill="#F3F4F1" stroke="#16181D" stroke-width="3.3"/>
+    <circle cx="34.2" cy="-206.5" r="7.8" fill="#16181D"/>
+    <circle cx="31.2" cy="-209.7" r="2.7" fill="#F3F4F1"/>
+    <ellipse cx="0" cy="-186" rx="12" ry="9" fill="#16181D"/>
+    <path d="M -17 -172 Q 0 -174.2 17 -172 Q 17 -154 0 -154 Q -17 -154 -17 -172 Z" fill="#16181D"/>
+    <ellipse cx="0" cy="-154.9" rx="10.9" ry="7.6" fill="#EF6A57" clip-path="url(#vlogger-costa-rica-1)"/>
+    <path d="M -17 -172 Q 0 -174.2 17 -172 Q 17 -154 0 -154 Q -17 -154 -17 -172 Z" fill="none" stroke="#16181D" stroke-width="3.3"/>
+    <ellipse cx="-44" cy="-172" rx="9" ry="5.6" fill="#F7BBCB"/>
+    <ellipse cx="44" cy="-172" rx="9" ry="5.6" fill="#F7BBCB"/>
+    <path d="M -60 -110 Q -110 -60 -96 -6" fill="none" stroke="#16181D" stroke-width="38.7"/>
+    <path d="M -60 -110 Q -110 -60 -96 -6" fill="none" stroke="#FFC46B" stroke-width="30"/>
+    <path d="M -110 6 q 2 14 -6 20 M -98 8 q 2 14 -4 20 M -86 6 q 2 14 -2 20" fill="none" stroke="#16181D" stroke-width="4.3"/>
+    <path d="M 156 -168 L 250 -196" fill="none" stroke="#16181D" stroke-width="16.7"/>
+    <path d="M 156 -168 L 250 -196" fill="none" stroke="#16181D" stroke-width="8"/>
+    <path d="M 62 -120 Q 110 -130 150 -164" fill="none" stroke="#16181D" stroke-width="38.7"/>
+    <path d="M 62 -120 Q 110 -130 150 -164" fill="none" stroke="#FFC46B" stroke-width="30"/>
+    <path d="M 150 -186 q 6 -10 18 -8 M 160 -178 q 8 -8 18 -4 M 164 -166 q 8 -4 16 2" fill="none" stroke="#16181D" stroke-width="4.3"/>
+  </g>
+  <g transform="translate(696 112) scale(0.95 0.95)">
+    <g transform="rotate(18)">
+      <rect x="-46" y="-78" width="92" height="156" rx="18" fill="#16181D" stroke="#16181D" stroke-width="4.2"/>
+      <rect x="-38" y="-66" width="76" height="132" rx="10" fill="#A8DBF0"/>
+      <circle cx="0" cy="0" r="26" fill="#FFC46B" stroke="#16181D" stroke-width="3.2"/>
+      <ellipse cx="0" cy="4" rx="18" ry="16" fill="#FFE9C7"/>
+      <ellipse cx="-9" cy="-2" rx="7" ry="5" fill="#B4530A"/>
+      <ellipse cx="9" cy="-2" rx="7" ry="5" fill="#B4530A"/>
+      <circle cx="-9" cy="-2" r="2.5" fill="#16181D"/>
+      <circle cx="9" cy="-2" r="2.5" fill="#16181D"/>
+      <circle cx="0" cy="7" r="3" fill="#16181D"/>
+      <circle cx="24" cy="-52" r="7" fill="#EF6A57"/>
+    </g>
+  </g>
+  <g transform="translate(1120 640) rotate(-20) scale(1.1 1.1)">
+    <path d="M 0 0 C -20 -40 -90 -70 -100 -140 C -108 -200 -50 -240 0 -230 C 50 -240 108 -200 100 -140 C 90 -70 20 -40 0 0 Z" fill="#62AD52" stroke="#16181D" stroke-width="3.6"/>
+    <path d="M -97 -122 L -46 -126 M -100 -170 L -40 -160 M -72 -214 L -30 -186 M 97 -122 L 46 -126 M 100 -170 L 40 -160 M 72 -214 L 30 -186" fill="none" stroke="#16181D" stroke-width="2.7"/>
+    <path d="M 0 -10 C -4 -80 -2 -160 0 -226" fill="none" stroke="#16181D" stroke-width="2.7"/>
+  </g>
+  <g transform="translate(980 640) rotate(18) scale(0.8 0.8)">
+    <path d="M 0 0 C -20 -40 -90 -70 -100 -140 C -108 -200 -50 -240 0 -230 C 50 -240 108 -200 100 -140 C 90 -70 20 -40 0 0 Z" fill="#2E9C92" stroke="#16181D" stroke-width="5"/>
+    <path d="M -97 -122 L -46 -126 M -100 -170 L -40 -160 M -72 -214 L -30 -186 M 97 -122 L 46 -126 M 100 -170 L 40 -160 M 72 -214 L 30 -186" fill="none" stroke="#16181D" stroke-width="3.8"/>
+    <path d="M 0 -10 C -4 -80 -2 -160 0 -226" fill="none" stroke="#16181D" stroke-width="3.8"/>
+  </g>
+  <g transform="translate(860 250) rotate(14)">
+    <ellipse cx="-16" cy="-6" rx="18" ry="22" fill="#EF6A57" stroke="#16181D" stroke-width="4"/>
+    <ellipse cx="16" cy="-6" rx="18" ry="22" fill="#EF6A57" stroke="#16181D" stroke-width="4"/>
+    <ellipse cx="-12" cy="16" rx="12" ry="12" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+    <ellipse cx="12" cy="16" rx="12" ry="12" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+    <rect x="-3" y="-18" width="6" height="40" rx="3" fill="#16181D"/>
+    <path d="M -2 -18 Q -8 -30 -14 -32 M 2 -18 Q 8 -30 14 -32" fill="none" stroke="#16181D" stroke-width="3"/>
+  </g>
+</svg>

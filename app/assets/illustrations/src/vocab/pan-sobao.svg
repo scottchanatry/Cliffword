@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" stroke-linejoin="round" stroke-linecap="round">
+  <title>Pan sobao</title>
+  <desc>Pan sobao: a soft loaf of bread</desc>
+  <g transform="translate(127.5 120.8) scale(1.025 1.025)">
+    <g transform="translate(0 6) rotate(-12)">
+      <path d="M -100 8 C -104 -34 -64 -50 0 -50 C 64 -50 104 -34 100 8 C 96 40 62 50 0 50 C -62 50 -96 40 -100 8 Z" fill="#FFC46B" stroke="#16181D" stroke-width="3.9"/>
+      <path d="M -78 -16 C -34 -40 34 -40 78 -16 C 34 -4 -34 -4 -78 -16 Z" fill="#FFE9C7" stroke="#16181D" stroke-width="3.9"/>
+      <path d="M -84 26 Q 0 48 84 26" fill="none" stroke="#F08A1D" stroke-width="2.9"/>
+      <circle cx="-50" cy="-32" r="3" fill="#F3F4F1"/>
+      <circle cx="-10" cy="-40" r="3" fill="#F3F4F1"/>
+      <circle cx="40" cy="-34" r="3" fill="#F3F4F1"/>
+      <circle cx="-30" cy="10" r="3" fill="#F3F4F1"/>
+      <circle cx="30" cy="14" r="3" fill="#F3F4F1"/>
+      <circle cx="64" cy="0" r="3" fill="#F3F4F1"/>
+    </g>
+  </g>
+</svg>

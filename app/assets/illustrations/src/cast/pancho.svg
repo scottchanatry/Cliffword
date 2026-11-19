@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" stroke-linejoin="round" stroke-linecap="round">
+  <title>Pancho</title>
+  <desc>The rooster: chest out, proud half-closed eye, a few feathers out of place.</desc>
+  <defs>
+    <clipPath id="pancho-1">
+      <circle cx="128" cy="128" r="124" fill="#A8DBF0"/>
+    </clipPath>
+  </defs>
+  <!-- the disc -->
+  <circle cx="128" cy="128" r="124" fill="#A8DBF0"/>
+  <!-- the character, clipped to the disc -->
+  <g clip-path="url(#pancho-1)">
+    <g transform="translate(92 300) scale(0.92 0.92)">
+      <g>
+        <!-- rooster -->
+        <path d="M -40 -110 C -48 -215 -150 -240 -176 -160 C -140 -196 -84 -180 -62 -88 Z" fill="#2E9C92" stroke="#16181D" stroke-width="4.3"/>
+        <path d="M -50 -96 C -96 -190 -192 -178 -196 -98 C -160 -146 -104 -134 -64 -74 Z" fill="#62AD52" stroke="#16181D" stroke-width="4.3"/>
+        <path d="M -56 -80 C -110 -118 -168 -92 -160 -44 C -140 -78 -104 -80 -62 -58 Z" fill="#16181D" stroke="#16181D" stroke-width="4.3"/>
+        <path d="M -150 -186 Q -120 -190 -98 -168" fill="none" stroke="#F3F4F1" stroke-width="3.3"/>
+        <path d="M -12 -40 L -16 -6" fill="none" stroke="#16181D" stroke-width="17.7"/>
+        <path d="M -12 -40 L -16 -6" fill="none" stroke="#FFC46B" stroke-width="9"/>
+        <path d="M 22 -40 L 26 -6" fill="none" stroke="#16181D" stroke-width="17.7"/>
+        <path d="M 22 -40 L 26 -6" fill="none" stroke="#FFC46B" stroke-width="9"/>
+        <path d="M -16 -5 L 2 -2 M -16 -5 L -28 -1 M -16 -5 L -12 2" fill="none" stroke="#16181D" stroke-width="14.7"/>
+        <path d="M -16 -5 L 2 -2 M -16 -5 L -28 -1 M -16 -5 L -12 2" fill="none" stroke="#FFC46B" stroke-width="6"/>
+        <path d="M 26 -5 L 44 -2 M 26 -5 L 14 -1 M 26 -5 L 30 2" fill="none" stroke="#16181D" stroke-width="14.7"/>
+        <path d="M 26 -5 L 44 -2 M 26 -5 L 14 -1 M 26 -5 L 30 2" fill="none" stroke="#FFC46B" stroke-width="6"/>
+        <path d="M -66 -84 C -70 -136 -22 -158 20 -146 C 66 -134 86 -92 68 -58 C 54 -30 12 -24 -24 -28 C -52 -32 -64 -56 -66 -84 Z" fill="#F08A1D" stroke="#16181D" stroke-width="4.3"/>
+        <path d="M -36 -108 C -6 -126 34 -112 34 -84 C 32 -60 6 -50 -22 -56 C -14 -62 -12 -66 -12 -70 C -22 -68 -28 -70 -32 -74 C -24 -78 -22 -82 -22 -86 C -34 -88 -40 -96 -36 -108 Z" fill="#B4530A" stroke="#16181D" stroke-width="4.3"/>
+        <path d="M -4 -104 Q 14 -98 20 -80" fill="none" stroke="#FFC46B" stroke-width="3.3"/>
+        <path d="M 14 -214 C 2 -190 -6 -160 -4 -128 L 10 -118 L 18 -132 L 30 -114 L 40 -130 L 54 -112 L 60 -128 L 72 -116 C 80 -146 80 -180 74 -212 Z" fill="#FFC46B" stroke="#16181D" stroke-width="4.3"/>
+        <path d="M 4 -150 L -16 -160 L 0 -140 Z" fill="#FFC46B" stroke="#16181D" stroke-width="4.3"/>
+        <path d="M 70 -150 L 92 -158 L 76 -138 Z" fill="#FFC46B" stroke="#16181D" stroke-width="4.3"/>
+        <path d="M 22 -232 C 6 -250 14 -272 32 -262 C 30 -286 56 -292 60 -268 C 70 -284 94 -276 84 -254 C 98 -256 104 -240 90 -230 Z" fill="#EF6A57" stroke="#16181D" stroke-width="4.3"/>
+        <circle cx="52" cy="-212" r="32" fill="#F08A1D" stroke="#16181D" stroke-width="4.3"/>
+        <path d="M 80 -220 L 108 -208 L 80 -198 Z" fill="#FFC46B" stroke="#16181D" stroke-width="4.3"/>
+        <path d="M 74 -196 C 66 -178 72 -164 82 -166 C 92 -170 90 -186 84 -196 Z" fill="#EF6A57" stroke="#16181D" stroke-width="4.3"/>
+        <circle cx="60" cy="-216" r="16" fill="#F3F4F1" stroke="#16181D" stroke-width="3.3"/>
+        <circle cx="64.2" cy="-216" r="9" fill="#16181D"/>
+        <circle cx="60.8" cy="-219.6" r="3" fill="#F3F4F1"/>
+        <path d="M 44.2 -218.6 A 16 16 0 0 1 75.8 -218.6 Z" fill="#F08A1D"/>
+        <path d="M 43.2 -218.6 L 76.8 -218.6" fill="none" stroke="#16181D" stroke-width="3.3"/>
+        <circle cx="60" cy="-216" r="16" fill="none" stroke="#16181D" stroke-width="3.3"/>
+      </g>
+    </g>
+    <g transform="translate(52 70) rotate(-30)">
+      <path d="M 0 0 C 10 -14 26 -14 30 -2 C 20 2 10 4 0 0 Z" fill="#FFC46B" stroke="#16181D" stroke-width="3"/>
+    </g>
+    <path d="M 201.4 48.1 L 203.8 34.3" fill="none" stroke="#16181D" stroke-width="4"/>
+    <path d="M 206.1 50.9 L 216.9 41.9" fill="none" stroke="#16181D" stroke-width="4"/>
+    <path d="M 208 56 L 222 56" fill="none" stroke="#16181D" stroke-width="4"/>
+  </g>
+</svg>

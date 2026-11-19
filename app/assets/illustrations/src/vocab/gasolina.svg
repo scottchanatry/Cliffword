@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" stroke-linejoin="round" stroke-linecap="round">
+  <title>Gasolina</title>
+  <desc>Gasolina: a gas pump</desc>
+  <g transform="translate(112.4 125.9) scale(1.04 1.04)">
+    <rect x="-76" y="86" width="132" height="14" rx="6" fill="#5B616B" stroke="#16181D" stroke-width="3.8"/>
+    <path d="M 40 50 C 80 50 86 20 78 -10 C 74 -24 74 -36 70 -44" fill="none" stroke="#16181D" stroke-width="14.7"/>
+    <path d="M 40 50 C 80 50 86 20 78 -10 C 74 -24 74 -36 70 -44" fill="none" stroke="#16181D" stroke-width="7"/>
+    <rect x="-64" y="-96" width="104" height="186" rx="16" fill="#EF6A57" stroke="#16181D" stroke-width="3.8"/>
+    <rect x="-50" y="-80" width="76" height="50" rx="8" fill="#F3F4F1" stroke="#16181D" stroke-width="3.8"/>
+    <rect x="-40" y="-64" width="40" height="10" rx="5" fill="#5B616B"/>
+    <rect x="-40" y="-48" width="22" height="8" rx="4" fill="#5B616B"/>
+    <path d="M -12 -6 C -12 -6 -30 18 -30 32 C -30 44 -22 52 -12 52 C -2 52 6 44 6 32 C 6 18 -12 -6 -12 -6 Z" fill="#FFC46B" stroke="#16181D" stroke-width="2.9"/>
+    <g transform="translate(70 -46)">
+      <rect x="-10" y="-12" width="24" height="40" rx="6" fill="#16181D" stroke="#16181D" stroke-width="3.8"/>
+      <path d="M 10 -12 L 34 -22 L 36 -14 L 14 -2 Z" fill="#16181D" stroke="#16181D" stroke-width="3.8"/>
+    </g>
+    <path d="M -50 -86 L 30 -86" fill="none" stroke="#F3F4F1" stroke-width="3.8"/>
+  </g>
+</svg>

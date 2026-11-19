@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" stroke-linejoin="round" stroke-linecap="round">
+  <title>Regalo</title>
+  <desc>Regalo: a wrapped gift</desc>
+  <g transform="translate(128 130.3) scale(1.15 1.15)">
+    <rect x="-76" y="-30" width="152" height="116" rx="10" fill="#C3B3EA" stroke="#16181D" stroke-width="3.5"/>
+    <circle cx="-50" cy="0" r="7" fill="#F3F4F1"/>
+    <circle cx="46" cy="10" r="7" fill="#F3F4F1"/>
+    <circle cx="-40" cy="56" r="7" fill="#F3F4F1"/>
+    <circle cx="50" cy="60" r="7" fill="#F3F4F1"/>
+    <rect x="-14" y="-30" width="28" height="116" fill="#EF6A57" stroke="#16181D" stroke-width="2.6"/>
+    <rect x="-88" y="-58" width="176" height="34" rx="10" fill="#C3B3EA" stroke="#16181D" stroke-width="3.5"/>
+    <rect x="-14" y="-58" width="28" height="34" fill="#EF6A57" stroke="#16181D" stroke-width="2.6"/>
+    <path d="M 0 -60 C -20 -100 -70 -96 -56 -72 C -50 -62 -24 -60 0 -60 Z" fill="#EF6A57" stroke="#16181D" stroke-width="3.5"/>
+    <path d="M 0 -60 C 20 -100 70 -96 56 -72 C 50 -62 24 -60 0 -60 Z" fill="#EF6A57" stroke="#16181D" stroke-width="3.5"/>
+    <circle cx="0" cy="-62" r="11" fill="#EF6A57" stroke="#16181D" stroke-width="3.5"/>
+  </g>
+</svg>

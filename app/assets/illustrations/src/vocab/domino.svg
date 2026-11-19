@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" stroke-linejoin="round" stroke-linecap="round">
+  <title>Dominó</title>
+  <desc>Dominó: two domino tiles</desc>
+  <g transform="translate(127.4 125.1) scale(1.15 1.15)">
+    <g transform="translate(-36 -2) rotate(-14)">
+      <rect x="-34" y="-66" width="68" height="132" rx="14" fill="#F3F4F1" stroke="#16181D" stroke-width="3.5"/>
+      <path d="M -22 0 L 22 0" fill="none" stroke="#16181D" stroke-width="2.6"/>
+      <g transform="translate(0 -33)">
+        <circle cx="-14" cy="-14" r="5.5" fill="#16181D"/>
+        <circle cx="14" cy="-14" r="5.5" fill="#16181D"/>
+        <circle cx="-14" cy="0" r="5.5" fill="#16181D"/>
+        <circle cx="14" cy="0" r="5.5" fill="#16181D"/>
+        <circle cx="-14" cy="14" r="5.5" fill="#16181D"/>
+        <circle cx="14" cy="14" r="5.5" fill="#16181D"/>
+      </g>
+      <g transform="translate(0 33)">
+        <circle cx="-14" cy="-14" r="5.5" fill="#16181D"/>
+        <circle cx="0" cy="0" r="5.5" fill="#16181D"/>
+        <circle cx="14" cy="14" r="5.5" fill="#16181D"/>
+      </g>
+    </g>
+    <g transform="translate(40 8) rotate(10)">
+      <rect x="-34" y="-66" width="68" height="132" rx="14" fill="#F3F4F1" stroke="#16181D" stroke-width="3.5"/>
+      <path d="M -22 0 L 22 0" fill="none" stroke="#16181D" stroke-width="2.6"/>
+      <g transform="translate(0 -33)">
+        <circle cx="-14" cy="-14" r="5.5" fill="#16181D"/>
+        <circle cx="14" cy="-14" r="5.5" fill="#16181D"/>
+        <circle cx="0" cy="0" r="5.5" fill="#16181D"/>
+        <circle cx="-14" cy="14" r="5.5" fill="#16181D"/>
+        <circle cx="14" cy="14" r="5.5" fill="#16181D"/>
+      </g>
+      <g transform="translate(0 33)">
+        <circle cx="-14" cy="-14" r="5.5" fill="#16181D"/>
+        <circle cx="14" cy="14" r="5.5" fill="#16181D"/>
+      </g>
+    </g>
+  </g>
+</svg>

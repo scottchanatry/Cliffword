@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" stroke-linejoin="round" stroke-linecap="round">
+  <title>Música</title>
+  <desc>Música: music notes and a maraca</desc>
+  <g transform="translate(121.2 120.7) scale(0.972 0.972)">
+    <g transform="translate(-50 46) rotate(-24)">
+      <ellipse cx="0" cy="0" rx="24" ry="17" fill="#16181D"/>
+    </g>
+    <g transform="translate(34 30) rotate(-24)">
+      <ellipse cx="0" cy="0" rx="24" ry="17" fill="#16181D"/>
+    </g>
+    <rect x="-34" y="-64" width="10" height="112" rx="4" fill="#16181D"/>
+    <rect x="50" y="-80" width="10" height="112" rx="4" fill="#16181D"/>
+    <path d="M -34 -64 L 60 -80 L 60 -52 L -34 -36 Z" fill="#16181D"/>
+    <g transform="translate(80 66) scale(0.8 0.8)">
+      <g transform="rotate(-24)">
+        <ellipse cx="0" cy="0" rx="22" ry="15" fill="#2E9C92" stroke="#16181D" stroke-width="3.9"/>
+      </g>
+      <rect x="13" y="-84" width="8" height="82" rx="4" fill="#2E9C92" stroke="#16181D" stroke-width="3.9"/>
+      <path d="M 17 -84 C 40 -70 46 -54 34 -36 C 38 -52 30 -62 17 -66 Z" fill="#2E9C92" stroke="#16181D" stroke-width="3.9"/>
+    </g>
+    <path d="M -84 -74 Q -81.5 -62.5 -70 -60 Q -81.5 -57.5 -84 -46 Q -86.5 -57.5 -98 -60 Q -86.5 -62.5 -84 -74 Z" fill="#FFC46B" stroke="#16181D" stroke-width="3.1"/>
+    <path d="M -82 75 Q -80.4 82.4 -73 84 Q -80.4 85.6 -82 93 Q -83.6 85.6 -91 84 Q -83.6 82.4 -82 75 Z" fill="#EF6A57" stroke="#16181D" stroke-width="3.1"/>
+    <path d="M 96 -50 Q 97.8 -41.8 106 -40 Q 97.8 -38.2 96 -30 Q 94.2 -38.2 86 -40 Q 94.2 -41.8 96 -50 Z" fill="#EF6A57" stroke="#16181D" stroke-width="3.1"/>
+  </g>
+</svg>

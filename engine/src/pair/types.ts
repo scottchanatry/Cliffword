@@ -40,6 +40,12 @@ export interface PairPack {
    * session module (engine/src/session) reads it; it never needs a model.
    */
   readonly starter?: StarterStory;
+  /**
+   * Optional authored story library: the content of the Story flow, levels 0 to 5, each
+   * story a short scene with one cliff per sentence and questions characters ask the
+   * learner. Data only; the engine picks the story and the cliff mode by level.
+   */
+  readonly library?: readonly LibraryStory[];
 }
 
 /**
@@ -95,4 +101,57 @@ export interface StarterStory {
   readonly probes?: readonly StarterSentence[];
   /** Questions for learner turns ("Marta asks you"). */
   readonly prompts?: readonly StarterPrompt[];
+}
+
+/**
+ * One authored story of the library (PairPack.library). Text is in the target language
+ * except the *Native and translation fields.
+ */
+export interface LibraryStory {
+  /** Stable id, e.g. 'en-es.lib.l0.01'. */
+  id: string;
+  /** 0 brand new (cognates and taught words) ... 5 intermediate. */
+  level: 0 | 1 | 2 | 3 | 4 | 5;
+  /** Title in the target language. */
+  title: string;
+  /** Title in the learner's native language. */
+  titleNative: string;
+  /** Names of the people (and animals) in the story; they count as names, not words. */
+  characters: string[];
+  sentences: LibrarySentence[];
+  /** Questions a character asks the learner (learner turns). */
+  turns?: LibraryTurn[];
+}
+
+/** One sentence of a library story with its cliff. */
+export interface LibrarySentence {
+  /** The sentence in the target language, natural, with its final punctuation. */
+  text: string;
+  /** The sentence in the learner's native language. */
+  translation: string;
+  cliff: {
+    /** The hidden word(s), an exact substring of text; may be 1-3 words at level 4-5. */
+    word: string;
+    /** Other natural answers. */
+    accept?: string[];
+    /** Two plausible-looking words that are wrong in this slot. */
+    distractors: [string, string];
+    /** Native-language gloss of the cliff word, e.g. 'piano'. */
+    hint?: string;
+  };
+  /** Who says the line, for dialogue lines. */
+  speaker?: string;
+}
+
+/** A question a story character asks the learner, after a sentence of the story. */
+export interface LibraryTurn {
+  /** Index of the sentence the question follows. */
+  after: number;
+  speaker: string;
+  /** The question in the target language. */
+  line: string;
+  /** The question in the learner's native language. */
+  translation: string;
+  /** A natural answer in the target language. */
+  example: string;
 }

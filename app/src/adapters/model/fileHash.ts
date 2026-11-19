@@ -15,6 +15,7 @@
  * Only ExpoModelManager uses this; it is native-only (createModelManager.web.ts keeps it out of
  * the web bundle).
  */
+import { toByteCount, toNumber } from './nativeNumber';
 import { File, FileMode } from 'expo-file-system';
 import CliffwordNative, { type CliffwordNativeModule } from '../../../modules/cliffword-native';
 import { isSha256Hex, Sha256 } from './sha256';
@@ -67,7 +68,7 @@ export function createFileHasher(opts: FileHasherOptions = {}): FileHasher {
         const jobId = `sha256-${Date.now()}-${++jobs}`;
         const subscription = onProgress
           ? native.addListener('onHashProgress', (event) => {
-              if (event.jobId === jobId) onProgress(event.bytesRead, event.totalBytes);
+              if (event.jobId === jobId) onProgress(toNumber(event.bytesRead), toNumber(event.totalBytes));
             })
           : null;
         try {
@@ -85,7 +86,7 @@ export function createFileHasher(opts: FileHasherOptions = {}): FileHasher {
         try {
           const hex = (await file.digest('SHA-256')).toLowerCase();
           if (isSha256Hex(hex)) {
-            const size = file.size;
+            const size = toByteCount(file.size) ?? 0;
             onProgress?.(size, size);
             return { sha256: hex, method: 'file-digest' };
           }
@@ -107,7 +108,7 @@ async function hashInSlices(
 ): Promise<string> {
   const handle = file.open(FileMode.ReadOnly);
   try {
-    const total = handle.size ?? file.size;
+    const total = toByteCount(handle.size) ?? toByteCount(file.size) ?? 0;
     const hash = new Sha256();
     for (;;) {
       if (signal?.aborted) throw new HashAbortedError();

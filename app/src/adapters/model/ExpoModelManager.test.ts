@@ -382,6 +382,26 @@ describe('ExpoModelManager: download', () => {
     expect(warn).toHaveBeenCalledWith(expect.stringMatching(/^\[model\] size-mismatch: .*"check":"early"/));
   });
 
+  it('accepts iOS BigInt progress and sizes (Swift Int64): the right length is not a wrong one', async () => {
+    // TestFlight build 6: "early check, the server announced unknown bytes; 0 received after 4 s".
+    // expo-file-system hands Int64 to JS as BigInt, which never === a number.
+    fakeFs.useBigIntSizes();
+    const { manager } = await setup();
+    const { done } = await start(manager);
+    const op = fakeFs.lastDownload();
+    const big = (n: number) => BigInt(n) as unknown as number;
+    op.emit({ bytesWritten: big(2500), totalBytes: big(MODEL.bytes) });
+    expect(manager.progress()).toEqual({ bytesWritten: 2500, bytesTotal: MODEL.bytes, fraction: 0.25 });
+    // Past the early-abort threshold twice, with the right total as BigInt: no abort.
+    op.emit({ bytesWritten: big(EARLY_ABORT_MIN_BYTES), totalBytes: big(MODEL.bytes) });
+    op.emit({ bytesWritten: big(EARLY_ABORT_MIN_BYTES + 1), totalBytes: big(MODEL.bytes) });
+    expect(manager.status()).toBe('downloading');
+    op.complete();
+    await expect(done).resolves.toBe('ready');
+    expect(manager.snapshot().error).toBeNull();
+    expect(fakeFs.exists(FINAL)).toBe(true);
+  });
+
   it('does not stop early on a single, small, changing or unknown total (iOS early events)', async () => {
     fakeFs.reset({ platform: 'ios' });
     fakeFs.serve(MODEL.url, CONTENT);

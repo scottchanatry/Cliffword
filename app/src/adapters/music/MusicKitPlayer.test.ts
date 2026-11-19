@@ -217,6 +217,14 @@ describe('MusicKitPlayer: pauseAt (native line-end timer)', () => {
     expect(music.state()).toMatchObject({ status: 'paused', positionMs: 11_853 });
   });
 
+  it('accepts the pause token as BigInt (Swift Int on iOS)', async () => {
+    const { native, music } = setup();
+    await music.play('i.lib1');
+    const result = music.pauseAt(3_000, { leadMs: 0 });
+    native.emit('onScheduledPause', { token: BigInt(1) as unknown as number, targetSec: 3, positionSec: 3.004, missed: false });
+    expect(await result).toEqual({ outcome: 'paused', targetMs: 3_000, positionMs: 3_004 });
+  });
+
   it('ignores a late event for an older target and cancels on seek, replace and clear', async () => {
     const { clock, native, music } = setup();
     await music.play('i.lib1');

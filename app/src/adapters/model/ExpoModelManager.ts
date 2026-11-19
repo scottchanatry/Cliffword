@@ -48,6 +48,7 @@
 import { Directory, DownloadTask, type DownloadPauseState, File, Paths } from 'expo-file-system';
 import { activateKeepAwakeAsync, deactivateKeepAwake } from 'expo-keep-awake';
 import CliffwordNative from '../../../modules/cliffword-native';
+import { toByteCount, toNumber } from './nativeNumber';
 import type { ModelFile, ModelFileStatus as StoredStatus } from '../../storage/repos/modelFiles';
 import { systemClock } from '../clock/systemClock';
 import type { Clock } from '../clock/types';
@@ -169,15 +170,14 @@ export function classifyDownloadError(error: unknown): ModelFileErrorCode {
 async function defaultFreeBytes(platform: 'ios' | 'android'): Promise<number | null> {
   if (platform === 'ios' && CliffwordNative?.availableBytes) {
     try {
-      const bytes = await CliffwordNative.availableBytes();
-      if (Number.isFinite(bytes) && bytes >= 0) return bytes;
+      const bytes = toByteCount(await CliffwordNative.availableBytes());
+      if (bytes !== null) return bytes;
     } catch {
       // Fall back to expo-file-system's figure.
     }
   }
   try {
-    const bytes = Paths.availableDiskSpace;
-    return Number.isFinite(bytes) && bytes >= 0 ? bytes : null;
+    return toByteCount(Paths.availableDiskSpace);
   } catch {
     return null;
   }
@@ -313,7 +313,7 @@ export class ExpoModelManager implements ModelManager {
       return { status: 'verifying', progress: this.progressOf(this.descriptor.bytes), error: null };
     }
     const part = this.partFile();
-    if (part.exists && part.size === this.descriptor.bytes) {
+    if (part.exists && toByteCount(part.size) === this.descriptor.bytes) {
       return { status: 'verifying', progress: this.progressOf(this.descriptor.bytes), error: null };
     }
     return { status: 'absent', progress: this.progressOf(this.resumeOffset(this.readRecord())), error: null };
@@ -344,7 +344,7 @@ export class ExpoModelManager implements ModelManager {
     }
 
     const part = this.partFile();
-    if (part.exists && part.size === this.descriptor.bytes) {
+    if (part.exists && toByteCount(part.size) === this.descriptor.bytes) {
       // The transfer finished but was never verified (the app stopped in between).
       const { epoch } = this.begin();
       await this.verify(epoch, part, 'final');
@@ -367,8 +367,9 @@ export class ExpoModelManager implements ModelManager {
   private isRecordedVerified(row: ModelFile | null, final: File): boolean {
     if (!row || row.status !== 'ready') return false;
     if (row.sha256 !== this.descriptor.sha256 || row.bytes !== this.descriptor.bytes) return false;
-    const mtime = final.modificationTime;
-    return mtime !== null && mtime !== undefined && Math.floor(mtime) <= row.updatedAt;
+    // iOS may hand the time over as BigInt (Swift Int64); Math.floor(1n) throws.
+    const mtime = toNumber(final.modificationTime);
+    return Number.isFinite(mtime) && Math.floor(mtime) <= row.updatedAt;
   }
 
   // ---- download ----
@@ -392,11 +393,11 @@ export class ExpoModelManager implements ModelManager {
     }
     // A finished but unverified transfer: verify it instead of fetching it again.
     const part = this.partFile();
-    if (part.exists && part.size === this.descriptor.bytes) {
+    if (part.exists && toByteCount(part.size) === this.descriptor.bytes) {
       await this.verify(epoch, part, 'final');
       return;
     }
-    if (part.exists && part.size > this.descriptor.bytes) removeQuietly(part);
+    if (part.exists && (toByteCount(part.size) ?? 0) > this.descriptor.bytes) removeQuietly(part);
 
     const record = this.readRecord();
     let resume = this.resumeState(record && this.recordMatches(record) ? record : null);
@@ -430,7 +431,9 @@ export class ExpoModelManager implements ModelManager {
       let gotBytes = false;
       let wrongTotal = 0;
       let wrongTotalEvents = 0;
-      const onProgress = ({ bytesWritten, totalBytes }: { bytesWritten: number; totalBytes: number }) => {
+      const onProgress = (event: { bytesWritten: unknown; totalBytes: unknown }) => {
+        const bytesWritten = toNumber(event.bytesWritten);
+        const totalBytes = toNumber(event.totalBytes);
         if (!this.alive(epoch)) return;
         if (this.transfer) {
           this.transfer.reportedTotal = Number.isFinite(totalBytes) ? totalBytes : null;
@@ -593,10 +596,13 @@ export class ExpoModelManager implements ModelManager {
     try {
       const result = await this.hasher.sha256(
         file.uri,
-        (bytesRead, totalBytes) => {
+        (rawRead, rawTotal) => {
           if (!this.alive(epoch) || this.state.status !== 'verifying') return;
+          const bytesRead = toNumber(rawRead);
+          const totalBytes = toNumber(rawTotal);
           const total = totalBytes > 0 ? totalBytes : this.descriptor.bytes;
           const fraction = Math.max(0, Math.min(1, bytesRead / total));
+          if (!Number.isFinite(fraction)) return;
           if (fraction - lastFraction < 0.01 && fraction < 1) return;
           lastFraction = fraction;
           this.update({ ...this.state, verifyFraction: fraction });
@@ -649,8 +655,7 @@ export class ExpoModelManager implements ModelManager {
       try {
         const fresh = new File(file.uri);
         if (!fresh.exists) return null;
-        const size: unknown = fresh.size;
-        return typeof size === 'number' && Number.isFinite(size) && size >= 0 ? size : null;
+        return toByteCount(fresh.size);
       } catch {
         return null;
       }
@@ -726,7 +731,7 @@ export class ExpoModelManager implements ModelManager {
 
   private partBytes(): number {
     const part = this.partFile();
-    return part.exists ? Math.min(part.size, this.descriptor.bytes) : 0;
+    return part.exists ? Math.min(toByteCount(part.size) ?? 0, this.descriptor.bytes) : 0;
   }
 
   private readRecord(): DownloadRecord | null {

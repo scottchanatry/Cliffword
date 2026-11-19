@@ -299,15 +299,17 @@ export class MusicKitPlayer implements MusicPlayer {
   }
 
   private onScheduledPause(event: NativeScheduledPauseEvent): void {
+    // The module sends a Swift Int, which can arrive as BigInt on iOS; 1n !== 1.
+    const token = Number(event.token);
     const armed = this.slot.current();
-    if (!armed || armed.token !== event.token) return;
+    if (!armed || armed.token !== token) return;
     if (event.missed) {
       this.slot.cancel('past-target');
       return;
     }
     const positionMs = msOf(event.positionSec);
     if (this.current.song) this.set({ status: 'paused', song: this.current.song, positionMs });
-    this.slot.fire(event.token, positionMs);
+    this.slot.fire(token, positionMs);
   }
 
   private applyTime(event: NativeTimeEvent): void {

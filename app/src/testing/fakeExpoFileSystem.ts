@@ -60,6 +60,9 @@ let digestMode: DigestMode = 'throw';
 let digestImpl: ((bytes: Bytes) => string) | null = null;
 /** When true, pause() is lost, as when it reaches the native task before the task started. */
 let losePauses = false;
+/** When true, File#size returns a BigInt, as expo-file-system does for Swift Int64 on iOS. */
+let bigIntSizes = false;
+
 /** File URIs whose next File#size reads fail, and how (see fakeFs.failSizeReads). */
 const sizeFailures = new Map<string, { count: number; mode: SizeFailure }>();
 export type SizeFailure = 'throw' | 'nan' | 'zero';
@@ -174,7 +177,8 @@ export class File {
       if (failure.mode === 'throw') throw new Error(`Unable to get file attribute: ${this.uri}`);
       return failure.mode === 'nan' ? Number.NaN : 0;
     }
-    return files.get(this.uri)?.bytes.length ?? 0;
+    const size = files.get(this.uri)?.bytes.length ?? 0;
+    return (bigIntSizes ? BigInt(size) : size) as number;
   }
 
   get modificationTime(): number | null {
@@ -458,6 +462,7 @@ export const fakeFs = {
     operations.length = 0;
     iosTempFiles.clear();
     sizeFailures.clear();
+    bigIntSizes = false;
     platform = opts.platform ?? 'android';
     freeBytes = opts.freeBytes ?? 50_000_000_000;
     digestMode = opts.digest ?? 'throw';
@@ -510,6 +515,11 @@ export const fakeFs = {
    * The next `count` File#size reads of `uri` fail: 'throw' (iOS getAttribute error), 'nan', or
    * 'zero' (what expo-file-system's iOS size property returns when the read fails).
    */
+  /** File#size returns BigInt from now on (iOS: Swift Int64). Reset by reset(). */
+  useBigIntSizes(on = true): void {
+    bigIntSizes = on;
+  },
+
   failSizeReads(uri: string, count: number, mode: SizeFailure = 'throw'): void {
     sizeFailures.set(fileKey(uri), { count, mode });
   },

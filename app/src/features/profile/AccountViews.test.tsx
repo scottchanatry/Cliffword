@@ -11,7 +11,10 @@ import { fireEvent, screen, within } from '@testing-library/react-native';
 import { renderWithProviders as renderInProviders } from '../../testing/renderWithProviders';
 import { layout } from '../../theme';
 import { ACCOUNT_FIXTURE_NAMES, isAccountFixtureName } from './accountFixtures';
+import type { ModelFileState } from '../../adapters/model/types';
+import { ModelStepView } from '../onboarding/ModelStepView';
 import { AccountPreview } from './AccountPreview';
+import { ModelCard } from './ModelCard';
 import { RATE_STEP, ratePercent, stepRate } from './RateStepper';
 
 /** A 390 x 844 phone; the voice step holds anywhere, so its gesture detector needs the gesture root. */
@@ -64,6 +67,48 @@ describe('account views', () => {
     await renderWithProviders(<AccountPreview name="onboarding-model-error" />);
     expect(screen.getByTestId('model-status-line')).toHaveTextContent(/Not enough free space\. The model needs 1\.7 GB free and this phone has 900 MB/);
     expect(screen.getByRole('button', { name: 'Continue without it' })).toBeOnTheScreen();
+  });
+
+  it('model step and Settings card: a failed size check shows what it saw, in small print', async () => {
+    const bytes = 1_107_409_472;
+    const file: ModelFileState = {
+      status: 'error',
+      progress: { bytesWritten: 0, bytesTotal: bytes, fraction: 0 },
+      error: 'size-mismatch',
+      detail: { check: 'final', expectedBytes: bytes, actualBytes: 0, reportedTotalBytes: bytes, bytesWrittenAtFail: bytes, seconds: 312 },
+    };
+    const none = () => {};
+    const line = 'Details: final check, 0 of 1,107,409,472 bytes after 312 s (last reported total 1,107,409,472, 1,107,409,472 received).';
+    await renderWithProviders(
+      <ModelStepView
+        file={file}
+        availability="download-failed"
+        descriptor={{ bytes }}
+        freeBytes={90_000_000_000}
+        saving={false}
+        failed={false}
+        onStart={none}
+        onPause={none}
+        onContinue={none}
+        onNotNow={none}
+        onBack={none}
+      />,
+    );
+    expect(screen.getByTestId('model-status-line')).toHaveTextContent(/incomplete, so it was deleted/);
+    expect(screen.getByTestId('model-error-detail')).toHaveTextContent(line);
+    expectAccessibleControls();
+
+    await renderWithProviders(
+      <ModelCard file={file} availability="download-failed" descriptor={{ bytes }} freeBytes={null} onStart={none} onPause={none} onDelete={none} />,
+    );
+    expect(screen.getByTestId('model-error-detail')).toHaveTextContent(line);
+    expect(screen.getByRole('button', { name: 'Try again' })).toBeOnTheScreen();
+
+    const { detail: _detail, ...withoutDetail } = file;
+    await renderWithProviders(
+      <ModelCard file={withoutDetail} availability="download-failed" descriptor={{ bytes }} freeBytes={null} onStart={none} onPause={none} onDelete={none} />,
+    );
+    expect(screen.queryByTestId('model-error-detail')).toBeNull();
   });
 
   it('voice step: hold practice when speech is ready; Settings and typing when refused', async () => {

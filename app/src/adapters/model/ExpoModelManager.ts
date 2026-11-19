@@ -23,12 +23,20 @@
  *   a failure or after the app was killed. iOS keeps its partial data in the system's temp file,
  *   which only resume data from a pause can reach: after a failure or a kill it starts over.
  * - When the app starts and the record says a download was running, it resumes (or restarts).
- * - A server that announces a length other than the descriptor's is stopped early
- *   ('size-mismatch').
+ * - A server that keeps announcing a length other than the descriptor's is stopped early
+ *   ('size-mismatch'), but only on clear evidence: the same wrong total on at least
+ *   EARLY_ABORT_MIN_EVENTS progress events and EARLY_ABORT_MIN_BYTES received. iOS forwards
+ *   NSURLSession's totalBytesExpectedToWrite, which early events of a background, redirected or
+ *   HTTP/2 transfer may not have right (or report as -1); anything less than that is left to the
+ *   final size check.
  *
- * Verification: size, then SHA-256 (fileHash.ts: native module, File#digest, or JS). A file that
- * fails is deleted and the status says why ('size-mismatch' or 'checksum-mismatch'). A file that
- * passes is renamed into place and recorded as 'ready' in model_files with its size and hash.
+ * Verification: size, then SHA-256 (fileHash.ts: native module, File#digest, or JS), of the file
+ * the task says it wrote (DownloadTask resolves with it; normally the part file). The size is
+ * read from a fresh File; when it is not the expected one (iOS reports an unreadable file as 0)
+ * it is read once more after SIZE_RETRY_DELAY_MS before the file counts as bad. A file that fails
+ * is deleted and the status says why ('size-mismatch' or 'checksum-mismatch'), with `detail`
+ * saying which check fired and what it saw (also logged with console.warn). A file that passes is
+ * renamed into place and recorded as 'ready' in model_files with its size and hash.
  *
  * Startup: a model file whose model_files row is 'ready' with the descriptor's size and hash, and
  * which has not been modified since that row was written (file mtime <= updated_at), is 'ready'
@@ -49,6 +57,7 @@ import { createFileHasher, type FileHasher } from './fileHash';
 import type {
   DownloadProgress,
   ModelDescriptor,
+  ModelFileCheckDetail,
   ModelFileErrorCode,
   ModelFileState,
   ModelFileStatus,
@@ -61,6 +70,21 @@ const KEEP_AWAKE_TAG = 'cliffword-model-download';
 
 /** How long cancel() waits for the native task to pause before it cancels it. */
 const PAUSE_DEADLINE_MS = 5000;
+
+/** The early length check stops a transfer only after this many bytes... */
+export const EARLY_ABORT_MIN_BYTES = 8 * 1024 * 1024;
+/** ...and after this many progress events announcing the same wrong total. */
+export const EARLY_ABORT_MIN_EVENTS = 2;
+/** How long the size check waits before reading a size again (iOS may still be moving the file). */
+export const SIZE_RETRY_DELAY_MS = 500;
+
+const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+/** Two file URIs (or paths) name the same file; iOS may spell /var/... as /private/var/.... */
+function samePath(a: string, b: string): boolean {
+  const norm = (uri: string) => uriToPath(uri).replace(/\/+$/, '').replace(/^\/private\/var\//, '/var/');
+  return norm(a) === norm(b);
+}
 
 /** Resolves true when `promise` settles in time, false when the deadline passes first. */
 function withDeadline(promise: Promise<unknown>, ms: number): Promise<boolean> {
@@ -103,6 +127,8 @@ export interface ExpoModelManagerOptions {
   directory?: Directory;
   /** Resume a download that was running when the app stopped. Default true. */
   resumeOnStart?: boolean;
+  /** Wait before the size check reads a size again. Default SIZE_RETRY_DELAY_MS. */
+  sizeRetryDelayMs?: number;
 }
 
 /** The download record (<fileName>.download.json). */
@@ -179,6 +205,7 @@ export class ExpoModelManager implements ModelManager {
   private readonly clock: Clock;
   private readonly marginBytes: number;
   private readonly dir: Directory;
+  private readonly sizeRetryDelayMs: number;
   private readonly listeners = new Listeners<ModelFileState>();
 
   private state: ModelFileState;
@@ -192,6 +219,8 @@ export class ExpoModelManager implements ModelManager {
   /** The epoch delete() moved to. */
   private lastDelete = 0;
   private awake = false;
+  /** The transfer of the running download (for diagnostics): when it started, what it last reported. */
+  private transfer: { startedAt: number; reportedTotal: number | null; bytesWritten: number } | null = null;
   private dbQueue: Promise<void> = Promise.resolve();
   private readonly startup: Promise<void>;
 
@@ -206,6 +235,7 @@ export class ExpoModelManager implements ModelManager {
     this.clock = opts.clock ?? systemClock;
     this.marginBytes = opts.marginBytes ?? FREE_SPACE_MARGIN_BYTES;
     this.dir = opts.directory ?? new Directory(Paths.document, 'models');
+    this.sizeRetryDelayMs = opts.sizeRetryDelayMs ?? SIZE_RETRY_DELAY_MS;
     this.filePath = uriToPath(this.finalFile().uri);
     this.state = this.initialState();
     this.startup = this.recover(opts.resumeOnStart ?? true).catch(() => {});
@@ -294,8 +324,10 @@ export class ExpoModelManager implements ModelManager {
     if (final.exists) {
       const { epoch, done } = this.begin();
       void done;
-      if (final.size !== this.descriptor.bytes) {
-        this.reject(epoch, final, 'size-mismatch');
+      const size = await this.readSize(final);
+      if (!this.alive(epoch)) return;
+      if (size !== this.descriptor.bytes) {
+        this.reject(epoch, final, 'size-mismatch', this.checkDetail('startup', size));
         return;
       }
       const row = await this.modelFiles()
@@ -307,7 +339,7 @@ export class ExpoModelManager implements ModelManager {
         this.finish({ status: 'ready', progress: this.progressOf(this.descriptor.bytes), error: null });
         return;
       }
-      await this.verify(epoch, final);
+      await this.verify(epoch, final, 'startup');
       return;
     }
 
@@ -315,7 +347,7 @@ export class ExpoModelManager implements ModelManager {
     if (part.exists && part.size === this.descriptor.bytes) {
       // The transfer finished but was never verified (the app stopped in between).
       const { epoch } = this.begin();
-      await this.verify(epoch, part);
+      await this.verify(epoch, part, 'final');
       return;
     }
 
@@ -355,13 +387,13 @@ export class ExpoModelManager implements ModelManager {
     // The model file is there (a cancel() stopped its startup check): check it again.
     const final = this.finalFile();
     if (final.exists) {
-      await this.verify(epoch, final);
+      await this.verify(epoch, final, 'startup');
       return;
     }
     // A finished but unverified transfer: verify it instead of fetching it again.
     const part = this.partFile();
     if (part.exists && part.size === this.descriptor.bytes) {
-      await this.verify(epoch, part);
+      await this.verify(epoch, part, 'final');
       return;
     }
     if (part.exists && part.size > this.descriptor.bytes) removeQuietly(part);
@@ -391,16 +423,31 @@ export class ExpoModelManager implements ModelManager {
     this.writeRecord({ intent: 'running', bytesWritten: offset, pause: resume ?? undefined });
     this.writeRow('downloading', { bytes: offset, sha256: null });
     this.update({ status: 'downloading', progress: this.progressOf(offset), error: null });
+    this.transfer = { startedAt: this.clock.now(), reportedTotal: null, bytesWritten: offset };
 
     for (;;) {
       const from = resume ? this.resumeOffset(record) : 0;
       let gotBytes = false;
+      let wrongTotal = 0;
+      let wrongTotalEvents = 0;
       const onProgress = ({ bytesWritten, totalBytes }: { bytesWritten: number; totalBytes: number }) => {
         if (!this.alive(epoch)) return;
+        if (this.transfer) {
+          this.transfer.reportedTotal = Number.isFinite(totalBytes) ? totalBytes : null;
+          if (Number.isFinite(bytesWritten)) this.transfer.bytesWritten = bytesWritten;
+        }
         if (from === 0 && totalBytes > 0 && totalBytes !== this.descriptor.bytes) {
-          // The server is sending something else; stop now instead of after 1.1 GB.
-          this.abortWrongSize();
-          return;
+          // Early events may carry a provisional total (iOS: redirects, HTTP/2, throttled events).
+          // Only the same wrong total, again, with real data behind it, stops the transfer now
+          // instead of after 1.1 GB; otherwise the final size check decides.
+          wrongTotalEvents = totalBytes === wrongTotal ? wrongTotalEvents + 1 : 1;
+          wrongTotal = totalBytes;
+          if (wrongTotalEvents >= EARLY_ABORT_MIN_EVENTS && bytesWritten >= EARLY_ABORT_MIN_BYTES) {
+            this.abortWrongSize();
+            return;
+          }
+        } else {
+          wrongTotalEvents = 0;
         }
         // iOS may count a resumed transfer from the resume point, with the remaining length as total.
         const relative = from > 0 && totalBytes > 0 && totalBytes < this.descriptor.bytes;
@@ -448,10 +495,25 @@ export class ExpoModelManager implements ModelManager {
         this.finish({ status: 'absent', progress: this.state.progress, error: null });
         return;
       }
-      break;
+      await this.verify(epoch, this.landedFile(result), 'final');
+      return;
     }
+  }
 
-    await this.verify(epoch, this.partFile());
+  /**
+   * The file the finished task wrote, as a fresh File: DownloadTask resolves with the destination
+   * native code moved the transfer to (the part file, unless iOS spelled or placed it otherwise).
+   * A different file is verified where it is; verify() then moves it to the final name.
+   */
+  private landedFile(result: File): File {
+    const part = this.partFile();
+    try {
+      if (!result.uri || samePath(result.uri, part.uri)) return part;
+      const landed = new File(result.uri);
+      return landed.exists || !part.exists ? landed : part;
+    } catch {
+      return part;
+    }
   }
 
   /** iOS resume data is fragile (the system may purge its temp file); Android only on HTTP 416. */
@@ -505,13 +567,18 @@ export class ExpoModelManager implements ModelManager {
 
   // ---- verification ----
 
-  /** Checks size and SHA-256 of `file` (the part file, or the model file at startup). */
-  private async verify(epoch: number, file: File): Promise<void> {
+  /**
+   * Checks size and SHA-256 of `file` (the downloaded file, or the model file at startup).
+   * `check` names the check in the diagnostic detail of a failure.
+   */
+  private async verify(epoch: number, file: File, check: 'final' | 'startup'): Promise<void> {
     if (!this.alive(epoch)) return;
     this.update({ status: 'verifying', progress: this.progressOf(this.descriptor.bytes), error: null, verifyFraction: 0 });
-    this.writeRow('verifying', { bytes: file.size });
-    if (file.size !== this.descriptor.bytes) {
-      this.reject(epoch, file, 'size-mismatch');
+    const size = await this.readSize(file);
+    if (!this.alive(epoch)) return;
+    this.writeRow('verifying', { bytes: size ?? 0 });
+    if (size !== this.descriptor.bytes) {
+      this.reject(epoch, file, 'size-mismatch', this.checkDetail(check, size));
       return;
     }
 
@@ -546,15 +613,17 @@ export class ExpoModelManager implements ModelManager {
     }
     if (!this.alive(epoch)) return;
     if (sha256 !== this.descriptor.sha256) {
-      this.reject(epoch, file, 'checksum-mismatch');
+      this.reject(epoch, file, 'checksum-mismatch', this.checkDetail('checksum', size));
       return;
     }
 
     const final = this.finalFile();
-    if (file.uri !== final.uri) {
+    if (!samePath(file.uri, final.uri)) {
       try {
         removeQuietly(final);
         await file.move(final);
+        // A transfer that landed elsewhere may leave an older part file behind.
+        removeQuietly(this.partFile());
       } catch {
         if (!this.alive(epoch)) return;
         this.writeRow('failed', {});
@@ -570,11 +639,56 @@ export class ExpoModelManager implements ModelManager {
     this.finish({ status: 'ready', progress: this.progressOf(this.descriptor.bytes), error: null });
   }
 
-  /** The server announced another length: stop the transfer, drop what arrived, say why. */
+  /**
+   * The size of `file`, read from a fresh File object, or null when it cannot be read. A size other
+   * than the descriptor's (iOS reports an unreadable file as 0) is read once more after a short
+   * wait: iOS may still be finishing the move into place.
+   */
+  private async readSize(file: File): Promise<number | null> {
+    const read = (): number | null => {
+      try {
+        const fresh = new File(file.uri);
+        if (!fresh.exists) return null;
+        const size: unknown = fresh.size;
+        return typeof size === 'number' && Number.isFinite(size) && size >= 0 ? size : null;
+      } catch {
+        return null;
+      }
+    };
+    const first = read();
+    if (first === this.descriptor.bytes) return first;
+    await delay(this.sizeRetryDelayMs);
+    return read() ?? first;
+  }
+
+  /** What a failed check saw, for ModelFileState.detail. */
+  private checkDetail(check: ModelFileCheckDetail['check'], actualBytes: number | null): ModelFileCheckDetail {
+    const transfer = this.transfer;
+    return {
+      check,
+      expectedBytes: this.descriptor.bytes,
+      actualBytes,
+      reportedTotalBytes: transfer?.reportedTotal ?? null,
+      bytesWrittenAtFail: transfer?.bytesWritten ?? 0,
+      seconds: transfer ? Math.max(0, Math.round((this.clock.now() - transfer.startedAt) / 1000)) : null,
+    };
+  }
+
+  private logFailedCheck(code: 'size-mismatch' | 'checksum-mismatch', detail: ModelFileCheckDetail): void {
+    try {
+      console.warn(`[model] ${code}: ${JSON.stringify(detail)}`);
+    } catch {
+      // Logging never breaks the download.
+    }
+  }
+
+  /** The server kept announcing another length: stop the transfer, drop what arrived, say why. */
   private abortWrongSize(): void {
     const task = this.task;
+    const detail = this.checkDetail('early', null);
     this.epoch += 1; // the download's own continuation stops here
-    this.finish({ status: 'error', progress: this.progressOf(0), error: 'size-mismatch' });
+    this.logFailedCheck('size-mismatch', detail);
+    this.finish({ status: 'error', progress: this.progressOf(0), error: 'size-mismatch', detail });
     task?.cancel();
     removeQuietly(this.partFile());
     removeQuietly(this.recordFile());
@@ -582,11 +696,12 @@ export class ExpoModelManager implements ModelManager {
   }
 
   /** A file that failed its check is deleted, and the status says why. */
-  private reject(epoch: number, file: File, code: 'size-mismatch' | 'checksum-mismatch'): void {
+  private reject(epoch: number, file: File, code: 'size-mismatch' | 'checksum-mismatch', detail: ModelFileCheckDetail): void {
+    this.logFailedCheck(code, detail);
     removeQuietly(file);
     removeQuietly(this.recordFile());
     this.writeRow('failed', { bytes: 0, sha256: null });
-    if (this.alive(epoch)) this.finish({ status: 'error', progress: this.progressOf(0), error: code });
+    if (this.alive(epoch)) this.finish({ status: 'error', progress: this.progressOf(0), error: code, detail });
   }
 
   private failUnexpected(epoch: number, _error: unknown): void {
@@ -674,6 +789,7 @@ export class ExpoModelManager implements ModelManager {
 
   private begin(): { epoch: number; done: Promise<ModelFileStatus> } {
     this.epoch += 1;
+    this.transfer = null;
     const done = new Promise<ModelFileStatus>((resolve) => {
       this.settle = resolve;
     });

@@ -1,6 +1,14 @@
 import { createTranslator } from '../../i18n/translator';
 import { DEFAULT_MODEL, FREE_SPACE_MARGIN_BYTES } from './descriptor';
-import { formatBytes, MODEL_DOWNLOAD_NOTES, MODEL_FILE_ACTIONS, modelFileMessage, modelProgressMessage } from './modelFileMessages';
+import {
+  formatBytes,
+  formatCount,
+  MODEL_DOWNLOAD_NOTES,
+  MODEL_FILE_ACTIONS,
+  modelFileDetailMessage,
+  modelFileMessage,
+  modelProgressMessage,
+} from './modelFileMessages';
 import type { ModelFileState } from './types';
 
 const { t } = createTranslator({ native: 'en', onMissing: (key) => { throw new Error(`missing ${key}`); } });
@@ -65,5 +73,33 @@ describe('model file messages', () => {
     for (const key of Object.values(MODEL_FILE_ACTIONS)) expect(t(key, { size: '1.1 GB' })).not.toBe(key);
     const m = modelProgressMessage(state({ progress: { bytesWritten: 553_704_736, bytesTotal: total, fraction: 0.5 } }), t);
     expect(t(m.key, m.vars)).toBe('554 MB of 1.1 GB');
+  });
+
+  it('gives a one-line detail for a failed size or checksum check', () => {
+    const detail = (d: Partial<NonNullable<ModelFileState['detail']>>) => {
+      const m = modelFileDetailMessage(
+        state({
+          status: 'error',
+          error: 'size-mismatch',
+          detail: { check: 'final', expectedBytes: total, actualBytes: 0, reportedTotalBytes: null, bytesWrittenAtFail: 0, seconds: 312, ...d },
+        }),
+        t,
+      );
+      return m ? t(m.key, m.vars) : null;
+    };
+    expect(formatCount(1_107_409_472)).toBe('1,107,409,472');
+    expect(formatCount(999)).toBe('999');
+    expect(formatCount(1_107_409_472, 'de')).toBe('1.107.409.472');
+    expect(detail({})).toBe('Details: final check, 0 of 1,107,409,472 bytes after 312 s (last reported total unknown, 0 received).');
+    expect(detail({ actualBytes: null, reportedTotalBytes: 1_107_409_472, bytesWrittenAtFail: 1_107_409_472 })).toBe(
+      'Details: final check, unknown of 1,107,409,472 bytes after 312 s (last reported total 1,107,409,472, 1,107,409,472 received).',
+    );
+    expect(detail({ check: 'early', actualBytes: null, reportedTotalBytes: 1_234, bytesWrittenAtFail: 9_000_000, seconds: 4 })).toBe(
+      'Details: early check, the server announced 1,234 bytes instead of 1,107,409,472; 9,000,000 received after 4 s.',
+    );
+    expect(detail({ check: 'checksum', actualBytes: total })).toBe('Details: checksum check, 1,107,409,472 of 1,107,409,472 bytes after 312 s.');
+    expect(detail({ check: 'startup', actualBytes: 50, seconds: null })).toBe('Details: startup check, 50 of 1,107,409,472 bytes.');
+    expect(modelFileDetailMessage(state({ status: 'error', error: 'network' }), t)).toBeNull();
+    expect(modelFileDetailMessage(state({ status: 'downloading' }), t)).toBeNull();
   });
 });

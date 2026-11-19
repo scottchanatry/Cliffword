@@ -641,9 +641,16 @@ Contract rules (each `types.ts` documents the full contract):
     `models/<file>.download.json`. Android resumes from the partial file's length, also after a
     failure or a kill. iOS resumes only from a pause; otherwise it starts over. A download that
     was running when the app stopped resumes (or restarts) at the next launch.
-  - **Verify.** Size, then SHA-256 (`fileHash.ts`: the native module, else
+  - **Early stop.** A transfer is stopped as `'size-mismatch'` only when at least two progress
+    events announce the same wrong total and 8 MB have arrived (`EARLY_ABORT_MIN_BYTES`); iOS
+    forwards NSURLSession's provisional totals, so a single odd or unknown total is ignored.
+  - **Verify.** The file the task resolved with (normally the part file), size read from a fresh
+    `File` (once more after 500 ms when it is not the expected one: iOS reports an unreadable
+    file as 0), then SHA-256 (`fileHash.ts`: the native module, else
     `File#digest('SHA-256')`, else the TypeScript `Sha256` over file slices). A file that fails
-    is deleted and the state says why (`'size-mismatch'`, `'checksum-mismatch'`). A file that
+    is deleted and the state says why (`'size-mismatch'`, `'checksum-mismatch'`), with
+    `state.detail` (which check, expected and read size, last reported total, bytes received,
+    seconds) shown as one muted line under the error and logged with `console.warn`. A file that
     passes is renamed into place and written to `model_files` as `'ready'` with its size and
     hash.
   - **Startup.** A file whose row is `'ready'` with the descriptor's size and hash, and whose

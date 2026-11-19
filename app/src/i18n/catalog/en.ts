@@ -281,6 +281,12 @@ export const en = {
   'model.download.error.checksum': 'The downloaded file was damaged, so it was deleted. Download it again.',
   'model.download.error.size': 'The downloaded file was incomplete, so it was deleted. Download it again.',
   'model.download.error.unknown': 'The model file could not be checked. Try again.',
+  // One small line under a size or checksum error, so a screenshot says what the check saw.
+  'model.download.detail.early': 'Details: early check, the server announced {reported} bytes instead of {expected}; {written} received after {seconds} s.',
+  'model.download.detail.final': 'Details: final check, {actual} of {expected} bytes after {seconds} s (last reported total {reported}, {written} received).',
+  'model.download.detail.checksum': 'Details: checksum check, {actual} of {expected} bytes after {seconds} s.',
+  'model.download.detail.startup': 'Details: startup check, {actual} of {expected} bytes.',
+  'model.download.detail.unknown': 'unknown',
   'model.delete': 'Delete the model',
   'model.delete.body': 'Frees {size}. You can download it again later.',
   'model.delete.done': 'The model was deleted. Download it again to use it.',

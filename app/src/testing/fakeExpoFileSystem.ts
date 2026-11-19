@@ -60,6 +60,9 @@ let digestMode: DigestMode = 'throw';
 let digestImpl: ((bytes: Bytes) => string) | null = null;
 /** When true, pause() is lost, as when it reaches the native task before the task started. */
 let losePauses = false;
+/** File URIs whose next File#size reads fail, and how (see fakeFs.failSizeReads). */
+const sizeFailures = new Map<string, { count: number; mode: SizeFailure }>();
+export type SizeFailure = 'throw' | 'nan' | 'zero';
 let now = 1_000_000;
 
 const DOCUMENT = 'file:///docs/';
@@ -163,8 +166,14 @@ export class File {
     return files.has(this.uri);
   }
 
-  /** 0 when missing, as on iOS. */
+  /** 0 when missing, as on iOS. fakeFs.failSizeReads makes the next reads fail. */
   get size(): number {
+    const failure = sizeFailures.get(this.uri);
+    if (failure && failure.count > 0) {
+      failure.count -= 1;
+      if (failure.mode === 'throw') throw new Error(`Unable to get file attribute: ${this.uri}`);
+      return failure.mode === 'nan' ? Number.NaN : 0;
+    }
     return files.get(this.uri)?.bytes.length ?? 0;
   }
 
@@ -291,13 +300,22 @@ export class FakeDownload {
     this.task.options?.onProgress?.(event);
   }
 
-  /** The transfer finishes. `corrupt` flips a byte; `truncate` drops the last bytes. */
-  complete(opts: { corrupt?: boolean; truncate?: number } = {}): void {
+  /** A raw progress event, as native code forwards it (any bytesWritten and totalBytes). */
+  emit(event: DownloadProgressEvent): void {
+    if (this.settled) throw new Error('fakeFs: operation already settled');
+    this.task.options?.onProgress?.(event);
+  }
+
+  /**
+   * The transfer finishes. `corrupt` flips a byte; `truncate` drops the last bytes; `landAt`
+   * writes the file to another URI (iOS) and resolves with that File.
+   */
+  complete(opts: { corrupt?: boolean; truncate?: number; landAt?: string } = {}): void {
     if (this.settled) throw new Error('fakeFs: operation already settled');
     let bytes = this.content().slice();
     if (opts.corrupt) bytes[Math.floor(bytes.length / 2)] = ((bytes[Math.floor(bytes.length / 2)] as number) + 1) & 0xff;
     if (opts.truncate) bytes = bytes.slice(0, bytes.length - opts.truncate);
-    const dest = this.task.destination.uri;
+    const dest = opts.landAt ? fileKey(opts.landAt) : this.task.destination.uri;
     if (platform === 'android') {
       const existing = files.get(dest)?.bytes ?? new Uint8Array(0);
       writeEntry(dest, concat(existing.slice(0, this.received), bytes.slice(this.received)));
@@ -439,6 +457,7 @@ export const fakeFs = {
     served.clear();
     operations.length = 0;
     iosTempFiles.clear();
+    sizeFailures.clear();
     platform = opts.platform ?? 'android';
     freeBytes = opts.freeBytes ?? 50_000_000_000;
     digestMode = opts.digest ?? 'throw';
@@ -486,6 +505,13 @@ export const fakeFs = {
     const op = operations[operations.length - 1];
     if (!op) throw new Error('fakeFs: no download was started');
     return op;
+  },
+  /**
+   * The next `count` File#size reads of `uri` fail: 'throw' (iOS getAttribute error), 'nan', or
+   * 'zero' (what expo-file-system's iOS size property returns when the read fails).
+   */
+  failSizeReads(uri: string, count: number, mode: SizeFailure = 'throw'): void {
+    sizeFailures.set(fileKey(uri), { count, mode });
   },
   /** Makes saved iOS resume data unusable (as if iOS purged the temp file). */
   invalidateResumeData(resumeData: string): void {

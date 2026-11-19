@@ -3,7 +3,14 @@ import { FakeClock } from '../clock/FakeClock';
 import { fakeFs } from '../../testing/fakeExpoFileSystem';
 import { openTestStorage } from '../../storage/testing/openTestStorage';
 import type { Storage } from '../../storage/storage';
-import { classifyDownloadError, ExpoModelManager, FREE_SPACE_MARGIN_BYTES, uriToPath } from './ExpoModelManager';
+import {
+  classifyDownloadError,
+  EARLY_ABORT_MIN_BYTES,
+  ExpoModelManager,
+  FREE_SPACE_MARGIN_BYTES,
+  SIZE_RETRY_DELAY_MS,
+  uriToPath,
+} from './ExpoModelManager';
 import { createFileHasher, type FileHasher } from './fileHash';
 import { keepModelLoaded } from './keepModelLoaded';
 import { MockModelAdapter } from './MockModelAdapter';
@@ -48,6 +55,8 @@ interface SetupOptions {
   resumeOnStart?: boolean;
   hasher?: FileHasher;
   clock?: FakeClock;
+  /** Default 0 here (the manager's default is SIZE_RETRY_DELAY_MS). */
+  sizeRetryDelayMs?: number;
 }
 
 async function setup(opts: SetupOptions = {}) {
@@ -70,6 +79,7 @@ async function setup(opts: SetupOptions = {}) {
     },
     clock,
     resumeOnStart: opts.resumeOnStart,
+    sizeRetryDelayMs: opts.sizeRetryDelayMs ?? 0,
   });
   const seen: ModelFileState[] = [];
   manager.onChange((s) => seen.push(s));
@@ -87,9 +97,17 @@ async function start(manager: ExpoModelManager): Promise<{ done: Promise<ModelFi
   return { done };
 }
 
+let warn: jest.SpyInstance;
+
 beforeEach(() => {
   fakeFs.reset({ platform: 'android' });
   fakeFs.serve(MODEL.url, CONTENT);
+  // Failed checks log their detail; keep the test output quiet and let tests read it.
+  warn = jest.spyOn(console, 'warn').mockImplementation(() => {});
+});
+
+afterEach(() => {
+  warn.mockRestore();
 });
 
 afterEach(async () => {
@@ -313,26 +331,157 @@ describe('ExpoModelManager: download', () => {
     await expect(retry).resolves.toBe('ready');
   });
 
-  it('deletes a file of the wrong size without hashing it', async () => {
-    const { manager, hash } = await setup();
+  it('deletes a file of the wrong size without hashing it, and says what the check saw', async () => {
+    const clock = new FakeClock();
+    const { manager, hash } = await setup({ clock });
     const { done } = await start(manager);
+    fakeFs.lastDownload().progress(4000);
+    clock.advance(312_000);
     fakeFs.lastDownload().complete({ truncate: 10 });
     await expect(done).resolves.toBe('error');
-    expect(manager.snapshot()).toMatchObject({ error: 'size-mismatch' });
+    expect(manager.snapshot()).toMatchObject({
+      error: 'size-mismatch',
+      detail: { check: 'final', expectedBytes: 10_000, actualBytes: 9_990, reportedTotalBytes: 9_990, bytesWrittenAtFail: 9_990, seconds: 312 },
+    });
     expect(hash).not.toHaveBeenCalled();
     expect(fakeFs.list()).toEqual([]);
+    expect(warn).toHaveBeenCalledWith(expect.stringMatching(/^\[model\] size-mismatch: .*"check":"final".*"actualBytes":9990/));
   });
 
-  it('stops early when the server announces another length', async () => {
-    fakeFs.serve(MODEL.url, bytes(12_345));
+  it('says which check failed when the SHA-256 does not match', async () => {
+    const { manager } = await setup();
+    const { done } = await start(manager);
+    fakeFs.lastDownload().complete({ corrupt: true });
+    await expect(done).resolves.toBe('error');
+    expect(manager.snapshot().detail).toMatchObject({ check: 'checksum', actualBytes: 10_000, expectedBytes: 10_000 });
+    expect(warn).toHaveBeenCalledWith(expect.stringMatching(/^\[model\] checksum-mismatch: /));
+  });
+
+  it('stops early when the server keeps announcing another length with real data behind it', async () => {
+    const { manager, clock } = await setup();
+    const { done } = await start(manager);
+    const op = fakeFs.lastDownload();
+    op.emit({ bytesWritten: EARLY_ABORT_MIN_BYTES, totalBytes: 12_345_678 });
+    expect(manager.status()).toBe('downloading');
+    clock.advance(4000);
+    op.emit({ bytesWritten: EARLY_ABORT_MIN_BYTES + 1, totalBytes: 12_345_678 });
+    await expect(done).resolves.toBe('error');
+    expect(manager.snapshot()).toMatchObject({
+      error: 'size-mismatch',
+      detail: {
+        check: 'early',
+        expectedBytes: 10_000,
+        actualBytes: null,
+        reportedTotalBytes: 12_345_678,
+        bytesWrittenAtFail: EARLY_ABORT_MIN_BYTES + 1,
+        seconds: 4,
+      },
+    });
+    expect(op.task.state).toBe('cancelled');
+    expect(fakeFs.exists(PART)).toBe(false);
+    expect(warn).toHaveBeenCalledWith(expect.stringMatching(/^\[model\] size-mismatch: .*"check":"early"/));
+  });
+
+  it('does not stop early on a single, small, changing or unknown total (iOS early events)', async () => {
+    fakeFs.reset({ platform: 'ios' });
+    fakeFs.serve(MODEL.url, CONTENT);
+    const { manager } = await setup({ platform: 'ios' });
+    const { done } = await start(manager);
+    const op = fakeFs.lastDownload();
+    // A provisional total on the first event, then unknown (-1), then 0, then the real one.
+    op.emit({ bytesWritten: 512, totalBytes: 1_234 });
+    op.emit({ bytesWritten: 600, totalBytes: 1_234 }); // same wrong total twice, but under 8 MB
+    op.emit({ bytesWritten: 700, totalBytes: -1 });
+    op.emit({ bytesWritten: 800, totalBytes: 0 });
+    op.emit({ bytesWritten: EARLY_ABORT_MIN_BYTES, totalBytes: 99_999_999 }); // over 8 MB, but once
+    op.emit({ bytesWritten: EARLY_ABORT_MIN_BYTES + 1, totalBytes: 88_888_888 }); // and another total
+    op.emit({ bytesWritten: EARLY_ABORT_MIN_BYTES + 2, totalBytes: -1 });
+    op.emit({ bytesWritten: EARLY_ABORT_MIN_BYTES + 3, totalBytes: -1 });
+    expect(manager.status()).toBe('downloading');
+    expect(op.task.state).toBe('active');
+    op.complete();
+    await expect(done).resolves.toBe('ready');
+    expect(manager.snapshot().detail).toBeUndefined();
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  it('a wrong total that comes back after the right one counts from one again', async () => {
     const { manager } = await setup();
     const { done } = await start(manager);
     const op = fakeFs.lastDownload();
-    op.progress(100);
+    op.emit({ bytesWritten: EARLY_ABORT_MIN_BYTES, totalBytes: 12_345_678 });
+    op.emit({ bytesWritten: EARLY_ABORT_MIN_BYTES, totalBytes: MODEL.bytes });
+    op.emit({ bytesWritten: EARLY_ABORT_MIN_BYTES, totalBytes: 12_345_678 });
+    expect(manager.status()).toBe('downloading');
+    op.complete();
+    await expect(done).resolves.toBe('ready');
+  });
+
+  it('verifies the file the task says it wrote (iOS), and moves it to the final name', async () => {
+    fakeFs.reset({ platform: 'ios' });
+    fakeFs.serve(MODEL.url, CONTENT);
+    const { manager, hash } = await setup({ platform: 'ios' });
+    const { done } = await start(manager);
+    const elsewhere = 'file:///private/var/mobile/tmp/CFNetworkDownload_1.tmp';
+    fakeFs.lastDownload().complete({ landAt: elsewhere });
+    await expect(done).resolves.toBe('ready');
+    expect(hash).toHaveBeenCalledWith(elsewhere, expect.any(Function), expect.anything());
+    expect(fakeFs.list()).toEqual([FINAL]);
+    expect(fakeFs.readFile(FINAL)).toEqual(CONTENT);
+  });
+
+  it.each(['throw', 'nan', 'zero'] as const)('reads the size again when the first read fails (%s)', async (mode) => {
+    fakeFs.reset({ platform: 'ios' });
+    fakeFs.serve(MODEL.url, CONTENT);
+    const { manager } = await setup({ platform: 'ios' });
+    const { done } = await start(manager);
+    fakeFs.failSizeReads(PART, 1, mode);
+    fakeFs.lastDownload().complete();
+    await expect(done).resolves.toBe('ready');
+    expect(fakeFs.list()).toEqual([FINAL]);
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  it('waits SIZE_RETRY_DELAY_MS by default before the second read', async () => {
+    fakeFs.reset({ platform: 'ios' });
+    fakeFs.serve(MODEL.url, CONTENT);
+    const storage = await openTestStorage();
+    storages.push(storage);
+    jest.useFakeTimers();
+    try {
+      const manager = new ExpoModelManager({
+        platform: 'ios',
+        descriptor: MODEL,
+        modelFiles: async () => storage.modelFiles,
+        hasher: createFileHasher({ native: null, fileDigest: false, chunkBytes: 4096 }),
+        keepAwake: { activate: async () => undefined, deactivate: async () => undefined },
+        freeBytes: async () => null,
+        excludeFromBackup: async () => {},
+      });
+      const done = manager.startDownload();
+      await jest.advanceTimersByTimeAsync(0);
+      fakeFs.failSizeReads(PART, 1, 'zero');
+      fakeFs.lastDownload().complete();
+      await jest.advanceTimersByTimeAsync(SIZE_RETRY_DELAY_MS - 1);
+      expect(manager.status()).toBe('verifying');
+      await jest.advanceTimersByTimeAsync(1);
+      await jest.runAllTimersAsync();
+      await expect(done).resolves.toBe('ready');
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it('rejects a file whose size cannot be read twice, with the size as unknown', async () => {
+    fakeFs.reset({ platform: 'ios' });
+    fakeFs.serve(MODEL.url, CONTENT);
+    const { manager, hash } = await setup({ platform: 'ios' });
+    const { done } = await start(manager);
+    fakeFs.failSizeReads(PART, 2, 'throw');
+    fakeFs.lastDownload().complete();
     await expect(done).resolves.toBe('error');
-    expect(manager.snapshot()).toMatchObject({ error: 'size-mismatch' });
-    expect(op.task.state).toBe('cancelled');
-    expect(fakeFs.exists(PART)).toBe(false);
+    expect(manager.snapshot()).toMatchObject({ error: 'size-mismatch', detail: { check: 'final', actualBytes: null } });
+    expect(hash).not.toHaveBeenCalled();
   });
 
   it('reports a full disk during the transfer as insufficient storage', async () => {
@@ -411,13 +560,17 @@ describe('ExpoModelManager: startup', () => {
     fakeFs.writeFile(FINAL, damaged, clock.now() + 1000);
     const next = await setup({ storage, clock });
     await next.manager.whenStarted();
-    expect(next.manager.snapshot()).toMatchObject({ status: 'error', error: 'checksum-mismatch' });
+    expect(next.manager.snapshot()).toMatchObject({ status: 'error', error: 'checksum-mismatch', detail: { check: 'checksum', seconds: null } });
     expect(fakeFs.exists(FINAL)).toBe(false);
 
     fakeFs.writeFile(FINAL, CONTENT.slice(0, 50));
     const short = await setup({ storage, clock });
     await short.manager.whenStarted();
-    expect(short.manager.snapshot()).toMatchObject({ status: 'error', error: 'size-mismatch' });
+    expect(short.manager.snapshot()).toMatchObject({
+      status: 'error',
+      error: 'size-mismatch',
+      detail: { check: 'startup', expectedBytes: 10_000, actualBytes: 50, reportedTotalBytes: null, bytesWrittenAtFail: 0, seconds: null },
+    });
     expect(short.hash).not.toHaveBeenCalled();
     expect(fakeFs.exists(FINAL)).toBe(false);
   });

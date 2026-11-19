@@ -1,6 +1,13 @@
 import { StyleSheet, View } from 'react-native';
 import type { ModelAvailability } from '../../adapters/model/keepModelLoaded';
-import { formatBytes, MODEL_DOWNLOAD_NOTES, MODEL_FILE_ACTIONS, modelFileMessage, modelProgressMessage } from '../../adapters/model/modelFileMessages';
+import {
+  formatBytes,
+  MODEL_DOWNLOAD_NOTES,
+  MODEL_FILE_ACTIONS,
+  modelFileDetailMessage,
+  modelFileMessage,
+  modelProgressMessage,
+} from '../../adapters/model/modelFileMessages';
 import type { ModelDescriptor, ModelFileState } from '../../adapters/model/types';
 import { CHROME_MAX_SCALE } from '../../components/words/fontScale';
 import { useI18n } from '../../i18n';
@@ -18,8 +25,10 @@ export interface ModelStatusProps {
 
 /** The status line of the model (by file state and model status), the progress bar and the free space. */
 export function ModelStatus({ file, availability, descriptor, freeBytes }: ModelStatusProps) {
-  const { t } = useI18n();
+  const { t, native } = useI18n();
   const moving = file.status === 'downloading' || file.status === 'verifying';
+  // Which size or checksum check failed and what it saw, so a screenshot says what happened.
+  const detail = availability === 'download-failed' ? modelFileDetailMessage(file, t, native) : null;
   let line: string;
   switch (availability) {
     case 'loading':
@@ -56,6 +65,11 @@ export function ModelStatus({ file, availability, descriptor, freeBytes }: Model
       >
         {line}
       </InterfaceText>
+      {detail ? (
+        <InterfaceText variant="caption" tone="muted" maxFontSizeMultiplier={CHROME_MAX_SCALE} testID="model-error-detail">
+          {t(detail.key, detail.vars)}
+        </InterfaceText>
+      ) : null}
       {moving ? <ProgressBar fraction={fraction} label={t(progress.key, progress.vars)} testID="model-progress" /> : null}
       {moving ? (
         <InterfaceText variant="caption" tone="muted" maxFontSizeMultiplier={CHROME_MAX_SCALE}>

@@ -16,7 +16,7 @@ import type { CatalogKey } from '../../i18n/catalog';
 import type { TranslationVars } from '../../i18n/interpolate';
 import { tKey } from '../../i18n/tKey';
 import { FREE_SPACE_MARGIN_BYTES } from './descriptor';
-import type { ModelDescriptor, ModelFileErrorCode, ModelFileState } from './types';
+import type { ModelDescriptor, ModelFileCheckDetail, ModelFileErrorCode, ModelFileState } from './types';
 
 /** The translate function (useI18n().t or a Translator's t). */
 export type Translate = (key: CatalogKey, vars?: TranslationVars) => string;
@@ -100,6 +100,47 @@ export function modelFileErrorMessage(
     return { key: ERROR_KEYS[code], vars: { needed: formatBytes(remaining + FREE_SPACE_MARGIN_BYTES, t) } };
   }
   return { key: ERROR_KEYS[code] ?? ERROR_KEYS.unknown, vars: {} };
+}
+
+const DETAIL_KEYS: Readonly<Record<ModelFileCheckDetail['check'], CatalogKey>> = {
+  early: tKey('model.download.detail.early'),
+  final: tKey('model.download.detail.final'),
+  checksum: tKey('model.download.detail.checksum'),
+  startup: tKey('model.download.detail.startup'),
+};
+
+/** A whole number with digit grouping ("1,107,409,472"), through Intl for `locale` when it can. */
+export function formatCount(n: number, locale?: string): string {
+  const value = Math.round(n);
+  if (locale && typeof Intl !== 'undefined' && Intl.NumberFormat) {
+    try {
+      return new Intl.NumberFormat(locale, { maximumFractionDigits: 0 }).format(value);
+    } catch {
+      // Unknown locale: fall through.
+    }
+  }
+  return String(value).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+/**
+ * The small print under a size or checksum error: which check fired and what it saw, e.g.
+ * "Details: final check, 0 of 1,107,409,472 bytes after 312 s (…)". Null when there is none.
+ */
+export function modelFileDetailMessage(state: Pick<ModelFileState, 'status' | 'detail'>, t: Translate, locale?: string): ModelFileMessage | null {
+  const detail = state.detail;
+  if (state.status !== 'error' || !detail) return null;
+  const unknown = t('model.download.detail.unknown');
+  const count = (n: number | null) => (n === null || !Number.isFinite(n) ? unknown : formatCount(n, locale));
+  return {
+    key: DETAIL_KEYS[detail.check],
+    vars: {
+      expected: count(detail.expectedBytes),
+      actual: count(detail.actualBytes),
+      reported: count(detail.reportedTotalBytes),
+      written: count(detail.bytesWrittenAtFail),
+      seconds: count(detail.seconds),
+    },
+  };
 }
 
 /** The status line for the model file. */

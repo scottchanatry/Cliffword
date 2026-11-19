@@ -126,6 +126,28 @@ export interface ModelFileState {
   space?: { freeBytes: number; neededBytes: number };
   /** While 'verifying': the share of the file hashed so far, 0 to 1, when the hasher reports it. */
   verifyFraction?: number;
+  /** With error 'size-mismatch' or 'checksum-mismatch': what the check saw, for a one-line diagnostic. */
+  detail?: ModelFileCheckDetail;
+}
+
+/**
+ * What a rejected size or checksum check saw (shown in small print under the error and logged):
+ * - check: 'early' (the transfer was stopped because the server kept announcing another length),
+ *   'final' (the size of the finished file), 'checksum' (its SHA-256), 'startup' (the model file
+ *   found when the app started).
+ */
+export interface ModelFileCheckDetail {
+  check: 'early' | 'final' | 'checksum' | 'startup';
+  /** The descriptor's size. */
+  expectedBytes: number;
+  /** The size read from the file, or null when it could not be read (or there was no file). */
+  actualBytes: number | null;
+  /** The last totalBytes the transfer reported, or null when it reported none. */
+  reportedTotalBytes: number | null;
+  /** The last bytesWritten the transfer reported (0 when none). */
+  bytesWrittenAtFail: number;
+  /** Seconds from the start of the transfer to the check, or null when no transfer ran. */
+  seconds: number | null;
 }
 
 export interface ModelManager {

@@ -1,8 +1,9 @@
 /**
  * Library view fixtures (names start with 'lib-'): one StoryViewModel per screen of an experience (the Story home, each
  * cliff mode, feedback by the model and by matching, "no sé", a character's question and its
- * reply, the end of an episode and of the experience), for the dev preview gallery and the view
- * tests. Screens come from real engine StorySession steps on the pair's first playable
+ * reply, a line deep in an episode under the story so far, the end of an episode and of the
+ * experience), for the dev preview gallery and the view tests. Each carries the story so far
+ * (vm.transcript) as the session gave it at that screen. Screens come from real engine StorySession steps on the pair's first playable
  * experience (Living in San Juan), canned or with the deterministic mock model, so they always
  * match the engine's types, wording and the series as written.
  *
@@ -11,6 +12,7 @@
 import {
   LearnerModel,
   StorySession,
+  type EpisodeTranscript,
   type LanguageModel,
   type LanguagePack,
   type LibraryStart,
@@ -36,6 +38,7 @@ export const LIBRARY_FIXTURE_NAMES = [
   'lib-nose',
   'lib-turn',
   'lib-turn-reply',
+  'lib-story-so-far',
   'lib-episode-done',
   'lib-track-done',
 ] as const;
@@ -70,12 +73,25 @@ function expectKind<K extends StoryScreen['kind']>(screen: StoryScreen, kind: K)
   return screen as Extract<StoryScreen, { kind: K }>;
 }
 
-/** Answer every cliff right (picked or said), reply to every turn, until the screen `until`. */
-async function playUntil(s: StorySession, until: (screen: StoryScreen) => boolean, at: () => number): Promise<StoryStep> {
+/**
+ * Answer every cliff right (picked or said), reply to every turn, until the screen `until`.
+ * `custom` may take a step first (null: the default one).
+ */
+async function playUntil(
+  s: StorySession,
+  until: (screen: StoryScreen) => boolean,
+  ...rest: [at: () => number] | [custom: (s: StorySession) => Promise<StoryStep | null>, at: () => number]
+): Promise<StoryStep> {
+  const [custom, at] = rest.length === 2 ? rest : [null, rest[0]];
   let step: StoryStep = { screen: s.screen, events: [] };
   for (let guard = 0; guard < 600; guard++) {
     const screen = step.screen;
     if (until(screen)) return step;
+    const own = custom ? await custom(s) : null;
+    if (own) {
+      step = own;
+      continue;
+    }
     if (screen.kind === 'cliff') {
       if (screen.phase === 'playing') step = s.played(at());
       else step = await s.handleUtterance(answerOf(s), at());
@@ -95,25 +111,44 @@ export async function buildLibraryFixtures(deps: LibraryFixtureDeps): Promise<Li
   let clock = T0;
   const at = () => (clock += 4000);
   const vm = (s: StorySession, screen: StoryScreen | null, over: Partial<StoryViewModel> = {}) =>
-    viewModel(screen, { library: s.libraryProgress, view: 'episode', modelMode: 'canned', micLatched: false, spokenTodayMs: 0, ...over });
+    viewModel(screen, { library: s.libraryProgress, view: 'episode', modelMode: 'canned', micLatched: false, spokenTodayMs: 0, transcript: null, ...over });
+  /** The story so far as the session has it now (the fixtures are built later). */
+  const sofar = (s: StorySession): { transcript: EpisodeTranscript | null } => ({ transcript: s.libraryTranscript });
 
   // Recall (level 0), canned: the line plays, then the gap with three options.
   const recall = session(deps, { trackId, startLevel: 0, address: 'f' }, null);
   const home = vm(recall, recall.screen, { view: 'home' });
   const playing = expectKind((await recall.next(at())).screen, 'cliff');
+  const playingT = sofar(recall);
   const gap = expectKind(recall.played(at()).screen, 'cliff');
   const right = gap.cliff.options?.find((o) => o.text === answerOf(recall));
   const feedback = expectKind((await recall.pickOption(right?.index ?? 0, at())).screen, 'landing');
+  const feedbackT = sofar(recall);
   // A wrong pick on the next line.
   await recall.next(at());
   const gap2 = expectKind(recall.played(at()).screen, 'cliff');
   const wrongOption = gap2.cliff.options?.find((o) => o.text !== answerOf(recall));
   const wrong = expectKind((await recall.pickOption(wrongOption?.index ?? 0, at())).screen, 'landing');
+  const wrongT = sofar(recall);
   // The first character's question, a reply, then the episode's end.
   const turnStep = await playUntil(recall, (x) => x.kind === 'turn', at);
   const turn = expectKind(turnStep.screen, 'turn');
+  const turnT = sofar(recall);
   const reply = expectKind((await recall.handleUtterance('Sí, muy bien.', at())).screen, 'turn');
+  const replyT = sofar(recall);
   const done = expectKind((await playUntil(recall, (x) => x.kind === 'episodeDone', at)).screen, 'episodeDone');
+
+  // Deep in episode 1: the gap of line 12 under the story so far (lines, questions, replies).
+  const deep = session(deps, { trackId, startLevel: 0, address: 'f' }, null);
+  const replies = ['Estoy cansada.', 'Me llamo Alex. Mucho gusto.', 'No entiendo. ¿Puedes repetir?'];
+  let asked = 0;
+  await deep.next(at());
+  const deepStep = await playUntil(deep, (x) => x.kind === 'cliff' && x.phase === 'gap' && x.meta.library?.line === 12, async (s) => {
+    const screen = s.screen;
+    if (screen.kind === 'turn' && !screen.reply && !screen.example) return s.handleUtterance(replies[asked++] ?? 'Sí.', at());
+    return null;
+  }, at);
+  const storySoFar = vm(deep, expectKind(deepStep.screen, 'cliff'), sofar(deep));
   const homeProgress = vm(recall, (await recall.next(at())).screen, { view: 'home' });
 
   // Hint (level 2): the English with the word in bold; a miss brings the options.
@@ -137,18 +172,19 @@ export async function buildLibraryFixtures(deps: LibraryFixtureDeps): Promise<Li
   return {
     'lib-home': home,
     'lib-home-progress': homeProgress,
-    'lib-recall-playing': vm(recall, playing, { speakingWord: 1 }),
-    'lib-recall-gap': vm(recall, gap),
-    'lib-recall-listening': vm(recall, gap, { listen: { phase: 'listening', level: 0.6, partial: answerOf(recall) }, micLatched: true }),
+    'lib-recall-playing': vm(recall, playing, { speakingWord: 1, ...playingT }),
+    'lib-recall-gap': vm(recall, gap, playingT),
+    'lib-recall-listening': vm(recall, gap, { listen: { phase: 'listening', level: 0.6, partial: answerOf(recall) }, micLatched: true, ...playingT }),
     'lib-hint': vm(hintSession, hint),
     'lib-hint-missed': vm(hintSession, missed),
     'lib-predict': vm(predictSession, predict, { modelMode: 'model' }),
-    'lib-feedback': vm(recall, feedback),
+    'lib-feedback': vm(recall, feedback, feedbackT),
     'lib-feedback-model': vm(predictSession, byModel, { modelMode: 'model' }),
-    'lib-feedback-wrong': vm(recall, wrong),
+    'lib-feedback-wrong': vm(recall, wrong, wrongT),
     'lib-nose': vm(predictSession, nose, { modelMode: 'model' }),
-    'lib-turn': vm(recall, turn),
-    'lib-turn-reply': vm(recall, reply),
+    'lib-turn': vm(recall, turn, turnT),
+    'lib-turn-reply': vm(recall, reply, replyT),
+    'lib-story-so-far': storySoFar,
     'lib-episode-done': vm(recall, done),
     'lib-track-done': vm(all, trackDone),
   };

@@ -31,7 +31,7 @@ node scripts/make-illustrations.js --sheet <dir>   # also contact sheets per gro
 It needs Playwright with Chromium (like `npm run icons`), renders each SVG at 1x, 2x and 3x,
 and writes 8-bit palette PNGs (at most 256 colors; the flat fills keep their exact colors, the
 edges are clustered) with its own small encoder, so nothing is added to the app's
-dependencies. All 55 pictures at three densities come to about 1.7 MB.
+dependencies. All 59 pictures at three densities come to about 1.8 MB.
 
 ## Style guide
 
@@ -89,10 +89,16 @@ Use only these 13 colors.
 | `pancho` | Pancho, the rooster | deep amber body, brown wing, amber neck feathers, coral comb and wattle, teal, green and ink tail; proud half-closed eye, a few feathers out of place; sky disc |
 | `wilfredo` | Wilfredo, the colmado owner | brown skin, short ink hair grey at the temples, big ink mustache, a pencil behind the ear, coral shirt, teal apron; calm half-closed eyes; amber light disc |
 | `yari` | Yari, young neighbor | brown skin, big ink curls, teal sunglasses pushed up, amber hoop earrings, coral top, sky jeans, a phone; laughing; lilac disc |
-| `abuelo` | Abuelo | amber skin, white brows, sideburns and mustache, a straw pava hat with a coral band, white guayabera, a domino tile; laughing; teal disc |
-| `you` | the learner | a plain ink head-and-shoulders silhouette with two dot eyes and a small smile; amber disc |
+| `abuelo` | Abuelo (Don Tito) | amber skin, white brows, sideburns and mustache, a straw pava hat with a coral band, white guayabera, a domino tile; laughing; teal disc |
+| `nando` | Nando, the baker who answers in English | amber light skin, brown curls under a tall white baker's hat, white jacket with grey buttons and a coral neckerchief, a loaf of pan sobao; a cheerful wink and a big laugh; palm green disc |
+| `migdalia` | Migdalia, the over-enthusiastic shop assistant | brown skin, an ink high bun with a coral scrunchie, coral earrings, lilac top, a sky tape measure round the neck, a coral shirt on a hanger held up; wide delighted eyes with lashes, a big laugh, two ground sparkles; amber disc |
+| `rafa` | Rafa, the proud waiter | amber skin, slicked ink hair with a grey shine, a thin mustache curled up, proud half-closed eyes and high brows, a smug smile, white shirt, ink vest, coral bow tie, a steaming mofongo held high on a plate; sky disc |
+| `dona-lourdes` | Doña Lourdes, the pharmacist, Doña Mari's sister | Doña Mari's face, skin and white curls (the family look), pulled up in a bun with a coral flower, round teal glasses, a knowing smile, white coat over a pink top with a green cross on the pocket, a pot of aloe (sábila); lilac disc |
+| `you` | the learner | a friendly, warm figure of no particular gender: amber skin, short tousled brown hair, a teal t-shirt, a big open smile, waving hello; coral disc |
 
-Pancho turns up in the San Juan cover and in scenes 1, 4 and 8.
+Pancho turns up in the San Juan cover and in scenes 1, 4 and 8. The app maps a story's cast id
+(`neighbor`, `rooster`, `grocer`, `friend`, `grandpa`, `baker`, `clerk`, `waiter`, `pharmacist`)
+to these pictures in `src/illustrations/index.ts` (`SERIES_CAST`).
 
 ## Adding or changing a picture
 

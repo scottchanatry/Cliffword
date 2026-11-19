@@ -1,19 +1,20 @@
 /**
- * The Story home of an experience: its card (motif, title, city and country, tagline),
- * "Continue: Episode n · <title>", the learner's level and what the language model does, the
- * episode list (done ones play again, the next one or the one in progress continues, later ones
- * wait), and "Change experience". Nothing plays here.
+ * The Story home of an experience: its card (cover, title, city and country, tagline),
+ * "Continue: Episode n · <title>" under the episode's scene, the learner's level and what the
+ * language model does, the episode list (done ones play again, the next one or the one in progress
+ * continues, later ones wait), and "Change experience". Nothing plays here.
  */
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { CHROME_MAX_SCALE, CONTENT_MAX_SCALE } from '../../../components/words/fontScale';
 import { usePairPack } from '../../../engine/PacksProvider';
 import { tKey, useI18n, type CatalogKey } from '../../../i18n';
+import { ILLUSTRATION_ASPECT, sceneForEpisode } from '../../../illustrations';
 import type { StoryActions, StoryViewModel } from '../../../session/contract';
 import { borders, colors, layout, radii, spacing } from '../../../theme';
 import { Button, ContentText, InterfaceText } from '../../../ui';
 
+import { ExperienceCover } from '../../experiences/ExperienceCover';
 import { continueRow, episodeRows, trackOfPair, type EpisodeRow } from '../../experiences/experiences';
-import { TrackMotif } from '../../experiences/TrackMotif';
 
 /** What the language model line on the home says. */
 export type ModelLine = { kind: 'ready' } | { kind: 'downloading'; percent: number } | { kind: 'wifi' } | { kind: 'off' };
@@ -42,10 +43,11 @@ export function StoryHomeView({ vm, actions, onChangeExperience, model }: StoryH
   const progress = library.tracks.find((t) => t.id === library.track);
   const fresh = (progress?.completed.length ?? 0) === 0 && !progress?.playing;
   const mode = library.level <= 1 ? 'recall' : library.level <= 3 ? 'hint' : 'predict';
+  const scene = next ? sceneForEpisode(library.track, next.episode) : undefined;
   return (
     <ScrollView contentContainerStyle={styles.content} testID="story-home">
       <View style={styles.card}>
-        <TrackMotif dialect={track?.dialect ?? null} height={120} />
+        <ExperienceCover trackId={library.track} dialect={track?.dialect ?? null} motifHeight={120} />
         <View style={styles.cardBody}>
           <ContentText variant="title" accessibilityRole="header" maxFontSizeMultiplier={CONTENT_MAX_SCALE} testID="home-title">
             {track?.title ?? library.track}
@@ -70,23 +72,36 @@ export function StoryHomeView({ vm, actions, onChangeExperience, model }: StoryH
           disabled={vm.busy}
           onPress={actions.openEpisode}
           testID="home-continue"
-          style={({ pressed }) => [styles.continue, pressed && styles.continuePressed]}
+          style={({ pressed }) => [styles.continueCard, pressed && styles.continuePressed]}
         >
-          <View style={styles.continueText}>
-            <InterfaceText variant="eyebrow" tone="onInk" style={styles.continueEyebrow} maxFontSizeMultiplier={CHROME_MAX_SCALE}>
-              {t(fresh ? 'home.startShort' : 'home.continueShort', { n: next.episode })}
-            </InterfaceText>
-            <InterfaceText variant="buttonPrimary" tone="onInk" maxFontSizeMultiplier={CHROME_MAX_SCALE}>
-              {next.title}
-            </InterfaceText>
-            {next.state === 'playing' && next.lines ? (
-              <InterfaceText variant="caption" tone="onInk" style={styles.continueEyebrow} maxFontSizeMultiplier={CHROME_MAX_SCALE}>
-                {t('home.episode.playing', { line: next.line ?? 0, lines: next.lines })}
+          {scene ? (
+            <Image
+              source={scene}
+              accessible={false}
+              accessibilityElementsHidden
+              importantForAccessibility="no"
+              resizeMode="cover"
+              style={styles.scene}
+              testID="home-continue-scene"
+            />
+          ) : null}
+          <View style={styles.continue}>
+            <View style={styles.continueText}>
+              <InterfaceText variant="eyebrow" tone="onInk" style={styles.continueEyebrow} maxFontSizeMultiplier={CHROME_MAX_SCALE}>
+                {t(fresh ? 'home.startShort' : 'home.continueShort', { n: next.episode })}
               </InterfaceText>
-            ) : null}
-          </View>
-          <View style={styles.play} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
-            <View style={styles.playTriangle} />
+              <InterfaceText variant="buttonPrimary" tone="onInk" maxFontSizeMultiplier={CHROME_MAX_SCALE}>
+                {next.title}
+              </InterfaceText>
+              {next.state === 'playing' && next.lines ? (
+                <InterfaceText variant="caption" tone="onInk" style={styles.continueEyebrow} maxFontSizeMultiplier={CHROME_MAX_SCALE}>
+                  {t('home.episode.playing', { line: next.line ?? 0, lines: next.lines })}
+                </InterfaceText>
+              ) : null}
+            </View>
+            <View style={styles.play} accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+              <View style={styles.playTriangle} />
+            </View>
           </View>
         </Pressable>
       ) : (
@@ -178,6 +193,8 @@ const styles = StyleSheet.create({
   card: { borderRadius: radii.card, backgroundColor: colors.card, overflow: 'hidden' },
   cardBody: { padding: spacing.lg, gap: spacing.xs + 2 },
   meta: { gap: spacing.xs },
+  continueCard: { minHeight: 72, borderRadius: radii.card, backgroundColor: colors.ink, overflow: 'hidden' },
+  scene: { width: '100%', aspectRatio: ILLUSTRATION_ASPECT.scenes },
   continue: {
     minHeight: 72,
     flexDirection: 'row',
@@ -185,8 +202,6 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     paddingVertical: spacing.md,
     paddingHorizontal: spacing.xl,
-    borderRadius: radii.button,
-    backgroundColor: colors.ink,
   },
   continuePressed: { opacity: 0.85 },
   continueText: { flex: 1, gap: spacing.xxs },

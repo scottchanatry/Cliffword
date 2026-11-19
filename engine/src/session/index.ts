@@ -50,6 +50,7 @@ export type { LibrarySessionOptions, PrefetchInfo, StorySessionCreate, StorySess
 export {
   KEEP_RESULTS,
   alternativeFits,
+  episodeTranscript,
   feedbackAlternatives,
   gapParts,
   hasTargetWords,

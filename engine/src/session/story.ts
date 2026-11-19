@@ -150,6 +150,7 @@ import { DEFAULT_VIEW_OPTIONS, buildSentenceView, sentenceWords, type SentenceWo
 import { DEFAULT_HANDOVER_OPTIONS, bridgeFamiliar, handoverStage, type HandoverOptions, type StoryStage } from './handover';
 import {
   KEEP_RESULTS,
+  episodeTranscript,
   feedbackAlternatives,
   gapParts,
   hasTargetWords,
@@ -171,6 +172,7 @@ import {
   type AdvancedTask,
   type CliffOutcome,
   type CliffPhase,
+  type EpisodeTranscript,
   type LearnerAddress,
   type LibraryMeta,
   type LibraryProgress,
@@ -259,7 +261,9 @@ export interface LibrarySessionOptions {
   /**
    * With a model, search its alternatives at the cliff (one cliffPositions search, which
    * prefetch() on the cliff screen runs ahead) so the feedback lists natural answers after
-   * a picked option too, and a spoken answer reuses them.
+   * a picked option too, and a spoken answer reuses them. Off: no search, and the feedback
+   * lists only the writer's alternatives (cliff.accept), after a said answer too (the model
+   * still scores the answer).
    */
   modelAlternatives: boolean;
   /** Timed retell rounds after each episode (off: kept in the engine, out of the Story flow). */
@@ -2043,6 +2047,7 @@ export class StorySession {
     if (!model) {
       if (turn.lib) {
         // No model to judge: any reply with target-language words counts; the example follows.
+        this.recordReply(turn.lib.id, transcript);
         const accepted = hasTargetWords(pack, this.deps.pair.nativeLexicon, transcript);
         turn.lib.reply = { heard: transcript.trim(), accepted, scoredBy: 'canned', ui: { key: accepted ? 'turn.accepted' : 'turn.trySpanish' } };
         turn.lib.revealed = true;
@@ -2054,6 +2059,7 @@ export class StorySession {
     // Library: the reply answers the character's question, so the judge reads it after the
     // question (without it, 'Estoy cansada, gracias.' after a greeting got 'cansado' back),
     // then the pack's cue for who answers, by the learner's address (pack.replyCue).
+    if (turn.lib) this.recordReply(turn.lib.id, transcript);
     const cue = turn.lib ? (pack.replyCue?.[this.lib.address] ?? '') : '';
     const storyText = turn.lib ? joinSentences([this.storyText(), turn.line, cue].filter((x) => x !== '')) : this.storyText();
     turn.repair = await attemptRepair(turn.repair, model, pack, transcript, at, {
@@ -2338,6 +2344,36 @@ export class StorySession {
     return plain(libraryProgressView(this.deps.pair, st.library));
   }
 
+  /**
+   * Library mode: the episode in progress so far, as a conversation (EpisodeTranscript): the
+   * lines before the one on screen (variants resolved, the gap filled), the questions asked
+   * after them and the learner's replies. Rebuilt from the episode's data and the play state,
+   * so a restored session gives the same transcript and a new episode or a replay starts
+   * empty. null when no episode is in progress (between episodes, outside library mode).
+   */
+  get libraryTranscript(): EpisodeTranscript | null {
+    const st = this.readState();
+    if (st.source !== 'library' || !st.library) return null;
+    const lib = st.library;
+    const prog = lib.tracks[lib.track];
+    const play = prog?.play;
+    if (!prog || !play) return null;
+    const raw = storyById(this.deps.pair, play.storyId);
+    if (!raw) return null;
+    const track = trackOf(this.deps.pair, raw.track);
+    const ctx = variantContext(track, lib.address, prog.choices);
+    const story = resolvedStory(this.deps.pair, raw, lib.address, prog.choices);
+    const onTurn = st.phase === 'turn' || st.phase === 'repair';
+    const entries = episodeTranscript(this.deps.pack, story, play, {
+      exclude: onTurn ? (st.turn?.lib?.id ?? null) : null,
+      speaker: (id) => {
+        const name = speakerName(track, id);
+        return name === null ? null : resolveVariants(name, ctx);
+      },
+    });
+    return plain({ track: lib.track, episode: play.episode, storyId: play.storyId, replay: play.replay, entries });
+  }
+
   /** True when this session plays the pair's library. */
   get playsLibrary(): boolean {
     const st = this.readState();
@@ -2423,6 +2459,14 @@ export class StorySession {
     if (unaided) play.unaided += 1;
     if (correct) play.correct = (play.correct ?? 0) + 1;
     play.lineDone = true;
+  }
+
+  /** The learner replied to a question of the episode: kept (the last reply) for the transcript. */
+  private recordReply(turnId: string, transcript: string): void {
+    const play = this.lib.tracks[this.lib.track]?.play;
+    const text = transcript.trim();
+    if (!play || text === '') return;
+    play.replies = { ...(play.replies ?? {}), [turnId]: text };
   }
 
   private async switchTrack(trackId: string, at: number, choices: Record<string, string> | undefined): Promise<StoryStep> {
@@ -2684,6 +2728,13 @@ export class StorySession {
     const onLine = cur !== null && (s.phase === 'cliff' || s.phase === 'landing' || s.phase === 'noSe' || s.phase === 'native');
     const lines = story?.sentences.length ?? 0;
     const line = onLine && cur?.lib ? cur.lib.line + 1 : play ? Math.min(play.line + (play.lineDone ? 1 : 0), lines) : 0;
+    const asking = (s.phase === 'turn' || s.phase === 'repair') && s.turn?.lib ? s.turn.lib.id : null;
+    const speakerId =
+      onLine && cur?.lib
+        ? (story?.sentences[cur.lib.line]?.speaker ?? null)
+        : asking !== null
+          ? ((story?.turns ?? []).find((t) => t.id === asking)?.speaker ?? null)
+          : null;
     const meta: LibraryMeta = {
       track: lib.track,
       trackTitle: trackOf(this.deps.pair, lib.track)?.title ?? '',
@@ -2696,6 +2747,7 @@ export class StorySession {
       level: lib.level,
       mode: cliffModeForLevel(play?.level ?? lib.level),
       speaker: onLine && cur?.lib ? cur.lib.speaker : null,
+      speakerId,
       lineId: onLine && cur?.lib ? cur.lib.lineId : null,
       replay: play?.replay ?? false,
     };
@@ -2852,7 +2904,7 @@ export class StorySession {
       expected: cur.cliff.answer,
       answer: result.answer,
       accept: cur.accept,
-      model: this.deps.model ? cur.alternatives : [],
+      model: this.deps.model && this.libOpts().modelAlternatives ? cur.alternatives : [],
       floor,
       max: Math.max(0, Math.floor(this.libOpts().maxAlternatives)),
     });

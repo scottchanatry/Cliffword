@@ -14,6 +14,7 @@
  * apply to the current screen is ignored.
  */
 import type {
+  EpisodeTranscript,
   LibraryProgress,
   LyricScreen,
   MeaningView,
@@ -118,6 +119,14 @@ export interface StoryViewModel extends CommonViewState {
    * second tap or about 1.5 s of silence stops it), not push-to-talk.
    */
   micLatched?: boolean;
+  /**
+   * Optional (added for the story so far): library mode, the episode in progress as a
+   * conversation (the engine's StorySession.libraryTranscript: the earlier lines with their gap
+   * filled, the questions asked and the learner's replies; the line or question on screen is
+   * not in it). It comes from the session state, so it is the same after a restore, and it
+   * starts empty with each episode and replay. null or absent: nothing to show above the line.
+   */
+  transcript?: EpisodeTranscript | null;
 }
 
 export interface StoryActions extends CommonActions {

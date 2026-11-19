@@ -123,6 +123,18 @@ async function playSeries(run: Run, withModel: boolean, address: LearnerAddress)
       if (!line) break;
       out.lineIds.push(`e${ep}:${id}`);
       out.modes.push(sc.mode ?? 'recall');
+      // The story so far: the episode's earlier lines (resolved, gap filled), its questions and the replies given.
+      const story = stories.get(ep);
+      const index = story?.sentences.findIndex((x) => x.id === id) ?? -1;
+      const transcript = s.libraryTranscript;
+      expectClean({ transcript }, `${id} transcript`);
+      expect(transcript).toMatchObject({ track: TRACK, episode: ep });
+      const entries = transcript?.entries ?? [];
+      expect(entries.flatMap((e) => (e.kind === 'line' ? [e.text] : [])), `${id} transcript lines`).toEqual(story?.sentences.slice(0, index).map((x) => x.text));
+      const asked = (story?.turns ?? []).filter((x) => x.after < index);
+      expect(entries.flatMap((e) => (e.kind === 'question' ? [e.text] : [])), `${id} transcript questions`).toEqual(asked.map((x) => x.line));
+      expect(entries.flatMap((e) => (e.kind === 'reply' ? [e.text] : [])), `${id} transcript replies`).toEqual(asked.map((x) => x.example));
+      expect(sc.meta.library?.speakerId ?? null, `${id} speakerId`).toBe(line.speaker ?? null);
       out.texts.push(line.text, line.translation);
       // The answer as it stands in the line (a sentence-initial word is capitalized).
       const answer = s.snapshot().state.current?.cliff.answer ?? '';

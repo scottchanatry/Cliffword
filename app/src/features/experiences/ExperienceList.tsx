@@ -3,8 +3,8 @@ import { CHROME_MAX_SCALE, CONTENT_MAX_SCALE } from '../../components/words/font
 import { useI18n } from '../../i18n';
 import { borders, colors, layout, radii, spacing } from '../../theme';
 import { ContentText, InterfaceText } from '../../ui';
+import { ExperienceCover } from './ExperienceCover';
 import type { ExperienceCardData } from './experiences';
-import { TrackMotif } from './TrackMotif';
 
 export interface ExperienceListProps {
   cards: readonly ExperienceCardData[];
@@ -15,9 +15,10 @@ export interface ExperienceListProps {
 }
 
 /**
- * The experience picker's cards, one under the other (the screen scrolls them): a colored motif,
- * the title, the city and country, the funny tagline and a status line. Coming-soon cards are
- * shown but cannot be started. Each card is one button for screen readers.
+ * The experience picker's cards, one under the other (the screen scrolls them): the series' cover
+ * (or its colored motif when it has none), the title, the city and country, the funny tagline and
+ * a status line. Coming-soon cards are shown, faded, but cannot be started. Each card is one button
+ * for screen readers.
  */
 export function ExperienceList({ cards, onPick, disabled = false }: ExperienceListProps) {
   return (
@@ -50,7 +51,7 @@ function ExperienceCard({ card, onPick, disabled }: { card: ExperienceCardData; 
       testID={`experience-${card.id}`}
       style={({ pressed }) => [styles.card, card.current && styles.current, pressed && !blocked && styles.pressed]}
     >
-      <TrackMotif dialect={card.dialect} muted={card.comingSoon} />
+      <ExperienceCover trackId={card.id} dialect={card.dialect} muted={card.comingSoon} />
       <View style={styles.body}>
         <View style={styles.titleRow}>
           <ContentText variant="title" style={[styles.title, card.comingSoon && styles.faded]} maxFontSizeMultiplier={CONTENT_MAX_SCALE}>

@@ -3,7 +3,7 @@
  * written), the test services (FakeSpeechIn plays the learner, FakeSpeechOut the voice, FakeClock
  * the time, sql.js the storage, MockModelAdapter the model, unloaded for matching mode).
  */
-import { STORY_SESSION_FORMAT, resolveVariants, storyForEpisode, variantContext, type LibraryProgress, type StoryScreen } from '@cliffword/engine';
+import { STORY_SESSION_FORMAT, StorySession, resolveVariants, storyForEpisode, variantContext, type LibraryProgress, type StoryScreen } from '@cliffword/engine';
 import { MockModelAdapter } from '../../adapters/model/MockModelAdapter';
 import { bootstrap } from '../../bootstrap/bootstrap';
 import { sharedMockModel } from '../../services/defaults';
@@ -303,6 +303,87 @@ describe('story controller, library mode', () => {
     h.services.speechIn.emitLevel(-58);
     await h.controller.idle();
     expect(as(h.screen(), 'landing').answer).toBe(next);
+  });
+
+  it("runs the session without the model's next-word guesses; the writer's listed answers still show", async () => {
+    const create = jest.spyOn(StorySession, 'create');
+    const restore = jest.spyOn(StorySession, 'restore');
+    try {
+      const h = await setup({ level: 0, address: 'f' }, 'ready');
+      expect(create).toHaveBeenCalledTimes(1);
+      expect(create.mock.calls[0]?.[0].options?.library).toMatchObject({ modelAlternatives: false });
+      await h.restart();
+      expect(restore).toHaveBeenCalledTimes(1);
+      expect(restore.mock.calls[0]?.[2]?.options?.library).toMatchObject({ modelAlternatives: false });
+      // Typed answers are scored by the model; the feedback lists only the story's own other answers.
+      const { pair } = libraryPacks();
+      const raw = storyForEpisode(pair.library, livingTrack().id, 1, 0);
+      const ctx = variantContext(pair.tracks?.find((t) => t.id === livingTrack().id), 'f');
+      await act(h, (c) => c.actions.openEpisode());
+      const seen: string[] = [];
+      for (let guard = 0; guard < 40 && seen.length < 6; guard++) {
+        const s = h.screen();
+        if (s.kind === 'cliff') {
+          const right = await answer(h);
+          await act(h, (c) => c.actions.typeAnswer(right));
+        } else if (s.kind === 'landing') {
+          const id = s.meta.library?.lineId ?? '';
+          const listed = (raw?.sentences.find((x) => x.id === id)?.cliff.accept ?? []).map((a) => resolveVariants(a, ctx)).slice(0, 3);
+          expect({ id, scoredBy: s.scoredBy, alternatives: s.alternatives }).toEqual({ id, scoredBy: 'model', alternatives: listed });
+          seen.push(id);
+          await act(h, (c) => c.actions.next());
+        } else if (s.kind === 'turn' && !s.example) await act(h, (c) => c.actions.command('dont_know'));
+        else await act(h, (c) => c.actions.next());
+      }
+      expect(seen).toHaveLength(6);
+      // Episode 1, line 5 ('Pancho es mi bebé') lists 'hijo' and 'mascota'.
+      expect(raw?.sentences[4]?.cliff.accept).toEqual(['hijo', 'mascota']);
+    } finally {
+      create.mockRestore();
+      restore.mockRestore();
+    }
+  });
+
+  it('publishes the episode so far (lines, questions, replies), keeps it across a restart and starts empty with the next episode', async () => {
+    const h = await setup({ level: 0, address: 'f' });
+    expect(h.vm().transcript).toBeNull();
+    await act(h, (c) => c.actions.openEpisode());
+    expect(h.vm().transcript).toMatchObject({ track: livingTrack().id, episode: 1, replay: false, entries: [] });
+    // Through the first question, answered, to the line after it.
+    for (let guard = 0; guard < 40; guard++) {
+      const s = h.screen();
+      if (s.kind === 'cliff' && (h.vm().transcript?.entries ?? []).some((e) => e.kind === 'reply')) break;
+      if (s.kind === 'cliff') {
+        const right = await answer(h);
+        await act(h, (c) => c.actions.pickOption(s.cliff.options?.find((o) => o.text === right)?.index ?? 0));
+      } else if (s.kind === 'turn' && !s.reply && !s.example) await act(h, (c) => c.actions.typeAnswer('Estoy cansada, gracias.'));
+      else await act(h, (c) => c.actions.next());
+    }
+    const { pair } = libraryPacks();
+    const raw = storyForEpisode(pair.library, livingTrack().id, 1, 0);
+    const ctx = variantContext(pair.tracks?.find((t) => t.id === livingTrack().id), 'f');
+    const cliff = as(h.screen(), 'cliff');
+    const index = raw?.sentences.findIndex((x) => x.id === cliff.meta.library?.lineId) ?? -1;
+    const entries = h.vm().transcript?.entries ?? [];
+    expect(entries.flatMap((e) => (e.kind === 'line' ? [e.text] : []))).toEqual(raw?.sentences.slice(0, index).map((x) => resolveVariants(x.text, ctx)));
+    const turn = raw?.turns?.find((x) => x.after < index);
+    expect(entries.filter((e) => e.kind !== 'line')).toEqual([
+      { kind: 'question', id: turn?.id, speakerId: turn?.speaker, speaker: 'Doña Mari', text: turn?.line, translation: turn?.translation },
+      { kind: 'reply', turnId: turn?.id, text: 'Estoy cansada, gracias.' },
+    ]);
+    expect(cliff.meta.library?.speakerId).toBe(raw?.sentences[index]?.speaker ?? null);
+    // The app is killed mid-episode: the restored session gives the same story so far.
+    const before = h.vm().transcript;
+    await h.restart();
+    expect(h.vm().view).toBe('home');
+    expect(h.vm().transcript).toEqual(before);
+    await act(h, (c) => c.actions.openEpisode());
+    expect(h.vm().transcript).toEqual(before);
+    await playEpisode(h, 'tap');
+    expect(h.vm().transcript).toBeNull();
+    await act(h, (c) => c.actions.next());
+    expect(as(h.screen(), 'cliff').meta.library?.episode).toBe(2);
+    expect(h.vm().transcript).toMatchObject({ episode: 2, entries: [] });
   });
 
   it('press and hold is push-to-talk: nothing stops it until the release', async () => {

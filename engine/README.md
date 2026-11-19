@@ -115,6 +115,12 @@ Import from `src/index.ts` (the package `main`).
   variantContext(track, address, choices))` resolves `{you:a|b}`, `{partner:a|b}` and
   `{partner.name}`. `trackCards(tracks, library)` gives the picker's cards (coming soon
   when a track has no story); `StorySession.libraryProgress` adds the learner's progress.
+  `StorySession.libraryTranscript` is the episode in progress so far as a conversation
+  (`EpisodeTranscript`: the earlier lines resolved with their gap filled and its span, the
+  questions asked and the learner's replies, each with the speaker's cast id and display
+  name), rebuilt from the episode and the snapshot, so it survives `restore()` and starts
+  empty with each episode or replay (`episodeTranscript` is the pure builder).
+  `LibraryMeta.speakerId` is the cast id of who speaks on screen (a line or a question).
 - **Sessions.** `StorySession.create({ model, pack, pair, learner, now, seed, startMode, library })`
   then `next(at)`, `handleUtterance(transcript, at, { durationMs, words })`,
   `command`, `pickOption`, `played`, `tapWord`, `revealWord`, `setSettings`,
@@ -179,6 +185,7 @@ await session.chooseTrack('en-es.track.dating', now, { partner: 'valentina' });
 await session.replayEpisode(1, now);      // a finished episode again
 session.setLibraryProfile({ address: 'm', level: 2 }, now);
 session.libraryProgress;                  // level, address, every track with its progress
+session.libraryTranscript;                // the episode so far: lines, questions, your replies
 ```
 
 - **Learner level** (0-5, in the snapshot) starts at `library.startLevel` ("How much do

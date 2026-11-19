@@ -5,14 +5,21 @@
  *
  * How screens use them (all are decorative: pass `accessible={false}` / leave them unlabelled,
  * or label them through i18n when the picture itself carries meaning):
- * - Experience picker cards: the cover across the top of the card,
- *   `<Image source={COVERS[id]} style={{ width: '100%', aspectRatio: ILLUSTRATION_ASPECT.covers }} />`.
- * - A speaker's line: the avatar next to it, `<Image source={CAST.yari} style={{ width: 40, height: 40 }} />`.
+ * - Experience picker cards and the Story home: the cover across the top of the card,
+ *   `<Image source={coverForTrack(trackId)} style={{ width: '100%', aspectRatio: ILLUSTRATION_ASPECT.covers }} />`.
+ * - A speaker's line: the avatar next to it, `<Image source={castForSpeaker(trackId, speakerId)} style={{ width: 40, height: 40 }} />`.
  *   The PNG is already a disc (transparent outside the circle), so no mask or borderRadius is needed.
  *   The learner's own lines use `CAST.you`.
- * - The top of an episode: the scene, full width, `aspectRatio: ILLUSTRATION_ASPECT.scenes`.
+ * - The top of an episode: the scene, full width, `sceneForEpisode(trackId, episode)` with
+ *   `aspectRatio: ILLUSTRATION_ASPECT.scenes`.
  * - Tap a word to see its picture: `vocabImageForWord(word)` (or `VOCAB_BY_WORD` with a lowercased
  *   lemma) gives the picture or undefined; show it in the word sheet at up to 128 x 128.
+ *   `vocabInText(text)` lists the words of a line that have a picture.
+ *
+ * Pictures follow a series by its neutral key (seriesKeyOf: the track id's part after '.track.',
+ * which a series keeps when it is ported to another language pair, docs/STORY-FORMAT.md) and a
+ * speaker by the story's cast id (LibrarySentence.speaker), never by a display name. The engine
+ * knows nothing of pictures; the maps below are the only place that ties them to the content.
  *
  * Each group is drawn so it stays sharp up to its 1x size (ILLUSTRATION_SIZE, in points).
  */
@@ -21,7 +28,7 @@ import type { ImageSourcePropType } from 'react-native';
 export const COVER_IDS = ['mystery-cartagena', 'dating-buenos-aires', 'friends-mexico-city', 'food-lima', 'vlogger-costa-rica', 'living-san-juan'] as const;
 export type CoverId = (typeof COVER_IDS)[number];
 
-export const CAST_IDS = ['dona-mari', 'pancho', 'wilfredo', 'yari', 'abuelo', 'you'] as const;
+export const CAST_IDS = ['dona-mari', 'pancho', 'wilfredo', 'yari', 'abuelo', 'nando', 'migdalia', 'rafa', 'dona-lourdes', 'you'] as const;
 export type CastId = (typeof CAST_IDS)[number];
 
 export const SCENE_IDS = ['e1-street', 'e2-colmado', 'e3-clothes', 'e4-plans', 'e5-driving', 'e6-beach', 'e7-restaurant', 'e8-party'] as const;
@@ -94,6 +101,10 @@ export const CAST: Record<CastId, ImageSourcePropType> = {
   wilfredo: require('../../assets/illustrations/cast/wilfredo.png'),
   yari: require('../../assets/illustrations/cast/yari.png'),
   abuelo: require('../../assets/illustrations/cast/abuelo.png'),
+  nando: require('../../assets/illustrations/cast/nando.png'),
+  migdalia: require('../../assets/illustrations/cast/migdalia.png'),
+  rafa: require('../../assets/illustrations/cast/rafa.png'),
+  'dona-lourdes': require('../../assets/illustrations/cast/dona-lourdes.png'),
   you: require('../../assets/illustrations/cast/you.png'),
 };
 
@@ -245,7 +256,79 @@ export const VOCAB_BY_WORD: Record<string, VocabId> = {
   'plaza del mercado': 'mercado',
   farmacia: 'farmacia',
   farmacias: 'farmacia',
+  // Living in San Juan says "sandalia" for the flip-flops and "dólares" for money.
+  sandalia: 'chancletas',
+  sandalias: 'chancletas',
+  dólar: 'dinero',
+  dolar: 'dinero',
+  dólares: 'dinero',
+  dolares: 'dinero',
 };
+
+// ---------------------------------------------------------------------------
+// Series: covers, episode scenes and cast, by neutral key
+// ---------------------------------------------------------------------------
+
+/**
+ * A series' neutral key from its track id: '<pair>.track.<series>' gives '<series>'
+ * ('en-es.track.living' -> 'living'); an id without '.track.' gives its last dot part.
+ */
+export function seriesKeyOf(trackId: string | null | undefined): string | null {
+  if (!trackId) return null;
+  const at = trackId.lastIndexOf('.track.');
+  const key = at >= 0 ? trackId.slice(at + '.track.'.length) : trackId.slice(trackId.lastIndexOf('.') + 1);
+  return key || null;
+}
+
+/** The cover of each series (docs/STORY-FORMAT.md lists the six). */
+export const SERIES_COVERS: Readonly<Record<string, CoverId>> = {
+  living: 'living-san-juan',
+  mystery: 'mystery-cartagena',
+  dating: 'dating-buenos-aires',
+  friends: 'friends-mexico-city',
+  food: 'food-lima',
+  travel: 'vlogger-costa-rica',
+};
+
+/** Each series' episode scenes, episode 1 first. */
+export const SERIES_SCENES: Readonly<Record<string, readonly SceneId[]>> = {
+  living: ['e1-street', 'e2-colmado', 'e3-clothes', 'e4-plans', 'e5-driving', 'e6-beach', 'e7-restaurant', 'e8-party'],
+};
+
+/** Each series' cast: the story's cast id (LibraryCastMember.id) to its avatar. */
+export const SERIES_CAST: Readonly<Record<string, Readonly<Record<string, CastId>>>> = {
+  living: {
+    neighbor: 'dona-mari',
+    rooster: 'pancho',
+    grocer: 'wilfredo',
+    friend: 'yari',
+    grandpa: 'abuelo',
+    baker: 'nando',
+    clerk: 'migdalia',
+    waiter: 'rafa',
+    pharmacist: 'dona-lourdes',
+  },
+};
+
+/** The cover of a track's series, or undefined (draw the motif instead). */
+export function coverForTrack(trackId: string | null | undefined): ImageSourcePropType | undefined {
+  const id = SERIES_COVERS[seriesKeyOf(trackId) ?? ''];
+  return id ? COVERS[id] : undefined;
+}
+
+/** The scene of episode `episode` (1-based) of a track's series, or undefined. */
+export function sceneForEpisode(trackId: string | null | undefined, episode: number | null | undefined): ImageSourcePropType | undefined {
+  if (!episode || episode < 1) return undefined;
+  const id = SERIES_SCENES[seriesKeyOf(trackId) ?? '']?.[episode - 1];
+  return id ? SCENES[id] : undefined;
+}
+
+/** The avatar of a speaker (a story's cast id) in a track's series, or undefined (narration, no picture). */
+export function castForSpeaker(trackId: string | null | undefined, speakerId: string | null | undefined): ImageSourcePropType | undefined {
+  if (!speakerId) return undefined;
+  const id = SERIES_CAST[seriesKeyOf(trackId) ?? '']?.[speakerId];
+  return id ? CAST[id] : undefined;
+}
 
 const ARTICLES = /^(el|la|los|las|un|una|unos|unas|mi|mis|tu|tus|su|sus)\s+/;
 
@@ -261,11 +344,60 @@ export function vocabIdForWord(text: string): VocabId | undefined {
     .replace(/^[\s¡¿"'«(]+|[\s!?.,;:"'»)]+$/g, '')
     .replace(/\s+/g, ' ')
     .replace(ARTICLES, '');
-  return VOCAB_BY_WORD[key] ?? VOCAB_BY_WORD[key.normalize('NFD').replace(/[̀-ͯ]/g, '')];
+  return lookupWord(key);
+}
+
+/** A lowercased word or phrase as written, then without accents. */
+function lookupWord(key: string): VocabId | undefined {
+  return VOCAB_BY_WORD[key] ?? VOCAB_BY_WORD[key.normalize('NFD').replace(/[\u0300-\u036f]/g, '')];
 }
 
 /** The picture for a word or short phrase, or undefined (see vocabIdForWord). */
 export function vocabImageForWord(text: string): ImageSourcePropType | undefined {
   const id = vocabIdForWord(text);
   return id ? VOCAB[id] : undefined;
+}
+
+/** A word of a text that has a picture. */
+export interface WordPicture {
+  /** The word or phrase as the text writes it, lowercased ('arroz con gandules', 'pan'). */
+  word: string;
+  id: VocabId;
+  image: ImageSourcePropType;
+}
+
+/**
+ * The words of a line that have a picture, in order, one per picture: phrases of three and two
+ * words first ('arroz con gandules', 'coco frío'), then single words. Words are runs of letters.
+ */
+export function vocabInText(text: string): WordPicture[] {
+  const words = text.toLocaleLowerCase('es').normalize('NFC').match(/[\p{L}\p{M}]+/gu) ?? [];
+  const out: WordPicture[] = [];
+  const seen = new Set<VocabId>();
+  const add = (word: string, id: VocabId) => {
+    if (seen.has(id)) return;
+    seen.add(id);
+    out.push({ word, id, image: VOCAB[id] });
+  };
+  for (let i = 0; i < words.length; ) {
+    let used = 1;
+    for (const n of [3, 2]) {
+      const first = words[i] ?? '';
+      if (i + n > words.length || ARTICLES.test(`${first} `)) continue;
+      const phrase = words.slice(i, i + n).join(' ');
+      const id = lookupWord(phrase);
+      if (id) {
+        add(phrase, id);
+        used = n;
+        break;
+      }
+    }
+    if (used === 1) {
+      const word = words[i] ?? '';
+      const id = lookupWord(word);
+      if (id) add(word, id);
+    }
+    i += used;
+  }
+  return out;
 }

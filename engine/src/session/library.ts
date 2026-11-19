@@ -14,8 +14,9 @@ import type { LibraryStory, LibraryTrack, PairPack } from '../pair/types';
 import type { NextWord } from '../scoring/types';
 import { episodesOfTrack, isComingSoon, clampLevel } from '../content/library';
 import { resolveStory, variantContext } from '../content/variants';
+import { locateAnswer } from './cliff';
 import { looseText } from './common';
-import type { EpisodeResult, LearnerAddress, LibraryProgress, LibraryStart, TrackProgressView } from './types';
+import type { EpisodeResult, LearnerAddress, LibraryProgress, LibraryStart, TrackProgressView, TranscriptEntry } from './types';
 
 /** An episode being played in a track. */
 export interface EpisodePlay {
@@ -34,6 +35,11 @@ export interface EpisodePlay {
   replay: boolean;
   /** Learner level when the episode started (the cliff mode of the whole episode). */
   level: number;
+  /**
+   * The learner's last reply to each question of the episode (turn id -> what was heard),
+   * for the transcript; missing in snapshots from before it.
+   */
+  replies?: Record<string, string>;
 }
 
 /** One track's progress. */
@@ -136,6 +142,47 @@ export function libraryProgressView(pair: Pick<PairPack, 'library' | 'tracks'>, 
     };
   });
   return { level: lib.level, address: lib.address, track: lib.track, tracks };
+}
+
+/**
+ * The episode of a play so far, as a conversation (EpisodeTranscript.entries): the lines
+ * before `play.line` in story order (the gap filled with the story's words, its span located
+ * with the pack's segmentation), each followed by the questions asked after it and the
+ * learner's reply to each. `story` is the play's story resolved for the learner (resolvedStory);
+ * `exclude` is the question on screen (the focus, not yet part of the story so far);
+ * `speaker` gives a speaker's display name.
+ */
+export function episodeTranscript(
+  pack: Pick<LanguagePack, 'segment' | 'normalize' | 'foldAccents'>,
+  story: LibraryStory,
+  play: Pick<EpisodePlay, 'line' | 'turns' | 'replies'>,
+  opts: { exclude?: string | null; speaker: (speaker: string | undefined) => string | null },
+): TranscriptEntry[] {
+  const out: TranscriptEntry[] = [];
+  const asked = new Set(play.turns);
+  const last = Math.min(play.line, story.sentences.length) - 1;
+  const turnsAfter = (i: number) => (story.turns ?? []).filter((t) => (i < 0 ? t.after < 0 : t.after === i) && asked.has(t.id) && t.id !== opts.exclude);
+  for (let i = -1; i <= last; i++) {
+    const line = i >= 0 ? story.sentences[i] : undefined;
+    if (line) {
+      const span = locateAnswer(pack, line.text, line.cliff.word);
+      out.push({
+        kind: 'line',
+        id: line.id,
+        speakerId: line.speaker ?? null,
+        speaker: opts.speaker(line.speaker),
+        text: line.text,
+        translation: line.translation,
+        gap: span ? { start: span.start, end: span.end } : null,
+      });
+    }
+    for (const turn of turnsAfter(i)) {
+      out.push({ kind: 'question', id: turn.id, speakerId: turn.speaker ?? null, speaker: opts.speaker(turn.speaker), text: turn.line, translation: turn.translation });
+      const reply = play.replies?.[turn.id];
+      if (typeof reply === 'string' && reply.trim() !== '') out.push({ kind: 'reply', turnId: turn.id, text: reply.trim() });
+    }
+  }
+  return out;
 }
 
 /** Open word classes: a model alternative must share one with the story's word to be shown. */

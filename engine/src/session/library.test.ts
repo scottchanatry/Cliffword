@@ -294,6 +294,24 @@ describe('with the mock model', () => {
     expect(s.modelStats.calls).toBe(0);
   });
 
+  it("modelAlternatives off: a said answer is scored by the model, and the feedback lists only the writer's alternatives", async () => {
+    const on = make({ model, library: { startLevel: 4 } });
+    const off = make({ model, library: { startLevel: 4 }, options: { library: { modelAlternatives: false } } });
+    const t = { now: T0 };
+    const landings: Extract<StoryScreen, { kind: 'landing' }>[][] = [[], []];
+    for (const [k, s] of [on, off].entries()) {
+      for (let i = 0; i < 3; i++) {
+        await s.next((t.now += 1000));
+        landings[k]?.push(screenOf(await s.handleUtterance(answerOf(s), (t.now += 1000)), 'landing'));
+      }
+    }
+    const [withModel = [], listedOnly = []] = landings;
+    // The mock model proposes words of its own on at least one line; with the option off none shows.
+    expect(withModel.some((l, i) => (l.alternatives ?? []).length > (i === 2 ? 1 : 0))).toBe(true);
+    expect(listedOnly.map((l) => l.scoredBy)).toEqual(['model', 'model', 'model']);
+    expect(listedOnly.map((l) => l.alternatives)).toEqual([[], [], ['comida']]);
+  });
+
   it('judges a learner turn with the repair flow', async () => {
     const s = make({ model, library: { startLevel: 4 } });
     const t = { now: T0 };
@@ -579,6 +597,153 @@ describe('snapshots', () => {
     const r = StorySession.restore(snap, { model: null, pack, pair: { ...pair, library: renamed }, learner: new LearnerModel() });
     const next = screenOf(await r.next(T0 + 2), 'cliff');
     expect(next.meta.library).toMatchObject({ storyId: 'test.market.e1.v2', lineId: 'e1.l01' });
+  });
+});
+
+describe('episode transcript (libraryTranscript)', () => {
+  type Entry = NonNullable<StorySession['libraryTranscript']>['entries'][number];
+  const gapOf = (e: Entry | undefined) => (e?.kind === 'line' && e.gap ? e.text.slice(e.gap.start, e.gap.end) : null);
+  /** Answer the cliff on screen (the gap first in recall mode) and move on. */
+  async function answerAndNext(s: StorySession, t: { now: number }): Promise<StoryScreen> {
+    if (s.screen.kind === 'cliff' && screenOf(s.screen, 'cliff').phase === 'playing') s.played((t.now += 100));
+    await s.handleUtterance(answerOf(s), (t.now += 1000));
+    return (await s.next((t.now += 1000))).screen;
+  }
+
+  it('grows line by line: earlier lines with the gap filled, then the question and the reply; the focus is left out', async () => {
+    const s = make({ library: { address: 'f' } });
+    const t = { now: T0 };
+    expect(s.libraryTranscript).toBeNull();
+    const first = screenOf(await s.next(t.now), 'cliff');
+    expect(first.meta.library?.speakerId).toBe('vendor');
+    expect(s.libraryTranscript).toEqual({ track: MARKET, episode: 1, storyId: 'test.market.e1', replay: false, entries: [] });
+    s.played((t.now += 100));
+    await s.handleUtterance('llamo', (t.now += 1000));
+    // The answered line is still the focus (its feedback is on screen).
+    expect(s.screen.kind).toBe('landing');
+    expect(s.libraryTranscript?.entries).toEqual([]);
+    await s.next((t.now += 1000));
+    const [l1] = s.libraryTranscript?.entries ?? [];
+    expect(l1).toEqual({
+      kind: 'line',
+      id: 'e1.l01',
+      speakerId: 'vendor',
+      speaker: 'Rosa',
+      text: '¡Hola! Me llamo Rosa.',
+      translation: 'Hi! My name is Rosa.',
+      gap: expect.any(Object),
+    });
+    expect(gapOf(l1)).toBe('llamo');
+    await answerAndNext(s, t);
+    const turn = screenOf(await answerAndNext(s, t), 'turn');
+    expect(turn.meta.library?.speakerId).toBe('vendor');
+    // On the question: the three lines before it; the question is the focus.
+    expect(s.libraryTranscript?.entries.map((e) => (e.kind === 'reply' ? e.turnId : e.id))).toEqual(['e1.l01', 'e1.l02', 'e1.l03']);
+    await s.handleUtterance('  Sí, quiero dos.  ', (t.now += 1000));
+    expect(s.libraryTranscript?.entries).toHaveLength(3);
+    await s.next((t.now += 1000));
+    const entries = s.libraryTranscript?.entries ?? [];
+    expect(entries.slice(3)).toEqual([
+      { kind: 'question', id: 'e1.t01', speakerId: 'vendor', speaker: 'Rosa', text: '¿Quieres bananas?', translation: 'Do you want bananas?' },
+      { kind: 'reply', turnId: 'e1.t01', text: 'Sí, quiero dos.' },
+    ]);
+    // The learner's address resolves the variants ('{you:o|a}').
+    expect(entries[1]).toMatchObject({ kind: 'line', text: '¡Bienvenida al mercado!', speaker: 'Rosa' });
+    expect(gapOf(entries[2])).toBe('fruta');
+  });
+
+  it('a question answered with "no sé" has no reply; the last reply of a question counts', async () => {
+    const s = make();
+    const t = { now: T0 };
+    await s.next(t.now);
+    for (let i = 0; i < 3; i++) await answerAndNext(s, t);
+    expect(s.screen.kind).toBe('turn');
+    await s.command('dont_know', (t.now += 1000));
+    await s.next((t.now += 1000));
+    expect(s.libraryTranscript?.entries.filter((e) => e.kind !== 'line')).toEqual([
+      { kind: 'question', id: 'e1.t01', speakerId: 'vendor', speaker: 'Rosa', text: '¿Quieres bananas?', translation: 'Do you want bananas?' },
+    ]);
+    const other = make();
+    const u = { now: T0 };
+    await other.next(u.now);
+    for (let i = 0; i < 3; i++) await answerAndNext(other, u);
+    await other.handleUtterance('yes please', (u.now += 1000));
+    await other.handleUtterance('Sí, por favor.', (u.now += 1000));
+    await other.next((u.now += 1000));
+    expect(other.libraryTranscript?.entries.at(-1)).toEqual({ kind: 'reply', turnId: 'e1.t01', text: 'Sí, por favor.' });
+  });
+
+  it('resolves variants, track choices and cast names for every entry', async () => {
+    const s = make({ library: { trackId: DATE, choices: { partner: 'ana' }, address: 'm' } });
+    const t = { now: T0 };
+    const first = screenOf(await s.next(t.now), 'cliff');
+    expect(first.meta.library?.speakerId).toBeNull();
+    for (let i = 0; i < 4; i++) await answerAndNext(s, t);
+    expect(s.screen.kind).toBe('turn');
+    await s.handleUtterance('Sí, me gusta.', (t.now += 1000));
+    // The question on screen is the focus; the four lines are the story so far.
+    const lines = s.libraryTranscript?.entries ?? [];
+    expect(lines.map((e) => (e.kind === 'line' ? [e.speakerId, e.speaker, e.text, e.translation, gapOf(e)] : e.kind))).toEqual([
+      [null, null, 'Hoy tienes una cita con Ana.', 'Today you have a date with Ana.', 'cita'],
+      ['partner', 'Ana', '¡Hola! Estás muy guapo.', 'Hi! You look very handsome.', 'guapo'],
+      [null, null, 'Ana pide un café con leche.', 'Ana orders a coffee with milk.', 'leche'],
+      ['partner', 'Ana', 'Me gusta este restaurante.', 'I like this restaurant.', 'restaurante'],
+    ]);
+    for (const e of lines) expect(e.kind === 'reply' ? e.text : [e.text, e.translation, e.speaker ?? ''].join(' ')).not.toMatch(/[{}|]/);
+    const f = make({ library: { trackId: DATE, choices: { partner: 'leo' }, address: 'f' } });
+    const u = { now: T0 };
+    await f.next(u.now);
+    for (let i = 0; i < 2; i++) await answerAndNext(f, u);
+    expect(f.libraryTranscript?.entries.map((e) => (e.kind === 'line' ? [e.speaker, e.text] : e.kind))).toEqual([
+      [null, 'Hoy tienes una cita con Leo.'],
+      ['Leo', '¡Hola! Estás muy guapa.'],
+    ]);
+  });
+
+  it('survives snapshot and restore mid-episode and mid-question, replies included', async () => {
+    const s = make({ library: { address: 'f' } });
+    const t = { now: T0 };
+    await s.next(t.now);
+    for (let i = 0; i < 3; i++) await answerAndNext(s, t);
+    await s.handleUtterance('Sí, quiero bananas.', (t.now += 1000));
+    // Killed on the question, after the reply.
+    const onTurn = StorySession.restore(JSON.parse(JSON.stringify(s.snapshot())) as StorySessionSnapshot, { model: null, pack, pair, learner: learnerOf(s) });
+    expect(onTurn.libraryTranscript).toEqual(s.libraryTranscript);
+    expect(onTurn.libraryTranscript?.entries).toHaveLength(3);
+    await s.next((t.now += 1000));
+    await onTurn.next(t.now);
+    expect(onTurn.libraryTranscript).toEqual(s.libraryTranscript);
+    expect(onTurn.libraryTranscript?.entries.at(-1)).toEqual({ kind: 'reply', turnId: 'e1.t01', text: 'Sí, quiero bananas.' });
+    // Killed on the last line's feedback.
+    s.played((t.now += 100));
+    await s.handleUtterance(answerOf(s), (t.now += 1000));
+    const onFeedback = StorySession.restore(JSON.parse(JSON.stringify(s.snapshot())) as StorySessionSnapshot, { model: null, pack, pair, learner: learnerOf(s) });
+    expect(onFeedback.screen.kind).toBe('landing');
+    expect(onFeedback.libraryTranscript).toEqual(s.libraryTranscript);
+    expect(onFeedback.libraryTranscript?.entries).toHaveLength(5);
+    // A snapshot from before replies were kept restores without them.
+    const old = JSON.parse(JSON.stringify(s.snapshot())) as StorySessionSnapshot;
+    delete old.state.library?.tracks[MARKET]?.play?.replies;
+    const r = StorySession.restore(old, { model: null, pack, pair, learner: learnerOf(s) });
+    expect(r.libraryTranscript?.entries.map((e) => e.kind)).toEqual(['line', 'line', 'line', 'question']);
+  });
+
+  it('starts empty with the next episode and with a replay', async () => {
+    const s = make();
+    const t = { now: T0 };
+    await playEpisode(s, t, () => 'say');
+    // Between episodes there is no episode in progress.
+    expect(s.libraryTranscript).toBeNull();
+    const e2 = screenOf(await s.next((t.now += 1000)), 'cliff');
+    expect(e2.meta.library?.episode).toBe(2);
+    expect(s.libraryTranscript).toMatchObject({ episode: 2, storyId: 'test.market.e2', replay: false, entries: [] });
+    await answerAndNext(s, t);
+    expect(s.libraryTranscript?.entries.map((e) => (e.kind === 'line' ? e.id : e.kind))).toEqual(['e2.l01']);
+    const replay = screenOf(await s.replayEpisode(1, (t.now += 1000)), 'cliff');
+    expect(replay.meta.library).toMatchObject({ episode: 1, replay: true });
+    expect(s.libraryTranscript).toMatchObject({ episode: 1, replay: true, entries: [] });
+    await answerAndNext(s, t);
+    expect(s.libraryTranscript?.entries.map((e) => (e.kind === 'line' ? e.id : e.kind))).toEqual(['e1.l01']);
   });
 });
 

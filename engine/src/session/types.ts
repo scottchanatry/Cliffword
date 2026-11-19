@@ -294,6 +294,13 @@ export interface LibraryMeta {
   mode: CliffMode;
   /** Who says the line on screen: a cast member's local name, null for narration. */
   speaker: string | null;
+  /**
+   * Who speaks on screen, as the story writes it (LibrarySentence.speaker or
+   * LibraryTurn.speaker: a cast id, or a name): the line's speaker, or the character asking
+   * the question on screen (turn, repair). null for narration and between lines. Language-
+   * neutral, so the app can key a picture on it (track + cast id).
+   */
+  speakerId: string | null;
   /** LibrarySentence.id of the line on screen. */
   lineId: string | null;
   /** The episode is a replay of a finished one. */
@@ -372,6 +379,61 @@ export interface TrackProgressView {
   choices: Record<string, string>;
   /** Choice keys of the track not made yet (asked before the first episode). */
   missingChoices: string[];
+}
+
+/**
+ * One entry of an episode so far (EpisodeTranscript): a line of the story, a question a
+ * character asked the learner, or the learner's reply to it.
+ */
+export type TranscriptEntry =
+  | {
+      kind: 'line';
+      /** LibrarySentence.id. */
+      id: string;
+      /** Who says it, as the story writes it (a cast id, or a name); null for narration. */
+      speakerId: string | null;
+      /** The speaker's display name (the cast member's local name); null for narration. */
+      speaker: string | null;
+      /** The line with every variant resolved and its gap filled with the story's words. */
+      text: string;
+      /** The line in the learner's language. */
+      translation: string;
+      /** Character span of the gap's words in `text`; null when they cannot be located. */
+      gap: { start: number; end: number } | null;
+    }
+  | {
+      kind: 'question';
+      /** LibraryTurn.id. */
+      id: string;
+      speakerId: string | null;
+      speaker: string | null;
+      /** The question (LibraryTurn.line), resolved. */
+      text: string;
+      translation: string;
+    }
+  | {
+      kind: 'reply';
+      /** LibraryTurn.id of the question it answers. */
+      turnId: string;
+      /** What the learner said or typed last, as heard. */
+      text: string;
+    };
+
+/**
+ * Library mode: the episode in progress so far, as a conversation (StorySession.libraryTranscript).
+ * The lines before the one on screen in story order, with the questions asked after them and
+ * the learner's replies; the line or question on screen is not in it (it is the focus). It is
+ * rebuilt from the episode's data and the session state, so it survives snapshot() and
+ * restore(), and starts empty with each new episode and each replay.
+ */
+export interface EpisodeTranscript {
+  /** LibraryTrack.id. */
+  track: string;
+  episode: number;
+  /** LibraryStory.id of the episode. */
+  storyId: string;
+  replay: boolean;
+  entries: TranscriptEntry[];
 }
 
 /** The library side of a session for the picker and the profile. */

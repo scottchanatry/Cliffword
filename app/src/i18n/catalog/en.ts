@@ -820,6 +820,7 @@ export const en = {
   'episode.noSe.hint': 'I don’t know: show me',
   'episode.option.a11y': 'Answer: {text}',
   'episode.narrator': 'Narrator',
+  'transcript.you': 'You',
   'mic.tap': 'Tap to answer',
   'mic.listeningTap': 'Listening… tap to send',
   'mic.holding': 'Listening… let go to send',

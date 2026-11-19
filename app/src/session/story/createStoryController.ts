@@ -49,7 +49,12 @@
  * or choice reaches the session (chooseTrack, setLibraryProfile), and the level an episode ends
  * on is stored back (settings.level). In recall mode the whole line plays first and
  * session.played() then shows the gap; the gapped line plays its two parts with a short pause.
- * On a cliff screen the controller prefetches (the model's alternatives for the feedback).
+ * The session runs with options.library.modelAlternatives false: the feedback lists the writer's
+ * other answers only, never the model's next-word guesses (they see only the words before the
+ * gap, so they could be nonsense in the slot, and they cost a model wait after every tap). On a
+ * cliff screen the controller still calls prefetch, which then has nothing to search.
+ * vm.transcript is the episode so far (session.libraryTranscript), published with every step
+ * and on restore.
  *
  * The mic button (micTap): a tap listens in tap mode (src/session/common/autoStop.ts: it stops
  * after about 1.5 s of silence when levels come, else after 6 s); a second tap stops it. Press
@@ -169,6 +174,7 @@ export function initialStoryViewModel(textMode: TextMode = 'auto', modelMode: St
     library: null,
     view: 'home',
     micLatched: false,
+    transcript: null,
   };
 }
 
@@ -462,7 +468,7 @@ class StoryControllerImpl implements StoryControllerHandle {
       } catch (e) {
         // Nothing of a failed step is written; show the screen the session is on now.
         this.report(e);
-        this.set({ screen: session.screen, notice: { key: tKey('story.notice.stepFailed') } });
+        this.set({ screen: session.screen, transcript: session.libraryTranscript, notice: { key: tKey('story.notice.stepFailed') } });
         return;
       }
       await this.apply(step, { at, credited: opts.credited ?? 0, hearIndex: opts.hearIndex });
@@ -503,7 +509,10 @@ class StoryControllerImpl implements StoryControllerHandle {
     await this.refreshSpokenToday(at);
     const sessionOptions: Partial<StorySessionOptions> = {
       ...this.deps.sessionOptions,
-      library: { retell: RETELL_ENABLED, ...this.deps.sessionOptions?.library },
+      // No model guesses in the feedback ("Also natural"): the next-word search sees only the
+      // words before the gap, so its guesses can be nonsense in the slot ("Estás ___." got
+      // "buscando"), and it costs a model wait after every tap. The writer's listed answers stay.
+      library: { retell: RETELL_ENABLED, modelAlternatives: false, ...this.deps.sessionOptions?.library },
     };
     const options = { applyEvents: false, options: sessionOptions };
     const library = libraryStartFor(this.settings);
@@ -534,7 +543,7 @@ class StoryControllerImpl implements StoryControllerHandle {
       if (session.playsLibrary) {
         // The Story home comes first: nothing plays until the learner opens the episode.
         await this.syncLibrary(session);
-        this.set({ library: session.libraryProgress });
+        this.set({ library: session.libraryProgress, transcript: session.libraryTranscript });
         return;
       }
       if (session.screen.kind !== 'idle') return;
@@ -577,7 +586,7 @@ class StoryControllerImpl implements StoryControllerHandle {
     if (screen.kind === 'cliff') this.cliffWordIndex = screen.cliff.wordIndex;
     this.chapter = screen.meta.chapter;
     this.resolved = screen.kind === 'cliff' ? null : sentenceOf(screen);
-    this.set({ screen, previous: [], library: this.session?.libraryProgress ?? null });
+    this.set({ screen, previous: [], library: this.session?.libraryProgress ?? null, transcript: this.session?.libraryTranscript ?? null });
   }
 
   /** Publish a step: persist it, then the screen, the meaning, the speech. */
@@ -602,11 +611,12 @@ class StoryControllerImpl implements StoryControllerHandle {
     this.trackSentences(screen);
     const before = this.vm.screen;
     const meaning = step.meaning ?? (before?.kind === screen.kind ? this.vm.meaning : null);
-    this.set({ screen, meaning, spokenTodayMs, previous: [...this.previous], library: session.libraryProgress });
+    this.set({ screen, meaning, spokenTodayMs, previous: [...this.previous], library: session.libraryProgress, transcript: session.libraryTranscript });
     if (screen.kind === 'episodeDone') this.storeLevel(screen.levelAfter);
     if (step.speak) await this.play(step.speak, { hearIndex: ctx.hearIndex });
     if (screen.kind === 'landing' || screen.kind === 'noSe') this.prefetch();
-    // Library: the model's alternatives for the feedback, searched while the learner thinks.
+    // Library: the model's alternatives for the feedback, searched while the learner thinks
+    // (nothing to do while options.library.modelAlternatives is off, as the app runs it).
     else if (screen.kind === 'cliff' && screen.meta.mode === 'library') this.prefetch();
   }
 

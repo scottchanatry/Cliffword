@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" stroke-linejoin="round" stroke-linecap="round">
+  <title>Rafa</title>
+  <desc>The proud waiter: slicked hair, a thin curled mustache, a coral bow tie and a dark vest, a towel on his arm, a huge mofongo held high on a plate.</desc>
+  <defs>
+    <clipPath id="rafa-1">
+      <circle cx="128" cy="128" r="124" fill="#A8DBF0"/>
+    </clipPath>
+  </defs>
+  <!-- the disc -->
+  <circle cx="128" cy="128" r="124" fill="#A8DBF0"/>
+  <!-- the character, clipped to the disc -->
+  <g clip-path="url(#rafa-1)">
+    <g transform="translate(116 136)">
+      <rect x="-16" y="40" width="32" height="40" rx="8" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <path d="M -104 150 C -104 96 -64 70 0 70 C 64 70 104 96 104 150 Z" fill="#F3F4F1" stroke="#16181D" stroke-width="4"/>
+      <path d="M -104 150 C -104 96 -64 70 -24 72 L 0 130 L 24 72 C 64 70 104 96 104 150 Z" fill="#16181D" stroke="#16181D" stroke-width="4"/>
+      <circle cx="0" cy="110" r="3.5" fill="#F3F4F1"/>
+      <path d="M -24 72 L 0 130 L 24 72" fill="none" stroke="#16181D" stroke-width="4"/>
+      <path d="M -2 86 L -24 74 L -24 98 Z M 2 86 L 24 74 L 24 98 Z" fill="#EF6A57" stroke="#16181D" stroke-width="3"/>
+      <rect x="-7" y="79" width="14" height="14" rx="4" fill="#EF6A57" stroke="#16181D" stroke-width="3"/>
+      <path d="M -96 112 C -86 96 -70 92 -56 98 L -50 150 L -82 150 Z" fill="#F3F4F1" stroke="#16181D" stroke-width="4"/>
+      <path d="M -88 124 L -60 120 M -84 138 L -56 134" fill="none" stroke="#A8DBF0" stroke-width="3"/>
+      <circle cx="-56" cy="6" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <circle cx="56" cy="6" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <circle cx="0" cy="0" r="58" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <path d="M -58 -4 C -64 -48 -30 -66 6 -64 C 40 -62 64 -42 58 -4 C 54 -22 46 -32 34 -38 C 18 -36 2 -40 -10 -48 C -22 -36 -40 -30 -58 -4 Z" fill="#16181D" stroke="#16181D" stroke-width="4"/>
+      <path d="M 8 -56 Q 26 -54 40 -44" fill="none" stroke="#5B616B" stroke-width="3"/>
+      <circle cx="-22" cy="-4" r="13" fill="#F3F4F1" stroke="#16181D" stroke-width="3"/>
+      <circle cx="-21" cy="-1.5" r="7.3" fill="#16181D"/>
+      <circle cx="-23.8" cy="-4.4" r="2.5" fill="#F3F4F1"/>
+      <path d="M -34.6 -4 A 13 13 0 0 1 -9.4 -4 Z" fill="#FFC46B"/>
+      <path d="M -35.5 -4 L -8.5 -4" fill="none" stroke="#16181D" stroke-width="3"/>
+      <circle cx="-22" cy="-4" r="13" fill="none" stroke="#16181D" stroke-width="3"/>
+      <circle cx="22" cy="-4" r="13" fill="#F3F4F1" stroke="#16181D" stroke-width="3"/>
+      <circle cx="23" cy="-1.5" r="7.3" fill="#16181D"/>
+      <circle cx="20.2" cy="-4.4" r="2.5" fill="#F3F4F1"/>
+      <path d="M 9.4 -4 A 13 13 0 0 1 34.6 -4 Z" fill="#FFC46B"/>
+      <path d="M 8.5 -4 L 35.5 -4" fill="none" stroke="#16181D" stroke-width="3"/>
+      <circle cx="22" cy="-4" r="13" fill="none" stroke="#16181D" stroke-width="3"/>
+      <path d="M -35 -27 Q -26 -42 -11 -36" fill="none" stroke="#16181D" stroke-width="4"/>
+      <path d="M 11 -36 Q 26 -42 35 -27" fill="none" stroke="#16181D" stroke-width="4"/>
+      <ellipse cx="-34" cy="20" rx="9" ry="5.6" fill="#F7BBCB"/>
+      <ellipse cx="34" cy="20" rx="9" ry="5.6" fill="#F7BBCB"/>
+      <path d="M -4 10 Q 0 18 5 11" fill="none" stroke="#16181D" stroke-width="3"/>
+      <path d="M -2 26 C -10 20 -19 20 -25 24 C -31 22 -32 14 -26 13 M 2 26 C 10 20 19 20 25 24 C 31 22 32 14 26 13" fill="none" stroke="#16181D" stroke-width="4"/>
+      <path d="M -13 34 Q 0 45 13 34" fill="none" stroke="#16181D" stroke-width="3"/>
+    </g>
+    <!-- the arm up, the plate of mofongo on the hand -->
+    <path d="M 196 262 L 208 140" fill="none" stroke="#16181D" stroke-width="32"/>
+    <path d="M 196 262 L 208 140" fill="none" stroke="#F3F4F1" stroke-width="24"/>
+    <circle cx="208" cy="128" r="14" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+    <ellipse cx="206" cy="114" rx="38" ry="9" fill="#F3F4F1" stroke="#16181D" stroke-width="4"/>
+    <path d="M 180 110 C 180 72 232 72 232 110 Z" fill="#B4530A" stroke="#16181D" stroke-width="4"/>
+    <path d="M 192 96 L 196 100 M 206 88 L 210 92 M 218 98 L 222 102 M 204 104 L 208 107" fill="none" stroke="#F08A1D" stroke-width="3"/>
+    <circle cx="200" cy="78" r="6" fill="#62AD52" stroke="#16181D" stroke-width="3"/>
+    <circle cx="212" cy="76" r="6" fill="#62AD52" stroke="#16181D" stroke-width="3"/>
+    <path d="M 196 64 C 192 56 200 52 196 44 M 214 64 C 210 56 218 52 214 44" fill="none" stroke="#F3F4F1" stroke-width="4"/>
+  </g>
+</svg>

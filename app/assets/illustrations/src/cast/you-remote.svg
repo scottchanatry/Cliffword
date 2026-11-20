@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" stroke-linejoin="round" stroke-linecap="round">
+  <title>You, the remote worker</title>
+  <desc>A remote worker in their thirties: bed hair with a cowlick, square glasses, sleepy half-closed eyes, a lilac hoodie, a laptop covered in stickers under one arm and a huge steaming coffee mug.</desc>
+  <defs>
+    <clipPath id="you-remote-1">
+      <circle cx="128" cy="128" r="124" fill="#A8DBF0"/>
+    </clipPath>
+  </defs>
+  <!-- the disc -->
+  <circle cx="128" cy="128" r="124" fill="#A8DBF0"/>
+  <!-- the character, clipped to the disc -->
+  <g clip-path="url(#you-remote-1)">
+    <!-- the laptop, under the arm -->
+    <g transform="translate(46 196) rotate(-14)">
+      <rect x="-34" y="-48" width="80" height="108" rx="10" fill="#F3F4F1" stroke="#16181D" stroke-width="4"/>
+      <rect x="-40" y="-54" width="80" height="108" rx="10" fill="#5B616B" stroke="#16181D" stroke-width="4"/>
+      <circle cx="-12" cy="-22" r="10" fill="#EF6A57" stroke="#16181D" stroke-width="3"/>
+      <path d="M 10 -2 C 10 -8 18 -10 20 -4 C 22 -10 30 -8 30 -2 C 30 6 20 12 20 12 C 20 12 10 6 10 -2 Z" fill="#F7BBCB" stroke="#16181D" stroke-width="3"/>
+      <path d="M -24 14 L -4 14 L -14 0 Z" fill="#62AD52" stroke="#16181D" stroke-width="3"/>
+    </g>
+    <g transform="translate(126 136)">
+      <rect class="skin" x="-16" y="40" width="32" height="40" rx="8" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <path d="M -104 150 C -104 96 -64 70 0 70 C 64 70 104 96 104 150 Z" fill="#C3B3EA" stroke="#16181D" stroke-width="4"/>
+      <path d="M -36 72 C -36 100 36 100 36 72" fill="none" stroke="#16181D" stroke-width="3"/>
+      <path d="M -14 86 L -16 116 M 14 86 L 16 116" fill="none" stroke="#16181D" stroke-width="9"/>
+      <path d="M -14 86 L -16 116 M 14 86 L 16 116" fill="none" stroke="#F3F4F1" stroke-width="3"/>
+      <circle class="skin" cx="-56" cy="6" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <circle class="skin" cx="56" cy="6" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <circle class="skin" cx="0" cy="0" r="58" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <!-- bed hair and a cowlick -->
+      <path d="M -59 6 C -66 -46 -34 -68 0 -68 C 36 -68 66 -46 59 6 C 56 -8 52 -22 44 -32 L 38 -36 L 30 -44 L 20 -38 L 10 -48 C 0 -42 -14 -42 -24 -48 L -30 -38 L -40 -44 C -48 -36 -54 -20 -59 6 Z" fill="#B4530A" stroke="#16181D" stroke-width="4"/>
+      <path d="M 4 -66 C 0 -84 14 -96 28 -90 C 18 -86 14 -78 16 -66 M -16 -64 C -24 -76 -20 -88 -10 -92 C -12 -82 -8 -74 -4 -66" fill="#B4530A" stroke="#16181D" stroke-width="4"/>
+      <path d="M -40 -50 Q -30 -58 -18 -58" fill="none" stroke="#F08A1D" stroke-width="3"/>
+      <!-- sleepy eyes behind square glasses -->
+      <circle cx="-22" cy="-2" r="12" fill="#F3F4F1" stroke="#16181D" stroke-width="3"/>
+      <circle cx="-21" cy="2" r="7" fill="#16181D"/>
+      <circle cx="-23.6" cy="-0.6" r="2.4" fill="#F3F4F1"/>
+      <path class="skin" d="M -33.6 2 A 12 12 0 0 1 -10.4 2 Z" fill="#FFC46B"/>
+      <path d="M -34.5 2 L -9.5 2" fill="none" stroke="#16181D" stroke-width="3"/>
+      <circle cx="-22" cy="-2" r="12" fill="none" stroke="#16181D" stroke-width="3"/>
+      <circle cx="22" cy="-2" r="12" fill="#F3F4F1" stroke="#16181D" stroke-width="3"/>
+      <circle cx="23" cy="2" r="7" fill="#16181D"/>
+      <circle cx="20.4" cy="-0.6" r="2.4" fill="#F3F4F1"/>
+      <path class="skin" d="M 10.4 2 A 12 12 0 0 1 33.6 2 Z" fill="#FFC46B"/>
+      <path d="M 9.5 2 L 34.5 2" fill="none" stroke="#16181D" stroke-width="3"/>
+      <circle cx="22" cy="-2" r="12" fill="none" stroke="#16181D" stroke-width="3"/>
+      <rect x="-42" y="-18" width="38" height="31" rx="9" fill="none" stroke="#16181D" stroke-width="4"/>
+      <rect x="4" y="-18" width="38" height="31" rx="9" fill="none" stroke="#16181D" stroke-width="4"/>
+      <path d="M -4 -6 Q 0 -10 4 -6 M -42 -10 L -56 -12 M 42 -10 L 56 -12" fill="none" stroke="#16181D" stroke-width="4"/>
+      <path d="M -36 -27 Q -24 -31 -12 -28" fill="none" stroke="#16181D" stroke-width="4"/>
+      <path d="M 12 -28 Q 24 -31 36 -27" fill="none" stroke="#16181D" stroke-width="4"/>
+      <ellipse cx="-38" cy="24" rx="9" ry="5.6" fill="#F7BBCB"/>
+      <ellipse cx="38" cy="24" rx="9" ry="5.6" fill="#F7BBCB"/>
+      <path d="M -4 14 Q 0 22 5 15" fill="none" stroke="#16181D" stroke-width="3"/>
+      <path d="M -14 32 Q 0 42 14 30" fill="none" stroke="#16181D" stroke-width="3"/>
+    </g>
+    <!-- the huge coffee -->
+    <g transform="translate(200 200)">
+      <path d="M 26 -24 C 50 -24 50 16 24 14" fill="none" stroke="#16181D" stroke-width="18"/>
+      <path d="M 26 -24 C 50 -24 50 16 24 14" fill="none" stroke="#EF6A57" stroke-width="10"/>
+      <path d="M -32 -40 L 32 -40 L 28 30 C 28 40 20 46 10 46 L -10 46 C -20 46 -28 40 -28 30 Z" fill="#EF6A57" stroke="#16181D" stroke-width="4"/>
+      <ellipse cx="0" cy="-40" rx="32" ry="8" fill="#B4530A" stroke="#16181D" stroke-width="4"/>
+      <path d="M -18 -20 L -18 20" fill="none" stroke="#F3F4F1" stroke-width="4"/>
+      <path d="M -12 -56 C -20 -66 -4 -72 -12 -84 M 8 -56 C 0 -66 16 -72 8 -84" fill="none" stroke="#F3F4F1" stroke-width="5"/>
+    </g>
+    <circle class="skin" cx="176" cy="218" r="15" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+  </g>
+</svg>

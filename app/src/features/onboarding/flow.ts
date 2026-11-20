@@ -1,7 +1,8 @@
 /**
  * The onboarding steps and their routes: welcome (/onboarding), the experience picker, "How much
- * Spanish do you know?", "How should people address you?", the experience's choices (only when it
- * has some, such as "Who do you match with?"), the microphone, then done.
+ * Spanish do you know?", "How should people address you?", "Who are you in the story?" (the
+ * learner's picture: a character or their own photo), the experience's choices (only when it has
+ * some, such as "Who do you match with?"), the microphone, then done.
  * settings.onboardingStep stores the step to resume at, so a killed app comes back where it
  * stopped; 'done' goes with onboarded = true and the current onboardingVersion, and the root guard
  * then opens the Story tab.
@@ -11,13 +12,14 @@ import type { OnboardingStep } from '../../storage/repos/settings';
 export type OnboardingScreenStep = Exclude<OnboardingStep, 'done'>;
 
 /** Every screen in order ('choices' is skipped for an experience without choices). */
-export const ONBOARDING_SCREENS: readonly OnboardingScreenStep[] = ['welcome', 'experience', 'level', 'address', 'choices', 'mic'];
+export const ONBOARDING_SCREENS: readonly OnboardingScreenStep[] = ['welcome', 'experience', 'level', 'address', 'picture', 'choices', 'mic'];
 
 export type OnboardingRoute =
   | '/onboarding'
   | '/onboarding/experience'
   | '/onboarding/level'
   | '/onboarding/address'
+  | '/onboarding/picture'
   | '/onboarding/choices'
   | '/onboarding/mic';
 
@@ -26,6 +28,7 @@ export const STEP_ROUTES: Readonly<Record<OnboardingScreenStep, OnboardingRoute>
   experience: '/onboarding/experience',
   level: '/onboarding/level',
   address: '/onboarding/address',
+  picture: '/onboarding/picture',
   choices: '/onboarding/choices',
   mic: '/onboarding/mic',
 };

@@ -20,6 +20,7 @@ export const ACCOUNT_FIXTURE_NAMES = [
   'onboarding-experience',
   'onboarding-level',
   'onboarding-address',
+  'onboarding-picture',
   'onboarding-mic',
   'onboarding-mic-denied',
   'profile',

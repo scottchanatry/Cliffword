@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useAppState } from '../../src/appState/AppStateProvider';
 import { ProfileButton } from '../../src/components/ProfileButton';
 import { TabIcon } from '../../src/components/TabIcon';
 import { MUSIC_ENABLED } from '../../src/config/features';
@@ -22,17 +23,19 @@ const TAB_BAR_HEIGHT = 60;
 /**
  * The tabs: Story, and Music while MUSIC_ENABLED (src/config/features.ts). With Music off the
  * Story tab is the only one, so the tab bar is hidden and the music routes are unreachable
- * (href null here, and their layout redirects to the Story tab).
+ * (href null here, and their layout redirects to the Story tab). The header's corner button shows
+ * the learner's picture (settings.picture) and opens the profile.
  */
 export default function TabsLayout() {
   const { t } = useI18n();
   const insets = useSafeAreaInsets();
+  const { picture } = useAppState().settings;
   return (
     <Tabs
       screenOptions={{
         headerTitle: () => <HeaderTitle />,
         headerTitleAlign: 'left',
-        headerRight: () => <ProfileButton />,
+        headerRight: () => <ProfileButton picture={picture} />,
         headerRightContainerStyle: { paddingRight: layout.screenPaddingX },
         headerTitleContainerStyle: { marginHorizontal: 0, paddingLeft: layout.screenPaddingX },
         headerStyle: { backgroundColor: colors.ground },

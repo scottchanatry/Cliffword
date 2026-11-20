@@ -18,6 +18,7 @@ import { ConfirmSheet } from './ConfirmSheet';
 import { DangerRow } from './DangerRow';
 import { LinkRow } from './LinkRow';
 import { ModelCard, type ModelStatusProps } from './ModelCard';
+import { PictureRow, type PictureRowProps } from './PictureRow';
 import { ModalHeader } from './ModalHeader';
 import { RateStepper } from './RateStepper';
 import { SegmentedControl } from './SegmentedControl';
@@ -68,6 +69,8 @@ export interface SettingsViewProps {
   experience?: SettingsExperience;
   /** Store another experience and its choices (the Story tab follows). Absent: no Change. */
   onPickExperience?: (trackId: string, choices: Record<string, string>) => void;
+  /** The learner's picture: the "Your picture" row and its chooser (usePictureChooser). Absent: no row. */
+  picture?: PictureRowProps;
   /** Translated names of the learner's language and the one they learn. */
   nativeName: string;
   targetName: string;
@@ -158,6 +161,7 @@ export function SettingsView(props: SettingsViewProps) {
       ) : null}
 
       <Section title={t('settings.section.story')}>
+        {props.picture ? <PictureRow {...props.picture} /> : null}
         {props.experience ? (
           <View style={[styles.field, styles.fieldDivider, styles.experienceRow]} testID="settings-experience">
             <View style={styles.experienceText}>

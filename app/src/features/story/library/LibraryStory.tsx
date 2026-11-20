@@ -12,6 +12,7 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import type { StoryActions, StoryViewModel } from '../../../session/contract';
+import type { LearnerPicture } from '../../../storage/repos/settings';
 import { colors } from '../../../theme';
 import { GUIDE_TIPS, type GuideTip } from './CoachMark';
 import { EpisodeView } from './EpisodeView';
@@ -26,6 +27,8 @@ export interface LibraryStoryOptions {
   onGuideDone?: () => void;
   /** The language model's line on the home. */
   model?: ModelLine;
+  /** The learner's picture beside their replies in an episode (settings.picture). */
+  you?: LearnerPicture;
 }
 
 export interface LibraryStoryProps extends LibraryStoryOptions {
@@ -33,7 +36,7 @@ export interface LibraryStoryProps extends LibraryStoryOptions {
   actions: StoryActions;
 }
 
-export function LibraryStory({ vm, actions, onPickExperience, guideSeen = true, onGuideDone, model }: LibraryStoryProps) {
+export function LibraryStory({ vm, actions, onPickExperience, guideSeen = true, onGuideDone, model, you }: LibraryStoryProps) {
   const [picker, setPicker] = useState(false);
   const [tip, setTip] = useState<GuideTip | null>(guideSeen ? null : 'listen');
   const screen = vm.screen;
@@ -79,6 +82,7 @@ export function LibraryStory({ vm, actions, onPickExperience, guideSeen = true, 
         guide={shown}
         onGuideNext={nextTip}
         onGuideSkip={finishGuide}
+        you={you}
         {...(onPickExperience
           ? {
               onPickExperience: () => {

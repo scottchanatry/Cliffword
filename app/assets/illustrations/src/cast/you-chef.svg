@@ -1,0 +1,63 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" stroke-linejoin="round" stroke-linecap="round">
+  <title>You, the chef</title>
+  <desc>A chef in his forties: a tall chef's hat tilted, a big ink mustache, grey at the temples, a white jacket with a teal neckerchief, eyes shut in bliss after tasting from a wooden spoon.</desc>
+  <defs>
+    <clipPath id="you-chef-1">
+      <circle cx="128" cy="128" r="124" fill="#F08A1D"/>
+    </clipPath>
+    <clipPath id="you-chef-2">
+      <path d="M -16 34 Q 0 32 16 34 Q 14 50 0 50 Q -14 50 -16 34 Z" fill="#16181D"/>
+    </clipPath>
+  </defs>
+  <!-- the disc -->
+  <circle cx="128" cy="128" r="124" fill="#F08A1D"/>
+  <!-- the character, clipped to the disc -->
+  <g clip-path="url(#you-chef-1)">
+    <g transform="translate(118 146)">
+      <rect class="skin" x="-16" y="40" width="32" height="40" rx="8" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <path d="M -104 150 C -104 96 -64 70 0 70 C 64 70 104 96 104 150 Z" fill="#F3F4F1" stroke="#16181D" stroke-width="4"/>
+      <path d="M -26 72 L 0 100 L 26 72 Z" fill="#2E9C92" stroke="#16181D" stroke-width="3"/>
+      <path d="M -26 72 L -40 120 M 26 72 L 40 120" fill="none" stroke="#16181D" stroke-width="3"/>
+      <circle cx="-22" cy="104" r="4" fill="#5B616B"/>
+      <circle cx="22" cy="104" r="4" fill="#5B616B"/>
+      <circle cx="-26" cy="126" r="4" fill="#5B616B"/>
+      <circle cx="26" cy="126" r="4" fill="#5B616B"/>
+      <circle class="skin" cx="-56" cy="6" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <circle class="skin" cx="56" cy="6" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <circle class="skin" cx="0" cy="0" r="58" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <!-- short dark hair, grey at the temples -->
+      <path d="M -58 -2 C -62 -30 -48 -50 -28 -54 L -22 -40 C -36 -36 -46 -26 -50 -10 Z M 58 -2 C 62 -30 48 -50 28 -54 L 22 -40 C 36 -36 46 -26 50 -10 Z" fill="#16181D" stroke="#16181D" stroke-width="4"/>
+      <path d="M -54 -6 C -54 -20 -48 -30 -40 -36 M 54 -6 C 54 -20 48 -30 40 -36" fill="none" stroke="#F3F4F1" stroke-width="4"/>
+      <!-- the chef's hat, tilted -->
+      <g transform="translate(6 -52) rotate(12)">
+        <circle cx="-30" cy="-44" r="24" fill="#F3F4F1" stroke="#16181D" stroke-width="4"/>
+        <circle cx="30" cy="-44" r="24" fill="#F3F4F1" stroke="#16181D" stroke-width="4"/>
+        <circle cx="0" cy="-56" r="28" fill="#F3F4F1" stroke="#16181D" stroke-width="4"/>
+        <path d="M -48 -28 L -48 6 C -20 0 20 0 48 6 L 48 -28 Z" fill="#F3F4F1" stroke="#16181D" stroke-width="4"/>
+        <path d="M -16 -26 L -16 -2 M 16 -26 L 16 -2" fill="none" stroke="#16181D" stroke-width="3"/>
+      </g>
+      <!-- eyes shut in bliss -->
+      <path d="M -33 -2 Q -22 -14 -11 -2" fill="none" stroke="#16181D" stroke-width="4"/>
+      <path d="M 11 -2 Q 22 -14 33 -2" fill="none" stroke="#16181D" stroke-width="4"/>
+      <path d="M -34 -24 Q -22 -32 -10 -26" fill="none" stroke="#16181D" stroke-width="4"/>
+      <path d="M 10 -26 Q 22 -32 34 -24" fill="none" stroke="#16181D" stroke-width="4"/>
+      <ellipse cx="-36" cy="16" rx="9" ry="5.6" fill="#F7BBCB"/>
+      <ellipse cx="36" cy="16" rx="9" ry="5.6" fill="#F7BBCB"/>
+      <path d="M -4 6 Q 0 14 5 7" fill="none" stroke="#16181D" stroke-width="3"/>
+      <path d="M -16 34 Q 0 32 16 34 Q 14 50 0 50 Q -14 50 -16 34 Z" fill="#16181D"/>
+      <ellipse cx="0" cy="50" rx="9.5" ry="7" fill="#EF6A57" clip-path="url(#you-chef-2)"/>
+      <path d="M -16 34 Q 0 32 16 34 Q 14 50 0 50 Q -14 50 -16 34 Z" fill="none" stroke="#16181D" stroke-width="3"/>
+      <!-- the mustache -->
+      <path d="M 0 18 C -8 12 -22 12 -30 20 C -36 26 -44 24 -46 16 C -46 28 -34 36 -22 32 C -12 30 -4 28 0 26 C 4 28 12 30 22 32 C 34 36 46 28 46 16 C 44 24 36 26 30 20 C 22 12 8 12 0 18 Z" fill="#16181D" stroke="#16181D" stroke-width="4"/>
+    </g>
+    <!-- the wooden spoon, just tasted -->
+    <g transform="translate(206 150) rotate(16)">
+      <rect x="-6" y="-6" width="12" height="104" rx="6" fill="#B4530A" stroke="#16181D" stroke-width="4"/>
+      <ellipse cx="0" cy="-26" rx="18" ry="24" fill="#B4530A" stroke="#16181D" stroke-width="4"/>
+      <ellipse cx="0" cy="-28" rx="11" ry="15" fill="#EF6A57"/>
+      <path d="M 10 -10 C 14 -4 14 2 10 4 C 6 2 6 -4 10 -10 Z" fill="#EF6A57" stroke="#16181D" stroke-width="2.5"/>
+    </g>
+    <path d="M 198 98 C 192 90 200 86 194 76 M 214 100 C 208 92 216 88 210 78" fill="none" stroke="#F3F4F1" stroke-width="4"/>
+    <circle class="skin" cx="196" cy="218" r="15" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+  </g>
+</svg>

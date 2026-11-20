@@ -63,7 +63,8 @@
         "backgroundColor": "#16181D"
       },
       "permissions": [
-        "RECORD_AUDIO"
+        "RECORD_AUDIO",
+        "CAMERA"
       ],
       "blockedPermissions": [
         "android.permission.SYSTEM_ALERT_WINDOW",
@@ -73,7 +74,6 @@
         "android.permission.READ_MEDIA_VIDEO",
         "android.permission.READ_MEDIA_AUDIO",
         "android.permission.READ_MEDIA_VISUAL_USER_SELECTED",
-        "android.permission.CAMERA",
         "android.permission.ACCESS_FINE_LOCATION",
         "android.permission.ACCESS_COARSE_LOCATION",
         "android.permission.ACCESS_BACKGROUND_LOCATION",
@@ -216,6 +216,13 @@
             "com.google.android.googlequicksearchbox",
             "com.google.android.as"
           ]
+        }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Cliffword opens your photos only when you choose one for your picture in the story. The photo stays on your phone.",
+          "cameraPermission": "Cliffword uses the camera only when you take a selfie for your picture in the story. The photo stays on your phone."
         }
       ],
       [

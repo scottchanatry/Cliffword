@@ -9,7 +9,8 @@
  *   `<Image source={coverForTrack(trackId)} style={{ width: '100%', aspectRatio: ILLUSTRATION_ASPECT.covers }} />`.
  * - A speaker's line: the avatar next to it, `<Image source={castForSpeaker(trackId, speakerId)} style={{ width: 40, height: 40 }} />`.
  *   The PNG is already a disc (transparent outside the circle), so no mask or borderRadius is needed.
- *   The learner's own lines use `CAST.you`.
+ *   The learner's own lines use the character the learner chose, `YOU_AVATARS[id]` (a
+ *   `YouAvatarId`; `DEFAULT_YOU_AVATAR`, the waving `CAST.you`, until they choose).
  * - The top of an episode: the scene, full width, `sceneForEpisode(trackId, episode)` with
  *   `aspectRatio: ILLUSTRATION_ASPECT.scenes`.
  * - Tap a word to see its picture: `vocabImageForWord(word)` (or `VOCAB_BY_WORD` with a lowercased
@@ -30,6 +31,33 @@ export type CoverId = (typeof COVER_IDS)[number];
 
 export const CAST_IDS = ['dona-mari', 'pancho', 'wilfredo', 'yari', 'abuelo', 'nando', 'migdalia', 'rafa', 'dona-lourdes', 'you'] as const;
 export type CastId = (typeof CAST_IDS)[number];
+
+/**
+ * Who the learner can be in a story (the avatar of their own "You" lines), youngest first after
+ * the default: `you`, the gender-neutral waving figure, then eight characters of different ages,
+ * each with a prop. Drawn as cast discs (assets/illustrations/cast, README "You avatars"). The
+ * learner's own photo is the other choice; it is not a picture here.
+ */
+export const YOU_AVATAR_IDS = [
+  'you',
+  'you-teen',
+  'you-backpacker',
+  'you-remote',
+  'you-chef',
+  'you-photographer',
+  'you-musician',
+  'you-grandma',
+  'you-captain',
+] as const;
+export type YouAvatarId = (typeof YOU_AVATAR_IDS)[number];
+
+/** The learner's avatar until they choose one. */
+export const DEFAULT_YOU_AVATAR: YouAvatarId = 'you';
+
+/** Whether a value (a stored setting, a route param) names one of the learner's avatars. */
+export function isYouAvatarId(x: unknown): x is YouAvatarId {
+  return typeof x === 'string' && (YOU_AVATAR_IDS as readonly string[]).includes(x);
+}
 
 export const SCENE_IDS = ['e1-street', 'e2-colmado', 'e3-clothes', 'e4-plans', 'e5-driving', 'e6-beach', 'e7-restaurant', 'e8-party'] as const;
 export type SceneId = (typeof SCENE_IDS)[number];
@@ -106,6 +134,19 @@ export const CAST: Record<CastId, ImageSourcePropType> = {
   rafa: require('../../assets/illustrations/cast/rafa.png'),
   'dona-lourdes': require('../../assets/illustrations/cast/dona-lourdes.png'),
   you: require('../../assets/illustrations/cast/you.png'),
+};
+
+/** The learner's avatars (round, like the cast); `you` is the same picture as `CAST.you`. */
+export const YOU_AVATARS: Record<YouAvatarId, ImageSourcePropType> = {
+  you: CAST.you,
+  'you-teen': require('../../assets/illustrations/cast/you-teen.png'),
+  'you-backpacker': require('../../assets/illustrations/cast/you-backpacker.png'),
+  'you-remote': require('../../assets/illustrations/cast/you-remote.png'),
+  'you-chef': require('../../assets/illustrations/cast/you-chef.png'),
+  'you-photographer': require('../../assets/illustrations/cast/you-photographer.png'),
+  'you-musician': require('../../assets/illustrations/cast/you-musician.png'),
+  'you-grandma': require('../../assets/illustrations/cast/you-grandma.png'),
+  'you-captain': require('../../assets/illustrations/cast/you-captain.png'),
 };
 
 /** San Juan episode scenes (2.4:1), for the top of an episode. */

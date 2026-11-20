@@ -3,6 +3,7 @@
  * stored value reads as the default, so the app always gets a complete, valid settings object.
  */
 import type { Register } from '@cliffword/engine';
+import { DEFAULT_YOU_AVATAR, isYouAvatarId, type YouAvatarId } from '../../illustrations';
 import type { StorageClock } from '../clock';
 import { fromJson, toJson } from '../json';
 import type { SqlDatabase } from '../sql/types';
@@ -25,8 +26,8 @@ export const START_LEVELS: readonly StartLevel[] = ['brandNew', 'placement'];
  * there. 'done' once onboarding finished (onboarded is then true). The steps of the earlier
  * onboarding (model, voice, slang) read as 'welcome'.
  */
-export type OnboardingStep = 'welcome' | 'experience' | 'level' | 'address' | 'choices' | 'mic' | 'done';
-export const ONBOARDING_STEPS: readonly OnboardingStep[] = ['welcome', 'experience', 'level', 'address', 'choices', 'mic', 'done'];
+export type OnboardingStep = 'welcome' | 'experience' | 'level' | 'address' | 'picture' | 'choices' | 'mic' | 'done';
+export const ONBOARDING_STEPS: readonly OnboardingStep[] = ['welcome', 'experience', 'level', 'address', 'picture', 'choices', 'mic', 'done'];
 
 /**
  * The onboarding the app shows now. A learner onboarded by an earlier one (onboardingVersion
@@ -37,6 +38,33 @@ export const ONBOARDING_VERSION = 2;
 
 /** How characters address the learner: '{you:a|b}' variants in the stories agree with it. */
 export type Address = 'm' | 'f';
+
+/**
+ * The learner's picture in the story (their "You" bubbles and the header button): one of the
+ * drawn characters (src/illustrations YOU_AVATAR_IDS), or their own photo, a file the app keeps in
+ * its documents (src/adapters/photo; startup falls back to the default character when the file is
+ * gone, as after a restore or a reinstall).
+ */
+export type LearnerPicture = { readonly kind: 'character'; readonly id: YouAvatarId } | { readonly kind: 'photo'; readonly uri: string };
+
+/** Until the learner chooses: the waving `you` character. */
+export const DEFAULT_PICTURE: LearnerPicture = Object.freeze({ kind: 'character', id: DEFAULT_YOU_AVATAR });
+
+/** Longest stored photo uri (a file:// uri in the app's documents is far shorter). */
+const MAX_PHOTO_URI = 2048;
+
+/** A valid picture, normalized to its own fields and frozen; undefined for anything else. */
+export function normalizePicture(v: unknown): LearnerPicture | undefined {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return undefined;
+  const p = v as { kind?: unknown; id?: unknown; uri?: unknown };
+  if (p.kind === 'character') return isYouAvatarId(p.id) ? Object.freeze({ kind: 'character', id: p.id }) : undefined;
+  if (p.kind === 'photo') {
+    const uri = p.uri;
+    if (typeof uri !== 'string' || uri.length > MAX_PHOTO_URI || !/^file:\/\/\/\S+$/.test(uri)) return undefined;
+    return Object.freeze({ kind: 'photo', uri });
+  }
+  return undefined;
+}
 
 /** Learner level of the story library, 0-5 (0-1 recall, 2-3 hint, 4-5 predict). */
 export const MIN_LEVEL = 0;
@@ -98,6 +126,8 @@ export interface AppSettings {
   trackChoices: Readonly<Record<string, Readonly<Record<string, string>>>>;
   /** The first-episode guide (coach marks for listen, answer, feedback) was shown. */
   guideSeen: boolean;
+  /** The learner's picture in the story: a character, or their own photo (onboarding, Settings). */
+  picture: LearnerPicture;
 }
 
 export type SettingKey = keyof AppSettings;
@@ -124,6 +154,7 @@ export const DEFAULT_SETTINGS: Readonly<AppSettings> = Object.freeze({
   level: 0,
   trackChoices: Object.freeze({}),
   guideSeen: false,
+  picture: DEFAULT_PICTURE,
 } satisfies AppSettings);
 
 /** Onboarding is done, in its current version (the root guard). */
@@ -189,6 +220,7 @@ const NORMALIZE: { [K in SettingKey]: Normalizer<K> } = {
   level: (v) => (typeof v === 'number' && Number.isFinite(v) ? Math.max(MIN_LEVEL, Math.min(MAX_LEVEL, Math.round(v))) : undefined),
   trackChoices: normalizeChoices,
   guideSeen: (v) => (isBool(v) ? v : undefined),
+  picture: normalizePicture,
 };
 
 const KEYS = Object.keys(DEFAULT_SETTINGS) as SettingKey[];

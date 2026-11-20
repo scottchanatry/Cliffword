@@ -425,11 +425,11 @@
         <circle cx="62" cy="6.9" r="26" fill="#16181D" stroke="#16181D" stroke-width="11.6"/>
         <circle cx="-62" cy="30" r="20" fill="#16181D" stroke="#16181D" stroke-width="11.6"/>
         <circle cx="62" cy="30" r="20" fill="#16181D" stroke="#16181D" stroke-width="11.6"/>
-        <circle cx="-56" cy="6" r="13" fill="#B4530A" stroke="#16181D" stroke-width="11.6"/>
-        <circle cx="56" cy="6" r="13" fill="#B4530A" stroke="#16181D" stroke-width="11.6"/>
+        <circle class="skin" cx="-56" cy="6" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="11.6"/>
+        <circle class="skin" cx="56" cy="6" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="11.6"/>
         <circle cx="-56" cy="26" r="10" fill="none" stroke="#FFC46B" stroke-width="14.5"/>
         <circle cx="56" cy="26" r="10" fill="none" stroke="#FFC46B" stroke-width="14.5"/>
-        <circle cx="0" cy="0" r="58" fill="#B4530A" stroke="#16181D" stroke-width="11.6"/>
+        <circle class="skin" cx="0" cy="0" r="58" fill="#FFC46B" stroke="#16181D" stroke-width="11.6"/>
         <circle cx="-36" cy="-45.7" r="15" fill="#16181D" stroke="#16181D" stroke-width="11.6"/>
         <circle cx="-16" cy="-42.1" r="15" fill="#16181D" stroke="#16181D" stroke-width="11.6"/>
         <circle cx="6" cy="-49.3" r="15" fill="#16181D" stroke="#16181D" stroke-width="11.6"/>
@@ -460,20 +460,20 @@
   <g transform="translate(490 452) scale(0.86 0.86)">
     <g clip-path="url(#e5-driving-3)">
       <g transform="translate(40 -24) scale(0.4 0.4)">
-        <circle cx="-56" cy="6" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="11.6"/>
-        <circle cx="56" cy="6" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="11.6"/>
-        <circle cx="0" cy="0" r="58" fill="#FFC46B" stroke="#16181D" stroke-width="11.6"/>
+        <circle class="skin" cx="-56" cy="6" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="11.6"/>
+        <circle class="skin" cx="56" cy="6" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="11.6"/>
+        <circle class="skin" cx="0" cy="0" r="58" fill="#FFC46B" stroke="#16181D" stroke-width="11.6"/>
         <path d="M -58 -6 C -60 10 -54 22 -48 26 L -46 -4 Z M 58 -6 C 60 10 54 22 48 26 L 46 -4 Z" fill="#F3F4F1" stroke="#16181D" stroke-width="11.6"/>
         <circle cx="-22" cy="-4" r="13" fill="#F3F4F1" stroke="#16181D" stroke-width="8.7"/>
         <circle cx="-20.5" cy="-3.5" r="7.3" fill="#16181D"/>
         <circle cx="-23.3" cy="-6.4" r="2.5" fill="#F3F4F1"/>
-        <path d="M -33.9 -9.2 A 13 13 0 0 1 -10.1 -9.2 Z" fill="#FFC46B"/>
+        <path class="skin" d="M -33.9 -9.2 A 13 13 0 0 1 -10.1 -9.2 Z" fill="#FFC46B"/>
         <path d="M -34.9 -9.2 L -9.1 -9.2" fill="none" stroke="#16181D" stroke-width="8.7"/>
         <circle cx="-22" cy="-4" r="13" fill="none" stroke="#16181D" stroke-width="8.7"/>
         <circle cx="22" cy="-4" r="13" fill="#F3F4F1" stroke="#16181D" stroke-width="8.7"/>
         <circle cx="23.5" cy="-3.5" r="7.3" fill="#16181D"/>
         <circle cx="20.7" cy="-6.4" r="2.5" fill="#F3F4F1"/>
-        <path d="M 10.1 -9.2 A 13 13 0 0 1 33.9 -9.2 Z" fill="#FFC46B"/>
+        <path class="skin" d="M 10.1 -9.2 A 13 13 0 0 1 33.9 -9.2 Z" fill="#FFC46B"/>
         <path d="M 9.1 -9.2 L 34.9 -9.2" fill="none" stroke="#16181D" stroke-width="8.7"/>
         <circle cx="22" cy="-4" r="13" fill="none" stroke="#16181D" stroke-width="8.7"/>
         <ellipse cx="-34" cy="20" rx="9" ry="5.6" fill="#F7BBCB"/>

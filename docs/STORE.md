@@ -163,6 +163,15 @@ request in real time.
   developer receives nothing from them.
 - Spotify share-in reads what the share sheet hands over (a link and a title) and stores it on
   the phone. No Spotify API is called.
+- The learner's photo (optional: "Take a selfie" or "Choose a photo" for their picture in the
+  story, onboarding and Settings, Your picture) comes from the system camera or the system photo
+  picker, is copied into the app's documents folder, is shown only as the learner's picture in the
+  app, and is never sent anywhere. It is kept out of iCloud and device backups (the
+  cliffword-native module on iOS) and out of Android Auto Backup and device transfer
+  (`cliffword_backup_rules`). Apple's definition of collected is sending data off the device, so a
+  photo that never leaves the phone is not collected: "Photos or Videos" is not declared, and the
+  answer stays "Data Not Collected". The learner deletes it with Remove photo, or by deleting the
+  app.
 
 The opt-in network recognition switch. When a learner turns it on and the phone has no on-device
 Spanish model, the operating system's speech service (Apple's on iPhone, Google's on Android)
@@ -182,7 +191,9 @@ What would make the label false (each one needs new answers before that update s
 - fetching licensed lyrics, translations or anything else from a server using song ids, text or
   identifiers from the app;
 - hosting the model mirror on a server whose access logs the developer keeps and uses;
-- sending lyrics, texts or transcripts to any online model or service.
+- sending lyrics, texts or transcripts to any online model or service;
+- uploading the learner's photo anywhere (a profile, sync, a share image made on a server), or
+  letting it into a backup the developer can read.
 
 Tracking: No. The app does not link data with other companies' data and has no tracking
 domains. `NSPrivacyTracking` is false.
@@ -205,7 +216,9 @@ dependencies, so the app-level file covers every category the binary uses.
 | SystemBootTime | `35F9.1` (elapsed time between events) | React Native's timing code and boost (their own manifests declare it too) |
 
 Not added: `0A2A.1` and `C56D.1` (only an SDK that wraps the API may declare them; expo-file-system
-declares `0A2A.1` in its own manifest), `3B52.1` (files the user picks; the app has no document
+declares `0A2A.1` in its own manifest), `3B52.1` (timestamps of files the user picks: the photo
+picker hands over one image, and neither the app nor expo-image-picker reads its timestamps; the
+picker reads its size with `fileSizeKey`, which is not a required-reason API; and the app has no document
 picker), active keyboards (not used). llama.rn ships no manifest. Its iOS framework imports none
 of the listed APIs (checked with `llvm-nm -u` on `rnllama.framework`), so it needs none.
 
@@ -215,7 +228,14 @@ email names `CliffwordShare.appex`, that file needs a plugin change, not an app.
 
 Checked by a prebuild of a copy on 2026-11-16: `ios/Cliffword/PrivacyInfo.xcprivacy` holds the
 four categories above, tracking false, no domains, no collected data, and it is in the Cliffword
-target's Resources phase. If App Store Connect emails ITMS-91053 after an upload, add the
+target's Resources phase. Checked again on 2026-11-20 after adding expo-image-picker 58.0.10 (the
+learner's selfie or photo): the generated manifest is unchanged. The package ships no
+PrivacyInfo.xcprivacy and its iOS sources call none of the listed APIs (no file timestamps,
+UserDefaults, disk space or boot time). The prebuild's Info.plist has the plugin's
+`NSCameraUsageDescription` and `NSPhotoLibraryUsageDescription` and the speech text of
+`NSMicrophoneUsageDescription` unchanged. The plugin's `microphonePermission: false` is not used:
+it deletes `NSMicrophoneUsageDescription` and blocks `RECORD_AUDIO`, which speech needs, so the
+option is left out and the plugin keeps the app's own text. If App Store Connect emails ITMS-91053 after an upload, add the
 category and reason it names to `ios.privacyManifests` and rebuild (DEVICE-CHECKLIST F1).
 
 ### Age rating
@@ -277,7 +297,7 @@ or non-standard algorithms. No documentation upload and no French declaration ar
 
 - Sign-in required: **No** (no accounts, so no demo account).
 - Contact: the owner's name, phone and email (only App Review sees them).
-- Notes (paste as is; about 2,700 characters of the field's 4,000):
+- Notes (paste as is; about 2,900 characters of the field's 4,000):
 
 ```
 Cliffword teaches Spanish by speaking. There is no account and no sign-in.
@@ -315,6 +335,7 @@ Slang notes and lyrics include explicit words, shown by default; Settings > Expl
 
 7. PRIVACY
 No accounts, analytics, ads or tracking. Progress, lyrics and texts stay on the phone.
+The camera and the photo picker are used only when you tap "Take a selfie" or "Choose a photo" for your picture in the story (optional; onboarding and Settings > Your picture). The photo stays on the phone and is never uploaded.
 ```
 
 ### Screenshots
@@ -424,7 +445,7 @@ Needs a 64-bit (arm64) phone and about 1.1 GB of storage for the language model,
 | Government app | No | |
 | Financial features | None | |
 | Health | None | |
-| Foreground service permissions | not asked | The merged manifest has `INTERNET`, `RECORD_AUDIO` and `VIBRATE` only |
+| Foreground service permissions | not asked | The merged manifest has `INTERNET`, `RECORD_AUDIO`, `CAMERA` (the selfie for the learner's picture) and `VIBRATE` only |
 | Account deletion | not asked | No accounts |
 
 ### Content rating (IARC)
@@ -468,9 +489,14 @@ Privacy"). Android specifics:
   recognition. With network recognition on, Google's speech service receives the audio; the app
   does not transmit it. The strict reading would declare Audio (voice or sound recordings),
   collected, optional, processed ephemerally, for App functionality.
-- Backups: the model folder is excluded from Auto Backup and device transfer
-  (`cliffword_backup_rules`). The learner's database is included when the user has device backup
-  on. That backup goes to the user's own Google account and is made by Android, not by the app.
+- Backups: the model folder and the learner's photo folder (`files/avatar/`) are excluded from
+  Auto Backup and device transfer (`cliffword_backup_rules`). The learner's database is included
+  when the user has device backup on. That backup goes to the user's own Google account and is
+  made by Android, not by the app.
+- Photos: the learner's optional selfie or photo is processed only on the device (Play's data
+  safety form covers data sent off the device), so "Photos" is not declared. The camera intent and
+  the system photo picker need only `CAMERA`; `READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO` and the
+  storage permissions stay in `blockedPermissions`.
 
 ### AI-generated content
 

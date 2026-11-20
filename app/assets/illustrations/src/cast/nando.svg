@@ -14,7 +14,7 @@
   <!-- the character, clipped to the disc -->
   <g clip-path="url(#nando-1)">
     <g transform="translate(124 140)">
-      <rect x="-16" y="40" width="32" height="40" rx="8" fill="#FFE9C7" stroke="#16181D" stroke-width="4"/>
+      <rect class="skin" x="-16" y="40" width="32" height="40" rx="8" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
       <path d="M -104 150 C -104 96 -64 70 0 70 C 64 70 104 96 104 150 Z" fill="#F3F4F1" stroke="#16181D" stroke-width="4"/>
       <path d="M -26 72 L 0 104 L 26 72 Z" fill="#EF6A57" stroke="#16181D" stroke-width="3"/>
       <path d="M -26 72 L -12 116 M 26 72 L 12 116" fill="none" stroke="#16181D" stroke-width="3"/>
@@ -22,9 +22,9 @@
       <circle cx="24" cy="104" r="4" fill="#5B616B"/>
       <circle cx="-30" cy="128" r="4" fill="#5B616B"/>
       <circle cx="30" cy="128" r="4" fill="#5B616B"/>
-      <circle cx="-56" cy="6" r="13" fill="#FFE9C7" stroke="#16181D" stroke-width="4"/>
-      <circle cx="56" cy="6" r="13" fill="#FFE9C7" stroke="#16181D" stroke-width="4"/>
-      <circle cx="0" cy="0" r="58" fill="#FFE9C7" stroke="#16181D" stroke-width="4"/>
+      <circle class="skin" cx="-56" cy="6" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <circle class="skin" cx="56" cy="6" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <circle class="skin" cx="0" cy="0" r="58" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
       <circle cx="-44" cy="-34" r="11" fill="#B4530A" stroke="#16181D" stroke-width="4"/>
       <circle cx="-26" cy="-38" r="10" fill="#B4530A" stroke="#16181D" stroke-width="4"/>
       <circle cx="44" cy="-34" r="11" fill="#B4530A" stroke="#16181D" stroke-width="4"/>
@@ -55,6 +55,6 @@
       <path d="M -24 -11 L -16 9 M -4 -11 L 4 9 M 16 -11 L 24 9" fill="none" stroke="#B4530A" stroke-width="3"/>
       <path d="M -34 -6 Q -30 -11 -22 -12" fill="none" stroke="#F3F4F1" stroke-width="3"/>
     </g>
-    <circle cx="176" cy="236" r="15" fill="#FFE9C7" stroke="#16181D" stroke-width="4"/>
+    <circle class="skin" cx="176" cy="236" r="15" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
   </g>
 </svg>

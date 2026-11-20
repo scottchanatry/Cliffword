@@ -14,6 +14,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import type { StoryActions, StoryViewModel } from '../../../session/contract';
 import { defaultPacks, sharedMockModel } from '../../../services/defaults';
 import { renderWithProviders } from '../../../testing/renderWithProviders';
+import { YOU_AVATARS } from '../../../illustrations';
 import { layout } from '../../../theme';
 import { ExperienceList } from '../../experiences/ExperienceList';
 import { StoryView } from '../StoryView';
@@ -359,6 +360,27 @@ describe('pictures and the story so far', () => {
     expect(screen.queryByTestId('line-tap-hint')).toBeNull();
     expect(s.meta.library?.line).toBe(12);
     expectAccessibleControls();
+  });
+
+  it("the learner's replies show their picture: the waving character by default, the character they chose, or their photo as a circle", async () => {
+    const vm = fx['lib-story-so-far'];
+    const youAvatars = () => screen.getAllByTestId('transcript-you-avatar', { includeHiddenElements: true });
+    await render(vm);
+    expect(youAvatars().map((a) => a.props.source)).toEqual([YOU_AVATARS.you, YOU_AVATARS.you, YOU_AVATARS.you]);
+    await render(vm, { you: { kind: 'character', id: 'you-backpacker' } });
+    expect(youAvatars()).toHaveLength(3);
+    for (const a of youAvatars()) {
+      expect(a.props.source).toBe(YOU_AVATARS['you-backpacker']);
+      expect(a.props.accessible).toBe(false);
+    }
+    const uri = 'file:///docs/avatar/1763164800000.jpg';
+    await render(vm, { you: { kind: 'photo', uri } });
+    for (const a of youAvatars()) {
+      expect(a.props.source).toEqual({ uri });
+      expect(flat(a.props.style)).toMatchObject({ width: 36, height: 36, borderRadius: 18 });
+    }
+    // The replies keep their own name.
+    expect(screen.getAllByTestId('transcript-reply')[0]?.props.accessibilityLabel).toBe('You said: Estoy cansada.');
   });
 
   it("the line on screen: the English shows pictures of the words on show, never of the hidden word", async () => {

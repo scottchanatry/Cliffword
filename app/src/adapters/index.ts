@@ -11,6 +11,7 @@
  * | Apple Music | MusicPlayer | MusicKitPlayer on iOS (modules/cliffword-music, via createNativeMusicPlayer); Android: UnsupportedMusicPlayer | UnsupportedMusicPlayer | FakeMusicPlayer | — |
  * | Share-in | ShareInbox | ExpoShareInbox (share_inbox table, via createNativeShareInbox) fed by ShareIntentBridge | MemoryShareInbox | MemoryShareInbox | — |
  * | Haptics | Haptics | ExpoHapticsAdapter | ExpoHapticsAdapter | FakeHaptics | — |
+ * | Learner's photo | PhotoPicker | ExpoPhotoPicker (expo-image-picker + expo-file-system, via createNativePhotoPicker) | UnavailablePhotoPicker | FakePhotoPicker | — |
  * | Time | Clock | systemClock | systemClock | FakeClock | — |
  */
 export * from './listeners';
@@ -21,3 +22,4 @@ export * from './speechIn';
 export * from './music';
 export * from './share';
 export * from './haptics';
+export * from './photo';

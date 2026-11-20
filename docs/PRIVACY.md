@@ -1,6 +1,6 @@
 # Cliffword Privacy Policy
 
-Effective date: 16 November 2026
+Effective date: 20 November 2026
 
 Cliffword is a language-learning app for iPhone and Android, made by Scott Chanatry, an individual
 developer ("I" and "me" below). This policy explains what happens to your information when you use
@@ -10,7 +10,7 @@ the app.
 
 - Cliffword has no accounts, no ads, no analytics, no tracking and no crash reporting.
 - Everything you do in the app stays on your phone: your progress, your settings, the lyrics and
-  texts you paste, and the songs you add.
+  texts you paste, the songs you add, and the photo of you, if you choose one for your picture.
 - The language model and speech recognition run on your phone.
 - I do not run a server that receives anything from the app. I do not collect, sell or share
   your personal information.
@@ -21,7 +21,10 @@ Cliffword keeps these in its own private storage on your phone (a database only 
 
 - your learning progress: the words you know, your answers, the stories you have heard, the
   sessions you can resume, and your minutes spoken;
-- your settings, such as voice, slang regions, text display and the explicit lyrics switch;
+- your settings, such as voice, slang regions, text display and the explicit lyrics switch, and
+  which character is your picture in the story;
+- a photo of you, only if you take a selfie or choose a photo for your picture (see "Your picture
+  in the story");
 - songs you add: title, artist, and for Apple Music songs the identifier and an artwork link;
 - lyrics you paste and texts you bring (articles, transcripts);
 - songs you share to Cliffword from another app (usually a link and a song name);
@@ -43,6 +46,20 @@ None of this is sent to me or to anyone else by the app.
 - On Android 12 and older, phones cannot be told to recognize speech only on the device. There,
   unless you turn on network recognition, you type your answers instead.
 - If you do not allow the microphone or speech recognition, you can type your answers instead.
+
+## Your picture in the story
+
+Your answers in a story show a picture of you. You can pick one of the drawn characters, or use a
+photo of yourself. The photo is optional.
+
+- Cliffword asks for the camera only when you tap "Take a selfie". When you tap "Choose a photo",
+  your phone's own photo picker opens and Cliffword receives only the photo you pick, not the rest
+  of your library.
+- Cliffword keeps one copy of that photo in its private storage on your phone and uses it only as
+  your picture in the app. It is never uploaded, never sent to me or anyone else, and never used for
+  anything else. It is left out of your phone's backups.
+- You can delete it at any time: Settings, Your picture, Remove photo (choosing a character or
+  another photo deletes it too). Deleting the app deletes it.
 
 ## The language model download
 
@@ -77,7 +94,7 @@ Cliffword reads stories aloud with your phone's built-in voices. This happens on
 Your phone's own backups (iCloud Backup on iPhone, Google's device backup on Android) may include
 Cliffword's data, such as your progress, lyrics and texts. These backups are made by your phone,
 go to your own Apple or Google account, and are under your control and their terms. The language
-model file is left out of backups. I cannot see your backups.
+model file and the photo for your picture are left out of backups. I cannot see your backups.
 
 ## What Apple and Google may share with me
 
@@ -107,9 +124,10 @@ Everything is on your phone, and you control it:
 - **Reset progress:** Settings, Reset progress. This clears the words you know, your stories,
   sessions and minutes spoken.
 - **Delete the language model:** Settings, Delete the model.
+- **Delete your photo:** Settings, Your picture, Remove photo.
 - **Delete everything:** uninstall Cliffword. This removes all the data the app stored on your
   phone (copies in your own phone backups are kept until those backups are replaced or deleted).
-- **Permissions:** turn off the microphone, speech recognition or Apple Music access for
+- **Permissions:** turn off the microphone, speech recognition, camera or Apple Music access for
   Cliffword in your phone's Settings.
 
 ## Selling and sharing

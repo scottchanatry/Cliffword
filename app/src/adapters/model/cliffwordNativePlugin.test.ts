@@ -1,6 +1,6 @@
 /**
  * The cliffword-native config plugin (modules/cliffword-native/app.plugin.js) keeps files/models/
- * out of Android backups. The prebuild check in the README confirms the generated files; this
+ * (the language model) and files/avatar/ (the learner's photo) out of Android backups. The prebuild check in the README confirms the generated files; this
  * runs the plugin's mods on a minimal manifest and resource folder.
  */
 import fs from 'fs';
@@ -27,7 +27,7 @@ describe('cliffword-native config plugin', () => {
     expect(appJson.expo.plugins).toContain('./modules/cliffword-native/app.plugin.js');
   });
 
-  it('points the application at backup rules that exclude files/models/', async () => {
+  it('points the application at backup rules that exclude files/models/ and files/avatar/', async () => {
     const config = plugin({ name: 'Cliffword', slug: 'cliffword' });
     const projectRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'cliffword-plugin-'));
     fs.mkdirSync(path.join(projectRoot, 'android/app/src/main/res'), { recursive: true });
@@ -46,7 +46,9 @@ describe('cliffword-native config plugin', () => {
       const full = fs.readFileSync(path.join(xmlDir, 'cliffword_backup_rules.xml'), 'utf8');
       const extraction = fs.readFileSync(path.join(xmlDir, 'cliffword_data_extraction_rules.xml'), 'utf8');
       expect(full).toContain('<exclude domain="file" path="models/" />');
+      expect(full).toContain('<exclude domain="file" path="avatar/" />');
       expect(extraction.match(/<exclude domain="file" path="models\/" \/>/g)).toHaveLength(2);
+      expect(extraction.match(/<exclude domain="file" path="avatar\/" \/>/g)).toHaveLength(2);
       expect(extraction).toMatch(/<cloud-backup>[\s\S]*<device-transfer>/);
 
       await expect(

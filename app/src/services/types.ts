@@ -9,6 +9,7 @@ import type { Haptics } from '../adapters/haptics/types';
 import type { ModelAdapter, ModelManager } from '../adapters/model/types';
 import type { MusicPlayer } from '../adapters/music/types';
 import type { NetworkInfo } from '../adapters/network/types';
+import type { PhotoPicker } from '../adapters/photo/types';
 import type { ShareInbox } from '../adapters/share/types';
 import type { SpeechIn } from '../adapters/speechIn/types';
 import type { SpeechOut } from '../adapters/speechOut/types';
@@ -45,6 +46,8 @@ export interface Services {
   readonly haptics: Haptics;
   /** Wi-Fi, mobile data or offline: the model downloads by itself on Wi-Fi only. */
   readonly network: NetworkInfo;
+  /** The learner's own photo for their picture in the story: take, choose, find, delete. */
+  readonly photos: PhotoPicker;
   /** The app's database (settings, learner, sessions, songs, ...): open() once, then repositories. */
   readonly storage: StorageService;
   readonly packs: ServicePacks;

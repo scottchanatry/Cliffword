@@ -21,6 +21,12 @@
  * passes, alpha kept through tRNS) by the small encoder below, so the flat art stays small
  * without any extra dependency.
  *
+ * Skin: every person in every picture has the same skin, SKIN below (README, "Skin"). The
+ * sources mark skin with class="skin" (and a shadow on skin with class="skin-shade"); before
+ * rendering, the paint of each such element is set to SKIN / SKIN_SHADE, and a source that says
+ * otherwise is rewritten to match. So changing the skin is one line here plus a run of this
+ * script. src/illustrations/skin.test.ts reads both constants from this file.
+ *
  * Run:  node scripts/make-illustrations.js [--only id,id] [--group covers] [--sheet <dir>]
  *   --only   renders just these ids (any group)
  *   --group  renders just this group
@@ -39,6 +45,28 @@ const SRC = path.join(ROOT, 'src');
 
 const GROUND = '#F3F4F1';
 const MUTED = '#5B616B';
+
+/** The one skin for every illustrated person (amber, like the default emoji yellow). */
+const SKIN = '#FFC46B';
+/** The one shade for a shadow on skin (amber deep), if a figure needs one. */
+const SKIN_SHADE = '#F08A1D';
+const SKIN_PAINT = { skin: SKIN, 'skin-shade': SKIN_SHADE };
+
+/**
+ * Paints every element marked class="skin" or class="skin-shade" with SKIN or SKIN_SHADE: its
+ * fill, or its stroke when the fill is "none" (tube arms and legs, fingers drawn as lines).
+ */
+function applySkin(svg) {
+  return svg.replace(/<([a-zA-Z][\w:-]*)(\s[^<>]*?)?(\/?)>/g, (tag, name, attrs = '', close) => {
+    const classes = (attrs.match(/\sclass="([^"]*)"/) || [])[1];
+    const kind = classes && classes.split(/\s+/).find((c) => c in SKIN_PAINT);
+    if (!kind) return tag;
+    const paint = /\sfill="none"/.test(attrs) ? 'stroke' : 'fill';
+    const re = new RegExp(`(\\s${paint}=")[^"]*(")`);
+    const next = re.test(attrs) ? attrs.replace(re, `$1${SKIN_PAINT[kind]}$2`) : `${attrs} ${paint}="${SKIN_PAINT[kind]}"`;
+    return `<${name}${next}${close}>`;
+  });
+}
 
 /** canvas: the SVG viewBox; point: the 1x size React Native lays the image out at. */
 const GROUPS = {
@@ -325,7 +353,13 @@ function list(only, group) {
       if (!file.endsWith('.svg')) continue;
       const id = file.slice(0, -4);
       if (only && !only.includes(id)) continue;
-      items.push({ group: name, id, spec, svg: fs.readFileSync(path.join(dir, file), 'utf8') });
+      const source = fs.readFileSync(path.join(dir, file), 'utf8');
+      const svg = applySkin(source);
+      if (svg !== source) {
+        fs.writeFileSync(path.join(dir, file), svg);
+        console.log(`${name}/${id}: skin set to ${SKIN} in the source`);
+      }
+      items.push({ group: name, id, spec, svg });
     }
   }
   return items;

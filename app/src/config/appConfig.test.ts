@@ -13,7 +13,7 @@ interface AppJson {
   expo: {
     icon: string;
     ios: { infoPlist: Record<string, unknown> };
-    android: { adaptiveIcon: Record<string, string> };
+    android: { adaptiveIcon: Record<string, string>; permissions: string[]; blockedPermissions: string[] };
     web: { favicon: string };
     plugins: (string | [string, Record<string, unknown>])[];
   };
@@ -46,6 +46,35 @@ describe('app.json', () => {
     const pkg = JSON.parse(fs.readFileSync(path.join(APP_ROOT, 'package.json'), 'utf8')) as { expo?: { autolinking?: { exclude?: string[] } } };
     expect(pkg.expo?.autolinking?.exclude).toEqual(expect.arrayContaining(['expo-share-intent', 'cliffword-music']));
     expect(fs.existsSync(path.join(APP_ROOT, 'app/+native-intent.tsx'))).toBe(false);
+  });
+
+  it("asks for the camera and explains photos for the learner's picture, and leaves the microphone to speech", () => {
+    const picker = pluginOptions('expo-image-picker');
+    expect(picker).toEqual({
+      photosPermission: 'Cliffword opens your photos only when you choose one for your picture in the story. The photo stays on your phone.',
+      cameraPermission: 'Cliffword uses the camera only when you take a selfie for your picture in the story. The photo stays on your phone.',
+    });
+    // microphonePermission: false would delete NSMicrophoneUsageDescription on iOS and block
+    // RECORD_AUDIO on Android (the plugin's documented behaviour), which speech needs. Left out, the
+    // plugin keeps the app's own text (checked by prebuild: docs/STORE.md, "Privacy manifest").
+    expect(picker).not.toHaveProperty('microphonePermission');
+    expect(appJson.expo.ios.infoPlist.NSMicrophoneUsageDescription).toBe(
+      'Cliffword listens only while the microphone button is on, so it can hear your answers to the story.',
+    );
+    const android = appJson.expo.android;
+    expect(android.permissions).toEqual(['RECORD_AUDIO', 'CAMERA']);
+    expect(android.blockedPermissions).not.toContain('android.permission.CAMERA');
+    expect(android.blockedPermissions).not.toContain('android.permission.RECORD_AUDIO');
+    // The system photo picker needs no storage or media permission; the library's own are blocked.
+    expect(android.blockedPermissions).toEqual(
+      expect.arrayContaining([
+        'android.permission.READ_EXTERNAL_STORAGE',
+        'android.permission.WRITE_EXTERNAL_STORAGE',
+        'android.permission.READ_MEDIA_IMAGES',
+        'android.permission.READ_MEDIA_VIDEO',
+        'android.permission.READ_MEDIA_VISUAL_USER_SELECTED',
+      ]),
+    );
   });
 
   it('raises the iOS deployment target to 17.0 with expo-build-properties', () => {

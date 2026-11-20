@@ -3,18 +3,18 @@
   <desc>The clothes shop assistant: a high bun with a coral scrunchie, a tape measure round her neck, a shirt on a hanger held up, wide delighted eyes and sparkles.</desc>
   <defs>
     <clipPath id="migdalia-1">
-      <circle cx="128" cy="128" r="124" fill="#FFC46B"/>
+      <circle cx="128" cy="128" r="124" fill="#2E9C92"/>
     </clipPath>
     <clipPath id="migdalia-2">
       <path d="M -18 22 Q 0 19 18 22 Q 18 47 0 47 Q -18 47 -18 22 Z" fill="#16181D"/>
     </clipPath>
   </defs>
   <!-- the disc -->
-  <circle cx="128" cy="128" r="124" fill="#FFC46B"/>
+  <circle cx="128" cy="128" r="124" fill="#2E9C92"/>
   <!-- the character, clipped to the disc -->
   <g clip-path="url(#migdalia-1)">
     <g transform="translate(116 134)">
-      <rect x="-16" y="40" width="32" height="40" rx="8" fill="#B4530A" stroke="#16181D" stroke-width="4"/>
+      <rect class="skin" x="-16" y="40" width="32" height="40" rx="8" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
       <path d="M -104 150 C -104 96 -64 70 0 70 C 64 70 104 96 104 150 Z" fill="#C3B3EA" stroke="#16181D" stroke-width="4"/>
       <path d="M -22 72 Q 0 96 22 72" fill="#F3F4F1" stroke="#16181D" stroke-width="3"/>
       <path d="M -26 74 L -32 150 M 26 74 L 32 150" fill="none" stroke="#16181D" stroke-width="16"/>
@@ -22,11 +22,11 @@
       <path d="M -31.5 92 L -24.5 92 M -32.8 108 L -25.8 108 M -34 124 L -27 124 M 24.5 92 L 31.5 92 M 25.8 108 L 32.8 108 M 27 124 L 34 124" fill="none" stroke="#16181D" stroke-width="2.5"/>
       <circle cx="0" cy="-82" r="27" fill="#16181D" stroke="#16181D" stroke-width="4"/>
       <ellipse cx="0" cy="-58" rx="22" ry="9" fill="#EF6A57" stroke="#16181D" stroke-width="4"/>
-      <circle cx="-56" cy="6" r="13" fill="#B4530A" stroke="#16181D" stroke-width="4"/>
-      <circle cx="56" cy="6" r="13" fill="#B4530A" stroke="#16181D" stroke-width="4"/>
+      <circle class="skin" cx="-56" cy="6" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <circle class="skin" cx="56" cy="6" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
       <circle cx="-56" cy="27" r="7" fill="#EF6A57" stroke="#16181D" stroke-width="3"/>
       <circle cx="56" cy="27" r="7" fill="#EF6A57" stroke="#16181D" stroke-width="3"/>
-      <circle cx="0" cy="0" r="58" fill="#B4530A" stroke="#16181D" stroke-width="4"/>
+      <circle class="skin" cx="0" cy="0" r="58" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
       <path d="M -58 -2 C -62 -42 -34 -58 0 -58 C 34 -58 62 -42 58 -2 C 52 -22 32 -36 0 -36 C -32 -36 -52 -22 -58 -2 Z" fill="#16181D" stroke="#16181D" stroke-width="4"/>
       <path d="M -26 -48 Q -12 -54 2 -52" fill="none" stroke="#5B616B" stroke-width="3"/>
       <circle cx="-22" cy="-4" r="14" fill="#F3F4F1" stroke="#16181D" stroke-width="3"/>
@@ -53,7 +53,7 @@
       <path d="M -30 -6 L 0 -22 L 30 -6" fill="none" stroke="#16181D" stroke-width="4"/>
       <path d="M -24 -10 L -10 -14 Q 0 -6 10 -14 L 24 -10 L 34 6 L 24 12 L 22 8 L 22 42 L -22 42 L -22 8 L -24 12 L -34 6 Z" fill="#EF6A57" stroke="#16181D" stroke-width="4"/>
       <path d="M -10 -14 Q 0 -6 10 -14" fill="none" stroke="#16181D" stroke-width="3"/>
-      <circle cx="0" cy="-34" r="9" fill="#B4530A" stroke="#16181D" stroke-width="4"/>
+      <circle class="skin" cx="0" cy="-34" r="9" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
     </g>
     <!-- sparkles -->
     <path d="M 52 64 Q 54.2 73.8 64 76 Q 54.2 78.2 52 88 Q 49.8 78.2 40 76 Q 49.8 73.8 52 64 Z" fill="#F3F4F1" stroke="#16181D" stroke-width="3"/>

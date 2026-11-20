@@ -10,7 +10,7 @@ export default function AddressStepScreen() {
   const pair = usePairPack();
   const onboarding = useOnboarding();
   const { settings } = onboarding;
-  const visited = settings.onboardingStep === 'choices' || settings.onboardingStep === 'mic';
+  const visited = settings.onboardingStep === 'picture' || settings.onboardingStep === 'choices' || settings.onboardingStep === 'mic';
   return (
     <AddressStepView
       language={languageName(t, pair.target)}

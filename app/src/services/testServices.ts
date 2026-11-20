@@ -20,6 +20,7 @@ import { FakeModelManager } from '../adapters/model/FakeModelManager';
 import { MockModelAdapter } from '../adapters/model/MockModelAdapter';
 import { FakeMusicPlayer } from '../adapters/music/FakeMusicPlayer';
 import { FixedNetworkInfo } from '../adapters/network/FixedNetworkInfo';
+import { FakePhotoPicker } from '../adapters/photo/FakePhotoPicker';
 import { MemoryShareInbox } from '../adapters/share/MemoryShareInbox';
 import { FakeSpeechIn } from '../adapters/speechIn/FakeSpeechIn';
 import { FakeSpeechOut } from '../adapters/speechOut/FakeSpeechOut';
@@ -38,6 +39,7 @@ export interface TestServices extends Services {
   readonly share: MemoryShareInbox;
   readonly haptics: FakeHaptics;
   readonly network: FixedNetworkInfo;
+  readonly photos: FakePhotoPicker;
   readonly clock: FakeClock;
 }
 
@@ -62,6 +64,8 @@ export function createTestServices<O extends ServiceOverrides = Record<never, ne
     haptics: o.haptics ?? new FakeHaptics(),
     // Mobile data unless a test sets Wi-Fi (network.set('wifi')): no download starts by itself.
     network: o.network ?? new FixedNetworkInfo('cellular'),
+    // Picks store a photo unless a test scripts another outcome (photos.script('denied')).
+    photos: o.photos ?? new FakePhotoPicker({ clock }),
     storage: o.storage ?? createStorageService('sql.js-memory', () => openMemoryStorage(storageClock)),
   };
   // The cast keeps the concrete fake types built above (or the overrides' types); see TestServicesWith.

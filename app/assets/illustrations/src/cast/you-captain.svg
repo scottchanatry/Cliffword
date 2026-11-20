@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" stroke-linejoin="round" stroke-linecap="round">
+  <title>You, the old captain</title>
+  <desc>An old sea captain in his eighties: a white captain's cap with an anchor badge, a big white beard and bushy white brows, a rosy round nose, crinkly laughing eyes, a dark jacket with gold buttons, a toy sailboat held up proudly.</desc>
+  <defs>
+    <clipPath id="you-captain-1">
+      <circle cx="128" cy="128" r="124" fill="#2E9C92"/>
+    </clipPath>
+    <clipPath id="you-captain-2">
+      <path d="M -12 30 Q 0 28 12 30 Q 11 44 0 44 Q -11 44 -12 30 Z" fill="#16181D"/>
+    </clipPath>
+  </defs>
+  <!-- the disc -->
+  <circle cx="128" cy="128" r="124" fill="#2E9C92"/>
+  <!-- the character, clipped to the disc -->
+  <g clip-path="url(#you-captain-1)">
+    <g transform="translate(118 138)">
+      <rect class="skin" x="-16" y="40" width="32" height="40" rx="8" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <path d="M -104 150 C -104 96 -64 70 0 70 C 64 70 104 96 104 150 Z" fill="#16181D" stroke="#16181D" stroke-width="4"/>
+      <path d="M -30 72 L -50 110 L -20 102 Z M 30 72 L 50 110 L 20 102 Z" fill="#5B616B" stroke="#16181D" stroke-width="3"/>
+      <circle cx="-30" cy="128" r="6" fill="#F08A1D" stroke="#16181D" stroke-width="2.5"/>
+      <circle cx="30" cy="128" r="6" fill="#F08A1D" stroke="#16181D" stroke-width="2.5"/>
+      <path d="M -96 120 L -76 120 M 76 120 L 96 120" fill="none" stroke="#F08A1D" stroke-width="5"/>
+      <circle class="skin" cx="-56" cy="4" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <circle class="skin" cx="56" cy="4" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <circle class="skin" cx="0" cy="0" r="58" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <!-- the big white beard -->
+      <path d="M -56 2 C -60 40 -40 84 0 88 C 40 84 60 40 56 2 C 50 20 40 26 30 22 C 20 18 10 20 0 24 C -10 20 -20 18 -30 22 C -40 26 -50 20 -56 2 Z" fill="#F3F4F1" stroke="#16181D" stroke-width="4"/>
+      <path d="M -30 46 Q -26 58 -18 64 M 30 46 Q 26 58 18 64 M -6 70 Q 0 78 6 70" fill="none" stroke="#5B616B" stroke-width="2.5"/>
+      <path d="M -12 30 Q 0 28 12 30 Q 11 44 0 44 Q -11 44 -12 30 Z" fill="#16181D"/>
+      <ellipse cx="0" cy="44" rx="7" ry="6" fill="#EF6A57" clip-path="url(#you-captain-2)"/>
+      <path d="M -12 30 Q 0 28 12 30 Q 11 44 0 44 Q -11 44 -12 30 Z" fill="none" stroke="#16181D" stroke-width="3"/>
+      <path d="M 0 18 C -8 12 -24 12 -34 22 C -38 28 -30 32 -20 30 C -10 28 -4 26 0 24 C 4 26 10 28 20 30 C 30 32 38 28 34 22 C 24 12 8 12 0 18 Z" fill="#F3F4F1" stroke="#16181D" stroke-width="4"/>
+      <!-- crinkly laughing eyes -->
+      <path d="M -32 -2 Q -22 -12 -12 -2" fill="none" stroke="#16181D" stroke-width="4"/>
+      <path d="M 12 -2 Q 22 -12 32 -2" fill="none" stroke="#16181D" stroke-width="4"/>
+      <path d="M -38 -6 L -46 -10 M -38 0 L -47 0 M -36 6 L -44 10 M 38 -6 L 46 -10 M 38 0 L 47 0 M 36 6 L 44 10" fill="none" stroke="#16181D" stroke-width="2.5"/>
+      <path d="M -40 -20 C -36 -34 -16 -34 -8 -22 C -16 -24 -30 -22 -40 -16 Z M 40 -20 C 36 -34 16 -34 8 -22 C 16 -24 30 -22 40 -16 Z" fill="#F3F4F1" stroke="#16181D" stroke-width="3"/>
+      <ellipse cx="-30" cy="10" rx="8" ry="5" fill="#F7BBCB"/>
+      <ellipse cx="30" cy="10" rx="8" ry="5" fill="#F7BBCB"/>
+      <ellipse class="skin" cx="0" cy="8" rx="11" ry="9" fill="#FFC46B" stroke="#16181D" stroke-width="3"/>
+      <ellipse cx="0" cy="10" rx="6" ry="4" fill="#F7BBCB"/>
+      <!-- the captain's cap -->
+      <path d="M -58 -40 C -70 -60 -56 -82 0 -84 C 56 -82 70 -60 58 -40 Z" fill="#F3F4F1" stroke="#16181D" stroke-width="4"/>
+      <rect x="-54" y="-48" width="108" height="14" rx="5" fill="#16181D" stroke="#16181D" stroke-width="4"/>
+      <path d="M -44 -41 L 44 -41" fill="none" stroke="#F08A1D" stroke-width="3"/>
+      <path d="M -56 -34 C -40 -24 40 -24 56 -34 C 40 -32 -40 -32 -56 -34 Z" fill="#16181D" stroke="#16181D" stroke-width="4"/>
+      <g transform="translate(0 -62)">
+        <circle cx="0" cy="0" r="13" fill="#16181D"/>
+        <path d="M 0 -7 L 0 7 M -5 -3 L 5 -3 M -7 2 Q -6 8 0 8 Q 6 8 7 2" fill="none" stroke="#F08A1D" stroke-width="3"/>
+        <circle cx="0" cy="-8" r="2.5" fill="none" stroke="#F08A1D" stroke-width="2.5"/>
+      </g>
+    </g>
+    <!-- the toy sailboat, held up -->
+    <g transform="translate(206 164)">
+      <path d="M -4 -64 L -4 8" fill="none" stroke="#16181D" stroke-width="4"/>
+      <path d="M -8 -60 L -8 -6 L -40 -6 Z" fill="#F3F4F1" stroke="#16181D" stroke-width="4"/>
+      <path d="M 0 -52 L 0 -6 L 26 -6 Z" fill="#F3F4F1" stroke="#16181D" stroke-width="4"/>
+      <path d="M -22 -26 L -10 -26 M -30 -16 L -10 -16" fill="none" stroke="#A8DBF0" stroke-width="3"/>
+      <path d="M -44 2 L 36 2 C 32 18 22 24 12 24 L -24 24 C -34 24 -40 16 -44 2 Z" fill="#EF6A57" stroke="#16181D" stroke-width="4"/>
+      <circle cx="-14" cy="12" r="3.5" fill="#F3F4F1" stroke="#16181D" stroke-width="2.5"/>
+      <circle cx="6" cy="12" r="3.5" fill="#F3F4F1" stroke="#16181D" stroke-width="2.5"/>
+    </g>
+    <circle class="skin" cx="202" cy="198" r="15" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+  </g>
+</svg>

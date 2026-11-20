@@ -3,8 +3,8 @@ import { OnboardingResumeProvider } from '../../src/features/onboarding/useOnboa
 import { colors } from '../../src/theme';
 
 /**
- * Onboarding: welcome, the experience picker, the level, the form of address, the experience's
- * choices (when it has some), the microphone. No header; the first screen has no back gesture.
+ * Onboarding: welcome, the experience picker, the level, the form of address, the learner's
+ * picture, the experience's choices (when it has some), the microphone. No header; the first screen has no back gesture.
  * The resume provider lets the welcome screen forward once to the stored step.
  */
 export default function OnboardingLayout() {
@@ -15,6 +15,7 @@ export default function OnboardingLayout() {
         <Stack.Screen name="experience" />
         <Stack.Screen name="level" />
         <Stack.Screen name="address" />
+        <Stack.Screen name="picture" />
         <Stack.Screen name="choices" />
         <Stack.Screen name="mic" />
       </Stack>

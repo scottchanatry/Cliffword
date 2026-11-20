@@ -7,6 +7,7 @@ import {
   CAST_IDS,
   COVER_IDS,
   COVERS,
+  DEFAULT_YOU_AVATAR,
   SCENE_IDS,
   SCENES,
   SERIES_CAST,
@@ -15,8 +16,11 @@ import {
   VOCAB,
   VOCAB_BY_WORD,
   VOCAB_IDS,
+  YOU_AVATAR_IDS,
+  YOU_AVATARS,
   castForSpeaker,
   coverForTrack,
+  isYouAvatarId,
   sceneForEpisode,
   seriesKeyOf,
   vocabIdForWord,
@@ -42,6 +46,14 @@ describe('illustrations', () => {
         expect(fs.existsSync(path.join(ROOT, file))).toBe(true);
       }
     }
+  });
+
+  it('every cast source is a series cast picture or a learner avatar', () => {
+    const sources = fs
+      .readdirSync(path.join(ROOT, 'src/cast'))
+      .filter((f) => f.endsWith('.svg'))
+      .map((f) => f.slice(0, -4));
+    expect(sources.sort()).toEqual([...new Set<string>([...CAST_IDS, ...YOU_AVATAR_IDS])].sort());
   });
 
   it('maps words to vocab ids that exist, and every picture has a word', () => {
@@ -75,6 +87,45 @@ describe('illustrations', () => {
     expect(vocabInText('Son dos dólares, please. Y el pan, y más pan.').map((w) => w.id)).toEqual(['dinero', 'pan-sobao']);
     expect(vocabInText('¿Qué es la que hay?')).toEqual([]);
     expect(vocabInText('¡Agua, por favor!')[0]?.image).toBe(VOCAB.agua);
+  });
+});
+
+describe("the learner's avatars", () => {
+  /** The disc color of a cast source (the first full-size circle). */
+  const discColor = (id: string) =>
+    fs.readFileSync(path.join(ROOT, `src/cast/${id}.svg`), 'utf8').match(/<circle cx="128" cy="128" r="124" fill="(#[0-9A-Fa-f]{6})"\/>/)?.[1];
+
+  it('has the default first, and every id has its source, its three PNGs and its own picture', () => {
+    expect(YOU_AVATAR_IDS[0]).toBe('you');
+    expect(DEFAULT_YOU_AVATAR).toBe('you');
+    expect(YOU_AVATAR_IDS.length).toBe(9);
+    expect(new Set(YOU_AVATAR_IDS).size).toBe(YOU_AVATAR_IDS.length);
+    expect(Object.keys(YOU_AVATARS).sort()).toEqual([...YOU_AVATAR_IDS].sort());
+    for (const id of YOU_AVATAR_IDS) {
+      expect(YOU_AVATARS[id]).toBeTruthy();
+      for (const file of [`src/cast/${id}.svg`, `cast/${id}.png`, `cast/${id}@2x.png`, `cast/${id}@3x.png`]) {
+        expect(fs.existsSync(path.join(ROOT, file))).toBe(true);
+      }
+    }
+    expect(new Set(Object.values(YOU_AVATARS)).size).toBe(YOU_AVATAR_IDS.length);
+  });
+
+  it('keeps the default the same picture as CAST.you, which the series cast never uses', () => {
+    expect(YOU_AVATARS[DEFAULT_YOU_AVATAR]).toBe(CAST.you);
+    for (const cast of Object.values(SERIES_CAST)) expect(Object.values(cast)).not.toContain('you');
+  });
+
+  it('gives every avatar a disc of its own color', () => {
+    const colors = YOU_AVATAR_IDS.map(discColor);
+    expect(colors.every(Boolean)).toBe(true);
+    expect(new Set(colors).size).toBe(YOU_AVATAR_IDS.length);
+  });
+
+  it('recognizes avatar ids, and nothing else', () => {
+    for (const id of YOU_AVATAR_IDS) expect(isYouAvatarId(id)).toBe(true);
+    for (const x of ['dona-mari', 'You', 'you ', 'you-', 'selfie', '', 'toString', '__proto__', null, undefined, 1, {}, ['you']]) {
+      expect(isYouAvatarId(x)).toBe(false);
+    }
   });
 });
 

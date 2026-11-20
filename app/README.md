@@ -17,7 +17,8 @@ written (8 beginner episodes); the other five experiences are shown as "Coming s
   hear how you did, drawn with a line of the first experience) -> the experience picker (big
   cards, coming soon ones closed) -> "How much Spanish do you know?" (brand new 0, a little 2,
   comfortable 4) -> "How should people address you?" (as a man / as a woman: `{you:a|b}` in the
-  stories) -> the experience's own choices, when it has some ("Who do you match with?") -> the
+  stories) -> "Who are you in the story?" (the learner's picture: one of nine drawn characters, or
+  a selfie or photo) -> the experience's own choices, when it has some ("Who do you match with?") -> the
   microphone (allow, or type instead). No placement test. Then the language model downloads by
   itself on Wi-Fi (`useModelAutoDownload`).
 - **Story home** (`src/features/story/library/StoryHomeView.tsx`): the experience card,
@@ -38,8 +39,11 @@ written (8 beginner episodes); the other five experiences are shown as "Coming s
   also stops after about 1.5 s of silence (or 6 s without levels; `src/session/common/autoStop.ts`).
   Press and hold is push-to-talk. Screen readers toggle it with a double tap. "Type instead"
   under it. Hold anywhere is off.
-- **Settings**: the experience (and its choices), how characters address you, the level (it moves
-  after each episode: up at 80% answered without help, down under 50%; set it here any time).
+- **Settings**: your picture, the experience (and its choices), how characters address you, the
+  level (it moves after each episode: up at 80% answered without help, down under 50%; set it here
+  any time).
+- **Your picture** (`settings.picture`): a character or the learner's photo, beside their "You"
+  replies in an episode and on the header's corner button (see "Onboarding, profile and settings").
 - **Off in this build** (`src/config/features.ts`): the Music tab and brought text
   (`MUSIC_ENABLED`, code kept), the timed retell (`RETELL_ENABLED`), model-generated story
   sentences (the engine's `options.source 'generated'`). Share-in is out: no share extension.
@@ -97,9 +101,9 @@ falls back to `index.html` for unknown paths. `python -m http.server` has no fal
 
 | Path | What |
 |---|---|
-| `app/` | The expo-router routes; in the repo the router root is `app/app/`. Put only routes here (never tests or helpers). `_layout.tsx` sets up fonts, the splash, the gesture root, `AppProviders`, `AppBootstrap`, the root stack with the onboarding guard (`isOnboarded`) and the model's Wi-Fi download (`useModelAutoDownload`). `(tabs)/_layout.tsx` has the Story tab (and Music while `MUSIC_ENABLED`; with one tab the tab bar is hidden) and the header with the wordmark and the profile corner button. The other routes are `(tabs)/index.tsx` (Story: the home, the episode and the picker of an experience), the Music stack `(tabs)/music/` and `text/` (both redirect to `/` while Music is off; see "Music controller"), the profile modal `profile/` (`index`, `settings`, `licenses`, `selftest`), onboarding `onboarding/` (`index` welcome, `experience`, `level`, `address`, `choices`, `mic`; see "Onboarding, profile and settings") and `+not-found.tsx`. There is no `+native-intent.tsx`: share-in is out of this build. |
+| `app/` | The expo-router routes; in the repo the router root is `app/app/`. Put only routes here (never tests or helpers). `_layout.tsx` sets up fonts, the splash, the gesture root, `AppProviders`, `AppBootstrap`, the root stack with the onboarding guard (`isOnboarded`) and the model's Wi-Fi download (`useModelAutoDownload`). `(tabs)/_layout.tsx` has the Story tab (and Music while `MUSIC_ENABLED`; with one tab the tab bar is hidden) and the header with the wordmark and the profile corner button. The other routes are `(tabs)/index.tsx` (Story: the home, the episode and the picker of an experience), the Music stack `(tabs)/music/` and `text/` (both redirect to `/` while Music is off; see "Music controller"), the profile modal `profile/` (`index`, `settings`, `licenses`, `selftest`), onboarding `onboarding/` (`index` welcome, `experience`, `level`, `address`, `picture`, `choices`, `mic`; see "Onboarding, profile and settings") and `+not-found.tsx`. There is no `+native-intent.tsx`: share-in is out of this build. |
 | `src/providers/AppProviders.tsx` | The providers that need no startup work: services, packs, i18n. Tests render through it. |
-| `src/bootstrap/` | Startup. `bootstrap(services)` opens storage, reads the settings and restores the learner. `AppBootstrap` shows the loading and error states around it. |
+| `src/bootstrap/` | Startup. `bootstrap(services)` opens storage, reads the settings (a photo whose file is gone falls back to the default character: `checkPicture`) and restores the learner. `AppBootstrap` shows the loading and error states around it. |
 | `src/appState/` | `AppStateProvider` and the hooks `useAppState()`, `useSettings()` and `useLearner()`. They hold the opened storage, the settings and the learner (`replaceLearner` swaps in a model the story session rebuilt with a new prior). |
 | `src/learner/prior.ts` | `learnerPrior(packs, startLevel, stored?)` and `priorSpecFor`: the learner model's prior as the engine's `PriorSpec`, rebuilt at every start (from the spec stored with the learner snapshot once placement has run). |
 | `src/session/` | `contract.ts`, the seam between controllers and views; `story/`, the Story tab's controller (see "Story controller"); `lyric/`, the Music tab's controller for a song or a brought text; `common/`, the queue, hold-to-speak, voice, listen options and step-write plumbing both controllers (and onboarding's hold practice) use. |
@@ -116,7 +120,7 @@ falls back to `index.html` for unknown paths. `python -m http.server` has no fal
 | `src/theme/` | Tokens, font family names, the type scale, and `useAppFonts` (with a `.web.ts` twin). |
 | `src/ui/` | The basic components: `Screen`, the `Text` variants, `Button`, `Card`, `Pill`, `QuietLink` (a small underlined footer link with a 44 dp target). |
 | `src/features/<area>/` | Screen parts for each area: story, music, text, onboarding and profile. |
-| `src/components/` | Shared components: the profile button and tab icons; `words/` (the word flow, tiles, the cliff gap, gloss chip, heat sentence, understood line) and `voice/` (hold anywhere, the hold area and button, listening rings, command chips). See "Story views". |
+| `src/components/` | Shared components: the profile button (it shows the learner's picture), `LearnerAvatar` (a character or the learner's photo as a circle) and tab icons; `words/` (the word flow, tiles, the cliff gap, gloss chip, heat sentence, understood line) and `voice/` (hold anywhere, the hold area and button, listening rings, command chips). See "Story views". |
 | `src/preview/` | The dev fixture gallery: `enabled.ts` (`PREVIEW_ENABLED`) and `Gallery.tsx` (one fixture by name, or the list of all), which `app/(dev)/preview/[screen].tsx` requires only in development builds and preview exports (see "Routes, controllers and views"). |
 | `src/testing/` | Test helpers, never imported by app code. `packs.ts`: `libraryPacks()` (the app's packs, with the experiences), `generatedPacks()` / `generatedPair()` (the same pair without its library: the earlier generated flow), `livingTrack()`. `renderWithProviders(ui, { services? })` renders inside `AppProviders`. `renderWithAppState(ui, { services?, settings? })` also runs the real bootstrap and renders inside `AppStateProvider`. `recordEvents(speechIn)` records a SpeechIn's events. `FakeSpeechRecognitionModule` plays expo-speech-recognition's native module (also behind the jest mock). `FakeCliffwordMusic` plays the cliffword-music module; `fakeShareIntent` drives the expo-share-intent mock (`deliver({ text, webUrl })`). |
 | `__tests__/` | App-level tests. expo-router's `renderRouter` turns on Jest's fake timers: in route tests never give `waitFor` an async callback (it spins forever on a storage read); read storage directly once the screen that follows the write is shown, or poll with plain awaits. `routes/` runs every route through the real router and root layout; `flows/appFlows.test.tsx` walks the app end to end (first launch to the story, the Music tab, settings reaching the song page, reset progress, a restart). `engine.test.ts` checks that the engine runs in Jest. `importGraph.test.ts` checks what each platform's bundle can reach. Module tests sit next to their modules as `*.test.ts(x)`. |
@@ -138,7 +142,7 @@ falls back to `index.html` for unknown paths. `python -m http.server` has no fal
 RootLayout (app/_layout.tsx)
   useAppFonts            web loads the bundled fonts; native embeds them at build time
   AppProviders           services (getAppServices()), packs, i18n
-    AppBootstrap         storage.open() -> settings.getAll() -> learner.loadLearner({ prior })
+    AppBootstrap         storage.open() -> settings.getAll() -> checkPicture -> learner.loadLearner({ prior })
       AppStateProvider   storage (also in StorageProvider), settings, learner, updateSettings
         RootStack        Stack.Protected guards on settings.onboarded
 ```
@@ -157,8 +161,8 @@ RootLayout (app/_layout.tsx)
   onboarding is behind `guard={!onboarded} redirectTo="/"`. `+not-found` is open in both
   states. A learner onboarded by the earlier build (version 0) goes through the new onboarding
   once, to pick an experience, a level and a form of address.
-- **Onboarding.** Welcome, experience, level, address, the experience's choices (only when it has
-  some), microphone (see "Onboarding, profile and settings"). The level step stores `level` and
+- **Onboarding.** Welcome, experience, level, address, picture, the experience's choices (only
+  when it has some), microphone (see "Onboarding, profile and settings"). The level step stores `level` and
   `startLevel` (`'brandNew'` for 0, else `'placement'`: the learner prior); each step stores the
   next one in `settings.onboardingStep`, and the last stores `ONBOARDED` (`onboarded`, `'done'`,
   `onboardingVersion`). The guard then opens the Story tab without calling the router.
@@ -194,7 +198,7 @@ contract's props or plain props.
 
 | Route | Renders | Data |
 |---|---|---|
-| `onboarding/` `index`, `experience`, `level`, `address`, `choices`, `mic` | `WelcomeView`, `ExperienceStepView`, `LevelStepView`, `AddressStepView`, `ChoicesStepView`, `MicStepView` | `useOnboarding`, `useSpeechSetup`, the pair pack |
+| `onboarding/` `index`, `experience`, `level`, `address`, `picture`, `choices`, `mic` | `WelcomeView`, `ExperienceStepView`, `LevelStepView`, `AddressStepView`, `PictureStepView`, `ChoicesStepView`, `MicStepView` | `useOnboarding`, `usePictureChooser`, `useSpeechSetup`, the pair pack |
 | `(tabs)/index` (Story) | `StoryView` (`{ vm: StoryViewModel; actions: StoryActions; library? }`): in library mode `LibraryStory` (home, episode, picker); otherwise every `StoryScreen` kind of the generated flow | `useStoryController()`, settings (experience, guide), `useModelFile()` |
 | `(tabs)/music/index` (C3) | `MusicLibraryView` | `useMusicLibrary()` |
 | `(tabs)/music/[songId]` (A3, C1, B4, ...) | `SongView` (`{ vm: LyricViewModel; actions: LyricActions; nav }`), or `NeedsLyricsView` | `useLyricController({ kind: 'song' })`, shared by the stack's routes of one song |
@@ -535,6 +539,17 @@ views from `src/features/profile/accountFixtures.ts`.
     `level` and `startLevel`.
   - *Address* (`address`): as a man / as a woman, each with a story line said that way
     (`addressExample`); stores `address`.
+  - *Picture* (`picture`): "Who are you in the story?" (`PictureStepView` around
+    `src/features/picture/PictureChooser`, the same chooser as Settings): the chosen picture large
+    on top; the nine characters of `YOU_AVATAR_IDS` in three columns, 88 pt circles with an ink
+    ring on the chosen one (radios named by what each shows, `CHARACTER_LABELS`); "Take a selfie"
+    and "Choose a photo"; "Remove photo" while a photo is the picture; "Your photo stays on this
+    phone". `usePictureChooser` stores each choice at once in `settings.picture` (the waving `you`
+    until then, so Continue is always on) and deletes a photo file that a new choice replaced. A
+    photo goes through `services.photos` (`PhotoPicker`, see "What is faked where"): the camera's
+    permission is asked only when "Take a selfie" is tapped; a refusal shows how to allow it in
+    Settings (with Open Settings) and keeps the picture; a cancel changes nothing; an error says
+    so and keeps the picture. The web preview has no photo (the characters only).
   - *Choices* (`choices`): the experience's `LibraryChoice`s as cards, Continue once each has an
     answer; stored in `trackChoices[trackId]`. Skipped (and redirects) without choices.
   - *Microphone* (`mic`): why (recognized on the phone, nothing recorded), "Allow microphone"
@@ -550,7 +565,9 @@ views from `src/features/profile/accountFixtures.ts`.
   per skill, meaning, sound and speaking, with a hint for the weakest once 20 words have
   evidence). Minutes spoken is the first heading. Retell bests are not stored yet, so they are
   not shown.
-- **Settings** (`profile/settings`). The experience (Change opens `ExperiencePicker` in a modal;
+- **Settings** (`profile/settings`). "Your picture" (`PictureRow`: the picture and its name;
+  Change opens the same `PictureChooser` in a sheet; "Remove photo" while a photo is the picture,
+  back to the default character with the file deleted). The experience (Change opens `ExperiencePicker` in a modal;
   a pick is stored and the Story tab follows), its choices, how characters address you, the level
   (0-5, with the mode it means; the story applies it from the next episode), story text, speech speed (`speechRateBias` in 10 % steps,
   50 % to 150 %), answers in the native language, the story voice (`settings.voiceId`), register,
@@ -581,12 +598,16 @@ views from `src/features/profile/accountFixtures.ts`.
   model ranks right, and timings. The mock model (web, tests) gets the verdict "mock".
   While Music is off, explicit lyrics, Apple Music and "Delete all lyrics and texts" are hidden.
 - **Gallery.** `/preview/onboarding-welcome`, `onboarding-experience`, `onboarding-level`,
-  `onboarding-address`, `onboarding-mic`, `onboarding-mic-denied`, `profile`, `profile-new`, `settings`,
+  `onboarding-address`, `onboarding-picture`, `onboarding-mic`, `onboarding-mic-denied`, `profile`, `profile-new`, `settings`,
   `settings-downloading`, `licenses`, `selftest`, `selftest-mock` (`ACCOUNT_FIXTURE_NAMES`).
-- **Tests.** `__tests__/routes/onboarding.test.tsx` (brand new as a woman with the microphone
-  allowed and the model starting on Wi-Fi; comfortable with the microphone refused; an
-  experience's choices reaching the session, on a test pair where Dating has episodes; back and
-  resume; a learner onboarded by the earlier build), and
+- **Tests.** `__tests__/routes/onboarding.test.tsx` (brand new as a woman with a character as her
+  picture, the microphone allowed and the model starting on Wi-Fi; comfortable with a selfie
+  refused then taken, and the microphone refused; an experience's choices reaching the session,
+  on a test pair where Dating has episodes; back and resume, at the picture step too; a learner
+  onboarded by the earlier build), `src/features/picture/PictureChooser.test.tsx` (the chooser
+  view and `usePictureChooser`: stored at once, replaced photos deleted, cancel, refusal, error),
+  `src/adapters/photo/photo.test.ts` (the fake's taken, cancelled, denied and error; `ExpoPhotoPicker`
+  over a scripted expo-image-picker and the fake file system), and
   `__tests__/routes/profile.test.tsx` (numbers from seeded spoken_time rows, settings stored and
   seen by the Music tab, stored values shown, model delete and download again, Apple Music, delete
   lyrics and texts, reset progress, licenses, the hidden self-test, the gallery);
@@ -690,6 +711,7 @@ and, in tests, deterministic (`test-1`, `test-2`, ...).
 | `share` | `ShareInbox` + pure `parseSpotifyShare` | `ExpoShareInbox` (share_inbox table); nothing feeds it in this build (no share extension, no `ShareIntentBridge` in the layout) | `MemoryShareInbox` | `MemoryShareInbox` | share-in back with Music |
 | `haptics` | `Haptics` (`play('tap' \| 'selection' \| 'success' \| 'warning' \| 'error')`) | **real**: `ExpoHapticsAdapter` | `ExpoHapticsAdapter` | `FakeHaptics` | none |
 | `network` | `NetworkInfo` (`kind()`: wifi, cellular, none, unknown; `onChange`) | **real**: `ExpoNetworkInfo` (expo-network, through `createNativeNetworkInfo`) | `FixedNetworkInfo('unknown')` | `FixedNetworkInfo('cellular')` (`set('wifi')`) | none |
+| `photos` | `PhotoPicker` (`sources`, `pick('camera' \| 'library')`: picked, cancelled, denied, unavailable or error; `locate(uri)`; `remove(uri)`) | **real**: `ExpoPhotoPicker` (expo-image-picker: front camera or system photo picker, square crop, quality 0.7; one copy in `<documents>/avatar/<time>.<ext>`, kept out of backups; through `createNativePhotoPicker`) | `UnavailablePhotoPicker` (no sources: the characters only) | `FakePhotoPicker` (`script('denied', ...)`, `store`, `lose`); `ExpoPhotoPicker` tests use `src/testing/fakeExpoFileSystem.ts` | none |
 | `clock` | `Clock` (`now()`) | `systemClock` | `systemClock` | `FakeClock` | none |
 | `packs` | `{ lang, pair }` | en-es, built once | same | same | more pairs |
 
@@ -997,8 +1019,8 @@ Newsreader (content), Inter (interface) and Anton (Music headings) come from
 
   `ios.entitlements` sets `com.apple.developer.kernel.increased-memory-limit` for every build,
   because the model needs about 1.2 GB. `./modules/cliffword-native/app.plugin.js` (no options)
-  adds Android backup rules that exclude `files/models/`, the downloaded model, from cloud backup
-  and device transfer. Without them Auto Backup would include the 1.1 GB file, go over the
+  adds Android backup rules that exclude `files/models/`, the downloaded model, and
+  `files/avatar/`, the learner's photo, from cloud backup and device transfer. Without them Auto Backup would include the 1.1 GB file, go over the
   25 MB quota and back up nothing, not even the learner's database.
   `src/adapters/model/cliffwordNativePlugin.test.ts` runs the plugin's mods.
   (Not in this build: `expo-share-intent`, which took `iosActivationRules` (one web URL, one web page, or text),
@@ -1011,6 +1033,15 @@ Newsreader (content), Inter (interface) and Anton (Music headings) come from
   the plugin fail).) The local `modules/cliffword-music` needs no plugin entry (and is excluded from
   autolinking while Music is off). `expo-network` (the Wi-Fi check) needs none either; its Android
   library adds `ACCESS_NETWORK_STATE` and `ACCESS_WIFI_STATE`.
+  `expo-image-picker` (the learner's selfie or photo) takes `photosPermission` and
+  `cameraPermission` (the iOS purpose texts: only for the picture in the story, the photo stays
+  on the phone). It is not given `microphonePermission: false`: that would delete
+  `NSMicrophoneUsageDescription` and block `RECORD_AUDIO`, which speech needs; left out, the plugin
+  keeps the speech text (checked by prebuild). `android.permissions` adds `CAMERA` (the selfie;
+  no longer in `blockedPermissions`). The photo library needs no permission (the system photo
+  picker hands over the chosen photo only), so `READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO`,
+  `READ_EXTERNAL_STORAGE` and `WRITE_EXTERNAL_STORAGE` stay blocked. `src/config/appConfig.test.ts`
+  keeps these.
   `expo-localization` takes `supportsRTL: false`: the interface is English only and the content
   is Spanish, so the layout never mirrors on a phone set to an RTL language (Android
   `supportsRtl="false"` and the module's `ExpoLocalization_supportsRTL` flag on both platforms,

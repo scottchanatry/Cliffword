@@ -6,26 +6,33 @@
  *   gap's words in the accent color. A tap shows or hides the English and the pictures of the
  *   line's words.
  * - Narration: centered plain text, no avatar; a tap shows or hides the English too.
- * - The learner's reply to a question: a "You" bubble on the right with the learner's avatar.
+ * - The learner's reply to a question: a "You" bubble on the right with the learner's picture
+ *   (settings.picture: the character they chose, or their photo as a circle).
  */
 import { memo, useState } from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import type { EpisodeTranscript, TranscriptEntry } from '@cliffword/engine';
 import { CHROME_MAX_SCALE, CONTENT_MAX_SCALE } from '../../../components/words/fontScale';
 import { useI18n } from '../../../i18n';
-import { CAST, castForSpeaker, vocabInText } from '../../../illustrations';
+import { LearnerAvatar } from '../../../components/LearnerAvatar';
+import { castForSpeaker, vocabInText } from '../../../illustrations';
+import { DEFAULT_PICTURE, type LearnerPicture } from '../../../storage/repos/settings';
 import { colors, layout, radii, spacing } from '../../../theme';
 import { ContentText, InterfaceText } from '../../../ui';
 import { Avatar, WordPictures } from './Pictures';
 
 const AVATAR = 36;
 
-export function Transcript({ transcript }: { transcript: EpisodeTranscript }) {
+export function Transcript({ transcript, you = DEFAULT_PICTURE }: { transcript: EpisodeTranscript; you?: LearnerPicture }) {
   if (transcript.entries.length === 0) return null;
   return (
     <View style={styles.list} testID="transcript">
       {transcript.entries.map((entry) =>
-        entry.kind === 'reply' ? <Reply key={`reply-${entry.turnId}`} text={entry.text} /> : <Said key={`${entry.kind}-${entry.id}`} entry={entry} trackId={transcript.track} />,
+        entry.kind === 'reply' ? (
+          <Reply key={`reply-${entry.turnId}`} text={entry.text} you={you} />
+        ) : (
+          <Said key={`${entry.kind}-${entry.id}`} entry={entry} trackId={transcript.track} />
+        ),
       )}
     </View>
   );
@@ -94,8 +101,8 @@ const Said = memo(function Said({ entry, trackId }: { entry: Spoken; trackId: st
   );
 });
 
-/** The learner's reply to a question, on the right. */
-function Reply({ text }: { text: string }) {
+/** The learner's reply to a question, on the right, with their picture. */
+function Reply({ text, you }: { text: string; you: LearnerPicture }) {
   const { t } = useI18n();
   return (
     <View style={[styles.row, styles.rowRight]}>
@@ -107,7 +114,7 @@ function Reply({ text }: { text: string }) {
           {text}
         </ContentText>
       </View>
-      <Avatar source={CAST.you} size={AVATAR} testID="transcript-you-avatar" />
+      <LearnerAvatar picture={you} size={AVATAR} testID="transcript-you-avatar" />
     </View>
   );
 }

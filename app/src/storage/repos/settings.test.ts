@@ -1,5 +1,16 @@
 import { openTestStorage } from '../testing/openTestStorage';
-import { DEFAULT_SETTINGS, InvalidSettingError, isOnboarded, ONBOARDED, ONBOARDING_VERSION, SPEECH_RATE_BIAS_LIMIT, type AppSettings } from './settings';
+import { YOU_AVATAR_IDS } from '../../illustrations';
+import {
+  DEFAULT_PICTURE,
+  DEFAULT_SETTINGS,
+  InvalidSettingError,
+  isOnboarded,
+  normalizePicture,
+  ONBOARDED,
+  ONBOARDING_VERSION,
+  SPEECH_RATE_BIAS_LIMIT,
+  type AppSettings,
+} from './settings';
 
 describe('SettingsRepo', () => {
   let storage: Awaited<ReturnType<typeof openTestStorage>>;
@@ -31,6 +42,7 @@ describe('SettingsRepo', () => {
       level: 0,
       trackChoices: {},
       guideSeen: false,
+      picture: { kind: 'character', id: 'you' },
     };
     expect(await storage.settings.getAll()).toEqual(expected);
     expect(DEFAULT_SETTINGS).toEqual(expected);
@@ -92,6 +104,8 @@ describe('SettingsRepo', () => {
   });
 
   it('checks the onboarding, voice and recognition settings', async () => {
+    await storage.settings.set('onboardingStep', 'picture');
+    expect(await storage.settings.get('onboardingStep')).toBe('picture');
     await storage.settings.update({ onboardingStep: 'address', voiceId: 'com.apple.voice.es-MX.Paulina', modelDeclined: true });
     expect(await storage.settings.getAll()).toMatchObject({ onboardingStep: 'address', voiceId: 'com.apple.voice.es-MX.Paulina', modelDeclined: true });
     await storage.settings.set('voiceId', null);
@@ -130,6 +144,74 @@ describe('SettingsRepo', () => {
     // The earlier onboarding's steps read as the welcome screen.
     await storage.db.run("UPDATE settings SET value = '\"slang\"' WHERE key = 'onboardingStep'");
     expect(await storage.settings.get('onboardingStep')).toBe('welcome');
+  });
+
+  it("stores the learner's picture: any of the nine characters, or a photo file", async () => {
+    expect(DEFAULT_PICTURE).toEqual({ kind: 'character', id: 'you' });
+    for (const id of YOU_AVATAR_IDS) {
+      await storage.settings.set('picture', { kind: 'character', id });
+      expect(await storage.settings.get('picture')).toEqual({ kind: 'character', id });
+    }
+    const uri = 'file:///var/mobile/Containers/Data/Application/ABC/Documents/avatar/1763164800000.jpg';
+    const after = await storage.settings.update({ picture: { kind: 'photo', uri } });
+    expect(after.picture).toEqual({ kind: 'photo', uri });
+    expect(Object.isFrozen(after.picture)).toBe(true);
+    // Only the picture's own fields are kept.
+    await storage.settings.set('picture', { kind: 'character', id: 'you-chef', uri: 'file:///x.jpg' } as never);
+    expect(await storage.settings.getAll()).toMatchObject({ picture: { kind: 'character', id: 'you-chef' } });
+    expect(await storage.settings.get('picture')).not.toHaveProperty('uri');
+  });
+
+  it('rejects an invalid picture and leaves the stored one', async () => {
+    await storage.settings.set('picture', { kind: 'character', id: 'you-teen' });
+    const invalid: unknown[] = [
+      null,
+      'you-teen',
+      ['you-teen'],
+      {},
+      { kind: 'character' },
+      { kind: 'character', id: 'you-pirate' },
+      { kind: 'character', id: '__proto__' },
+      { kind: 'photo' },
+      { kind: 'photo', uri: '' },
+      { kind: 'photo', uri: 'https://example.com/me.jpg' },
+      { kind: 'photo', uri: 'file:///has space.jpg' },
+      { kind: 'photo', uri: `file:///${'a'.repeat(2100)}.jpg` },
+      { kind: 'sticker', id: 'you' },
+    ];
+    for (const value of invalid) {
+      expect(normalizePicture(value)).toBeUndefined();
+      await expect(storage.settings.set('picture', value as never)).rejects.toBeInstanceOf(InvalidSettingError);
+    }
+    expect(await storage.settings.get('picture')).toEqual({ kind: 'character', id: 'you-teen' });
+  });
+
+  it('reads an existing install (no picture stored) and unknown or damaged stored pictures as the default character', async () => {
+    // An install from before the picture setting: settings rows, none for the picture.
+    await storage.settings.update({ onboarded: true, address: 'f', level: 2 });
+    expect(await storage.db.get("SELECT value FROM settings WHERE key = 'picture'")).toBeNull();
+    expect((await storage.settings.getAll()).picture).toEqual(DEFAULT_PICTURE);
+    const stored = [
+      'not json',
+      '"you-chef"',
+      '{"kind":"character","id":"you-astronaut"}',
+      '{"kind":"photo","uri":"content://media/external/images/1"}',
+      '{"kind":"photo"}',
+      'null',
+      '[]',
+    ];
+    for (const value of stored) {
+      await storage.db.run(
+        `INSERT INTO settings (key, value, updated_at) VALUES ('picture', ?, 0)
+         ON CONFLICT (key) DO UPDATE SET value = excluded.value`,
+        [value],
+      );
+      expect(await storage.settings.get('picture')).toEqual(DEFAULT_PICTURE);
+      expect((await storage.settings.getAll()).picture).toEqual(DEFAULT_PICTURE);
+    }
+    // A later valid write replaces the damaged row.
+    await storage.settings.set('picture', { kind: 'character', id: 'you-captain' });
+    expect((await storage.settings.getAll()).picture).toEqual({ kind: 'character', id: 'you-captain' });
   });
 
   it('counts a learner as onboarded only for the current onboarding', async () => {

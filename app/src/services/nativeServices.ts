@@ -13,7 +13,8 @@
  * UnsupportedMusicPlayer on Android and on an iOS binary without the module.
  * Share-in: ExpoShareInbox (createNativeShareInbox) over the share_inbox table (nothing feeds it
  * in this build: the share extension and ShareIntentBridge are out). Network: expo-network
- * (createNativeNetworkInfo), so the model downloads by itself on Wi-Fi only.
+ * (createNativeNetworkInfo), so the model downloads by itself on Wi-Fi only. The learner's photo:
+ * ExpoPhotoPicker over expo-image-picker (createNativePhotoPicker), stored in <documents>/avatar/.
  * Native-only imports for those adapters must stay out of the web bundle. Services.ts imports
  * this file on every platform, so import each native adapter through a module that has a
  * .web.ts twin (Metro platform extensions), e.g. createDeviceModel.ts + createDeviceModel.web.ts.
@@ -26,6 +27,7 @@ import { keepModelLoaded } from '../adapters/model/keepModelLoaded';
 import type { ModelAdapter } from '../adapters/model/types';
 import { createNativeMusicPlayer } from '../adapters/music/createNativeMusicPlayer';
 import { createNativeNetworkInfo } from '../adapters/network/createNativeNetworkInfo';
+import { createNativePhotoPicker } from '../adapters/photo/createNativePhotoPicker';
 import { createNativeShareInbox } from '../adapters/share/createNativeShareInbox';
 import { createNativeSpeechIn } from '../adapters/speechIn/createNativeSpeechIn';
 import { ExpoSpeechOut } from '../adapters/speechOut/ExpoSpeechOut';
@@ -63,6 +65,8 @@ export function createNativeServices(platform: 'ios' | 'android', overrides: Ser
     haptics: overrides.haptics ?? new ExpoHapticsAdapter(),
     // Wi-Fi or mobile data (web: createNativeNetworkInfo.web.ts, always 'unknown').
     network: overrides.network ?? createNativeNetworkInfo(),
+    // The selfie or photo for the learner's picture (web: createNativePhotoPicker.web.ts, none).
+    photos: overrides.photos ?? createNativePhotoPicker(clock),
     storage,
   };
 }

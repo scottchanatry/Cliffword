@@ -2,7 +2,8 @@
  * Services for the web build (a preview of the app): the mock model (ready at once), storage in
  * memory (sql.js through src/storage/open.web.ts, which Metro picks for web; nothing persists
  * across reloads), the browser's voices through expo-speech, the browser recognizer when there is
- * one (else typed answers), no Apple Music, and an in-memory share inbox.
+ * one (else typed answers), no Apple Music, an in-memory share inbox, and no photo for the
+ * learner's picture (the characters only).
  */
 import { systemClock } from '../adapters/clock/systemClock';
 import { ExpoHapticsAdapter } from '../adapters/haptics/ExpoHapticsAdapter';
@@ -10,6 +11,7 @@ import { FakeModelManager } from '../adapters/model/FakeModelManager';
 import { MockModelAdapter } from '../adapters/model/MockModelAdapter';
 import { UnsupportedMusicPlayer } from '../adapters/music/UnsupportedMusicPlayer';
 import { FixedNetworkInfo } from '../adapters/network/FixedNetworkInfo';
+import { UnavailablePhotoPicker } from '../adapters/photo/UnavailablePhotoPicker';
 import { MemoryShareInbox } from '../adapters/share/MemoryShareInbox';
 import type { BrowserSpeechEnv } from '../adapters/speechIn/browserTypes';
 import { createBrowserSpeechIn } from '../adapters/speechIn/createBrowserSpeechIn';
@@ -37,6 +39,7 @@ export function createWebServices(
     haptics: overrides.haptics ?? new ExpoHapticsAdapter(),
     // The preview's model is ready at once: nothing waits for Wi-Fi.
     network: overrides.network ?? new FixedNetworkInfo('unknown'),
+    photos: overrides.photos ?? new UnavailablePhotoPicker(),
     // '../storage/open' is open.web.ts in the web bundle (sql.js in memory).
     storage:
       overrides.storage ?? createStorageService(STORAGE_BACKEND, () => openStorage({ clock: storageClockFor(clock) })),

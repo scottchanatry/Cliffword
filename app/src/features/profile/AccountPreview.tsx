@@ -8,13 +8,15 @@ import { StyleSheet, View } from 'react-native';
 import { formatBytes } from '../../adapters/model/modelFileMessages';
 import { useServices } from '../../services/ServicesProvider';
 import { languageName, useI18n } from '../../i18n';
-import type { AppSettings } from '../../storage/repos/settings';
+import type { YouAvatarId } from '../../illustrations';
+import { DEFAULT_PICTURE, type AppSettings } from '../../storage/repos/settings';
 import { colors } from '../../theme';
 import { addressExample, experienceCards, trackOfPair, welcomeSample } from '../experiences/experiences';
 import { AddressStepView } from '../onboarding/AddressStepView';
 import { ExperienceStepView } from '../onboarding/ExperienceStepView';
 import { LevelStepView } from '../onboarding/LevelStepView';
 import { MicStepView } from '../onboarding/MicStepView';
+import { PictureStepView } from '../onboarding/PictureStepView';
 import { WelcomeView } from '../onboarding/WelcomeView';
 import {
   FIXTURE_FREE_BYTES,
@@ -56,6 +58,17 @@ function PreviewBody({ name }: { name: AccountFixtureName }) {
     setSettings((s) => ({ ...s, regions: s.regions.includes(code) ? s.regions.filter((c) => c !== code) : [...s.regions, code] }));
   const voices: VoicesView = { voices: [...FIXTURE_VOICES], playing: false, canSample: true, playSample: none };
   const ctx = { hasChoices: false };
+  // The picture chooser: characters change the local settings; the photo buttons do nothing here.
+  const picture = {
+    picture: settings.picture,
+    sources: ['camera', 'library'] as const,
+    busy: false,
+    notice: null,
+    onChooseCharacter: (id: YouAvatarId) => change({ picture: { kind: 'character', id } }),
+    onPickPhoto: none,
+    onRemovePhoto: () => change({ picture: DEFAULT_PICTURE }),
+    onOpenSettings: none,
+  };
 
   switch (name) {
     case 'onboarding-welcome':
@@ -77,6 +90,8 @@ function PreviewBody({ name }: { name: AccountFixtureName }) {
           onBack={none}
         />
       );
+    case 'onboarding-picture':
+      return <PictureStepView ctx={ctx} {...picture} saving={false} failed={false} onContinue={none} onBack={none} />;
     case 'onboarding-mic':
     case 'onboarding-mic-denied':
       return (
@@ -106,6 +121,7 @@ function PreviewBody({ name }: { name: AccountFixtureName }) {
           settings={settings}
           experience={{ title: trackOfPair(packs.pair, settings.trackId)?.title ?? null, choices: trackOfPair(packs.pair, settings.trackId)?.choices ?? [] }}
           onPickExperience={(trackId) => change({ trackId })}
+          picture={picture}
           nativeName={languageName(t, packs.pair.native)}
           targetName={language}
           onChange={change}

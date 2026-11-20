@@ -1,10 +1,18 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { Pressable, StyleSheet } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useI18n } from '../i18n';
+import { DEFAULT_PICTURE, type LearnerPicture } from '../storage/repos/settings';
 import { borders, colors, layout, radii } from '../theme';
+import { LearnerAvatar } from './LearnerAvatar';
 
-/** The corner button in the tab header that opens the profile and settings modal. */
-export function ProfileButton() {
+/** The picture inside the 44 pt button, leaving the hairline ring visible. */
+const AVATAR = layout.minTouch - 6;
+
+/**
+ * The corner button in the tab header that opens the profile and settings modal. It shows the
+ * learner's picture (settings.picture: their character, or their photo as a circle).
+ */
+export function ProfileButton({ picture = DEFAULT_PICTURE }: { picture?: LearnerPicture }) {
   const { t } = useI18n();
   const router = useRouter();
   return (
@@ -15,8 +23,7 @@ export function ProfileButton() {
       testID="profile-button"
       style={({ pressed }) => [styles.button, pressed && styles.pressed]}
     >
-      <View style={styles.head} />
-      <View style={styles.shoulders} />
+      <LearnerAvatar picture={picture} size={AVATAR} testID="profile-button-avatar" />
     </Pressable>
   );
 }
@@ -30,24 +37,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 2,
     overflow: 'hidden',
   },
-  pressed: { backgroundColor: colors.borderSoft },
-  head: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    borderWidth: borders.strong,
-    borderColor: colors.ink,
-  },
-  shoulders: {
-    width: 18,
-    height: 8,
-    borderTopLeftRadius: 9,
-    borderTopRightRadius: 9,
-    borderWidth: borders.strong,
-    borderBottomWidth: 0,
-    borderColor: colors.ink,
-  },
+  pressed: { backgroundColor: colors.borderSoft, opacity: 0.85 },
 });

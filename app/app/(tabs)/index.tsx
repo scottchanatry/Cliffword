@@ -12,7 +12,8 @@ import { colors } from '../../src/theme';
  * suspended on unmount and app background, rendered by StoryView. In library mode (an
  * experience) the route adds what lives in the settings: the experience picked on the home
  * (trackId and its choices; the controller follows), the first-episode guide (guideSeen) and
- * the language model's line. Android's back button closes an open episode.
+ * the language model's line, and the learner's picture beside their replies. Android's back button
+ * closes an open episode.
  */
 export default function StoryTab() {
   const { vm, actions } = useStoryController();
@@ -53,6 +54,7 @@ export default function StoryTab() {
           guideSeen: settings.guideSeen,
           onGuideDone: () => void updateSettings({ guideSeen: true }).catch((e: unknown) => console.warn('[story] guide not saved', e)),
           model: line,
+          you: settings.picture,
         }}
       />
     </View>

@@ -13,7 +13,11 @@
  * - the Apple Music module (app/modules/cliffword-music) is only in native bundles, imported by
  *   createNativeMusicPlayer.ts alone (web: createNativeMusicPlayer.web.ts);
  * - expo-network is only in native bundles, imported by ExpoNetworkInfo.ts alone, reached through
- *   createNativeNetworkInfo.ts (web: createNativeNetworkInfo.web.ts, a fixed 'unknown').
+ *   createNativeNetworkInfo.ts (web: createNativeNetworkInfo.web.ts, a fixed 'unknown');
+ * - expo-image-picker (the learner's selfie or photo) is only in native bundles, imported by
+ *   createNativePhotoPicker.ts alone, which only the service container imports (web:
+ *   createNativePhotoPicker.web.ts, no photo); routes, views and components never import the photo
+ *   adapter (type imports aside): they reach it through useServices().photos.
  * The export step of the verify chain bundles for real; this test catches a wrong import early.
  */
 import fs from 'fs';
@@ -97,6 +101,15 @@ function importersOf(files: Set<string>, target: string, platform: Platform): st
   return rel(new Set([...files].filter((file) => specifiers(file).some((spec) => spec.startsWith('.') && resolveRelative(file, spec, platform) === absolute))));
 }
 
+/** Routes, feature code and components that import the photo adapter at runtime (type imports are erased). */
+function viewsImportingPhotoAdapter(files: Set<string>, platform: Platform): string[] {
+  const adapter = path.join(APP_ROOT, 'src/adapters/photo') + path.sep;
+  const isView = (f: string) => /^(app|src\/features|src\/components)\//.test(f);
+  return rel(files).filter(
+    (f) => isView(f) && specifiers(path.join(APP_ROOT, f)).some((spec) => spec.startsWith('.') && (resolveRelative(path.join(APP_ROOT, f), spec, platform) ?? '').startsWith(adapter)),
+  );
+}
+
 describe.each(['ios', 'android'] as const)('%s bundle', (platform) => {
   const { files, packages } = reach(platform);
 
@@ -162,6 +175,19 @@ describe.each(['ios', 'android'] as const)('%s bundle', (platform) => {
     expect(rel(files)).not.toContain('src/adapters/network/createNativeNetworkInfo.web.ts');
   });
 
+  it('reaches expo-image-picker only through createNativePhotoPicker, which only the service container imports', () => {
+    expect(packagesMatching(packages, /^expo-image-picker/)).toEqual(['expo-image-picker']);
+    expect(packages.get('expo-image-picker')).toEqual(['src/adapters/photo/createNativePhotoPicker.ts']);
+    expect(importersOf(files, 'src/adapters/photo/ExpoPhotoPicker.ts', platform)).toEqual(['src/adapters/photo/createNativePhotoPicker.ts']);
+    expect(importersOf(files, 'src/adapters/photo/createNativePhotoPicker.ts', platform)).toEqual(['src/services/nativeServices.ts']);
+    expect(packages.get('expo-file-system')).toEqual(expect.arrayContaining(['src/adapters/photo/ExpoPhotoPicker.ts']));
+    expect(rel(files)).not.toContain('src/adapters/photo/createNativePhotoPicker.web.ts');
+  });
+
+  it('keeps the photo adapter out of routes, views and components', () => {
+    expect(viewsImportingPhotoAdapter(files, platform)).toEqual([]);
+  });
+
   it('reaches the cliffword-music module only through createNativeMusicPlayer', () => {
     const list = rel(files);
     expect(list).toEqual(
@@ -224,6 +250,16 @@ describe('web bundle', () => {
     expect(packagesMatching(packages, /^expo-network/)).toEqual([]);
     expect(rel(files)).toContain('src/adapters/network/createNativeNetworkInfo.web.ts');
     expect(rel(files)).not.toContain('src/adapters/network/ExpoNetworkInfo.ts');
+  });
+
+  it('keeps expo-image-picker and the photo files out (createNativePhotoPicker.web.ts, no photo, instead)', () => {
+    const list = rel(files);
+    expect(packagesMatching(packages, /^expo-image-picker/)).toEqual([]);
+    expect(list).toContain('src/adapters/photo/createNativePhotoPicker.web.ts');
+    expect(list).not.toContain('src/adapters/photo/createNativePhotoPicker.ts');
+    expect(list).not.toContain('src/adapters/photo/ExpoPhotoPicker.ts');
+    expect((packages.get('expo-file-system') ?? []).filter((user) => user.startsWith('src/adapters/photo/'))).toEqual([]);
+    expect(viewsImportingPhotoAdapter(files, 'web')).toEqual([]);
   });
 
   it('keeps the cliffword-music module out (createNativeMusicPlayer.web.ts instead)', () => {

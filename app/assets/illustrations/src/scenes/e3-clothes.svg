@@ -69,14 +69,14 @@
     <path d="M -18 -92 L -20 -16 M 18 -92 L 20 -16" fill="none" stroke="#A8DBF0" stroke-width="28"/>
     <ellipse cx="-26" cy="-8" rx="22" ry="11" fill="#F3F4F1" stroke="#16181D" stroke-width="6.1"/>
     <ellipse cx="26" cy="-8" rx="22" ry="11" fill="#F3F4F1" stroke="#16181D" stroke-width="6.1"/>
-    <rect x="-12" y="-206" width="24" height="24" rx="6" fill="#B4530A" stroke="#16181D" stroke-width="6.1"/>
+    <rect class="skin" x="-12" y="-206" width="24" height="24" rx="6" fill="#FFC46B" stroke="#16181D" stroke-width="6.1"/>
     <path d="M -50 -84 C -56 -150 -50 -188 0 -192 C 50 -188 56 -150 50 -84 Z" fill="#EF6A57" stroke="#16181D" stroke-width="6.1"/>
     <path d="M -16 -190 Q 0 -174 16 -190" fill="#F3F4F1" stroke="#16181D" stroke-width="4.5"/>
     <path d="M -44 -172 Q -58 -128 -54 -96" fill="none" stroke="#16181D" stroke-width="34.1"/>
-    <path d="M -44 -172 Q -58 -128 -54 -96" fill="none" stroke="#B4530A" stroke-width="22"/>
+    <path class="skin" d="M -44 -172 Q -58 -128 -54 -96" fill="none" stroke="#FFC46B" stroke-width="22"/>
     <path d="M -44 -172 Q -51 -154 -50.3 -152.2" fill="none" stroke="#16181D" stroke-width="38.1"/>
     <path d="M -44 -172 Q -51 -154 -50.3 -152.2" fill="none" stroke="#EF6A57" stroke-width="26"/>
-    <circle cx="-54" cy="-96" r="14" fill="#B4530A" stroke="#16181D" stroke-width="6.1"/>
+    <circle class="skin" cx="-54" cy="-96" r="14" fill="#FFC46B" stroke="#16181D" stroke-width="6.1"/>
     <g transform="translate(0 -252)">
       <circle cx="-62" cy="6.9" r="26" fill="#16181D" stroke="#16181D" stroke-width="6.1"/>
       <circle cx="-63.9" cy="-11.1" r="26" fill="#16181D" stroke="#16181D" stroke-width="6.1"/>
@@ -93,11 +93,11 @@
       <circle cx="62" cy="6.9" r="26" fill="#16181D" stroke="#16181D" stroke-width="6.1"/>
       <circle cx="-62" cy="30" r="20" fill="#16181D" stroke="#16181D" stroke-width="6.1"/>
       <circle cx="62" cy="30" r="20" fill="#16181D" stroke="#16181D" stroke-width="6.1"/>
-      <circle cx="-56" cy="6" r="13" fill="#B4530A" stroke="#16181D" stroke-width="6.1"/>
-      <circle cx="56" cy="6" r="13" fill="#B4530A" stroke="#16181D" stroke-width="6.1"/>
+      <circle class="skin" cx="-56" cy="6" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="6.1"/>
+      <circle class="skin" cx="56" cy="6" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="6.1"/>
       <circle cx="-56" cy="26" r="10" fill="none" stroke="#FFC46B" stroke-width="7.6"/>
       <circle cx="56" cy="26" r="10" fill="none" stroke="#FFC46B" stroke-width="7.6"/>
-      <circle cx="0" cy="0" r="58" fill="#B4530A" stroke="#16181D" stroke-width="6.1"/>
+      <circle class="skin" cx="0" cy="0" r="58" fill="#FFC46B" stroke="#16181D" stroke-width="6.1"/>
       <circle cx="-36" cy="-45.7" r="15" fill="#16181D" stroke="#16181D" stroke-width="6.1"/>
       <circle cx="-16" cy="-42.1" r="15" fill="#16181D" stroke="#16181D" stroke-width="6.1"/>
       <circle cx="6" cy="-49.3" r="15" fill="#16181D" stroke="#16181D" stroke-width="6.1"/>
@@ -125,10 +125,10 @@
       <path d="M -13 26 Q 0 24.3 13 26 Q 13 40 0 40 Q -13 40 -13 26 Z" fill="none" stroke="#16181D" stroke-width="4.5"/>
     </g>
     <path d="M 44 -172 Q 52 -122 22 -150" fill="none" stroke="#16181D" stroke-width="34.1"/>
-    <path d="M 44 -172 Q 52 -122 22 -150" fill="none" stroke="#B4530A" stroke-width="22"/>
+    <path class="skin" d="M 44 -172 Q 52 -122 22 -150" fill="none" stroke="#FFC46B" stroke-width="22"/>
     <path d="M 44 -172 Q 48 -151 47.6 -149.5" fill="none" stroke="#16181D" stroke-width="38.1"/>
     <path d="M 44 -172 Q 48 -151 47.6 -149.5" fill="none" stroke="#EF6A57" stroke-width="26"/>
-    <circle cx="22" cy="-150" r="14" fill="#B4530A" stroke="#16181D" stroke-width="6.1"/>
+    <circle class="skin" cx="22" cy="-150" r="14" fill="#FFC46B" stroke="#16181D" stroke-width="6.1"/>
     <g transform="translate(22 -150)">
       <path d="M 0 -4 C 0 -20 12 -20 12 -12" fill="none" stroke="#16181D" stroke-width="6.1"/>
       <path d="M -46 16 L 0 -2 L 46 16" fill="none" stroke="#16181D" stroke-width="7.6"/>

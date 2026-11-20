@@ -43,6 +43,7 @@ import { LineText } from './LineText';
 import { MicButton } from './MicButton';
 import { SceneBanner, SpeakerLabel, WordPictures } from './Pictures';
 import { Transcript } from './Transcript';
+import type { LearnerPicture } from '../../../storage/repos/settings';
 
 export interface EpisodeViewProps {
   vm: StoryViewModel;
@@ -53,6 +54,8 @@ export interface EpisodeViewProps {
   onGuideSkip?: () => void;
   /** The experience is done: open the picker. */
   onPickExperience?: () => void;
+  /** The learner's picture beside their replies in the story so far (settings.picture). */
+  you?: LearnerPicture;
 }
 
 type Cliff = Extract<StoryScreen, { kind: 'cliff' }>;
@@ -84,7 +87,7 @@ function focusKey(screen: StoryScreen | null, vm: StoryViewModel): string {
   return parts.map((p) => String(p ?? '')).join('|');
 }
 
-export function EpisodeView({ vm, actions, guide = null, onGuideNext, onGuideSkip, onPickExperience }: EpisodeViewProps) {
+export function EpisodeView({ vm, actions, guide = null, onGuideNext, onGuideSkip, onPickExperience, you }: EpisodeViewProps) {
   const { t } = useI18n();
   const pair = usePairPack();
   const language = languageName(t, pair.target);
@@ -281,7 +284,7 @@ export function EpisodeView({ vm, actions, guide = null, onGuideNext, onGuideSki
         {inEpisode && lib ? (
           <View style={styles.story} testID="episode-story-so-far">
             <SceneBanner trackId={lib.track} episode={lib.episode} />
-            {transcript ? <Transcript transcript={transcript} /> : null}
+            {transcript ? <Transcript transcript={transcript} you={you} /> : null}
           </View>
         ) : null}
         <View

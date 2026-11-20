@@ -2,10 +2,12 @@
  * The app end to end through the real router and root layout, on the test services (FakeSpeechIn
  * plays the learner, FakeSpeechOut the voice, the model unloaded: matching mode, sql.js storage):
  *
- * - first launch: onboarding (Living in San Juan, brand new, as a woman, typing) -> the Story
- *   home -> episode 1 -> the guide -> the line, then its gap -> an answer said with the mic ->
- *   feedback -> the next line -> back to the home;
- * - Settings: another level and form of address reach the story;
+ * - first launch: onboarding (Living in San Juan, brand new, as a woman, the chef as her
+ *   picture, typing) -> the Story home, the chef on the header button -> episode 1 -> the guide ->
+ *   the line, then its gap -> an answer said with the mic -> feedback -> the next line -> back to
+ *   the home;
+ * - Settings: another level and form of address reach the story; "Your picture" (a character, a
+ *   selfie, Remove photo) reaches the header button;
  * - reset progress: onboarding is not shown again, the experience starts again at episode 1;
  * - a restart (new services over the same storage) comes back to the home, then to the same
  *   screen, playing nothing until the learner opens the episode;
@@ -26,6 +28,7 @@ import { defaultPacks, sharedMockModel } from '../../src/services/defaults';
 import { createStorageService, storageClockFor, type StorageService } from '../../src/services/storageService';
 import { createTestServices, type TestServices } from '../../src/services/testServices';
 import { MUSIC_ENABLED } from '../../src/config/features';
+import { YOU_AVATARS } from '../../src/illustrations';
 import { ONBOARDED } from '../../src/storage/repos/settings';
 import { loadSqlJs } from '../../src/storage/sql/sqljs';
 import { livingTrack } from '../../src/testing/packs';
@@ -136,13 +139,17 @@ describe('first launch', () => {
     const services = install();
     await renderRouter(APP_DIR, { initialUrl: '/' });
 
-    // Onboarding: welcome -> San Juan -> brand new -> as a woman -> type instead.
+    // Onboarding: welcome -> San Juan -> brand new -> as a woman -> the chef -> type instead.
     expect(await screen.findByTestId('onboarding-screen')).toBeOnTheScreen();
     expectAccessibleControls();
     await fireEvent.press(screen.getByRole('button', { name: 'Get started' }));
     await fireEvent.press(await screen.findByTestId(`experience-${livingTrack().id}`));
     await fireEvent.press(await screen.findByTestId('level-new'));
     await fireEvent.press(await screen.findByTestId('address-f'));
+    await fireEvent.press(await screen.findByTestId('picture-character-you-chef'));
+    await waitFor(() => expect(screen.getByTestId('picture-character-you-chef').props.accessibilityState).toMatchObject({ checked: true }));
+    expectAccessibleControls();
+    await fireEvent.press(screen.getByTestId('picture-continue'));
     await fireEvent.press(await screen.findByTestId('mic-finish'));
 
     // The Story home: nothing plays until the episode opens.
@@ -151,7 +158,16 @@ describe('first launch', () => {
     expect(services.speechOut.spokenTexts).toEqual([]);
     expectAccessibleControls();
     const storage = await services.storage.open();
-    expect(await storage.settings.getAll()).toMatchObject({ onboarded: true, level: 0, address: 'f', trackId: livingTrack().id, guideSeen: false });
+    expect(await storage.settings.getAll()).toMatchObject({
+      onboarded: true,
+      level: 0,
+      address: 'f',
+      trackId: livingTrack().id,
+      guideSeen: false,
+      picture: { kind: 'character', id: 'you-chef' },
+    });
+    // The header's corner button shows her picture.
+    expect(screen.getByTestId('profile-button-avatar', { includeHiddenElements: true }).props.source).toBe(YOU_AVATARS['you-chef']);
 
     // Episode 1: the guide, the whole line, then its gap with three options.
     await fireEvent.press(screen.getByTestId('home-continue'));
@@ -210,6 +226,56 @@ describe('settings reach the story', () => {
       (r) => r?.snapshot.state.library.level === 2,
     );
     expect(rec?.snapshot.state.library).toMatchObject({ level: 2, address: 'f' });
+  });
+});
+
+describe('your picture', () => {
+  it('a character, then a selfie, chosen in Settings show on the header button; Remove photo deletes the photo', async () => {
+    const services = install();
+    const storage = await onboarded(services);
+    await renderRouter(APP_DIR, { initialUrl: '/' });
+    expect(await screen.findByTestId('story-home')).toBeOnTheScreen();
+    const header = () => screen.getByTestId('profile-button-avatar', { includeHiddenElements: true }).props.source as unknown;
+    expect(header()).toBe(YOU_AVATARS.you);
+
+    await fireEvent.press(screen.getByRole('button', { name: 'Open profile and settings' }));
+    await fireEvent.press(await screen.findByRole('link', { name: 'Settings' }));
+    expect(await screen.findByTestId('settings-picture')).toBeOnTheScreen();
+    expect(screen.getByTestId('settings-picture-name')).toHaveTextContent('Smiling person waving hello');
+    expect(screen.queryByTestId('settings-picture-remove')).toBeNull();
+    expectAccessibleControls();
+
+    // Change: the same chooser, in a sheet.
+    await fireEvent.press(screen.getByTestId('settings-picture-change'));
+    expect(await screen.findByTestId('settings-picture-chooser')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByTestId('picture-character-you-musician'));
+    await waitFor(() => expect(screen.getByTestId('settings-picture-name')).toHaveTextContent('Older musician with a guitar'));
+    // A selfie replaces it.
+    await fireEvent.press(screen.getByTestId('picture-camera'));
+    await waitFor(() => expect(screen.getByTestId('settings-picture-name')).toHaveTextContent('Your photo'));
+    const [photo] = services.photos.stored();
+    expect(await storage.settings.get('picture')).toEqual({ kind: 'photo', uri: photo });
+    await fireEvent.press(screen.getByTestId('settings-picture-done'));
+    await waitFor(() => expect(screen.queryByTestId('settings-picture-chooser')).toBeNull());
+
+    // Back on the Story tab, the header shows the photo as a circle.
+    await fireEvent.press(screen.getByRole('button', { name: 'Back' }));
+    await fireEvent.press(await screen.findByTestId('close-profile'));
+    expect(await screen.findByTestId('story-home')).toBeOnTheScreen();
+    expect(header()).toEqual({ uri: photo });
+
+    // Remove photo, from the Settings row: the default character again, and the file is gone.
+    await fireEvent.press(screen.getByRole('button', { name: 'Open profile and settings' }));
+    await fireEvent.press(await screen.findByRole('link', { name: 'Settings' }));
+    await fireEvent.press(await screen.findByTestId('settings-picture-remove'));
+    await waitFor(() => expect(screen.getByTestId('settings-picture-name')).toHaveTextContent('Smiling person waving hello'));
+    expect(services.photos.stored()).toEqual([]);
+    expect(services.photos.removed).toEqual([photo]);
+    expect(await storage.settings.get('picture')).toEqual({ kind: 'character', id: 'you' });
+    await fireEvent.press(screen.getByRole('button', { name: 'Back' }));
+    await fireEvent.press(await screen.findByTestId('close-profile'));
+    expect(await screen.findByTestId('story-home')).toBeOnTheScreen();
+    expect(header()).toBe(YOU_AVATARS.you);
   });
 });
 

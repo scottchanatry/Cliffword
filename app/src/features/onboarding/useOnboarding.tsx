@@ -1,6 +1,6 @@
 /**
- * Moving through onboarding (welcome, experience, level, address, the experience's choices,
- * microphone): each step stores the next one (settings.onboardingStep) before its
+ * Moving through onboarding (welcome, experience, level, address, picture, the experience's
+ * choices, microphone): each step stores the next one (settings.onboardingStep) before its
  * screen opens, so a killed app resumes there; the last one stores ONBOARDED (onboarded, 'done' and
  * the current onboardingVersion) and the root guard opens the Story tab (nothing navigates there by hand).
  *

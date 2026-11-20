@@ -1,7 +1,8 @@
 /**
  * An in-memory stand-in for the parts of expo-file-system 58 that ExpoModelManager and fileHash
- * use: Paths, Directory, File (exists, size, modificationTime, delete, move, write/text, open,
- * digest), FileMode and DownloadTask (download, pause, resume, cancel, savable, fromSavable).
+ * use, and ExpoPhotoPicker's copy: Paths (document, cache), Directory, File (exists, size,
+ * modificationTime, delete, move, copy, write/text, open, digest), FileMode and DownloadTask
+ * (download, pause, resume, cancel, savable, fromSavable).
  * Test-only; use it as the module mock:
  *
  *   jest.mock('expo-file-system', () => jest.requireActual('../../testing/fakeExpoFileSystem'));
@@ -69,6 +70,7 @@ export type SizeFailure = 'throw' | 'nan' | 'zero';
 let now = 1_000_000;
 
 const DOCUMENT = 'file:///docs/';
+const CACHE = 'file:///cache/';
 
 function tick(): number {
   now += 1;
@@ -203,6 +205,19 @@ export class File {
     this.uri = target;
   }
 
+  /** Copies to a file, or into a directory under the same name; the destination must not exist. */
+  async copy(destination: File | Directory): Promise<void> {
+    this.copySync(destination);
+  }
+
+  copySync(destination: File | Directory): void {
+    const entry = files.get(this.uri);
+    if (!entry) throw new Error(`No file at ${this.uri}`);
+    const target = destination instanceof Directory ? fileKey(destination.uri + this.name) : destination.uri;
+    if (files.has(target)) throw new Error(`Destination exists: ${target}`);
+    files.set(target, { bytes: entry.bytes.slice(), mtime: tick() });
+  }
+
   writeSync(content: string | Uint8Array): void {
     writeEntry(this.uri, typeof content === 'string' ? new TextEncoder().encode(content) : content);
   }
@@ -237,6 +252,10 @@ export class File {
 export class Paths {
   static get document(): Directory {
     return new Directory(DOCUMENT);
+  }
+
+  static get cache(): Directory {
+    return new Directory(CACHE);
   }
 
   static get availableDiskSpace(): number {
@@ -470,6 +489,7 @@ export const fakeFs = {
     losePauses = false;
     now = 1_000_000;
     dirs.add(DOCUMENT);
+    dirs.add(CACHE);
   },
   /** Makes pause() calls get lost (pauseAsync() then waits for the transfer to end). */
   losePauses(lose: boolean): void {

@@ -14,7 +14,7 @@
   <!-- the character, clipped to the disc -->
   <g clip-path="url(#yari-1)">
     <g transform="translate(124 128)">
-      <rect x="-16" y="40" width="32" height="40" rx="8" fill="#B4530A" stroke="#16181D" stroke-width="4"/>
+      <rect class="skin" x="-16" y="40" width="32" height="40" rx="8" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
       <path d="M -104 150 C -104 96 -64 70 0 70 C 64 70 104 96 104 150 Z" fill="#EF6A57" stroke="#16181D" stroke-width="4"/>
       <path d="M -22 72 Q 0 96 22 72" fill="#F3F4F1" stroke="#16181D" stroke-width="3"/>
       <circle cx="-62" cy="6.9" r="26" fill="#16181D" stroke="#16181D" stroke-width="4"/>
@@ -32,11 +32,11 @@
       <circle cx="62" cy="6.9" r="26" fill="#16181D" stroke="#16181D" stroke-width="4"/>
       <circle cx="-62" cy="30" r="20" fill="#16181D" stroke="#16181D" stroke-width="4"/>
       <circle cx="62" cy="30" r="20" fill="#16181D" stroke="#16181D" stroke-width="4"/>
-      <circle cx="-56" cy="6" r="13" fill="#B4530A" stroke="#16181D" stroke-width="4"/>
-      <circle cx="56" cy="6" r="13" fill="#B4530A" stroke="#16181D" stroke-width="4"/>
+      <circle class="skin" cx="-56" cy="6" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <circle class="skin" cx="56" cy="6" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
       <circle cx="-56" cy="26" r="10" fill="none" stroke="#FFC46B" stroke-width="5"/>
       <circle cx="56" cy="26" r="10" fill="none" stroke="#FFC46B" stroke-width="5"/>
-      <circle cx="0" cy="0" r="58" fill="#B4530A" stroke="#16181D" stroke-width="4"/>
+      <circle class="skin" cx="0" cy="0" r="58" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
       <circle cx="-36" cy="-45.7" r="15" fill="#16181D" stroke="#16181D" stroke-width="4"/>
       <circle cx="-16" cy="-42.1" r="15" fill="#16181D" stroke="#16181D" stroke-width="4"/>
       <circle cx="6" cy="-49.3" r="15" fill="#16181D" stroke="#16181D" stroke-width="4"/>
@@ -63,8 +63,8 @@
       <rect x="-20" y="-64" width="40" height="68" rx="9" fill="#16181D" stroke="#16181D" stroke-width="4"/>
       <rect x="-14" y="-56" width="28" height="50" rx="4" fill="#A8DBF0"/>
       <circle cx="0" cy="-32" r="8" fill="#FFC46B"/>
-      <circle cx="-2" cy="0" r="14" fill="#B4530A" stroke="#16181D" stroke-width="4"/>
-      <circle cx="14" cy="-18" r="8" fill="#B4530A" stroke="#16181D" stroke-width="4"/>
+      <circle class="skin" cx="-2" cy="0" r="14" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <circle class="skin" cx="14" cy="-18" r="8" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
     </g>
   </g>
 </svg>

@@ -1,7 +1,8 @@
 /**
  * Onboarding end to end through the real router and root layout: welcome, the experience picker
  * (coming-soon cards closed), "How much Spanish do you know?", "How should people address you?",
- * an experience's choices (the mechanism, on a test pair where Dating has an episode), the
+ * "Who are you in the story?" (a character, or a selfie: refused, then taken), an experience's
+ * choices (the mechanism, on a test pair where Dating has an episode), the
  * microphone (allowed, refused, typed), then the Story home; the language model downloading by
  * itself on Wi-Fi; a relaunch resuming at the stored step; and a learner onboarded by the earlier
  * build going through the new onboarding once.
@@ -109,6 +110,21 @@ describe('onboarding', () => {
     expectAccessibleControls();
     await fireEvent.press(screen.getByTestId('address-f'));
 
+    // Who are you in the story? The waving character is chosen from the start; Continue is on.
+    expect(await screen.findByTestId('onboarding-picture')).toBeOnTheScreen();
+    expect(screen.getByText('Who are you in the story?')).toBeOnTheScreen();
+    expect(screen.getByTestId('onboarding-step')).toHaveTextContent('Step 5 of 6');
+    expect(screen.getAllByRole('radio')).toHaveLength(9);
+    expect(screen.getByTestId('picture-character-you').props.accessibilityState).toMatchObject({ checked: true });
+    expect(screen.getByTestId('picture-character-you-captain').props.accessibilityLabel).toBe('Old sea captain with a toy sailboat');
+    expect(screen.getByTestId('picture-continue')).toBeEnabled();
+    expectAccessibleControls();
+    await fireEvent.press(screen.getByTestId('picture-character-you-captain'));
+    await waitFor(() => expect(screen.getByTestId('picture-character-you-captain').props.accessibilityState).toMatchObject({ checked: true }));
+    expect(screen.getByTestId('picture-character-you').props.accessibilityState).toMatchObject({ checked: false });
+    expect(screen.getByTestId('picture-preview').props.accessibilityLabel).toBe('Your picture: Old sea captain with a toy sailboat');
+    await fireEvent.press(screen.getByTestId('picture-continue'));
+
     // San Juan has no choices: the microphone is next.
     expect(await screen.findByTestId('onboarding-mic')).toBeOnTheScreen();
     expect(screen.getByText(/any natural answer counts/)).toBeOnTheScreen();
@@ -127,6 +143,7 @@ describe('onboarding', () => {
       level: 0,
       startLevel: 'brandNew',
       address: 'f',
+      picture: { kind: 'character', id: 'you-captain' },
     });
     // The session plays San Juan for a woman at level 0 (stored before the home shows).
     const rec = await storage.sessions.active<{ state: { library: { track: string; level: number; address: string } } }>('story');
@@ -144,6 +161,23 @@ describe('onboarding', () => {
     await fireEvent.press(screen.getByTestId(`experience-${livingTrack().id}`));
     await fireEvent.press(await screen.findByTestId('level-comfortable'));
     await fireEvent.press(await screen.findByTestId('address-m'));
+
+    // A selfie: the camera is refused first (a notice with Settings; the picture stays), then taken.
+    expect(await screen.findByTestId('onboarding-picture')).toBeOnTheScreen();
+    services.photos.script('denied', 'taken');
+    await fireEvent.press(screen.getByTestId('picture-camera'));
+    expect(await screen.findByTestId('picture-notice')).toHaveTextContent(/Camera access is off, so your picture stays as it is/);
+    expect(screen.getByTestId('picture-open-settings')).toBeOnTheScreen();
+    expect(screen.getByTestId('picture-character-you').props.accessibilityState).toMatchObject({ checked: true });
+    await fireEvent.press(screen.getByTestId('picture-camera'));
+    expect(await screen.findByTestId('picture-remove')).toBeOnTheScreen();
+    expect(screen.queryByTestId('picture-notice')).toBeNull();
+    expect(screen.getByTestId('picture-preview').props.accessibilityLabel).toBe('Your picture: Your photo');
+    expect(screen.getAllByRole('radio').filter((r) => r.props.accessibilityState?.checked)).toEqual([]);
+    expect(services.photos.picks).toEqual(['camera', 'camera']);
+    const [photo] = services.photos.stored();
+    await fireEvent.press(screen.getByTestId('picture-continue'));
+
     expect(await screen.findByTestId('onboarding-mic')).toBeOnTheScreen();
     await fireEvent.press(screen.getByTestId('mic-allow'));
     expect(await screen.findByTestId('mic-settings')).toBeOnTheScreen();
@@ -151,7 +185,12 @@ describe('onboarding', () => {
     await fireEvent.press(screen.getByTestId('mic-type'));
     expect(await screen.findByTestId('story-home')).toBeOnTheScreen();
     expect(screen.getByTestId('home-level')).toHaveTextContent('Level 4 · say what comes next');
-    expect(await (await services.storage.open()).settings.getAll()).toMatchObject({ level: 4, startLevel: 'placement', address: 'm' });
+    expect(await (await services.storage.open()).settings.getAll()).toMatchObject({
+      level: 4,
+      startLevel: 'placement',
+      address: 'm',
+      picture: { kind: 'photo', uri: photo },
+    });
   });
 
   it('asks an experience its choices, and the choice reaches the session (Dating, on a test pair)', async () => {
@@ -161,9 +200,13 @@ describe('onboarding', () => {
     await fireEvent.press(screen.getByTestId(`experience-${DATING}`));
     await fireEvent.press(await screen.findByTestId('level-little'));
     await fireEvent.press(await screen.findByTestId('address-m'));
+    // The picture comes right after the address, before the experience's choices.
+    expect(await screen.findByTestId('onboarding-picture')).toBeOnTheScreen();
+    expect(screen.getByTestId('onboarding-step')).toHaveTextContent('Step 5 of 7');
+    await fireEvent.press(screen.getByTestId('picture-continue'));
     expect(await screen.findByTestId('onboarding-choices')).toBeOnTheScreen();
     expect(screen.getByText('Who do you match with?')).toBeOnTheScreen();
-    expect(screen.getByTestId('onboarding-step')).toHaveTextContent('Step 5 of 6');
+    expect(screen.getByTestId('onboarding-step')).toHaveTextContent('Step 6 of 7');
     expect(screen.getByTestId('choices-continue')).toBeDisabled();
     expectAccessibleControls();
     await fireEvent.press(screen.getByTestId('choice-partner-valentina'));
@@ -173,6 +216,8 @@ describe('onboarding', () => {
     expect(await screen.findByTestId('story-home')).toBeOnTheScreen();
     const storage = await services.storage.open();
     expect((await storage.settings.getAll()).trackChoices).toEqual({ [DATING]: { partner: 'valentina' } });
+    // Continuing without a choice keeps the default character.
+    expect((await storage.settings.getAll()).picture).toEqual({ kind: 'character', id: 'you' });
     const rec = await storage.sessions.active<{ state: { library: { track: string; tracks: Record<string, { choices: Record<string, string> }> } } }>('story');
     expect(rec?.snapshot.state.library.track).toBe(DATING);
     expect(rec?.snapshot.state.library.tracks[DATING]?.choices).toEqual({ partner: 'valentina' });
@@ -186,6 +231,18 @@ describe('onboarding', () => {
     expect(await screen.findByTestId('onboarding-address')).toBeOnTheScreen();
     await fireEvent.press(screen.getByTestId('onboarding-back'));
     expect(await screen.findByTestId('onboarding-level')).toBeOnTheScreen();
+  });
+
+  it('resumes at the picture step, and Back from it goes to the address', async () => {
+    const services = install(createTestServices({ packs: libraryPacks() }));
+    const storage = await services.storage.open();
+    await storage.settings.update({ onboardingStep: 'picture', trackId: livingTrack().id, address: 'f' });
+    await renderRouter(APP_DIR, { initialUrl: '/' });
+    expect(await screen.findByTestId('onboarding-picture')).toBeOnTheScreen();
+    await fireEvent.press(screen.getByTestId('onboarding-back'));
+    expect(await screen.findByTestId('onboarding-address')).toBeOnTheScreen();
+    // The address chosen before the picture step shows as chosen.
+    expect(screen.getByTestId('address-f').props.accessibilityState).toMatchObject({ checked: true });
   });
 
   it('shows a learner onboarded by the earlier build the new onboarding once', async () => {

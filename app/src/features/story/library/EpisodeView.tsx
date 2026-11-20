@@ -4,8 +4,10 @@
  * - Header: close (back to the Story home), "Episode 1 · Good morning, Pancho", "Line 3 of 12"
  *   with a progress bar.
  * - The story so far scrolls above the line on screen: the episode's scene as a banner, then the
- *   earlier lines as a conversation (Transcript.tsx, vm.transcript); the view scrolls to the line
- *   on screen whenever it changes, and the scene scrolls away as the conversation grows.
+ *   earlier lines as a conversation (Transcript.tsx, vm.transcript). Whenever the line on screen
+ *   changes the view scrolls to it: to the bottom, with the conversation above, or, when the line
+ *   and its answers are taller than the view, to the top of the line. The scene scrolls away as
+ *   the conversation grows.
  * - A line: the speaker's avatar and name above dialogue, the line as large text (tap it to show or
  *   hide the English and the pictures of its words), then by cliff mode:
  *   recall: the whole line plays (shown), then the gap with three big options and the mic;
@@ -58,8 +60,14 @@ type Cliff = Extract<StoryScreen, { kind: 'cliff' }>;
 /** Screens of a line or a question of the episode: the story so far shows above them. */
 const IN_EPISODE: ReadonlySet<StoryScreen['kind']> = new Set<StoryScreen['kind']>(['cliff', 'landing', 'noSe', 'nativeReply', 'turn', 'repair']);
 
-/** After the line on screen changes, content that grows within this time keeps the view at the bottom. */
+/** After the line on screen changes, content that lays out within this time is followed too. */
 const FOLLOW_MS = 1200;
+
+/** Room left above the line on screen when it is taller than the view. */
+const FOCUS_MARGIN = spacing.sm;
+
+/** The speaker's avatar beside the name of the line or question on screen, in points. */
+const FOCUS_AVATAR = 36;
 
 /**
  * What the learner is looking at: when it changes (a new line, the gap, the feedback, a reply), the
@@ -96,13 +104,21 @@ export function EpisodeView({ vm, actions, guide = null, onGuideNext, onGuideSki
   const lib = screen?.meta.library;
   const inEpisode = screen !== null && IN_EPISODE.has(screen.kind) && lib !== undefined;
   const transcript = inEpisode && vm.transcript && vm.transcript.storyId === lib?.storyId ? vm.transcript : null;
-  // The view follows the line on screen: to the bottom when it changes, and while it lays out.
+  // The view follows the line on screen when it changes, and while it lays out: the bottom, unless
+  // that would hide the top of the line (then the line's top, with a little room above).
   const scroll = useRef<ComponentRef<typeof ScrollView>>(null);
-  const follow = useRef(0);
+  const followUntil = useRef(0);
+  const measures = useRef({ focusY: 0, content: 0, view: 0 });
+  const follow = () => {
+    if (Date.now() > followUntil.current) return;
+    const { focusY, content, view } = measures.current;
+    const end = Math.max(0, content - view);
+    scroll.current?.scrollTo({ y: Math.max(0, Math.min(end, focusY - FOCUS_MARGIN)), animated: true });
+  };
   const focus = focusKey(screen, vm);
   useEffect(() => {
-    follow.current = Date.now() + FOLLOW_MS;
-    scroll.current?.scrollToEnd({ animated: true });
+    followUntil.current = Date.now() + FOLLOW_MS;
+    follow();
   }, [focus]);
 
   const listening = vm.listen.phase === 'warming' || vm.listen.phase === 'listening';
@@ -124,7 +140,7 @@ export function EpisodeView({ vm, actions, guide = null, onGuideNext, onGuideSki
   let dock: ReactNode = null;
   switch (screen?.kind) {
     case 'cliff': {
-      const parts = cliffParts(screen, vm, actions, t);
+      const parts = cliffParts(screen, vm, actions, t, (transcript?.entries.length ?? 0) === 0);
       body = parts.body;
       dock = parts.dock === 'mic' ? mic : null;
       break;
@@ -153,7 +169,7 @@ export function EpisodeView({ vm, actions, guide = null, onGuideNext, onGuideSki
           <ContentText variant="headline" accessibilityRole="header" maxFontSizeMultiplier={CONTENT_MAX_SCALE}>
             {t('feedback.word', { word: screen.answer })}
           </ContentText>
-          <SpeakerLabel trackId={lib?.track} speakerId={lib?.speakerId} label={screen.speaker ?? null} />
+          <SpeakerLabel trackId={lib?.track} speakerId={lib?.speakerId} label={screen.speaker ?? null} size={FOCUS_AVATAR} />
           <LineText sentence={screen.sentence} speakingWord={vm.speakingWord} testID="nose-line" />
           {screen.translation ? <English text={screen.translation} /> : null}
           <InterfaceText tone="muted" maxFontSizeMultiplier={CHROME_MAX_SCALE}>
@@ -252,8 +268,13 @@ export function EpisodeView({ vm, actions, guide = null, onGuideNext, onGuideSki
         ref={scroll}
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
-        onContentSizeChange={() => {
-          if (Date.now() < follow.current) scroll.current?.scrollToEnd({ animated: true });
+        onLayout={(e) => {
+          measures.current.view = e.nativeEvent.layout.height;
+          follow();
+        }}
+        onContentSizeChange={(_w, h) => {
+          measures.current.content = h;
+          follow();
         }}
         testID="episode-scroll"
       >
@@ -263,7 +284,15 @@ export function EpisodeView({ vm, actions, guide = null, onGuideNext, onGuideSki
             {transcript ? <Transcript transcript={transcript} /> : null}
           </View>
         ) : null}
-        {body}
+        <View
+          onLayout={(e) => {
+            measures.current.focusY = e.nativeEvent.layout.y;
+            follow();
+          }}
+          testID="episode-focus"
+        >
+          {body}
+        </View>
       </ScrollView>
       {dock ? <View style={styles.dock}>{dock}</View> : null}
       <NoticeToast notice={vm.notice} onDismiss={actions.dismissNotice} />
@@ -342,7 +371,8 @@ function EpisodeHeader({ screen, library, onClose, busy }: { screen: StoryScreen
 
 type Translate = ReturnType<typeof useI18n>['t'];
 
-function cliffParts(screen: Cliff, vm: StoryViewModel, actions: StoryActions, t: Translate): { body: ReactNode; dock: 'mic' | null } {
+/** The line on screen, its prompt and answers; `firstLine`: nothing above it yet (the tap hint shows). */
+function cliffParts(screen: Cliff, vm: StoryViewModel, actions: StoryActions, t: Translate, firstLine: boolean): { body: ReactNode; dock: 'mic' | null } {
   const mode: CliffMode = screen.mode ?? 'predict';
   const playing = mode === 'recall' && screen.phase === 'playing';
   const options = screen.cliff.options ?? [];
@@ -350,13 +380,14 @@ function cliffParts(screen: Cliff, vm: StoryViewModel, actions: StoryActions, t:
   const hintMode = mode === 'hint';
   const prompt = t(screen.cliff.ui.key, screen.cliff.ui.params);
   const body = (
-    <View style={styles.stack} testID={`episode-cliff-${mode}`}>
+    <View style={styles.focusStack} testID={`episode-cliff-${mode}`}>
       {hintMode && screen.translation ? <HintTranslation text={screen.translation} hint={screen.translationHint ?? null} /> : null}
       <LineCard
         key={screen.meta.library?.lineId ?? screen.sentence.text}
         screen={screen}
         speakingWord={vm.speakingWord}
         canToggle={!hintMode && Boolean(screen.translation)}
+        tapHint={firstLine}
       />
       <InterfaceText variant="bodyStrong" tone={playing ? 'muted' : 'ink'} accessibilityLiveRegion="polite" maxFontSizeMultiplier={CHROME_MAX_SCALE} testID="cliff-prompt">
         {playing ? t('episode.listening') : prompt}
@@ -402,21 +433,22 @@ function cliffParts(screen: Cliff, vm: StoryViewModel, actions: StoryActions, t:
 
 /**
  * The line with its speaker (avatar and name); a tap shows or hides the English and the pictures
- * of the words on show (when the mode allows it).
+ * of the words on show (when the mode allows it). `tapHint`: say so under the line (an episode's
+ * first line; later lines save the room for the conversation above).
  */
-function LineCard({ screen, speakingWord, canToggle }: { screen: Cliff; speakingWord: number | null; canToggle: boolean }) {
+function LineCard({ screen, speakingWord, canToggle, tapHint }: { screen: Cliff; speakingWord: number | null; canToggle: boolean; tapHint: boolean }) {
   const { t } = useI18n();
   const [english, setEnglish] = useState(false);
   const speaker = screen.speaker ?? null;
   const lib = screen.meta.library;
   const content = (
     <View style={styles.lineCard}>
-      <SpeakerLabel trackId={lib?.track} speakerId={lib?.speakerId} label={speaker} />
+      <SpeakerLabel trackId={lib?.track} speakerId={lib?.speakerId} label={speaker} size={FOCUS_AVATAR} />
       <LineText sentence={screen.sentence} speakingWord={speakingWord} testID="episode-line" />
       {canToggle && english && screen.translation ? <English text={screen.translation} /> : null}
       {canToggle && english ? <WordPictures words={shownPictures(screen.sentence)} testID="line-pictures" /> : null}
-      {canToggle && !english ? (
-        <InterfaceText variant="caption" tone="muted" maxFontSizeMultiplier={CHROME_MAX_SCALE}>
+      {canToggle && !english && tapHint ? (
+        <InterfaceText variant="caption" tone="muted" maxFontSizeMultiplier={CHROME_MAX_SCALE} testID="line-tap-hint">
           {t('episode.tapForEnglish')}
         </InterfaceText>
       ) : null}
@@ -514,7 +546,7 @@ function turnParts(screen: Turn | Repair, actions: StoryActions, t: Translate, l
   const lib: LibraryMeta | undefined = screen.meta.library;
   const body = (
     <View style={styles.stack} testID={`episode-${screen.kind}`}>
-      <SpeakerLabel trackId={lib?.track} speakerId={lib?.speakerId} label={t('story.asks', { speaker: screen.prompt.speaker })} testID="turn-speaker" />
+      <SpeakerLabel trackId={lib?.track} speakerId={lib?.speakerId} label={t('story.asks', { speaker: screen.prompt.speaker })} size={FOCUS_AVATAR} testID="turn-speaker" />
       <Question line={screen.prompt.line} translation={screen.translation ?? null} speaker={screen.prompt.speaker} />
       {screen.kind === 'repair' ? <RepairBody screen={screen} /> : null}
       {reply ? (
@@ -715,6 +747,7 @@ const styles = StyleSheet.create({
   content: { paddingHorizontal: layout.screenPaddingX, paddingTop: spacing.lg, paddingBottom: spacing.xl, gap: spacing.lg },
   story: { gap: spacing.lg },
   stack: { gap: spacing.lg },
+  focusStack: { gap: spacing.md },
   lineCard: { gap: spacing.sm },
   toggle: { minHeight: layout.minTouch },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },

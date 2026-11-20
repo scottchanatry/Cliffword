@@ -4,6 +4,7 @@
  * readers: the name and the text say it); a word picture is labelled with its word.
  */
 import { Image, StyleSheet, View, type ImageSourcePropType } from 'react-native';
+import { AspectImage } from '../../../components/AspectImage';
 import { CHROME_MAX_SCALE } from '../../../components/words/fontScale';
 import { ILLUSTRATION_ASPECT, castForSpeaker, sceneForEpisode, type WordPicture } from '../../../illustrations';
 import { colors, radii, spacing } from '../../../theme';
@@ -49,17 +50,7 @@ export function SpeakerLabel({
 export function SceneBanner({ trackId, episode }: { trackId: string | null | undefined; episode: number | null | undefined }) {
   const scene = sceneForEpisode(trackId, episode);
   if (!scene) return null;
-  return (
-    <Image
-      source={scene}
-      accessible={false}
-      accessibilityElementsHidden
-      importantForAccessibility="no"
-      resizeMode="cover"
-      style={styles.scene}
-      testID="episode-scene"
-    />
-  );
+  return <AspectImage source={scene} aspect={ILLUSTRATION_ASPECT.scenes} style={styles.scene} testID="episode-scene" />;
 }
 
 /** Small pictures of the words of a line that have one, each with its word. */
@@ -82,7 +73,7 @@ export function WordPictures({ words, size = 52, testID = 'word-pictures' }: { w
 const styles = StyleSheet.create({
   speaker: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm + 2 },
   speakerText: { flexShrink: 1 },
-  scene: { width: '100%', aspectRatio: ILLUSTRATION_ASPECT.scenes, borderRadius: radii.card, backgroundColor: colors.borderSoft },
+  scene: { borderRadius: radii.card, backgroundColor: colors.borderSoft },
   words: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
   word: { alignItems: 'center', gap: spacing.xxs, minWidth: 52 },
 });

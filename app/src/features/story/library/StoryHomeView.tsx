@@ -4,7 +4,8 @@
  * language model does, the episode list (done ones play again, the next one or the one in progress
  * continues, later ones wait), and "Change experience". Nothing plays here.
  */
-import { Image, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { AspectImage } from '../../../components/AspectImage';
 import { CHROME_MAX_SCALE, CONTENT_MAX_SCALE } from '../../../components/words/fontScale';
 import { usePairPack } from '../../../engine/PacksProvider';
 import { tKey, useI18n, type CatalogKey } from '../../../i18n';
@@ -47,7 +48,7 @@ export function StoryHomeView({ vm, actions, onChangeExperience, model }: StoryH
   return (
     <ScrollView contentContainerStyle={styles.content} testID="story-home">
       <View style={styles.card}>
-        <ExperienceCover trackId={library.track} dialect={track?.dialect ?? null} motifHeight={120} />
+        <ExperienceCover trackId={library.track} dialect={track?.dialect ?? null} motifHeight={120} aspect={HOME_COVER_ASPECT} />
         <View style={styles.cardBody}>
           <ContentText variant="title" accessibilityRole="header" maxFontSizeMultiplier={CONTENT_MAX_SCALE} testID="home-title">
             {track?.title ?? library.track}
@@ -74,17 +75,7 @@ export function StoryHomeView({ vm, actions, onChangeExperience, model }: StoryH
           testID="home-continue"
           style={({ pressed }) => [styles.continueCard, pressed && styles.continuePressed]}
         >
-          {scene ? (
-            <Image
-              source={scene}
-              accessible={false}
-              accessibilityElementsHidden
-              importantForAccessibility="no"
-              resizeMode="cover"
-              style={styles.scene}
-              testID="home-continue-scene"
-            />
-          ) : null}
+          {scene ? <AspectImage source={scene} aspect={ILLUSTRATION_ASPECT.scenes} testID="home-continue-scene" /> : null}
           <View style={styles.continue}>
             <View style={styles.continueText}>
               <InterfaceText variant="eyebrow" tone="onInk" style={styles.continueEyebrow} maxFontSizeMultiplier={CHROME_MAX_SCALE}>
@@ -185,6 +176,11 @@ function EpisodeRowView({ row, onOpen, onReplay, disabled }: { row: EpisodeRow; 
   );
 }
 
+/**
+ * The cover on the home is cropped a little (from 2:1) so "Start · Episode n", under the episode's
+ * scene, stays in view on a small phone (375 x 667).
+ */
+const HOME_COVER_ASPECT = 2.4;
 const BADGE = 32;
 const PLAY = 44;
 
@@ -194,7 +190,6 @@ const styles = StyleSheet.create({
   cardBody: { padding: spacing.lg, gap: spacing.xs + 2 },
   meta: { gap: spacing.xs },
   continueCard: { minHeight: 72, borderRadius: radii.card, backgroundColor: colors.ink, overflow: 'hidden' },
-  scene: { width: '100%', aspectRatio: ILLUSTRATION_ASPECT.scenes },
   continue: {
     minHeight: 72,
     flexDirection: 'row',

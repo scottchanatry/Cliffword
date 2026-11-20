@@ -3,7 +3,8 @@
  * real engine StorySession steps (libraryFixtures.ts): each screen renders its texts through
  * i18n, every control is named and 44 dp, and each calls the right StoryActions: the cliff modes
  * (recall, hint, predict), the mic's tap, hold and screen-reader toggle, feedback by the model and
- * by matching, turns, the end of an episode and of the experience, the picker, the guide.
+ * by matching, turns, the end of an episode and of the experience, the picker, the guide; the
+ * pictures (covers, the episode's scene, avatars, word pictures) and the story so far.
  */
 import { useState } from 'react';
 import { StyleSheet } from 'react-native';
@@ -14,6 +15,7 @@ import type { StoryActions, StoryViewModel } from '../../../session/contract';
 import { defaultPacks, sharedMockModel } from '../../../services/defaults';
 import { renderWithProviders } from '../../../testing/renderWithProviders';
 import { layout } from '../../../theme';
+import { ExperienceList } from '../../experiences/ExperienceList';
 import { StoryView } from '../StoryView';
 import { mockStoryActions, type MockStoryActions } from '../testing/storyTestKit';
 import type { LibraryStoryOptions } from './LibraryStory';
@@ -295,6 +297,102 @@ describe('turns, the end of an episode and of the experience', () => {
     expect(screen.getByText(/More experiences are coming soon/)).toBeOnTheScreen();
     await fireEvent.press(screen.getByTestId('track-done-home'));
     expect(actions.closeEpisode).toHaveBeenCalled();
+  });
+});
+
+describe('pictures and the story so far', () => {
+  const imageOf = (testID: string) => screen.getByTestId(testID, { includeHiddenElements: true });
+
+  it('the home and the picker show covers; coming-soon covers are faded; the Start card shows the episode scene', async () => {
+    await render(fx['lib-home'], { onPickExperience: jest.fn() });
+    expect(imageOf('cover-living').props.accessible).toBe(false);
+    expect(imageOf('home-continue-scene').props.accessible).toBe(false);
+    expect(screen.queryByTestId('motif-pr', { includeHiddenElements: true })).toBeNull();
+    await fireEvent.press(screen.getByTestId('home-change'));
+    expect(flat(imageOf('cover-mystery').props.style).opacity).toBe(0.45);
+    expect(flat(screen.getAllByTestId('cover-living', { includeHiddenElements: true }).at(-1)?.props.style).opacity).toBeUndefined();
+  });
+
+  it('a series without a cover keeps the colored motif', async () => {
+    const card = { id: 'en-es.track.unwritten', title: 'Unwritten', tagline: 'Soon.', city: 'Ponce', country: 'Puerto Rico', dialect: 'pr' as const, comingSoon: true, episodes: 0, completed: 0, current: false, done: false, missingChoices: [] };
+    await renderWithProviders(<ExperienceList cards={[card]} onPick={jest.fn()} />);
+    expect(screen.getByTestId('motif-pr', { includeHiddenElements: true })).toBeTruthy();
+    expect(screen.queryByTestId('cover-unwritten', { includeHiddenElements: true })).toBeNull();
+  });
+
+  it('a line: the scene on top, the speaker avatar beside the name; no story so far on line 1', async () => {
+    await render(fx['lib-recall-gap']);
+    expect(imageOf('episode-scene').props.accessible).toBe(false);
+    expect(screen.queryByTestId('transcript')).toBeNull();
+    // Line 1 is narration: no speaker, no avatar. The first line says the English is a tap away.
+    expect(screen.queryByTestId('episode-speaker')).toBeNull();
+    expect(screen.getByTestId('line-tap-hint')).toHaveTextContent('Tap the line for the English');
+  });
+
+  it('deep in an episode: the earlier lines as a conversation, narration centered, the replies on the right', async () => {
+    const vm = fx['lib-story-so-far'];
+    const s = cliff('lib-story-so-far');
+    const entries = vm.transcript?.entries ?? [];
+    expect(entries.filter((e) => e.kind === 'line')).toHaveLength(11);
+    expect(entries.filter((e) => e.kind === 'reply').map((e) => e.text)).toEqual(['Estoy cansada.', 'Me llamo Alex. Mucho gusto.', 'No entiendo. ¿Puedes repetir?']);
+    await render(vm);
+    expect(screen.getByTestId('transcript')).toBeOnTheScreen();
+    // Narration (line 1) is plain text; Doña Mari's line 3 has her name; the gap's word is in the line.
+    expect(screen.getByTestId('transcript-e1.l01').props.accessibilityLabel).toBe('Son las cuatro. ¡Quiquiriquí!');
+    expect(screen.getByTestId('transcript-e1.l03').props.accessibilityLabel).toBe('Doña Mari: ¡Hola! ¡Buenos días, vecina!');
+    expect(screen.getByTestId('transcript-e1.l04-text')).toHaveTextContent('Ya lo sé. Estás cansada.');
+    expect(screen.getByTestId('transcript-e1.t01').props.accessibilityLabel).toBe('Doña Mari: ¿Cómo estás?');
+    const replies = screen.getAllByTestId('transcript-reply');
+    expect(replies).toHaveLength(3);
+    expect(replies[0]?.props.accessibilityLabel).toBe('You said: Estoy cansada.');
+    expect(screen.getAllByTestId('transcript-you-avatar', { includeHiddenElements: true })).toHaveLength(3);
+    // A tap shows the English and the pictures of the line's words; another tap hides them.
+    expect(screen.queryByTestId('transcript-e1.l02-english')).toBeNull();
+    await fireEvent.press(screen.getByTestId('transcript-e1.l02'));
+    expect(screen.getByTestId('transcript-e1.l02-english')).toHaveTextContent("It's Pancho, the neighbor's rooster.");
+    expect(screen.getByTestId('transcript-e1.l02-pictures-gallo').props.accessibilityLabel).toBe('gallo');
+    await fireEvent.press(screen.getByTestId('transcript-e1.l02'));
+    expect(screen.queryByTestId('transcript-e1.l02-english')).toBeNull();
+    // The line on screen stays the focus, with the scene above the conversation; later lines leave
+    // the tap hint out (the room goes to the conversation).
+    expect(screen.getByTestId('episode-line')).toBeOnTheScreen();
+    expect(screen.queryByTestId('line-tap-hint')).toBeNull();
+    expect(s.meta.library?.line).toBe(12);
+    expectAccessibleControls();
+  });
+
+  it("the line on screen: the English shows pictures of the words on show, never of the hidden word", async () => {
+    const s = cliff('lib-story-so-far');
+    // '¡Y Pancho tiene tu pan!': the gap is 'pan', which has a picture.
+    expect(s.sentence.text).toBe('¡Y Pancho tiene tu pan!');
+    await render(fx['lib-story-so-far']);
+    await fireEvent.press(screen.getByTestId('line-toggle'));
+    expect(screen.getByTestId('episode-english')).toHaveTextContent('And Pancho has your bread!');
+    expect(screen.queryByTestId('line-pictures-pan-sobao')).toBeNull();
+    // Once the whole line is on show (recall, while it plays), its word's picture shows too.
+    const whole = { ...s, phase: 'playing' as const, sentence: { ...s.sentence, words: s.sentence.words.map((w) => ({ ...w, display: 'text' as const })) } };
+    await render({ ...fx['lib-story-so-far'], screen: whole });
+    await fireEvent.press(screen.getByTestId('line-toggle'));
+    expect(screen.getByTestId('line-pictures-pan-sobao').props.accessibilityLabel).toBe('pan');
+  });
+
+  it("feedback: the story word's picture beside the answer, and the speaker's avatar", async () => {
+    const s = fx['lib-feedback-wrong'].screen;
+    if (s?.kind !== 'landing') throw new Error('not a landing');
+    expect(s.expected).toBe('gallo');
+    await render(fx['lib-feedback-wrong']);
+    expect(screen.getByTestId('feedback-picture').props.accessibilityLabel).toBe('gallo');
+    // Line 1 of the conversation above.
+    expect(screen.getByTestId('transcript-e1.l01')).toBeOnTheScreen();
+    await render(fx['lib-feedback']);
+    expect(screen.queryByTestId('feedback-picture')).toBeNull();
+  });
+
+  it("a question: the asker's avatar beside 'Doña Mari asks you'", async () => {
+    await render(fx['lib-turn']);
+    expect(screen.getByTestId('turn-speaker')).toHaveTextContent('Doña Mari asks you');
+    expect(imageOf('turn-speaker-avatar').props.accessible).toBe(false);
+    expect(screen.getByTestId('transcript')).toBeOnTheScreen();
   });
 });
 

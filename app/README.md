@@ -104,8 +104,9 @@ falls back to `index.html` for unknown paths. `python -m http.server` has no fal
 | `src/learner/prior.ts` | `learnerPrior(packs, startLevel, stored?)` and `priorSpecFor`: the learner model's prior as the engine's `PriorSpec`, rebuilt at every start (from the spec stored with the learner snapshot once placement has run). |
 | `src/session/` | `contract.ts`, the seam between controllers and views; `story/`, the Story tab's controller (see "Story controller"); `lyric/`, the Music tab's controller for a song or a brought text; `common/`, the queue, hold-to-speak, voice, listen options and step-write plumbing both controllers (and onboarding's hold practice) use. |
 | `src/config/features.ts` | Feature flags: `MUSIC_ENABLED` (false), `RETELL_ENABLED` (false). |
-| `src/features/experiences/` | The experiences as the picker, the home and Settings show them (`experiences.ts`: `experienceCards`, `episodeRows`, `continueRow`, `addressExample`, `welcomeSample`, all from the pair pack and the session's `libraryProgress`), `ExperienceList` (the picker's cards) and `TrackMotif` (a colored, flag-free motif per regional variety, theme `motifColors`). |
-| `src/features/story/library/` | The Story tab in library mode: `LibraryStory` (home, episode or picker, and the first-episode guide), `StoryHomeView`, `EpisodeView`, `Feedback`, `LineText`, `MicButton`, `CoachMark`, `ExperiencePicker`, and `libraryFixtures.ts` (gallery `lib-*`). |
+| `src/features/experiences/` | The experiences as the picker, the home and Settings show them (`experiences.ts`: `experienceCards`, `episodeRows`, `continueRow`, `addressExample`, `welcomeSample`, all from the pair pack and the session's `libraryProgress`), `ExperienceList` (the picker's cards), `ExperienceCover` (the series' cover, `src/illustrations` `coverForTrack`) and `TrackMotif` (a colored, flag-free motif per regional variety, theme `motifColors`: the fallback for a series without a cover). |
+| `src/features/story/library/` | The Story tab in library mode: `LibraryStory` (home, episode or picker, and the first-episode guide), `StoryHomeView`, `EpisodeView` (the story so far above the line on screen: the episode's scene and `Transcript`, the conversation of `vm.transcript`), `Feedback`, `LineText`, `Pictures` (avatars by cast id, the scene banner, word pictures), `MicButton`, `CoachMark`, `ExperiencePicker`, and `libraryFixtures.ts` (gallery `lib-*`). |
+| `src/illustrations/` | The PNGs of `assets/illustrations/` (covers, the San Juan cast and scenes, vocabulary pictures) and how content finds them: by a series' neutral key (`seriesKeyOf`: `coverForTrack`, `sceneForEpisode`) and a story's cast id (`castForSpeaker`, `SERIES_CAST`), and words to pictures (`vocabImageForWord`, `vocabInText`, `VOCAB_BY_WORD`). The engine knows nothing of pictures. |
 | `src/music/` | The Music tab's data: pasted lyrics (parse, preview, store), the library rows' song summary (region, slang amount, monogram), shared songs, and the hooks behind the library, paste, share, time-it and text-paste routes. |
 | `src/services/` | The service container (see "Services and adapters"). |
 | `src/adapters/` | Device adapters, one folder per capability. Each folder has a documented `types.ts` contract, fakes and web fallbacks; `listeners.ts` is shared. |
@@ -251,9 +252,13 @@ engine's screens are the view data.
   `setLibraryProfile`; a new experience goes back to the home first), and `episodeDone`'s
   `levelAfter` is stored in `settings.level`. In recall mode the cue `what: 'line'` plays the
   whole line and then `session.played()` shows the gap; a gapped cue (`cue.gap`) plays the words
-  before the gap, 700 ms of silence, then the words after it (`libraryCliffCue` replays it). On
-  a library cliff the controller calls `session.prefetch()`, so the model's alternatives for the
-  feedback are ready when the learner answers.
+  before the gap, 700 ms of silence, then the words after it (`libraryCliffCue` replays it). The
+  session runs with `options.library.modelAlternatives` false: the feedback lists the writer's
+  other answers (`cliff.accept`) only, never the model's next-word guesses (they see only the words
+  before the gap, so they can be nonsense in the slot, and each costs a model wait after a tap).
+  On a library cliff the controller still calls `session.prefetch()`, which then has nothing to
+  search. `vm.transcript` is `session.libraryTranscript` (the episode so far: earlier lines,
+  questions, replies), published with every step and on restore.
 - **Tap mode** (`micTap`): `holdBegin` + `holdStart`; `vm.micLatched` while on; a second tap or
   `AutoStop` (`src/session/common/autoStop.ts`, checked on every level and partial and every
   200 ms) ends it with `holdEnd`. Push-to-talk keeps `holdBegin` / `holdStart` / `holdEnd`.
@@ -524,7 +529,7 @@ views from `src/features/profile/accountFixtures.ts`.
   - *Welcome* (`index`): one line on what Cliffword is, three steps (listen, fill the gap, hear how
     you did) drawn with a line of the first experience (`welcomeSample`), "Get started", and the
     "Privacy policy" footer link.
-  - *Experience* (`experience`): `ExperienceList` of `experienceCards(pair)`: a motif, title,
+  - *Experience* (`experience`): `ExperienceList` of `experienceCards(pair)`: a cover, title,
     city and country, tagline, "8 episodes" or "Coming soon" (closed). A tap stores `trackId`.
   - *Level* (`level`): brand new / a little / comfortable (`LEVEL_CHOICES`: 0, 2, 4); stores
     `level` and `startLevel`.

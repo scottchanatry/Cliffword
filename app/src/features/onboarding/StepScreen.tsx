@@ -16,7 +16,10 @@ export interface StepScreenProps {
   onBack: () => void;
   /** The last store failed: a short error above the footer. */
   failed?: boolean;
-  /** Pinned under the content (the main action). */
+  /**
+   * The main action, pinned under the content outside the scroll: always in view, however long
+   * the step is (the picture step's grid of characters, a long list of choices).
+   */
   footer?: ReactNode;
   children?: ReactNode;
   testID?: string;
@@ -25,8 +28,19 @@ export interface StepScreenProps {
 /** The frame of every onboarding step after the welcome: Back and the step count, a title, the content, the action. */
 export function StepScreen({ step, ctx, title, body, onBack, failed = false, footer, children, testID }: StepScreenProps) {
   const { t } = useI18n();
+  const error = failed ? (
+    <InterfaceText tone="accent" accessibilityRole="alert" accessibilityLiveRegion="polite" maxFontSizeMultiplier={CHROME_MAX_SCALE}>
+      {t('error.generic')}
+    </InterfaceText>
+  ) : null;
+  const pinned = footer ? (
+    <>
+      {error}
+      {footer}
+    </>
+  ) : undefined;
   return (
-    <Screen scroll edges={['top', 'left', 'right', 'bottom']} contentStyle={styles.content} testID={testID}>
+    <Screen scroll edges={['top', 'left', 'right', 'bottom']} contentStyle={styles.content} footer={pinned} testID={testID}>
       <StepHeader step={step} ctx={ctx} onBack={onBack} />
       <ContentText variant="headline" accessibilityRole="header" maxFontSizeMultiplier={CONTENT_MAX_SCALE}>
         {title}
@@ -37,13 +51,12 @@ export function StepScreen({ step, ctx, title, body, onBack, failed = false, foo
         </InterfaceText>
       ) : null}
       {children}
-      <View style={styles.spacer} />
-      {failed ? (
-        <InterfaceText tone="accent" accessibilityRole="alert" accessibilityLiveRegion="polite" maxFontSizeMultiplier={CHROME_MAX_SCALE}>
-          {t('error.generic')}
-        </InterfaceText>
-      ) : null}
-      {footer}
+      {pinned ? null : (
+        <>
+          <View style={styles.spacer} />
+          {error}
+        </>
+      )}
     </Screen>
   );
 }

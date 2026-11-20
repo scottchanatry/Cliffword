@@ -53,6 +53,23 @@ export function SceneBanner({ trackId, episode }: { trackId: string | null | und
   return <AspectImage source={scene} aspect={ILLUSTRATION_ASPECT.scenes} style={styles.scene} testID="episode-scene" />;
 }
 
+/**
+ * The episode's scene, whole but small (`height` points tall, centered), for the band under the
+ * episode header while the episode opens: there it stays in view whatever the line below needs.
+ * Nothing when the series has none.
+ */
+export function SceneStrip({ trackId, episode, height }: { trackId: string | null | undefined; episode: number | null | undefined; height: number }) {
+  const scene = sceneForEpisode(trackId, episode);
+  if (!scene) return null;
+  return (
+    <View style={styles.strip} testID="episode-scene-strip">
+      <View style={{ width: Math.round(height * ILLUSTRATION_ASPECT.scenes), height }}>
+        <AspectImage source={scene} aspect={ILLUSTRATION_ASPECT.scenes} style={styles.stripScene} testID="episode-scene" />
+      </View>
+    </View>
+  );
+}
+
 /** Small pictures of the words of a line that have one, each with its word. */
 export function WordPictures({ words, size = 52, testID = 'word-pictures' }: { words: readonly WordPicture[]; size?: number; testID?: string }) {
   if (words.length === 0) return null;
@@ -74,6 +91,8 @@ const styles = StyleSheet.create({
   speaker: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm + 2 },
   speakerText: { flexShrink: 1 },
   scene: { borderRadius: radii.card, backgroundColor: colors.borderSoft },
+  strip: { alignItems: 'center', paddingTop: spacing.sm },
+  stripScene: { borderRadius: radii.panel, backgroundColor: colors.borderSoft },
   words: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.md },
   word: { alignItems: 'center', gap: spacing.xxs, minWidth: 52 },
 });

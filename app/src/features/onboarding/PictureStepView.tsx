@@ -15,7 +15,8 @@ export interface PictureStepViewProps extends Omit<PictureChooserProps, 'testID'
 
 /**
  * "Who are you in the story?": the learner's picture next to their answers. The default character
- * is chosen from the start, each choice is stored at once, and Continue is always there.
+ * is chosen from the start, each choice is stored at once, and Continue is always there: pinned
+ * under the scroll (StepScreen's footer), in view above five rows of characters on every phone.
  */
 export function PictureStepView({ ctx, saving, failed, onContinue, onBack, ...chooser }: PictureStepViewProps) {
   const { t } = useI18n();

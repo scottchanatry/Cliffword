@@ -66,6 +66,10 @@ describe('app.json', () => {
     expect(android.blockedPermissions).not.toContain('android.permission.CAMERA');
     expect(android.blockedPermissions).not.toContain('android.permission.RECORD_AUDIO');
     // The system photo picker needs no storage or media permission; the library's own are blocked.
+    // WRITE_EXTERNAL_STORAGE blocked also means no selfie on Android 9 and older, where
+    // expo-image-picker's camera demands it: ExpoPhotoPicker's photoSources leaves the camera out
+    // there (src/adapters/photo/photo.test.ts).
+    expect(android.blockedPermissions).toContain('android.permission.WRITE_EXTERNAL_STORAGE');
     expect(android.blockedPermissions).toEqual(
       expect.arrayContaining([
         'android.permission.READ_EXTERNAL_STORAGE',

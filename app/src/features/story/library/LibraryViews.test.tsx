@@ -18,6 +18,7 @@ import { YOU_AVATARS } from '../../../illustrations';
 import { layout } from '../../../theme';
 import { ExperienceList } from '../../experiences/ExperienceList';
 import { StoryView } from '../StoryView';
+import { sceneStripHeight } from './EpisodeView';
 import { mockStoryActions, type MockStoryActions } from '../testing/storyTestKit';
 import type { LibraryStoryOptions } from './LibraryStory';
 import { LIBRARY_FIXTURE_NAMES, libraryFixtures, type LibraryFixtureName, type LibraryFixtures } from './libraryFixtures';
@@ -325,9 +326,23 @@ describe('pictures and the story so far', () => {
     await render(fx['lib-recall-gap']);
     expect(imageOf('episode-scene').props.accessible).toBe(false);
     expect(screen.queryByTestId('transcript')).toBeNull();
+    // The opening scene sits whole in the band under the header, outside the scroll, so the view
+    // following line 1 and its answers can never scroll it away or cut it to a sliver.
+    const strip = imageOf('episode-scene-strip');
+    expect(within(screen.getByTestId('episode-scroll')).queryByTestId('episode-scene', { includeHiddenElements: true })).toBeNull();
+    expect(within(strip).getByTestId('episode-scene', { includeHiddenElements: true })).toBeTruthy();
+    expect(screen.queryByTestId('episode-story-so-far')).toBeNull();
     // Line 1 is narration: no speaker, no avatar. The first line says the English is a tap away.
     expect(screen.queryByTestId('episode-speaker')).toBeNull();
     expect(screen.getByTestId('line-tap-hint')).toHaveTextContent('Tap the line for the English');
+  });
+
+  it('the opening scene band is about a tenth of the window tall: short on an SE, never a sliver', () => {
+    expect(sceneStripHeight(667)).toBe(67);
+    expect(sceneStripHeight(844)).toBe(84);
+    expect(sceneStripHeight(932)).toBe(93);
+    expect(sceneStripHeight(400)).toBe(60);
+    expect(sceneStripHeight(1366)).toBe(96);
   });
 
   it('deep in an episode: the earlier lines as a conversation, narration centered, the replies on the right', async () => {
@@ -354,8 +369,11 @@ describe('pictures and the story so far', () => {
     expect(screen.getByTestId('transcript-e1.l02-pictures-gallo').props.accessibilityLabel).toBe('gallo');
     await fireEvent.press(screen.getByTestId('transcript-e1.l02'));
     expect(screen.queryByTestId('transcript-e1.l02-english')).toBeNull();
-    // The line on screen stays the focus, with the scene above the conversation; later lines leave
-    // the tap hint out (the room goes to the conversation).
+    // The line on screen stays the focus, with the scene above the conversation (in the scroll: it
+    // scrolls away as the conversation grows; no band under the header); later lines leave the tap
+    // hint out (the room goes to the conversation).
+    expect(within(screen.getByTestId('episode-story-so-far')).getByTestId('episode-scene', { includeHiddenElements: true })).toBeTruthy();
+    expect(screen.queryByTestId('episode-scene-strip', { includeHiddenElements: true })).toBeNull();
     expect(screen.getByTestId('episode-line')).toBeOnTheScreen();
     expect(screen.queryByTestId('line-tap-hint')).toBeNull();
     expect(s.meta.library?.line).toBe(12);

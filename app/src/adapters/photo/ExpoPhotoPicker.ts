@@ -7,25 +7,44 @@
  *   not before. The photo library asks for none: with images only and a crop, iOS shows the
  *   out-of-process picker and Android the system photo picker, which give the app only the
  *   photo the learner chose (so READ_MEDIA_IMAGES and the storage permissions stay blocked in
- *   app.json). A launch that still fails on a permission reads as 'denied'.
+ *   app.json). A camera launch that still fails on a permission reads as 'denied'; a library
+ *   failure is always an 'error' (there is no Photos setting for Cliffword to send anyone to).
+ * - Sources (photoSources): no camera on Android 9 and older, where expo-image-picker's camera
+ *   also needs WRITE_EXTERNAL_STORAGE, which app.json blocks (Android would refuse it without a
+ *   dialog, every time), nor where the cliffword-native module says there is no camera (the iOS
+ *   Simulator, where UIKit's camera picker raises an exception the app cannot catch).
  * - The copy: <documents>/avatar/<clock time>.<jpg|png|heic|webp>. Its size is read back through
  *   toByteCount (iOS passes Swift Int64 sizes as BigInt, see ../model/nativeNumber.ts) and an
- *   empty or unreadable copy is an error. The picker's own copy in the cache is deleted. The
- *   folder is kept out of iCloud and device backups on iOS (the cliffword-native module); on
- *   Android the module's config plugin excludes files/avatar/ from Auto Backup and transfer.
+ *   empty or unreadable copy is an error. The folder is kept out of iCloud and device backups on
+ *   iOS (the cliffword-native module); on Android the module's config plugin excludes
+ *   files/avatar/ from Auto Backup and transfer.
+ * - The picker's own copies: expo-image-picker writes every result into <cache>/ImagePicker/ (on
+ *   Android with a crop, two: the crop, with the original's EXIF, GPS included, and the exported
+ *   result). After every pick, whatever its outcome, and on remove(), that folder is deleted, so
+ *   the stored copy is the only one the app keeps.
+ * - Android can close the app while the camera or the photo picker is in front (low memory: the
+ *   language model stays loaded). expo-image-picker then keeps the result for
+ *   getPendingResultAsync; recover() stores it like a pick (bootstrap calls it at startup).
  * - expo-image-picker is passed in (createNativePhotoPicker.ts imports it), so this file and its
  *   tests need only its types.
  */
 import { Directory, File, Paths } from 'expo-file-system';
-import type { ImagePickerOptions, ImagePickerResult, PermissionResponse } from 'expo-image-picker';
+import type { ImagePickerErrorResult, ImagePickerOptions, ImagePickerResult, PermissionResponse } from 'expo-image-picker';
+import { Platform } from 'react-native';
 import CliffwordNative from '../../../modules/cliffword-native';
 import { systemClock } from '../clock/systemClock';
 import type { Clock } from '../clock/types';
 import { toByteCount } from '../model/nativeNumber';
-import type { PhotoPicker, PhotoResult, PhotoSource } from './types';
+import type { PhotoPicker, PhotoResult, PhotoSource, RecoveredPhoto } from './types';
 
 /** The folder in the document directory that holds the learner's photo. */
 export const PHOTO_FOLDER = 'avatar';
+
+/** expo-image-picker's working folder in the cache directory (both platforms; nothing else uses it). */
+export const PICKER_CACHE_FOLDER = 'ImagePicker';
+
+/** The first Android API level (10, Q) on which expo-image-picker's camera needs only CAMERA. */
+export const CAMERA_MIN_ANDROID_API = 29;
 
 /** JPEG quality of the camera and library results (a picture shown at most about 120 pt wide). */
 export const PHOTO_QUALITY = 0.7;
@@ -35,6 +54,28 @@ export interface ImagePickerModule {
   requestCameraPermissionsAsync(): Promise<PermissionResponse>;
   launchCameraAsync(options?: ImagePickerOptions): Promise<ImagePickerResult>;
   launchImageLibraryAsync(options?: ImagePickerOptions): Promise<ImagePickerResult>;
+  /** Android: the result of a pick the system interrupted by closing the app; null elsewhere. */
+  getPendingResultAsync?(): Promise<ImagePickerResult | ImagePickerErrorResult | null>;
+}
+
+/** What decides which sources work: the platform, its version and whether there is a camera. */
+export interface PhotoDevice {
+  os: string;
+  /** Platform.Version: the API level on Android, the OS version string on iOS. */
+  version: number | string;
+  /** False where the device has no camera (the cliffword-native module on iOS); unknown: undefined. */
+  hasCamera?: boolean;
+}
+
+/** The sources a device can use, in the chooser's order. */
+export function photoSources(device: PhotoDevice): PhotoSource[] {
+  if (device.hasCamera === false) return ['library'];
+  if (device.os === 'android' && Number(device.version) < CAMERA_MIN_ANDROID_API) return ['library'];
+  return ['camera', 'library'];
+}
+
+function currentDevice(): PhotoDevice {
+  return { os: Platform.OS, version: Platform.Version, hasCamera: CliffwordNative?.hasCamera };
 }
 
 export interface ExpoPhotoPickerOptions {
@@ -45,6 +86,10 @@ export interface ExpoPhotoPickerOptions {
   excludeFromBackup?: (uri: string) => Promise<unknown>;
   /** The photo folder. Default <documents>/avatar. */
   directory?: () => Directory;
+  /** expo-image-picker's working folder. Default <cache>/ImagePicker. */
+  pickerCache?: () => Directory;
+  /** Default: Platform and the cliffword-native module. */
+  device?: PhotoDevice;
 }
 
 /** Square crop and the same quality for both sources; images only (no video, so no microphone). */
@@ -92,7 +137,10 @@ function decodeURIComponentSafe(s: string): string {
   }
 }
 
-/** A permission failure reported by a launch (iOS: MissingCameraPermissionException; Android: its message). */
+/**
+ * A permission failure reported by a camera launch (iOS: MissingCameraPermissionException;
+ * Android: UserRejectedPermissionsException, read by its message).
+ */
 function isPermissionError(error: unknown): boolean {
   const code = (error as { code?: unknown } | null)?.code;
   const message = error instanceof Error ? error.message : String(error);
@@ -104,41 +152,69 @@ async function defaultExcludeFromBackup(uri: string): Promise<unknown> {
 }
 
 export class ExpoPhotoPicker implements PhotoPicker {
-  readonly sources: readonly PhotoSource[] = ['camera', 'library'];
+  readonly sources: readonly PhotoSource[];
 
   private readonly picker: ImagePickerModule;
   private readonly clock: Clock;
   private readonly excludeFromBackup: (uri: string) => Promise<unknown>;
   private readonly directory: () => Directory;
+  private readonly pickerCache: () => Directory;
 
   constructor(opts: ExpoPhotoPickerOptions) {
     this.picker = opts.picker;
     this.clock = opts.clock ?? systemClock;
     this.excludeFromBackup = opts.excludeFromBackup ?? defaultExcludeFromBackup;
     this.directory = opts.directory ?? (() => new Directory(Paths.document, PHOTO_FOLDER));
+    this.pickerCache = opts.pickerCache ?? (() => new Directory(Paths.cache, PICKER_CACHE_FOLDER));
+    this.sources = photoSources(opts.device ?? currentDevice());
   }
 
   async pick(source: PhotoSource): Promise<PhotoResult> {
-    let result: ImagePickerResult;
+    if (!this.sources.includes(source)) return { kind: 'unavailable', source };
+    let picked: string | undefined;
     try {
-      if (source === 'camera') {
-        const permission = await this.picker.requestCameraPermissionsAsync();
-        if (!permission.granted) return { kind: 'denied', source };
-        // 'front' is CameraType.front; the enum is a string enum, so the value needs no import.
-        result = await this.picker.launchCameraAsync({ ...COMMON, cameraType: 'front' as ImagePickerOptions['cameraType'] });
-      } else {
-        result = await this.picker.launchImageLibraryAsync(COMMON);
+      let result: ImagePickerResult;
+      try {
+        if (source === 'camera') {
+          const permission = await this.picker.requestCameraPermissionsAsync();
+          if (!permission.granted) return { kind: 'denied', source };
+          // 'front' is CameraType.front; the enum is a string enum, so the value needs no import.
+          result = await this.picker.launchCameraAsync({ ...COMMON, cameraType: 'front' as ImagePickerOptions['cameraType'] });
+        } else {
+          result = await this.picker.launchImageLibraryAsync(COMMON);
+        }
+      } catch (error) {
+        if (source === 'camera' && isPermissionError(error)) return { kind: 'denied', source };
+        return { kind: 'error', source, message: messageOf(error) };
       }
-    } catch (error) {
-      if (isPermissionError(error)) return { kind: 'denied', source };
-      return { kind: 'error', source, message: messageOf(error) };
+      const asset = result.canceled ? undefined : result.assets?.[0];
+      if (!asset) return { kind: 'cancelled' };
+      picked = asset.uri;
+      try {
+        return { kind: 'picked', uri: await this.keep(asset.uri, asset.mimeType) };
+      } catch (error) {
+        return { kind: 'error', source, message: messageOf(error) };
+      }
+    } finally {
+      this.discard(picked);
     }
-    const asset = result.canceled ? undefined : result.assets?.[0];
-    if (!asset) return { kind: 'cancelled' };
+  }
+
+  async recover(): Promise<RecoveredPhoto | null> {
+    let picked: string | undefined;
     try {
+      const pending = await this.picker.getPendingResultAsync?.();
+      if (!pending) return null;
+      if (!('canceled' in pending)) return { kind: 'error', message: pending.message };
+      const asset = pending.canceled ? undefined : pending.assets?.[0];
+      if (!asset) return null;
+      picked = asset.uri;
       return { kind: 'picked', uri: await this.keep(asset.uri, asset.mimeType) };
     } catch (error) {
-      return { kind: 'error', source, message: messageOf(error) };
+      return { kind: 'error', message: messageOf(error) };
+    } finally {
+      // Also what an interrupted pick left behind (the camera's file, an export).
+      this.discard(picked);
     }
   }
 
@@ -159,6 +235,28 @@ export class ExpoPhotoPicker implements PhotoPicker {
       if (file?.exists) file.delete();
     } catch {
       // Best effort: a file that cannot be deleted now is replaced by name next time.
+    }
+    this.discard(undefined);
+  }
+
+  /**
+   * Deletes the picker's copies: its working folder in the cache, and the result itself when it
+   * lies elsewhere in the cache. Never throws.
+   */
+  private discard(pickedUri: string | undefined): void {
+    try {
+      if (pickedUri?.startsWith(Paths.cache.uri)) {
+        const file = new File(pickedUri);
+        if (file.exists) file.delete();
+      }
+    } catch {
+      // The folder below, or the system's own cache cleanup, takes it.
+    }
+    try {
+      const folder = this.pickerCache();
+      if (folder.exists) folder.delete();
+    } catch {
+      // The system clears its cache by itself.
     }
   }
 
@@ -181,8 +279,7 @@ export class ExpoPhotoPicker implements PhotoPicker {
     const base = String(Math.max(0, Math.floor(this.clock.now())));
     let target = new File(dir, `${base}.${ext}`);
     for (let n = 1; target.exists && n < 1000; n++) target = new File(dir, `${base}-${n}.${ext}`);
-    const source = new File(sourceUri);
-    await source.copy(target);
+    await new File(sourceUri).copy(target);
     const bytes = toByteCount(new File(target.uri).size);
     if (!bytes) {
       try {
@@ -191,12 +288,6 @@ export class ExpoPhotoPicker implements PhotoPicker {
         // Nothing more to do; the setting is not changed.
       }
       throw new Error(`The photo copy is empty or unreadable (${String(bytes)} bytes)`);
-    }
-    // The picker's result sits in the cache; the stored copy is the only one the app keeps.
-    try {
-      if (sourceUri.startsWith(Paths.cache.uri) && source.exists) source.delete();
-    } catch {
-      // The system clears its cache by itself.
     }
     // The folder and the file, as ExpoModelManager does for the model.
     await this.excludeFromBackup(dir.uri).catch(() => undefined);

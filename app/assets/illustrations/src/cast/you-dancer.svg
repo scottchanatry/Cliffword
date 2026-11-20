@@ -1,0 +1,96 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" stroke-linejoin="round" stroke-linecap="round">
+  <title>You, the salsa dancer</title>
+  <desc>A salsa dancer in his late twenties, mid spin: an ink quiff flying, eyes shut in joy and a big laugh, a coral shirt with big flowers open at the collar, one arm up, swirls of movement and music.</desc>
+  <defs>
+    <clipPath id="you-dancer-1">
+      <circle cx="128" cy="128" r="124" fill="#C3B3EA"/>
+    </clipPath>
+    <clipPath id="you-dancer-2">
+      <path d="M -18 20 Q 0 24 18 20 Q 16 44 0 44 Q -16 44 -18 20 Z" fill="#16181D"/>
+    </clipPath>
+  </defs>
+  <!-- the disc -->
+  <circle cx="128" cy="128" r="124" fill="#C3B3EA"/>
+  <!-- the character, clipped to the disc -->
+  <g clip-path="url(#you-dancer-1)">
+    <!-- swirls of the spin -->
+    <path d="M 204 230 Q 230 220 246 196" fill="none" stroke="#F3F4F1" stroke-width="6"/>
+    <path d="M 30 196 Q 18 176 20 150" fill="none" stroke="#F3F4F1" stroke-width="5"/>
+    <!-- the arm up: skin, then the short coral sleeve -->
+    <path d="M 74 214 C 46 172 44 130 66 82" fill="none" stroke="#16181D" stroke-width="30"/>
+    <path class="skin" d="M 74 214 C 46 172 44 130 66 82" fill="none" stroke="#FFC46B" stroke-width="22"/>
+    <path d="M 76 216 C 64 200 58 186 54 170" fill="none" stroke="#16181D" stroke-width="42"/>
+    <path d="M 76 216 C 64 200 58 186 54 170" fill="none" stroke="#EF6A57" stroke-width="34"/>
+    <g transform="translate(-137 -100)">
+      <path d="M 196 160 L 194 140 M 205 158 L 206 136 M 214 160 L 218 140" fill="none" stroke="#16181D" stroke-width="12"/>
+      <path class="skin" d="M 196 160 L 194 140 M 205 158 L 206 136 M 214 160 L 218 140" fill="none" stroke="#FFC46B" stroke-width="5"/>
+      <circle class="skin" cx="205" cy="168" r="16" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <path d="M 191 172 C 182 166 182 156 188 154" fill="none" stroke="#16181D" stroke-width="12"/>
+      <path class="skin" d="M 191 172 C 182 166 182 156 188 154" fill="none" stroke="#FFC46B" stroke-width="5"/>
+      <path class="skin" d="M 196 160 L 214 160" fill="none" stroke="#FFC46B" stroke-width="10"/>
+    </g>
+    <!-- the music -->
+    <g transform="translate(210 92) scale(0.42)">
+      <ellipse cx="0" cy="0" rx="22" ry="15" fill="#2E9C92" stroke="#16181D" stroke-width="7" transform="rotate(-24)"/>
+      <rect x="13" y="-84" width="8" height="82" rx="4" fill="#2E9C92" stroke="#16181D" stroke-width="7"/>
+      <path d="M 17 -84 C 40 -70 46 -54 34 -36 C 38 -52 30 -62 17 -66 Z" fill="#2E9C92" stroke="#16181D" stroke-width="7"/>
+    </g>
+    <g transform="translate(226 150) scale(0.34)">
+      <ellipse cx="0" cy="0" rx="22" ry="15" fill="#EF6A57" stroke="#16181D" stroke-width="9" transform="rotate(-24)"/>
+      <rect x="13" y="-84" width="8" height="82" rx="4" fill="#EF6A57" stroke="#16181D" stroke-width="9"/>
+      <path d="M 17 -84 C 40 -70 46 -54 34 -36 C 38 -52 30 -62 17 -66 Z" fill="#EF6A57" stroke="#16181D" stroke-width="9"/>
+    </g>
+    <g transform="rotate(-12 140 210)">
+      <g transform="translate(142 124)">
+        <rect class="skin" x="-16" y="40" width="32" height="40" rx="8" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+        <!-- the flowery shirt, open at the collar -->
+        <path d="M -104 150 C -104 96 -64 70 0 70 C 64 70 104 96 104 150 Z" fill="#EF6A57" stroke="#16181D" stroke-width="4"/>
+        <path class="skin" d="M -20 72 L 0 104 L 20 72 Z" fill="#FFC46B" stroke="#16181D" stroke-width="3"/>
+        <path d="M -22 68 L -44 98 L -6 92 Z M 22 68 L 44 98 L 6 92 Z" fill="#EF6A57" stroke="#16181D" stroke-width="3"/>
+        <g transform="translate(-58 102)">
+          <path d="M 4 -18 C 18 -26 24 -12 14 -6 Z" fill="#62AD52" stroke="#16181D" stroke-width="2.5"/>
+          <circle cx="0" cy="-9" r="7" fill="#FFE9C7" stroke="#16181D" stroke-width="2.5"/>
+          <circle cx="8.6" cy="-2.8" r="7" fill="#FFE9C7" stroke="#16181D" stroke-width="2.5"/>
+          <circle cx="5.3" cy="7.3" r="7" fill="#FFE9C7" stroke="#16181D" stroke-width="2.5"/>
+          <circle cx="-5.3" cy="7.3" r="7" fill="#FFE9C7" stroke="#16181D" stroke-width="2.5"/>
+          <circle cx="-8.6" cy="-2.8" r="7" fill="#FFE9C7" stroke="#16181D" stroke-width="2.5"/>
+          <circle cx="0" cy="0" r="5" fill="#F08A1D" stroke="#16181D" stroke-width="2.5"/>
+        </g>
+        <g transform="translate(46 110)">
+          <path d="M -6 -18 C -20 -26 -26 -12 -16 -6 Z" fill="#62AD52" stroke="#16181D" stroke-width="2.5"/>
+          <circle cx="0" cy="-9" r="7" fill="#F7BBCB" stroke="#16181D" stroke-width="2.5"/>
+          <circle cx="8.6" cy="-2.8" r="7" fill="#F7BBCB" stroke="#16181D" stroke-width="2.5"/>
+          <circle cx="5.3" cy="7.3" r="7" fill="#F7BBCB" stroke="#16181D" stroke-width="2.5"/>
+          <circle cx="-5.3" cy="7.3" r="7" fill="#F7BBCB" stroke="#16181D" stroke-width="2.5"/>
+          <circle cx="-8.6" cy="-2.8" r="7" fill="#F7BBCB" stroke="#16181D" stroke-width="2.5"/>
+          <circle cx="0" cy="0" r="5" fill="#F08A1D" stroke="#16181D" stroke-width="2.5"/>
+        </g>
+        <g transform="translate(86 92)">
+          <circle cx="0" cy="-9" r="7" fill="#FFE9C7" stroke="#16181D" stroke-width="2.5"/>
+          <circle cx="8.6" cy="-2.8" r="7" fill="#FFE9C7" stroke="#16181D" stroke-width="2.5"/>
+          <circle cx="5.3" cy="7.3" r="7" fill="#FFE9C7" stroke="#16181D" stroke-width="2.5"/>
+          <circle cx="-5.3" cy="7.3" r="7" fill="#FFE9C7" stroke="#16181D" stroke-width="2.5"/>
+          <circle cx="-8.6" cy="-2.8" r="7" fill="#FFE9C7" stroke="#16181D" stroke-width="2.5"/>
+          <circle cx="0" cy="0" r="5" fill="#F08A1D" stroke="#16181D" stroke-width="2.5"/>
+        </g>
+        <circle class="skin" cx="-56" cy="6" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+        <circle class="skin" cx="56" cy="6" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+        <circle class="skin" cx="0" cy="0" r="58" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+        <!-- an ink quiff, flying with the spin -->
+        <path d="M -58 4 C -64 -30 -50 -54 -26 -64 C -16 -84 14 -92 40 -86 C 58 -82 72 -70 78 -56 C 66 -62 56 -62 48 -58 C 58 -48 62 -26 58 4 C 54 -12 48 -24 40 -32 C 22 -32 4 -38 -10 -46 C -20 -38 -36 -32 -44 -28 C -50 -20 -54 -8 -58 4 Z" fill="#16181D" stroke="#16181D" stroke-width="4"/>
+        <path d="M -6 -66 C 10 -76 30 -78 48 -72" fill="none" stroke="#5B616B" stroke-width="4"/>
+        <!-- eyes shut in joy, a big laugh -->
+        <path d="M -33 -2 Q -22 -14 -11 -2" fill="none" stroke="#16181D" stroke-width="4"/>
+        <path d="M 11 -2 Q 22 -14 33 -2" fill="none" stroke="#16181D" stroke-width="4"/>
+        <path d="M -34 -26 Q -22 -34 -10 -28" fill="none" stroke="#16181D" stroke-width="4"/>
+        <path d="M 10 -28 Q 22 -34 34 -26" fill="none" stroke="#16181D" stroke-width="4"/>
+        <ellipse cx="-36" cy="14" rx="9" ry="5.6" fill="#F7BBCB"/>
+        <ellipse cx="36" cy="14" rx="9" ry="5.6" fill="#F7BBCB"/>
+        <path d="M -4 6 Q 0 14 5 7" fill="none" stroke="#16181D" stroke-width="3"/>
+        <path d="M -18 20 Q 0 24 18 20 Q 16 44 0 44 Q -16 44 -18 20 Z" fill="#16181D"/>
+        <ellipse cx="0" cy="44" rx="10" ry="8" fill="#EF6A57" clip-path="url(#you-dancer-2)"/>
+        <path d="M -18 20 Q 0 24 18 20 Q 16 44 0 44 Q -16 44 -18 20 Z" fill="none" stroke="#16181D" stroke-width="3"/>
+      </g>
+    </g>
+  </g>
+</svg>

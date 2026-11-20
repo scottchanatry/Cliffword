@@ -1,6 +1,7 @@
 /**
- * Startup, without React: open storage (migrated), read the settings, check that the learner's
- * photo is still there, restore the learner model (newest snapshot plus the events logged after
+ * Startup, without React: open storage (migrated), read the settings, store a photo whose pick
+ * Android interrupted by closing the app, check that the learner's photo is still there, restore
+ * the learner model (newest snapshot plus the events logged after
  * it) with the prior the settings call for (or the one stored with the snapshot by placement; see
  * src/learner/prior.ts). AppBootstrap runs it once and shows a loading state until it resolves.
  */
@@ -20,11 +21,39 @@ export interface BootResult {
 
 export async function bootstrap(services: Pick<Services, 'storage' | 'packs' | 'photos'>): Promise<BootResult> {
   const storage = await services.storage.open();
-  const settings = await checkPicture(storage, await storage.settings.getAll(), services.photos);
+  const read = await storage.settings.getAll();
+  const settings = await checkPicture(storage, await recoverPicture(storage, read, services.photos), services.photos);
   // The prior stored with the newest learner snapshot (placement's result), when it fits the start level.
   const stored = await storage.learner.latestPrior();
   const learner = await storage.learner.loadLearner({ prior: learnerPrior(services.packs, settings.startLevel, stored) });
   return { storage, settings, learner };
+}
+
+/**
+ * A selfie or photo picked while Android closed the app (the camera or the photo picker was in
+ * front; expo-image-picker keeps the result for the next start): it becomes the picture, as the
+ * chooser would have made it, and the photo it replaces is deleted. A recovered photo that cannot
+ * be stored as the setting is deleted; nothing else changes.
+ */
+export async function recoverPicture(storage: Storage, settings: AppSettings, photos: PhotoPicker): Promise<AppSettings> {
+  const recovered = await photos.recover().catch((e: unknown) => ({ kind: 'error' as const, message: String(e) }));
+  if (!recovered) return settings;
+  if (recovered.kind === 'error') {
+    console.warn('[bootstrap] interrupted photo not recovered', recovered.message);
+    return settings;
+  }
+  const picture = normalizePicture({ kind: 'photo', uri: recovered.uri });
+  const before = settings.picture;
+  try {
+    if (!picture) throw new Error('not a photo uri');
+    const next = await storage.settings.update({ picture });
+    if (before.kind === 'photo' && before.uri !== recovered.uri) await photos.remove(before.uri);
+    return next;
+  } catch (e) {
+    console.warn('[bootstrap] interrupted photo not stored', e);
+    await photos.remove(recovered.uri);
+    return settings;
+  }
 }
 
 /**

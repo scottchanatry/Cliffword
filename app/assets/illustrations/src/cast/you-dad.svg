@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" stroke-linejoin="round" stroke-linecap="round">
+  <title>You, the dad</title>
+  <desc>A dad in his thirties: short brown hair and a short brown beard, a green shirt, a baby in a coral front carrier, a baby bottle in his hand with a drop of milk flying off, and dad and baby making the same surprised face.</desc>
+  <defs>
+    <clipPath id="you-dad-1">
+      <circle cx="128" cy="128" r="124" fill="#FFE9C7"/>
+    </clipPath>
+  </defs>
+  <!-- the disc -->
+  <circle cx="128" cy="128" r="124" fill="#FFE9C7"/>
+  <!-- the character, clipped to the disc -->
+  <g clip-path="url(#you-dad-1)">
+    <g transform="translate(120 98)">
+      <rect class="skin" x="-16" y="40" width="32" height="40" rx="8" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <path d="M -104 160 C -104 98 -64 70 0 70 C 64 70 104 98 104 160 Z" fill="#62AD52" stroke="#16181D" stroke-width="4"/>
+      <path class="skin" d="M -20 72 Q 0 88 20 72" fill="#FFC46B" stroke="#16181D" stroke-width="3"/>
+      <!-- the carrier's straps -->
+      <path d="M -50 76 C -54 92 -52 108 -46 120 M 50 76 C 54 92 52 108 46 120" fill="none" stroke="#16181D" stroke-width="24"/>
+      <path d="M -50 76 C -54 92 -52 108 -46 120 M 50 76 C 54 92 52 108 46 120" fill="none" stroke="#EF6A57" stroke-width="16"/>
+      <circle class="skin" cx="-56" cy="6" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <circle class="skin" cx="56" cy="6" r="13" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <circle class="skin" cx="0" cy="0" r="58" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <!-- short brown hair -->
+      <path d="M -58 0 C -64 -46 -34 -70 0 -70 C 36 -70 64 -46 58 0 C 54 -14 50 -24 44 -32 C 24 -30 4 -36 -10 -48 C -18 -38 -32 -32 -46 -30 C -52 -22 -56 -12 -58 0 Z" fill="#B4530A" stroke="#16181D" stroke-width="4"/>
+      <path d="M 10 -60 Q 26 -60 38 -50" fill="none" stroke="#F08A1D" stroke-width="3"/>
+      <!-- a short beard -->
+      <path d="M -57 8 C -58 40 -32 64 0 64 C 32 64 58 40 57 8 C 52 22 46 30 36 32 C 24 34 14 28 0 28 C -14 28 -24 34 -36 32 C -46 30 -52 22 -57 8 Z" fill="#B4530A" stroke="#16181D" stroke-width="4"/>
+      <path d="M -22 24 C -12 16 12 16 22 24 C 14 26 6 26 0 24 C -6 26 -14 26 -22 24 Z" fill="#B4530A" stroke="#16181D" stroke-width="3"/>
+      <!-- surprised -->
+      <circle cx="-22" cy="-6" r="14" fill="#F3F4F1" stroke="#16181D" stroke-width="3"/>
+      <circle cx="-22" cy="-6" r="6" fill="#16181D"/>
+      <circle cx="-24" cy="-8" r="2" fill="#F3F4F1"/>
+      <circle cx="22" cy="-6" r="14" fill="#F3F4F1" stroke="#16181D" stroke-width="3"/>
+      <circle cx="22" cy="-6" r="6" fill="#16181D"/>
+      <circle cx="20" cy="-8" r="2" fill="#F3F4F1"/>
+      <path d="M -34 -32 Q -23 -42 -11 -34" fill="none" stroke="#16181D" stroke-width="4"/>
+      <path d="M 11 -34 Q 23 -42 34 -32" fill="none" stroke="#16181D" stroke-width="4"/>
+      <ellipse cx="-38" cy="14" rx="8" ry="5" fill="#F7BBCB"/>
+      <ellipse cx="38" cy="14" rx="8" ry="5" fill="#F7BBCB"/>
+      <path d="M -4 6 Q 0 14 5 7" fill="none" stroke="#16181D" stroke-width="3"/>
+      <ellipse cx="0" cy="38" rx="8" ry="10" fill="#16181D"/>
+      <ellipse cx="0" cy="42" rx="5" ry="4.5" fill="#EF6A57"/>
+    </g>
+    <!-- the baby in the carrier, the same face -->
+    <g transform="translate(122 204)">
+      <circle class="skin" cx="-29" cy="2" r="7" fill="#FFC46B" stroke="#16181D" stroke-width="3"/>
+      <circle class="skin" cx="29" cy="2" r="7" fill="#FFC46B" stroke="#16181D" stroke-width="3"/>
+      <circle class="skin" cx="0" cy="0" r="30" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+      <path d="M -4 -30 C -8 -40 0 -46 8 -42 C 2 -40 2 -34 6 -30" fill="none" stroke="#16181D" stroke-width="4"/>
+      <circle cx="-11" cy="-3" r="7.5" fill="#F3F4F1" stroke="#16181D" stroke-width="2.5"/>
+      <circle cx="-11" cy="-3" r="3.4" fill="#16181D"/>
+      <circle cx="11" cy="-3" r="7.5" fill="#F3F4F1" stroke="#16181D" stroke-width="2.5"/>
+      <circle cx="11" cy="-3" r="3.4" fill="#16181D"/>
+      <path d="M -17 -16 Q -11 -21 -5 -17 M 5 -17 Q 11 -21 17 -16" fill="none" stroke="#16181D" stroke-width="3"/>
+      <ellipse cx="-19" cy="9" rx="5" ry="3.2" fill="#F7BBCB"/>
+      <ellipse cx="19" cy="9" rx="5" ry="3.2" fill="#F7BBCB"/>
+      <ellipse cx="0" cy="13" rx="4.5" ry="5.5" fill="#16181D"/>
+      <!-- the carrier -->
+      <path d="M -50 60 L -46 32 C -44 24 -38 20 -30 20 L 30 20 C 38 20 44 24 46 32 L 50 60 Z" fill="#EF6A57" stroke="#16181D" stroke-width="4"/>
+      <path d="M -40 30 L 40 30" fill="none" stroke="#16181D" stroke-width="3"/>
+      <circle class="skin" cx="-32" cy="20" r="8" fill="#FFC46B" stroke="#16181D" stroke-width="3"/>
+      <circle class="skin" cx="32" cy="20" r="8" fill="#FFC46B" stroke="#16181D" stroke-width="3"/>
+    </g>
+    <!-- the bottle, a drop of milk flying off -->
+    <g transform="translate(206 160) rotate(10)">
+      <path d="M -10 -32 C -10 -44 -4 -50 0 -50 C 4 -50 10 -44 10 -32 Z" fill="#FFE9C7" stroke="#16181D" stroke-width="3"/>
+      <rect x="-17" y="-34" width="34" height="12" rx="4" fill="#2E9C92" stroke="#16181D" stroke-width="4"/>
+      <rect x="-16" y="-22" width="32" height="58" rx="9" fill="#F3F4F1" stroke="#16181D" stroke-width="4"/>
+      <path d="M -16 -6 L -6 -6 M -16 8 L -6 8 M -16 22 L -6 22" fill="none" stroke="#16181D" stroke-width="2.5"/>
+    </g>
+    <path d="M 220 96 C 216 104 216 108 220 110 C 224 108 224 104 220 96 Z" fill="#F3F4F1" stroke="#16181D" stroke-width="2.5"/>
+    <path d="M 230 104 L 238 100 M 228 116 L 236 118" fill="none" stroke="#16181D" stroke-width="2.5"/>
+    <circle class="skin" cx="204" cy="196" r="15" fill="#FFC46B" stroke="#16181D" stroke-width="4"/>
+  </g>
+</svg>

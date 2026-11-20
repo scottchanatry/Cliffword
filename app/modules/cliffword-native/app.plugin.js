@@ -1,6 +1,7 @@
 /**
  * Config plugin of the cliffword-native module: keeps the language model and the learner's photo
- * out of Android backups.
+ * out of Android backups, and keeps the optional selfie from narrowing the devices Google Play
+ * offers the app to.
  *
  * The model (1.1 GB) lives in the app's files directory, files/models/ (expo-file-system's
  * document directory). Android Auto Backup includes that directory by default, and a backup over
@@ -12,6 +13,12 @@
  * backed up as before. The model is downloaded again after a restore; a restored app whose photo
  * is gone shows the default character. iOS needs no plugin: the module sets isExcludedFromBackup
  * on the files themselves.
+ *
+ * The CAMERA permission (the selfie for the learner's picture, src/adapters/photo) makes Google
+ * Play assume the app requires android.hardware.camera and android.hardware.camera.autofocus (a
+ * rear camera with autofocus) unless the manifest says otherwise, which would hide the app from
+ * phones with a fixed-focus camera and from tablets and Chromebooks with only a front camera. The
+ * plugin declares both features with android:required="false"; the selfie is optional.
  *
  * Use in app.json: "plugins": [..., "./modules/cliffword-native/app.plugin.js"]
  */
@@ -25,6 +32,8 @@ const PHOTO_PATH = 'avatar/';
 const excludes = (indent) =>
   [MODELS_PATH, PHOTO_PATH].map((p) => `${indent}<exclude domain="file" path="${p}" />`).join('\n');
 const FULL_BACKUP_RULES = 'cliffword_backup_rules';
+/** The hardware features Play would otherwise infer from the CAMERA permission as required. */
+const OPTIONAL_FEATURES = ['android.hardware.camera', 'android.hardware.camera.autofocus'];
 const DATA_EXTRACTION_RULES = 'cliffword_data_extraction_rules';
 
 const fullBackupXml = `<?xml version="1.0" encoding="utf-8"?>
@@ -75,8 +84,21 @@ function withBackupRuleAttributes(config) {
   });
 }
 
+function withOptionalCameraFeatures(config) {
+  return withAndroidManifest(config, (cfg) => {
+    const manifest = cfg.modResults.manifest;
+    const features = (manifest['uses-feature'] = manifest['uses-feature'] || []);
+    for (const name of OPTIONAL_FEATURES) {
+      const existing = features.find((f) => f.$ && f.$['android:name'] === name);
+      if (existing) existing.$['android:required'] = 'false';
+      else features.push({ $: { 'android:name': name, 'android:required': 'false' } });
+    }
+    return cfg;
+  });
+}
+
 function withCliffwordNative(config) {
-  return withBackupRuleAttributes(withBackupRuleFiles(config));
+  return withOptionalCameraFeatures(withBackupRuleAttributes(withBackupRuleFiles(config)));
 }
 
 module.exports = createRunOncePlugin(withCliffwordNative, 'cliffword-native', '1.0.0');

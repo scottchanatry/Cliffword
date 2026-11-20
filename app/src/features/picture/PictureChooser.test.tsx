@@ -1,5 +1,5 @@
 /**
- * The learner's picture chooser: the view (the picture on top, nine named characters with the
+ * The learner's picture chooser: the view (the picture on top, fifteen named characters with the
  * chosen one ringed, the photo buttons, Remove photo, the notices; named 44 pt controls) and the
  * behaviour behind it (usePictureChooser over the app state and a FakePhotoPicker): every choice is
  * stored at once, a replaced or removed photo is deleted, a cancel changes nothing, a refusal or an
@@ -8,7 +8,7 @@
 import { Dimensions, StyleSheet, Text } from 'react-native';
 import { act, fireEvent, screen, waitFor, within } from '@testing-library/react-native';
 import { useAppState } from '../../appState/AppStateProvider';
-import { YOU_AVATAR_IDS, YOU_AVATARS } from '../../illustrations';
+import { ILLUSTRATION_SIZE, YOU_AVATAR_IDS, YOU_AVATARS } from '../../illustrations';
 import { createTestServices } from '../../services/testServices';
 import { renderWithAppState } from '../../testing/renderWithAppState';
 import { renderWithProviders } from '../../testing/renderWithProviders';
@@ -52,7 +52,7 @@ function expectAccessibleControls() {
 }
 
 describe('PictureChooser (view)', () => {
-  it('shows the picture large on top and the nine characters as named radios, the chosen one ringed', async () => {
+  it('shows the picture large on top and the fifteen characters as named radios, the chosen one ringed', async () => {
     const p = await renderView(props({ picture: { kind: 'character', id: 'you-grandma' } }));
     expect(screen.getByTestId('picture-preview').props.accessibilityLabel).toBe('Your picture: Grandma in sunglasses with a fan');
     const preview = screen.getByTestId('picture-preview-image', hidden);
@@ -65,8 +65,14 @@ describe('PictureChooser (view)', () => {
     expect(radios.map((r) => r.props.accessibilityLabel)).toEqual([
       'Smiling person waving hello',
       'Teenager with headphones and a skateboard',
+      'Young painter in paint-splattered overalls',
+      'Bike courier with a helmet and a messenger bag',
+      'Surfer in a wetsuit with a surfboard',
       'Backpacker with a map',
+      'Salsa dancer in a flowery shirt',
       'Remote worker with a laptop and a big coffee',
+      'Dad with a baby in a carrier and a bottle',
+      'Dog lover with a tiny dog in a tote bag',
       'Chef with a wooden spoon',
       'Photographer with a camera',
       'Older musician with a guitar',
@@ -90,7 +96,7 @@ describe('PictureChooser (view)', () => {
     expect(p.onChooseCharacter).toHaveBeenCalledWith('you-chef');
   });
 
-  it('is a little smaller on a short screen (375 x 667), so Continue shows below it', async () => {
+  it('is a little smaller on a short screen (375 x 667), so more of the grid shows', async () => {
     const before = { window: Dimensions.get('window'), screen: Dimensions.get('screen') };
     const se = { width: 375, height: 667, scale: 2, fontScale: 1 };
     Dimensions.set({ window: se, screen: se });
@@ -104,6 +110,24 @@ describe('PictureChooser (view)', () => {
     } finally {
       Dimensions.set(before);
     }
+  });
+
+  it('puts the photo buttons and their notice right under the picture, before the grid', async () => {
+    await renderView(props({ notice: { kind: 'error' } }));
+    // Host views' testIDs in screen order (depth first).
+    const ids: string[] = [];
+    type Node = { type: unknown; props: { testID?: unknown }; children: (Node | string)[] };
+    const walk = (n: Node | string) => {
+      if (typeof n === 'string') return;
+      if (typeof n.type === 'string' && typeof n.props.testID === 'string') ids.push(n.props.testID);
+      n.children.forEach(walk);
+    };
+    walk(screen.getByTestId('picture-chooser') as unknown as Node);
+    const order = ['picture-preview', 'picture-camera', 'picture-library', 'picture-notice', 'picture-characters'].map((id) => ids.indexOf(id));
+    expect(order.every((i) => i >= 0)).toBe(true);
+    expect([...order].sort((a, b) => a - b)).toEqual(order);
+    // The picture is no larger than the cast's sharpest size (96 pt, ILLUSTRATION_SIZE.cast).
+    expect(PREVIEW_SIZE).toBe(ILLUSTRATION_SIZE.cast.width);
   });
 
   it('offers a selfie and a photo, and says the photo stays on the phone', async () => {
@@ -144,7 +168,7 @@ describe('PictureChooser (view)', () => {
     expect(screen.queryByTestId('picture-camera')).toBeNull();
     expect(screen.queryByTestId('picture-library')).toBeNull();
     expect(screen.queryByText(/never uploaded/)).toBeNull();
-    expect(screen.getAllByRole('radio')).toHaveLength(9);
+    expect(screen.getAllByRole('radio')).toHaveLength(15);
   });
 
   it('says how to allow the camera in Settings after a refusal, and that the picture stayed after an error', async () => {

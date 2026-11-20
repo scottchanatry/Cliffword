@@ -17,7 +17,7 @@ written (8 beginner episodes); the other five experiences are shown as "Coming s
   hear how you did, drawn with a line of the first experience) -> the experience picker (big
   cards, coming soon ones closed) -> "How much Spanish do you know?" (brand new 0, a little 2,
   comfortable 4) -> "How should people address you?" (as a man / as a woman: `{you:a|b}` in the
-  stories) -> "Who are you in the story?" (the learner's picture: one of nine drawn characters, or
+  stories) -> "Who are you in the story?" (the learner's picture: one of fifteen drawn characters, or
   a selfie or photo) -> the experience's own choices, when it has some ("Who do you match with?") -> the
   microphone (allow, or type instead). No placement test. Then the language model downloads by
   itself on Wi-Fi (`useModelAutoDownload`).
@@ -103,13 +103,13 @@ falls back to `index.html` for unknown paths. `python -m http.server` has no fal
 |---|---|
 | `app/` | The expo-router routes; in the repo the router root is `app/app/`. Put only routes here (never tests or helpers). `_layout.tsx` sets up fonts, the splash, the gesture root, `AppProviders`, `AppBootstrap`, the root stack with the onboarding guard (`isOnboarded`) and the model's Wi-Fi download (`useModelAutoDownload`). `(tabs)/_layout.tsx` has the Story tab (and Music while `MUSIC_ENABLED`; with one tab the tab bar is hidden) and the header with the wordmark and the profile corner button. The other routes are `(tabs)/index.tsx` (Story: the home, the episode and the picker of an experience), the Music stack `(tabs)/music/` and `text/` (both redirect to `/` while Music is off; see "Music controller"), the profile modal `profile/` (`index`, `settings`, `licenses`, `selftest`), onboarding `onboarding/` (`index` welcome, `experience`, `level`, `address`, `picture`, `choices`, `mic`; see "Onboarding, profile and settings") and `+not-found.tsx`. There is no `+native-intent.tsx`: share-in is out of this build. |
 | `src/providers/AppProviders.tsx` | The providers that need no startup work: services, packs, i18n. Tests render through it. |
-| `src/bootstrap/` | Startup. `bootstrap(services)` opens storage, reads the settings (a photo whose file is gone falls back to the default character: `checkPicture`) and restores the learner. `AppBootstrap` shows the loading and error states around it. |
+| `src/bootstrap/` | Startup. `bootstrap(services)` opens storage, reads the settings (a selfie or photo whose pick Android interrupted by closing the app becomes the picture: `recoverPicture`; a photo whose file is gone falls back to the default character: `checkPicture`) and restores the learner. `AppBootstrap` shows the loading and error states around it. |
 | `src/appState/` | `AppStateProvider` and the hooks `useAppState()`, `useSettings()` and `useLearner()`. They hold the opened storage, the settings and the learner (`replaceLearner` swaps in a model the story session rebuilt with a new prior). |
 | `src/learner/prior.ts` | `learnerPrior(packs, startLevel, stored?)` and `priorSpecFor`: the learner model's prior as the engine's `PriorSpec`, rebuilt at every start (from the spec stored with the learner snapshot once placement has run). |
 | `src/session/` | `contract.ts`, the seam between controllers and views; `story/`, the Story tab's controller (see "Story controller"); `lyric/`, the Music tab's controller for a song or a brought text; `common/`, the queue, hold-to-speak, voice, listen options and step-write plumbing both controllers (and onboarding's hold practice) use. |
 | `src/config/features.ts` | Feature flags: `MUSIC_ENABLED` (false), `RETELL_ENABLED` (false). |
 | `src/features/experiences/` | The experiences as the picker, the home and Settings show them (`experiences.ts`: `experienceCards`, `episodeRows`, `continueRow`, `addressExample`, `welcomeSample`, all from the pair pack and the session's `libraryProgress`), `ExperienceList` (the picker's cards), `ExperienceCover` (the series' cover, `src/illustrations` `coverForTrack`) and `TrackMotif` (a colored, flag-free motif per regional variety, theme `motifColors`: the fallback for a series without a cover). |
-| `src/features/story/library/` | The Story tab in library mode: `LibraryStory` (home, episode or picker, and the first-episode guide), `StoryHomeView`, `EpisodeView` (the story so far above the line on screen: the episode's scene and `Transcript`, the conversation of `vm.transcript`), `Feedback`, `LineText`, `Pictures` (avatars by cast id, the scene banner, word pictures), `MicButton`, `CoachMark`, `ExperiencePicker`, and `libraryFixtures.ts` (gallery `lib-*`). |
+| `src/features/story/library/` | The Story tab in library mode: `LibraryStory` (home, episode or picker, and the first-episode guide), `StoryHomeView`, `EpisodeView` (the story so far above the line on screen: the episode's scene and `Transcript`, the conversation of `vm.transcript`; while nothing is said yet the scene sits whole in a band under the header, `SceneStrip`, so following line 1 never scrolls it away), `Feedback`, `LineText`, `Pictures` (avatars by cast id, the scene banner and strip, word pictures), `MicButton`, `CoachMark`, `ExperiencePicker`, and `libraryFixtures.ts` (gallery `lib-*`). |
 | `src/illustrations/` | The PNGs of `assets/illustrations/` (covers, the San Juan cast and scenes, vocabulary pictures) and how content finds them: by a series' neutral key (`seriesKeyOf`: `coverForTrack`, `sceneForEpisode`) and a story's cast id (`castForSpeaker`, `SERIES_CAST`), and words to pictures (`vocabImageForWord`, `vocabInText`, `VOCAB_BY_WORD`). The engine knows nothing of pictures. |
 | `src/music/` | The Music tab's data: pasted lyrics (parse, preview, store), the library rows' song summary (region, slang amount, monogram), shared songs, and the hooks behind the library, paste, share, time-it and text-paste routes. |
 | `src/services/` | The service container (see "Services and adapters"). |
@@ -540,16 +540,22 @@ views from `src/features/profile/accountFixtures.ts`.
   - *Address* (`address`): as a man / as a woman, each with a story line said that way
     (`addressExample`); stores `address`.
   - *Picture* (`picture`): "Who are you in the story?" (`PictureStepView` around
-    `src/features/picture/PictureChooser`, the same chooser as Settings): the chosen picture large
-    on top; the nine characters of `YOU_AVATAR_IDS` in three columns, 88 pt circles with an ink
-    ring on the chosen one (radios named by what each shows, `CHARACTER_LABELS`); "Take a selfie"
-    and "Choose a photo"; "Remove photo" while a photo is the picture; "Your photo stays on this
-    phone". `usePictureChooser` stores each choice at once in `settings.picture` (the waving `you`
+    `src/features/picture/PictureChooser`, the same chooser as Settings): the chosen picture on top
+    (96 pt, the cast's sharpest size); under it "Take a selfie" and "Choose a photo", "Remove
+    photo" while a photo is the picture, "Your photo stays on this phone" and any notice; then the
+    fifteen characters of `YOU_AVATAR_IDS` in three columns, 88 pt circles with an ink ring on the
+    chosen one (radios named by what each shows, `CHARACTER_LABELS`). Continue is pinned under the
+    scroll (`StepScreen`'s footer, as on every step with one), so it and the photo buttons are in
+    view on every phone while the grid scrolls. `usePictureChooser` stores each choice at once in `settings.picture` (the waving `you`
     until then, so Continue is always on) and deletes a photo file that a new choice replaced. A
     photo goes through `services.photos` (`PhotoPicker`, see "What is faked where"): the camera's
     permission is asked only when "Take a selfie" is tapped; a refusal shows how to allow it in
     Settings (with Open Settings) and keeps the picture; a cancel changes nothing; an error says
-    so and keeps the picture. The web preview has no photo (the characters only).
+    so and keeps the picture (a library failure is always an error: there is no Photos setting to
+    send anyone to). "Take a selfie" is not offered on Android 9 and older (expo-image-picker's
+    camera also wants `WRITE_EXTERNAL_STORAGE` there, which stays blocked) or in the iOS
+    Simulator (UIKit's camera picker would crash the app). The web preview has no photo (the
+    characters only).
   - *Choices* (`choices`): the experience's `LibraryChoice`s as cards, Continue once each has an
     answer; stored in `trackChoices[trackId]`. Skipped (and redirects) without choices.
   - *Microphone* (`mic`): why (recognized on the phone, nothing recorded), "Allow microphone"
@@ -711,7 +717,7 @@ and, in tests, deterministic (`test-1`, `test-2`, ...).
 | `share` | `ShareInbox` + pure `parseSpotifyShare` | `ExpoShareInbox` (share_inbox table); nothing feeds it in this build (no share extension, no `ShareIntentBridge` in the layout) | `MemoryShareInbox` | `MemoryShareInbox` | share-in back with Music |
 | `haptics` | `Haptics` (`play('tap' \| 'selection' \| 'success' \| 'warning' \| 'error')`) | **real**: `ExpoHapticsAdapter` | `ExpoHapticsAdapter` | `FakeHaptics` | none |
 | `network` | `NetworkInfo` (`kind()`: wifi, cellular, none, unknown; `onChange`) | **real**: `ExpoNetworkInfo` (expo-network, through `createNativeNetworkInfo`) | `FixedNetworkInfo('unknown')` | `FixedNetworkInfo('cellular')` (`set('wifi')`) | none |
-| `photos` | `PhotoPicker` (`sources`, `pick('camera' \| 'library')`: picked, cancelled, denied, unavailable or error; `locate(uri)`; `remove(uri)`) | **real**: `ExpoPhotoPicker` (expo-image-picker: front camera or system photo picker, square crop, quality 0.7; one copy in `<documents>/avatar/<time>.<ext>`, kept out of backups; through `createNativePhotoPicker`) | `UnavailablePhotoPicker` (no sources: the characters only) | `FakePhotoPicker` (`script('denied', ...)`, `store`, `lose`); `ExpoPhotoPicker` tests use `src/testing/fakeExpoFileSystem.ts` | none |
+| `photos` | `PhotoPicker` (`sources`, `pick('camera' \| 'library')`: picked, cancelled, denied (camera only), unavailable or error; `locate(uri)`; `remove(uri)`; `recover()`: a pick Android interrupted) | **real**: `ExpoPhotoPicker` (expo-image-picker: front camera or system photo picker, square crop, quality 0.7; one copy in `<documents>/avatar/<time>.<ext>`, kept out of backups; the picker's own copies in `<cache>/ImagePicker/` deleted after every pick and on remove; no camera on Android 9 and older or where cliffword-native's `hasCamera` is false, the iOS Simulator; through `createNativePhotoPicker`) | `UnavailablePhotoPicker` (no sources: the characters only) | `FakePhotoPicker` (`script('denied', ...)`, `pending('taken')`, `store`, `lose`); `ExpoPhotoPicker` tests use `src/testing/fakeExpoFileSystem.ts` | none |
 | `clock` | `Clock` (`now()`) | `systemClock` | `systemClock` | `FakeClock` | none |
 | `packs` | `{ lang, pair }` | en-es, built once | same | same | more pairs |
 
@@ -1020,7 +1026,8 @@ Newsreader (content), Inter (interface) and Anton (Music headings) come from
   `ios.entitlements` sets `com.apple.developer.kernel.increased-memory-limit` for every build,
   because the model needs about 1.2 GB. `./modules/cliffword-native/app.plugin.js` (no options)
   adds Android backup rules that exclude `files/models/`, the downloaded model, and
-  `files/avatar/`, the learner's photo, from cloud backup and device transfer. Without them Auto Backup would include the 1.1 GB file, go over the
+  `files/avatar/`, the learner's photo, from cloud backup and device transfer, and the optional
+  camera features (below). Without them Auto Backup would include the 1.1 GB file, go over the
   25 MB quota and back up nothing, not even the learner's database.
   `src/adapters/model/cliffwordNativePlugin.test.ts` runs the plugin's mods.
   (Not in this build: `expo-share-intent`, which took `iosActivationRules` (one web URL, one web page, or text),
@@ -1038,10 +1045,17 @@ Newsreader (content), Inter (interface) and Anton (Music headings) come from
   on the phone). It is not given `microphonePermission: false`: that would delete
   `NSMicrophoneUsageDescription` and block `RECORD_AUDIO`, which speech needs; left out, the plugin
   keeps the speech text (checked by prebuild). `android.permissions` adds `CAMERA` (the selfie;
-  no longer in `blockedPermissions`). The photo library needs no permission (the system photo
-  picker hands over the chosen photo only), so `READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO`,
-  `READ_EXTERNAL_STORAGE` and `WRITE_EXTERNAL_STORAGE` stay blocked. `src/config/appConfig.test.ts`
-  keeps these.
+  no longer in `blockedPermissions`). On Android 10 and later the camera intent needs only
+  `CAMERA`; on Android 7 to 9 expo-image-picker's `launchCameraAsync` also demands
+  `WRITE_EXTERNAL_STORAGE`, which stays blocked (Android refuses an undeclared permission without
+  a dialog), so `ExpoPhotoPicker` offers no selfie there, only "Choose a photo". The photo library
+  needs no permission (the system photo picker hands over the chosen photo only), so
+  `READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO`, `READ_EXTERNAL_STORAGE` and `WRITE_EXTERNAL_STORAGE`
+  stay blocked. `src/config/appConfig.test.ts` keeps these. Because `CAMERA` makes Google Play
+  assume a rear camera with autofocus is required, the cliffword-native plugin declares
+  `android.hardware.camera` and `android.hardware.camera.autofocus` as `uses-feature`
+  `android:required="false"` (after an EAS build, `aapt2 dump badging` on the APK should list no
+  `uses-implied-feature` for the camera).
   `expo-localization` takes `supportsRTL: false`: the interface is English only and the content
   is Spanish, so the layout never mirrors on a phone set to an RTL language (Android
   `supportsRtl="false"` and the module's `ExpoLocalization_supportsRTL` flag on both platforms,

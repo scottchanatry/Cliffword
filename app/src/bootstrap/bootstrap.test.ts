@@ -76,6 +76,7 @@ describe('bootstrap', () => {
       pick: async () => ({ kind: 'cancelled' }),
       locate: async (uri) => (uri === before ? after : null),
       remove: async () => undefined,
+      recover: async () => null,
     };
     const services = createTestServices({ photos });
     const storage = await services.storage.open();
@@ -99,6 +100,44 @@ describe('bootstrap', () => {
     const boot = await bootstrap(services);
     expect(boot.settings.picture).toEqual(DEFAULT_PICTURE);
     expect(warn).toHaveBeenCalled();
+    warn.mockRestore();
+    await services.storage.close();
+  });
+
+  it('stores a photo whose pick Android interrupted, and deletes the photo it replaces', async () => {
+    const services = createTestServices();
+    const old = services.photos.store();
+    const storage = await services.storage.open();
+    await storage.settings.update({ onboarded: true, picture: { kind: 'photo', uri: old } });
+    services.photos.pending('taken');
+    const boot = await bootstrap(services);
+    expect(boot.settings.picture.kind).toBe('photo');
+    const uri = boot.settings.picture.kind === 'photo' ? boot.settings.picture.uri : '';
+    expect(uri).not.toBe(old);
+    expect(await services.photos.locate(uri)).toBe(uri);
+    expect(await storage.settings.get('picture')).toEqual({ kind: 'photo', uri });
+    expect(services.photos.removed).toEqual([old]);
+    // Only once: the next start finds nothing pending.
+    const again = await bootstrap(services);
+    expect(again.settings.picture).toEqual({ kind: 'photo', uri });
+    await services.storage.close();
+  });
+
+  it('keeps the picture when an interrupted pick failed or its photo cannot be stored', async () => {
+    const services = createTestServices();
+    const storage = await services.storage.open();
+    await storage.settings.update({ picture: { kind: 'character', id: 'you-teen' } });
+    const warn = jest.spyOn(console, 'warn').mockImplementation(() => undefined);
+    services.photos.pending('error');
+    expect((await bootstrap(services)).settings.picture).toEqual({ kind: 'character', id: 'you-teen' });
+
+    services.photos.pending('taken');
+    jest.spyOn(storage.settings, 'update').mockRejectedValueOnce(new Error('disk full'));
+    const boot = await bootstrap(services);
+    expect(boot.settings.picture).toEqual({ kind: 'character', id: 'you-teen' });
+    // The recovered copy is deleted, not left behind.
+    expect(services.photos.stored()).toEqual([]);
+    expect(warn).toHaveBeenCalledTimes(2);
     warn.mockRestore();
     await services.storage.close();
   });

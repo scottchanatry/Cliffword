@@ -146,7 +146,7 @@ describe('SettingsRepo', () => {
     expect(await storage.settings.get('onboardingStep')).toBe('welcome');
   });
 
-  it("stores the learner's picture: any of the nine characters, or a photo file", async () => {
+  it("stores the learner's picture: any of the fifteen characters, or a photo file", async () => {
     expect(DEFAULT_PICTURE).toEqual({ kind: 'character', id: 'you' });
     for (const id of YOU_AVATAR_IDS) {
       await storage.settings.set('picture', { kind: 'character', id });

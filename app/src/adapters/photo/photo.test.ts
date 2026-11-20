@@ -2,13 +2,15 @@
  * The learner's photo: the fake every other test uses (taken, cancelled, denied, error), the web
  * preview's none, and ExpoPhotoPicker over a scripted expo-image-picker and the in-memory
  * expo-file-system (src/testing/fakeExpoFileSystem.ts): when it asks for a permission, the
- * options it opens the camera and the library with, the copy in <documents>/avatar/, finding a
- * photo after the documents folder moved, and deleting only its own files.
+ * options it opens the camera and the library with, which sources a device offers, the copy in
+ * <documents>/avatar/ and no other copy left in the picker's cache folder, finding a photo after
+ * the documents folder moved, deleting only its own files, and a pick Android interrupted.
  */
-import type { ImagePickerOptions, ImagePickerResult, PermissionResponse } from 'expo-image-picker';
+import { Directory } from 'expo-file-system';
+import type { ImagePickerErrorResult, ImagePickerOptions, ImagePickerResult, PermissionResponse } from 'expo-image-picker';
 import { FakeClock } from '../clock/FakeClock';
 import { fakeFs } from '../../testing/fakeExpoFileSystem';
-import { ExpoPhotoPicker, PHOTO_QUALITY, photoExtension, type ImagePickerModule } from './ExpoPhotoPicker';
+import { ExpoPhotoPicker, PHOTO_QUALITY, photoExtension, photoSources, type ImagePickerModule, type PhotoDevice } from './ExpoPhotoPicker';
 import { FakePhotoPicker } from './FakePhotoPicker';
 import { UnavailablePhotoPicker } from './UnavailablePhotoPicker';
 
@@ -60,6 +62,16 @@ describe('FakePhotoPicker', () => {
     const photos = new FakePhotoPicker({ sources: ['library'] });
     expect(await photos.pick('camera')).toEqual({ kind: 'unavailable', source: 'camera' });
   });
+
+  it('recovers a scripted pending photo once', async () => {
+    const photos = new FakePhotoPicker({ clock: new FakeClock(5) });
+    expect(await photos.recover()).toBeNull();
+    photos.pending('taken');
+    expect(await photos.recover()).toEqual({ kind: 'picked', uri: 'file:///fake/documents/avatar/5-1.jpg' });
+    expect(await photos.recover()).toBeNull();
+    photos.pending('error');
+    expect(await photos.recover()).toMatchObject({ kind: 'error' });
+  });
 });
 
 describe('UnavailablePhotoPicker (web preview)', () => {
@@ -69,6 +81,7 @@ describe('UnavailablePhotoPicker (web preview)', () => {
     expect(await photos.pick('camera')).toEqual({ kind: 'unavailable', source: 'camera' });
     expect(await photos.locate('file:///docs/avatar/1.jpg')).toBeNull();
     await expect(photos.remove('file:///docs/avatar/1.jpg')).resolves.toBeUndefined();
+    expect(await photos.recover()).toBeNull();
   });
 });
 
@@ -77,6 +90,15 @@ describe('ExpoPhotoPicker', () => {
   const refused: PermissionResponse = { granted: false, status: 'denied' as PermissionResponse['status'], canAskAgain: false, expires: 'never' };
 
   type Call = { fn: string; options?: ImagePickerOptions };
+
+  /** What expo-image-picker leaves in its cache folder: here a file, as the module writes it. */
+  function cacheFile(name: string, bytes: Uint8Array): string {
+    new Directory('file:///cache/ImagePicker').create({ intermediates: true, idempotent: true });
+    const uri = `file:///cache/ImagePicker/${name}`;
+    fakeFs.writeFile(uri, bytes);
+    return uri;
+  }
+  const inPickerCache = () => fakeFs.list().filter((f) => f.startsWith('file:///cache/ImagePicker/'));
 
   function scripted(opts: { permission?: PermissionResponse; result?: ImagePickerResult | Error; mimeType?: string } = {}) {
     const calls: Call[] = [];
@@ -91,13 +113,11 @@ describe('ExpoPhotoPicker', () => {
       },
       launchCameraAsync: async (options) => {
         calls.push({ fn: 'launchCameraAsync', options });
-        fakeFs.writeFile('file:///cache/ImagePicker/camera.jpg', new Uint8Array([1, 2, 3]));
-        return result('file:///cache/ImagePicker/camera.jpg');
+        return result(cacheFile('camera.jpg', new Uint8Array([1, 2, 3])));
       },
       launchImageLibraryAsync: async (options) => {
         calls.push({ fn: 'launchImageLibraryAsync', options });
-        fakeFs.writeFile('file:///cache/ImagePicker/library.png', new Uint8Array([4, 5, 6, 7]));
-        return result('file:///cache/ImagePicker/library.png');
+        return result(cacheFile('library.png', new Uint8Array([4, 5, 6, 7])));
       },
     };
     return { picker, calls };
@@ -105,8 +125,8 @@ describe('ExpoPhotoPicker', () => {
 
   let excluded: string[];
   let clock: FakeClock;
-  function make(picker: ImagePickerModule) {
-    return new ExpoPhotoPicker({ picker, clock, excludeFromBackup: async (uri) => void excluded.push(uri) });
+  function make(picker: ImagePickerModule, device: PhotoDevice = { os: 'ios', version: '18.0', hasCamera: true }) {
+    return new ExpoPhotoPicker({ picker, clock, device, excludeFromBackup: async (uri) => void excluded.push(uri) });
   }
 
   beforeEach(() => {
@@ -155,9 +175,89 @@ describe('ExpoPhotoPicker', () => {
     expect(fakeFs.list().filter((f) => f.includes('/avatar/'))).toEqual([]);
   });
 
-  it('reads a launch that fails on a permission as denied', async () => {
+  it('reads a camera launch that fails on a permission as denied', async () => {
     const { picker } = scripted({ result: Object.assign(new Error('Missing camera or camera roll permission.'), { code: 'ERR_MISSING_PERMISSION' }) });
-    expect(await make(picker).pick('library')).toEqual({ kind: 'denied', source: 'library' });
+    expect(await make(picker).pick('camera')).toEqual({ kind: 'denied', source: 'camera' });
+    // Android: UserRejectedPermissionsException, wrapped without a code.
+    const rejected = scripted({ result: new Error('User rejected permissions') });
+    expect(await make(rejected.picker).pick('camera')).toEqual({ kind: 'denied', source: 'camera' });
+  });
+
+  it('reads any library failure as an error: the library has no permission to turn on in Settings', async () => {
+    // An Android SecurityException on the picked content URI, wrapped as UnexpectedException.
+    const { picker } = scripted({ result: new Error('java.lang.SecurityException: Permission Denial: opening provider') });
+    expect(await make(picker).pick('library')).toEqual({
+      kind: 'error',
+      source: 'library',
+      message: 'java.lang.SecurityException: Permission Denial: opening provider',
+    });
+  });
+
+  it('offers the camera only where the selfie can work', async () => {
+    expect(photoSources({ os: 'ios', version: '18.0' })).toEqual(['camera', 'library']);
+    expect(photoSources({ os: 'android', version: 29 })).toEqual(['camera', 'library']);
+    expect(photoSources({ os: 'android', version: 35, hasCamera: true })).toEqual(['camera', 'library']);
+    // Android 7 to 9: the camera would also need WRITE_EXTERNAL_STORAGE, which app.json blocks.
+    expect(photoSources({ os: 'android', version: 28 })).toEqual(['library']);
+    expect(photoSources({ os: 'android', version: 24 })).toEqual(['library']);
+    // The iOS Simulator (and a Mac without a camera): the camera picker would crash the app.
+    expect(photoSources({ os: 'ios', version: '18.0', hasCamera: false })).toEqual(['library']);
+
+    const { picker, calls } = scripted();
+    const old = make(picker, { os: 'android', version: 28 });
+    expect(old.sources).toEqual(['library']);
+    expect(await old.pick('camera')).toEqual({ kind: 'unavailable', source: 'camera' });
+    expect(calls).toEqual([]);
+    expect((await old.pick('library')).kind).toBe('picked');
+  });
+
+  it('leaves no copy in the picker cache: the Android crop as well as the result, whatever the outcome', async () => {
+    // Android with a crop: the crop (with the original's EXIF) and the exported result, both in
+    // <cache>/ImagePicker; only the second is returned.
+    const crop = scripted();
+    const android: ImagePickerModule = {
+      ...crop.picker,
+      launchImageLibraryAsync: async () => {
+        cacheFile('crop.jpeg', new Uint8Array([7, 7, 7]));
+        return { canceled: false, assets: [{ uri: cacheFile('export.jpeg', new Uint8Array([8, 8])), width: 9, height: 9, mimeType: 'image/jpeg' }] };
+      },
+    };
+    const photos = make(android, { os: 'android', version: 34 });
+    const picked = await photos.pick('library');
+    expect(picked).toEqual({ kind: 'picked', uri: 'file:///docs/avatar/1763164800000.jpg' });
+    expect(inPickerCache()).toEqual([]);
+    expect(fakeFs.dirExists('file:///cache/ImagePicker/')).toBe(false);
+
+    // Cancelled, failed, or refused copies leave nothing either.
+    const cancelled: ImagePickerModule = {
+      ...crop.picker,
+      launchCameraAsync: async () => {
+        cacheFile('raw.jpg', new Uint8Array([1]));
+        return { canceled: true, assets: null };
+      },
+    };
+    expect(await make(cancelled).pick('camera')).toEqual({ kind: 'cancelled' });
+    expect(inPickerCache()).toEqual([]);
+    const failing: ImagePickerModule = {
+      ...crop.picker,
+      launchCameraAsync: async () => {
+        cacheFile('raw.jpg', new Uint8Array([1]));
+        throw new Error('FailedToPickMediaException');
+      },
+    };
+    expect((await make(failing).pick('camera')).kind).toBe('error');
+    expect(inPickerCache()).toEqual([]);
+  });
+
+  it('deletes the picker cache on remove, too', async () => {
+    const { picker } = scripted();
+    const photos = make(picker);
+    const picked = await photos.pick('camera');
+    if (picked.kind !== 'picked') throw new Error('not picked');
+    cacheFile('left-over.jpeg', new Uint8Array([3]));
+    await photos.remove(picked.uri);
+    expect(fakeFs.exists(picked.uri)).toBe(false);
+    expect(inPickerCache()).toEqual([]);
   });
 
   it('changes nothing when the learner cancels', async () => {
@@ -191,6 +291,48 @@ describe('ExpoPhotoPicker', () => {
     const result = await make(picker).pick('library');
     expect(result).toMatchObject({ kind: 'error', source: 'library' });
     expect(fakeFs.list().filter((f) => f.includes('/avatar/'))).toEqual(['file:///docs/avatar/1763164800000.jpg']);
+    // The picker's copy is deleted on this path too.
+    expect(fakeFs.exists('file:///cache/ImagePicker/empty.jpg')).toBe(false);
+  });
+
+  describe('a pick Android interrupted by closing the app', () => {
+    function pending(result: ImagePickerResult | ImagePickerErrorResult | null | Error): ImagePickerModule {
+      return {
+        ...scripted().picker,
+        getPendingResultAsync: async () => {
+          if (result instanceof Error) throw result;
+          return result;
+        },
+      };
+    }
+
+    it('stores the pending photo like a pick and leaves no copy in the cache', async () => {
+      const raw = cacheFile('raw.jpg', new Uint8Array([1, 2]));
+      const exported = cacheFile('exported.jpg', new Uint8Array([5, 6, 7]));
+      const photos = make(pending({ canceled: false, assets: [{ uri: exported, width: 4, height: 3, mimeType: 'image/jpeg' }] }), { os: 'android', version: 34 });
+      expect(await photos.recover()).toEqual({ kind: 'picked', uri: 'file:///docs/avatar/1763164800000.jpg' });
+      expect(fakeFs.readFile('file:///docs/avatar/1763164800000.jpg')).toEqual(new Uint8Array([5, 6, 7]));
+      expect(fakeFs.exists(raw)).toBe(false);
+      expect(inPickerCache()).toEqual([]);
+      expect(excluded).toEqual(['file:///docs/avatar/', 'file:///docs/avatar/1763164800000.jpg']);
+    });
+
+    it('finds nothing on iOS, without a pending result, or after a cancel; reports a failed one', async () => {
+      expect(await make(scripted().picker).recover()).toBeNull();
+      expect(await make(pending(null)).recover()).toBeNull();
+      expect(await make(pending({ canceled: true, assets: null })).recover()).toBeNull();
+      expect(await make(pending({ code: 'ERR_FAILED_TO_READ_IMAGE', message: 'Failed to read picked image' })).recover()).toEqual({
+        kind: 'error',
+        message: 'Failed to read picked image',
+      });
+      expect(await make(pending(new Error('module gone'))).recover()).toEqual({ kind: 'error', message: 'module gone' });
+      // A copy that cannot be made: an error, and the cache is still cleared.
+      cacheFile('orphan.jpg', new Uint8Array([1]));
+      const missing = make(pending({ canceled: false, assets: [{ uri: 'file:///cache/ImagePicker/gone.jpg', width: 1, height: 1 }] }));
+      expect(await missing.recover()).toMatchObject({ kind: 'error' });
+      expect(inPickerCache()).toEqual([]);
+      expect(fakeFs.list().filter((f) => f.includes('/avatar/'))).toEqual([]);
+    });
   });
 
   it('gives two photos taken in the same millisecond different names', async () => {

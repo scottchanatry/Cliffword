@@ -114,7 +114,7 @@ describe('onboarding', () => {
     expect(await screen.findByTestId('onboarding-picture')).toBeOnTheScreen();
     expect(screen.getByText('Who are you in the story?')).toBeOnTheScreen();
     expect(screen.getByTestId('onboarding-step')).toHaveTextContent('Step 5 of 6');
-    expect(screen.getAllByRole('radio')).toHaveLength(9);
+    expect(screen.getAllByRole('radio')).toHaveLength(15);
     expect(screen.getByTestId('picture-character-you').props.accessibilityState).toMatchObject({ checked: true });
     expect(screen.getByTestId('picture-character-you-captain').props.accessibilityLabel).toBe('Old sea captain with a toy sailboat');
     expect(screen.getByTestId('picture-continue')).toBeEnabled();

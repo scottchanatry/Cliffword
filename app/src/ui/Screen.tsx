@@ -10,6 +10,11 @@ export interface ScreenProps {
   /** Safe-area edges to pad. Default all but top, because navigators draw the header. */
   edges?: readonly Edge[];
   contentStyle?: StyleProp<ViewStyle>;
+  /**
+   * Pinned under the content, outside the scroll, so it is always in view however long the
+   * content is (a step's main action). A hairline separates it from content scrolling beneath.
+   */
+  footer?: ReactNode;
   testID?: string;
 }
 
@@ -19,15 +24,21 @@ export function Screen({
   scroll = false,
   edges = ['left', 'right', 'bottom'],
   contentStyle,
+  footer,
   testID,
 }: ScreenProps) {
   return (
     <SafeAreaView edges={edges} style={styles.root} testID={testID}>
       {scroll ? (
-        <ScrollView contentContainerStyle={[styles.content, contentStyle]}>{children}</ScrollView>
+        <ScrollView contentContainerStyle={[styles.content, footer ? styles.aboveFooter : null, contentStyle]}>{children}</ScrollView>
       ) : (
-        <View style={[styles.content, styles.fill, contentStyle]}>{children}</View>
+        <View style={[styles.content, styles.fill, footer ? styles.aboveFooter : null, contentStyle]}>{children}</View>
       )}
+      {footer ? (
+        <View style={styles.footer} testID={testID ? `${testID}-footer` : undefined}>
+          {footer}
+        </View>
+      ) : null}
     </SafeAreaView>
   );
 }
@@ -45,5 +56,17 @@ const styles = StyleSheet.create({
     paddingTop: layout.screenPaddingTop / 2,
     paddingBottom: layout.screenPaddingBottom,
     gap: layout.screenGap,
+  },
+  aboveFooter: {
+    paddingBottom: layout.screenGap,
+  },
+  footer: {
+    paddingHorizontal: layout.screenPaddingX,
+    paddingTop: layout.screenGap / 2,
+    paddingBottom: layout.screenPaddingBottom / 2,
+    gap: layout.screenGap / 2,
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: colors.border,
+    backgroundColor: colors.ground,
   },
 });

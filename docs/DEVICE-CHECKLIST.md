@@ -165,6 +165,10 @@ Start from a fresh install (delete the app first if it was installed).
 | X4 | Delete lyrics and texts | Settings, "Delete all lyrics and texts", confirm | Pasted lyrics and brought texts are gone; the songs stay, waiting for lyrics; progress and minutes spoken remain | | |
 | X5 | Reset progress | Settings, Reset progress, confirm, choose a start | Onboarding's start choice opens; afterwards minutes spoken is 0 and the words are reset; the model, voice and slang settings are kept; no old story or song session resumes | | |
 | X6 | Delete the model | Settings, Delete the model, confirm; check iPhone Storage or Android app storage; download again | About 1.1 GB is freed; the app goes back to starter sentences; the new download works | | |
+| X7 | Selfie and photo | Settings, Your picture, Change: "Take a selfie" (allow the camera), then "Choose a photo", then Remove photo. **dev build**: after each step list the app's cache folder (`<cache>/ImagePicker/`) and `files/avatar/` (Android: `adb shell run-as app.cliffword ls -R cache files/avatar`) | The selfie, then the photo, shows in the row and beside your answers; after every step `ImagePicker/` is gone or empty and `avatar/` holds at most the one photo in use; after Remove photo both are empty | | |
+| X8 | Selfie interrupted by Android | Android, Developer options, "Don't keep activities" on; Settings, Your picture, Take a selfie, take it, confirm the crop | Back in the app (it restarts), the selfie is your picture; turn the option off afterwards | n/a | |
+| X9 | Old Android: no selfie | An Android 9 (API 28) emulator or phone; open Your picture | Only "Choose a photo" is offered, and it works; no camera prompt ever appears | n/a | |
+| X10 | Simulator: no selfie | **dev build** in the iOS Simulator (`development-simulator` profile); open Your picture | Only "Choose a photo" is offered; nothing crashes. Test the selfie itself on a real iPhone (X7) | | n/a |
 
 ## 13. Look and touch
 
@@ -183,6 +187,7 @@ Start from a fresh install (delete the app first if it was installed).
 | F1 | App Store upload | Watch email after `eas submit -p ios` | No ITMS-91053 for required-reason APIs (add any reason it names to `ios.privacyManifests`) | | n/a |
 | F2 | Version and build | Settings, About | Matches App Store Connect or the Play Console | | |
 | F3 | Play pre-launch report | Play Console, Testing, Pre-launch report, after the first upload | No crashes; accessibility warnings noted | n/a | |
+| F4 | Camera optional on Play | `aapt2 dump badging` on the build's APK; Play Console, Device catalog | `uses-feature-not-required` for `android.hardware.camera` and `.autofocus`, no `uses-implied-feature` for the camera; phones without an autofocus rear camera are not excluded | n/a | |
 
 ## Release blockers
 

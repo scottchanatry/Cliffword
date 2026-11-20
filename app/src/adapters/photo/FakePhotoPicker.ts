@@ -1,6 +1,6 @@
 import { FakeClock } from '../clock/FakeClock';
 import type { Clock } from '../clock/types';
-import type { PhotoPicker, PhotoResult, PhotoSource } from './types';
+import type { PhotoPicker, PhotoResult, PhotoSource, RecoveredPhoto } from './types';
 
 /** What the next pick does: 'taken' stores a photo; the others are the learner's or the system's answer. */
 export type FakePhotoOutcome = 'taken' | 'cancelled' | 'denied' | 'error';
@@ -35,6 +35,7 @@ export class FakePhotoPicker implements PhotoPicker {
   private readonly queue: FakePhotoOutcome[] = [];
   private count = 0;
   private gate: Promise<void> | null = null;
+  private waiting: 'taken' | 'error' | null = null;
 
   constructor(opts: FakePhotoPickerOptions = {}) {
     this.clock = opts.clock ?? new FakeClock();
@@ -87,6 +88,22 @@ export class FakePhotoPicker implements PhotoPicker {
   async remove(uri: string): Promise<void> {
     this.removed.push(uri);
     this.files.delete(uri);
+  }
+
+  /** What the next recover() returns: 'taken' stores a photo (as a pick interrupted by Android would). */
+  pending(outcome: 'taken' | 'error' | null): void {
+    this.waiting = outcome;
+  }
+
+  async recover(): Promise<RecoveredPhoto | null> {
+    const outcome = this.waiting;
+    this.waiting = null;
+    if (outcome === 'error') return { kind: 'error', message: 'The fake pending photo failed' };
+    if (outcome !== 'taken') return null;
+    this.count += 1;
+    const uri = `${this.folder}${this.clock.now()}-${this.count}.jpg`;
+    this.files.add(uri);
+    return { kind: 'picked', uri };
   }
 
   /** Stores a photo as if an earlier pick had (a test that starts with one). */

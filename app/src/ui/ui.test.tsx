@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native';
-import { fireEvent, render, screen } from '@testing-library/react-native';
+import { fireEvent, render, screen, within } from '@testing-library/react-native';
 import { colors, fontFamilies, layout } from '../theme';
 import { Button, Card, ContentText, InterfaceText, MusicHeading, Pill, Screen } from './index';
 
@@ -72,5 +72,18 @@ describe('Card and Screen', () => {
     expect(flat(screen.getByTestId('card').props.style).backgroundColor).toBe(colors.card);
     expect(flat(screen.getByTestId('screen').props.style).backgroundColor).toBe(colors.ground);
     expect(screen.getByText('inside')).toBeOnTheScreen();
+  });
+
+  it('pins a footer under the scrolling content, outside the scroll', async () => {
+    await render(
+      <Screen scroll testID="screen" footer={<Button label="Continue" onPress={() => undefined} testID="go" />}>
+        <InterfaceText>long content</InterfaceText>
+      </Screen>,
+    );
+    type Node = { type: unknown; parent: Node | null };
+    const inScroll = (node: Node | null): boolean => (node ? node.type === 'RCTScrollView' || inScroll(node.parent) : false);
+    expect(inScroll(screen.getByText('long content') as unknown as Node)).toBe(true);
+    expect(inScroll(screen.getByTestId('go') as unknown as Node)).toBe(false);
+    expect(within(screen.getByTestId('screen-footer')).getByTestId('go')).toBeOnTheScreen();
   });
 });

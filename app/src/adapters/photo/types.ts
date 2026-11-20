@@ -28,8 +28,17 @@ export type PhotoResult =
   /** Anything else failed (no camera, the copy could not be written); `message` is for logs. */
   | { kind: 'error'; source: PhotoSource; message: string };
 
+/**
+ * A photo taken or chosen while Android had closed the app (the camera or the photo picker was
+ * in front and the system needed the memory): stored like a pick, or why it could not be.
+ */
+export type RecoveredPhoto = { kind: 'picked'; uri: string } | { kind: 'error'; message: string };
+
 export interface PhotoPicker {
-  /** The sources this device offers, in the order the chooser shows them (empty on the web). */
+  /**
+   * The sources this device offers, in the order the chooser shows them (empty on the web; no
+   * camera where the selfie cannot work: Android 9 and older, the iOS Simulator).
+   */
   readonly sources: readonly PhotoSource[];
   /**
    * Asks for the permission the source needs (only now, when the learner tapped it), opens the
@@ -43,6 +52,14 @@ export interface PhotoPicker {
    * one. Never rejects.
    */
   locate(uri: string): Promise<string | null>;
-  /** Deletes a stored photo. Only files in the app's photo folder are touched. Never rejects. */
+  /**
+   * Deletes a stored photo (and any copy the system picker left in the app's cache). Only files
+   * in the app's photo folder and the picker's own cache folder are touched. Never rejects.
+   */
   remove(uri: string): Promise<void>;
+  /**
+   * At startup: the photo of a pick that Android interrupted by closing the app, stored like a
+   * pick (null when there is none, always on iOS and the web). Never rejects.
+   */
+  recover(): Promise<RecoveredPhoto | null>;
 }

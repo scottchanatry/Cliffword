@@ -95,10 +95,30 @@ describe("the learner's avatars", () => {
   const discColor = (id: string) =>
     fs.readFileSync(path.join(ROOT, `src/cast/${id}.svg`), 'utf8').match(/<circle cx="128" cy="128" r="124" fill="(#[0-9A-Fa-f]{6})"\/>/)?.[1];
 
-  it('has the default first, and every id has its source, its three PNGs and its own picture', () => {
+  it('has the default first, then everyone youngest first: a teen, eight in their twenties and thirties, then forties to eighties', () => {
     expect(YOU_AVATAR_IDS[0]).toBe('you');
     expect(DEFAULT_YOU_AVATAR).toBe('you');
-    expect(YOU_AVATAR_IDS.length).toBe(9);
+    expect(YOU_AVATAR_IDS).toEqual([
+      'you',
+      'you-teen',
+      'you-painter',
+      'you-courier',
+      'you-surfer',
+      'you-backpacker',
+      'you-dancer',
+      'you-remote',
+      'you-dad',
+      'you-doglover',
+      'you-chef',
+      'you-photographer',
+      'you-musician',
+      'you-grandma',
+      'you-captain',
+    ]);
+  });
+
+  it('gives every id its source, its three PNGs and its own picture', () => {
+    expect(YOU_AVATAR_IDS.length).toBe(15);
     expect(new Set(YOU_AVATAR_IDS).size).toBe(YOU_AVATAR_IDS.length);
     expect(Object.keys(YOU_AVATARS).sort()).toEqual([...YOU_AVATAR_IDS].sort());
     for (const id of YOU_AVATAR_IDS) {
@@ -115,10 +135,32 @@ describe("the learner's avatars", () => {
     for (const cast of Object.values(SERIES_CAST)) expect(Object.values(cast)).not.toContain('you');
   });
 
-  it('gives every avatar a disc of its own color', () => {
+  /**
+   * The palette colors a disc can take: all of them but ink (the outlines would vanish into it)
+   * and ground (the disc would vanish into the app's background).
+   */
+  const DISC_COLORS = ['#EF6A57', '#FFC46B', '#B4530A', '#5B616B', '#2E9C92', '#62AD52', '#C3B3EA', '#A8DBF0', '#FFE9C7', '#F08A1D', '#F7BBCB'];
+  /** The chooser shows the avatars three to a row. */
+  const COLUMNS = 3;
+
+  it('gives every avatar a palette disc, and uses every disc color before it repeats one', () => {
     const colors = YOU_AVATAR_IDS.map(discColor);
-    expect(colors.every(Boolean)).toBe(true);
-    expect(new Set(colors).size).toBe(YOU_AVATAR_IDS.length);
+    for (const color of colors) expect(DISC_COLORS).toContain(color);
+    // Fifteen avatars, eleven disc colors: all eleven are used, and none more than twice.
+    expect(new Set(colors).size).toBe(Math.min(YOU_AVATAR_IDS.length, DISC_COLORS.length));
+    for (const color of DISC_COLORS) expect(colors.filter((c) => c === color).length).toBeLessThanOrEqual(2);
+  });
+
+  it('never puts two discs of one color next to each other in the chooser, not even corner to corner', () => {
+    const colors = YOU_AVATAR_IDS.map(discColor);
+    const touching: string[] = [];
+    colors.forEach((color, i) =>
+      colors.forEach((other, j) => {
+        const apart = Math.max(Math.abs(Math.floor(i / COLUMNS) - Math.floor(j / COLUMNS)), Math.abs((i % COLUMNS) - (j % COLUMNS)));
+        if (i < j && color === other && apart < 2) touching.push(`${YOU_AVATAR_IDS[i]} and ${YOU_AVATAR_IDS[j]}`);
+      }),
+    );
+    expect(touching).toEqual([]);
   });
 
   it('recognizes avatar ids, and nothing else', () => {

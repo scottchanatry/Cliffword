@@ -1,10 +1,12 @@
 /**
  * The learner's picture chooser, shared by onboarding ("Who are you in the story?") and Settings
- * ("Your picture"): the chosen picture large at the top; the nine characters in three columns,
- * circles with a ring on the chosen one (radios for screen readers, each named by what it shows);
- * "Take a selfie" and "Choose a photo" where the device offers them; "Remove photo" while a photo
- * is the picture; and a notice when a photo did not work (how to allow it in Settings, or that the
- * picture stayed). Plain props: usePictureChooser holds the behaviour.
+ * ("Your picture"): the chosen picture large at the top; right under it "Take a selfie" and
+ * "Choose a photo" where the device offers them, "Remove photo" while a photo is the picture, and
+ * a notice when a photo did not work (how to allow it in Settings, or that the picture stayed);
+ * then the fifteen characters in three columns, circles with a ring on the chosen one (radios for
+ * screen readers, each named by what it shows). The photo buttons come before the grid so they are
+ * in view without scrolling past five rows of faces. Plain props: usePictureChooser holds the
+ * behaviour.
  */
 import { Image, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import type { PhotoSource } from '../../adapters/photo/types';
@@ -19,11 +21,15 @@ import type { PictureNotice } from './usePictureChooser';
 
 /** A character's circle, in points; the ring sits around it. */
 export const CHARACTER_SIZE = 88;
-/** The picture at the top. */
-export const PREVIEW_SIZE = 112;
 /**
- * On a short screen (an iPhone SE, 667 pt) both are a little smaller, so the onboarding step's
- * Continue shows without scrolling when no photo buttons are added below the grid.
+ * The picture at the top: the cast's 1x size (ILLUSTRATION_SIZE.cast), the largest a character
+ * picture is drawn sharp at (a larger circle would stretch the @3x file).
+ */
+export const PREVIEW_SIZE = 96;
+/**
+ * On a short screen (an iPhone SE, 667 pt) both are a little smaller, so more of the grid shows at
+ * once. Fifteen characters make five rows, which scroll; the photo buttons sit above them and the
+ * onboarding step pins Continue under the scroll, so neither is ever below the fold.
  */
 export const COMPACT = { below: 720, character: 80, preview: 80 } as const;
 const RING = 3;
@@ -54,36 +60,6 @@ export function PictureChooser({ picture, sources, busy, notice, onChooseCharact
     <View style={styles.root} testID={testID}>
       <View style={styles.preview} accessible accessibilityRole="image" accessibilityLabel={t('picture.current', { name })} testID="picture-preview">
         <LearnerAvatar picture={picture} size={compact ? COMPACT.preview : PREVIEW_SIZE} testID="picture-preview-image" />
-      </View>
-
-      <View style={styles.grid} accessibilityRole="radiogroup" accessibilityLabel={t('picture.characters')} testID="picture-characters">
-        {YOU_AVATAR_IDS.map((id) => {
-          const selected = picture.kind === 'character' && picture.id === id;
-          return (
-            <View key={id} style={styles.cell}>
-              <Pressable
-                accessibilityRole="radio"
-                accessibilityLabel={t(CHARACTER_LABELS[id])}
-                accessibilityState={{ checked: selected, selected, disabled: busy }}
-                // react-native-web 0.21 reads only the aria-* form of the checked state.
-                aria-checked={selected}
-                disabled={busy}
-                onPress={() => onChooseCharacter(id)}
-                testID={`picture-character-${id}`}
-                style={({ pressed }) => [styles.ring, { width: cell, height: cell }, selected && styles.ringSelected, pressed && !busy && styles.ringPressed]}
-              >
-                <Image
-                  source={YOU_AVATARS[id]}
-                  accessible={false}
-                  accessibilityElementsHidden
-                  importantForAccessibility="no"
-                  style={{ width: character, height: character }}
-                  testID={`picture-character-${id}-image`}
-                />
-              </Pressable>
-            </View>
-          );
-        })}
       </View>
 
       {sources.length > 0 ? (
@@ -120,6 +96,36 @@ export function PictureChooser({ picture, sources, busy, notice, onChooseCharact
           ) : null}
         </Card>
       ) : null}
+
+      <View style={styles.grid} accessibilityRole="radiogroup" accessibilityLabel={t('picture.characters')} testID="picture-characters">
+        {YOU_AVATAR_IDS.map((id) => {
+          const selected = picture.kind === 'character' && picture.id === id;
+          return (
+            <View key={id} style={styles.cell}>
+              <Pressable
+                accessibilityRole="radio"
+                accessibilityLabel={t(CHARACTER_LABELS[id])}
+                accessibilityState={{ checked: selected, selected, disabled: busy }}
+                // react-native-web 0.21 reads only the aria-* form of the checked state.
+                aria-checked={selected}
+                disabled={busy}
+                onPress={() => onChooseCharacter(id)}
+                testID={`picture-character-${id}`}
+                style={({ pressed }) => [styles.ring, { width: cell, height: cell }, selected && styles.ringSelected, pressed && !busy && styles.ringPressed]}
+              >
+                <Image
+                  source={YOU_AVATARS[id]}
+                  accessible={false}
+                  accessibilityElementsHidden
+                  importantForAccessibility="no"
+                  style={{ width: character, height: character }}
+                  testID={`picture-character-${id}-image`}
+                />
+              </Pressable>
+            </View>
+          );
+        })}
+      </View>
     </View>
   );
 }

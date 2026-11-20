@@ -8,7 +8,11 @@
 //   iCloud and device backups (Apple's data storage guidelines for files in Documents).
 // - availableBytes(): free space for a user-initiated download
 //   (volumeAvailableCapacityForImportantUsage, which counts space iOS can purge), or -1.
+// - hasCamera (a constant): whether the device has a camera for the learner's selfie. False in the
+//   Simulator and on a Mac without one: expo-image-picker opens UIImagePickerController with the
+//   camera source without checking it, and UIKit raises an exception JS cannot catch.
 
+import AVFoundation
 import CryptoKit
 import ExpoModulesCore
 import Foundation
@@ -21,6 +25,15 @@ public final class CliffwordNativeModule: Module {
     Name("CliffwordNative")
 
     Events("onHashProgress")
+
+    Constant("hasCamera") { () -> Bool in
+      #if targetEnvironment(simulator)
+      return false
+      #else
+      // Device discovery only: it asks for no permission and is safe off the main thread.
+      return AVCaptureDevice.default(for: .video) != nil
+      #endif
+    }
 
     AsyncFunction("sha256File") { (url: URL, jobId: String) throws -> String in
       return try self.sha256(of: url, jobId: jobId)

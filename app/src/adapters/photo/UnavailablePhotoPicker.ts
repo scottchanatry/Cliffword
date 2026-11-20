@@ -1,4 +1,4 @@
-import type { PhotoPicker, PhotoResult, PhotoSource } from './types';
+import type { PhotoPicker, PhotoResult, PhotoSource, RecoveredPhoto } from './types';
 
 /**
  * The web preview's PhotoPicker: no camera or library (its storage is in memory and could not keep
@@ -16,4 +16,8 @@ export class UnavailablePhotoPicker implements PhotoPicker {
   }
 
   async remove(_uri: string): Promise<void> {}
+
+  async recover(): Promise<RecoveredPhoto | null> {
+    return null;
+  }
 }

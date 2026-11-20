@@ -8,6 +8,9 @@
  *   false (backup rules cover it there).
  * - availableBytes(): iOS only, free space for important use (counts purgeable space), -1 if
  *   unknown. Android has no such function; use Paths.availableDiskSpace.
+ * - hasCamera: iOS only, false in the Simulator and on a device with no camera (an iPhone app on
+ *   a Mac without one), where the selfie's camera picker would raise an uncatchable exception
+ *   (src/adapters/photo/ExpoPhotoPicker.ts). Undefined on Android and in older binaries.
  *
  * The export is null when the binary lacks the module (a build from before it existed) and in
  * Jest; callers fall back (see src/adapters/model/fileHash.ts). On web, index.web.ts exports null.
@@ -30,6 +33,8 @@ export declare class CliffwordNativeModule extends NativeModule<CliffwordNativeE
   excludeFromBackup(uri: string): Promise<boolean>;
   /** iOS only. */
   availableBytes?: () => Promise<number>;
+  /** iOS only: whether there is a camera for a selfie. */
+  readonly hasCamera?: boolean;
 }
 
 const CliffwordNative: CliffwordNativeModule | null = requireOptionalNativeModule<CliffwordNativeModule>('CliffwordNative');

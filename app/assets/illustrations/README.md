@@ -53,7 +53,7 @@ node scripts/make-illustrations.js --sheet <dir>   # also contact sheets per gro
 It needs Playwright with Chromium (like `npm run icons`), renders each SVG at 1x, 2x and 3x,
 and writes 8-bit palette PNGs (at most 256 colors; the flat fills keep their exact colors, the
 edges are clustered) with its own small encoder, so nothing is added to the app's
-dependencies. All 59 pictures at three densities come to about 1.8 MB.
+dependencies. All 73 pictures at three densities come to about 2.1 MB.
 
 ## Style guide
 
@@ -123,32 +123,57 @@ Pancho turns up in the San Juan cover and in scenes 1, 4 and 8. The app maps a s
 (`neighbor`, `rooster`, `grocer`, `friend`, `grandpa`, `baker`, `clerk`, `waiter`, `pharmacist`)
 to these pictures in `src/illustrations/index.ts` (`SERIES_CAST`).
 
+The scene opens its episode and the speakers' avatars follow right under it, so a cast member in
+a scene keeps their cast look and stands where their lines are said. The scenes with people:
+
+| scene | who | where |
+| ----- | --- | ----- |
+| `e1-street` | Doña Mari, Yari, Pancho | Doña Mari on her balcony, Yari waving in the street, Pancho on the cobblestones |
+| `e2-colmado` | Nando, Wilfredo | Nando (baker's hat, wink) behind the bakery's bread counter, where the `baker` lines are said; Wilfredo (mustache, pencil) behind the fruit crates of his colmado, under the shelves |
+| `e3-clothes` | Migdalia | the shop assistant by the mirror, holding up the red shirt from her line "Esta camisa roja es perfecta" |
+| `e8-party` | Abuelo, Wilfredo, Yari, Doña Mari, Pancho | the backyard party: dominoes, the cake, Pancho on the fence |
+
 ### You avatars
 
-The learner chooses who they are in a story: one of these nine characters, or their own photo
+The learner chooses who they are in a story: one of these fifteen characters, or their own photo
 (a selfie or one from the library, which is not an illustration). Their own lines ("You"
 bubbles) show the choice. `you`, the waving figure from the cast table, is the default and
-stays first. The other eight are drawn like the cast (same canvas, disc, line weight and shared
-skin), funny and of different ages, a mix of genders with some left open, each with a prop that
-says something about them. Every disc has a color no other avatar has. In code:
-`YOU_AVATAR_IDS` (default first), `YOU_AVATARS`, `DEFAULT_YOU_AVATAR` and `isYouAvatarId` in
-`src/illustrations/index.ts`; `index.test.ts` checks that every one has its source and PNGs and
-its own disc color, and that every source in `src/cast` is either a cast picture or an avatar.
+stays first; the others follow by age, youngest first (a teen, eight in their twenties and
+thirties, then one each from the forties to the eighties), and the chooser shows them three to a
+row. They are drawn like the cast (same canvas, disc, line weight and shared skin), funny, a mix
+of genders with some left open, each with a prop that says something about them.
+
+Discs: a disc takes any palette color but ink (the outlines vanish into it) and ground (the disc
+vanishes into the app's background), which leaves eleven. Every one of the eleven is used before
+any is used twice, none is used three times, and two discs of one color never touch in the
+chooser's grid, not even corner to corner (fifteen avatars: teal, palm green, lilac and amber
+light are used twice). In code: `YOU_AVATAR_IDS` (default first, then by age), `YOU_AVATARS`,
+`DEFAULT_YOU_AVATAR` and `isYouAvatarId` in `src/illustrations/index.ts`; `index.test.ts` checks
+the order, that every one has its source and PNGs, the disc rules above, and that every source
+in `src/cast` is either a cast picture or an avatar.
 
 | id | who | description |
 | -- | --- | ----------- |
 | `you` | anyone (the default) | see the cast table: no particular gender, tousled brown hair, a teal t-shirt, waving hello; coral disc |
 | `you-teen` | a teenager of about fifteen, of no particular gender | shaggy ink hair with a teal streak, big coral headphones, freckles, a green hoodie with drawstrings, blowing a pink bubble-gum bubble and going cross-eyed at it, a teal skateboard held upright (seen from below, trucks and wheels showing); amber disc |
+| `you-painter` | a painter in their early twenties, of no particular gender | a fluffy lilac mop, a paintbrush with a teal tip tucked behind the right ear, a teal smear of paint across one cheek, bright eyes and a big open smile, sky overalls splattered with coral, green, teal and deep amber paint (deep amber buttons, a pocket) over a white t-shirt, a cream palette of paint blobs held up with a thumb through the hole; accent brown disc |
+| `you-courier` | a bike courier in his twenties | a coral bike helmet with ink vents, a white shine and an ink chin strap, short ink hair peeking out, a breathless open grin with teeth, big flushed cheeks, sky sweat drops and puff lines flying off, a sky t-shirt, a deep amber strap across the chest with a grey buckle and a hand gripping it, a teal messenger bag at the hip; muted grey disc |
+| `you-surfer` | a surfer in her mid twenties | long, messy, sun-bleached hair (amber light with deep amber streaks, a jagged fringe, locks over the shoulders), a big laugh, an ink wetsuit top with a high collar and sky shoulders, a cream surfboard with a coral stringer and stripes under her arm (sky sleeve, hand on the rail); teal disc |
 | `you-backpacker` | a backpacker in her twenties | a messy ginger top bun, ink sunglasses pushed up, a huge coral backpack with a teal rolled mat sticking out behind her head, deep amber straps and chest strap, a sky t-shirt, one brow up and a big grin at a folded map with a dotted route and a coral pin; palm green disc |
+| `you-dancer` | a salsa dancer in his late twenties | mid spin, leaning into it: an ink quiff with a grey shine, eyes shut in joy and a big laugh, a coral shirt open at the collar with big cream and pink flowers and green leaves, one arm up (short coral sleeve, open hand), a teal and a coral music note, ground swirls of movement; lilac disc |
 | `you-remote` | a remote worker in their thirties, of no particular gender | brown bed hair with a cowlick, square ink glasses, sleepy half-closed eyes and a content smile, a lilac hoodie, a grey laptop covered in stickers under one arm, a huge steaming coral mug; sky disc |
+| `you-dad` | a dad in his thirties | short brown hair and a short brown beard and mustache, a green t-shirt, a baby in a coral front carrier (one brown curl, little hands on the rim), dad and baby making the same surprised face (wide eyes, high brows, a small round mouth), a baby bottle with a teal collar held up, a drop of milk flying off it; amber light disc |
+| `you-doglover` | a dog lover in her thirties | long wavy brown hair, coral heart-shaped sunglasses, teal stud earrings, one brow up and a pleased grin with teeth, a lilac top, a cream canvas tote with a teal band on her shoulder and a tiny deep amber dog (big pointy ears, pink inside, tongue out, paws on the rim) peeking out of it in the very same heart sunglasses; palm green disc |
 | `you-chef` | a chef in his forties | a tall white chef's hat tilted, short ink hair grey at the temples, a big ink mustache, eyes shut in bliss and a big laugh, a white double-breasted jacket with a teal neckerchief, a wooden spoon of coral sauce just tasted and still steaming; deep amber disc |
 | `you-photographer` | a photographer in her fifties | a wide sky sun hat with a coral band, a salt-and-pepper grey bob, small white earrings, a wink with smile lines as if lining up a shot, a teal shirt, a big grey camera with a sky lens on a coral strap, held in both hands; pink disc |
 | `you-musician` | a musician in his sixties | bald and shiny on top with forehead lines, white hair at the sides and a white ponytail with a teal tie, round ink glasses over laughing eyes, a white goatee, a coral shirt with pink dots, a deep amber guitar slung across on a teal strap; lilac disc |
 | `you-grandma` | a grandma in her seventies | a wide pink beach hat with a coral band and a big coral flower, white curls, huge round sunglasses with coral frames, smile lines and a coral lipstick grin, pearls, a lilac blouse with white dots, a teal and pink folding fan; amber light disc |
 | `you-captain` | an old sea captain in his eighties | a white captain's cap with an ink visor, a deep amber braid and anchor badge, bushy white brows, crinkly laughing eyes, a round rosy nose, a big white beard and mustache, an ink jacket with grey lapels and deep amber buttons, a toy sailboat held up proudly; teal disc |
 
-To add one: draw `src/cast/you-<who>.svg` from one of these, give it a disc color the others do
-not use, render it, and add it to `YOU_AVATAR_IDS` and `YOU_AVATARS` (after `you`, by age).
+To add one: draw `src/cast/you-<who>.svg` from one of these, give it a disc color that keeps the
+disc rules above, render it, and add it to `YOU_AVATAR_IDS` and `YOU_AVATARS` (after `you`, by
+age), a label to `CHARACTER_LABELS` (`src/components/LearnerAvatar.tsx`) and its text to the
+i18n catalog (`picture.character.<who>`).
 
 ## Adding or changing a picture
 

@@ -34,15 +34,22 @@ export type CastId = (typeof CAST_IDS)[number];
 
 /**
  * Who the learner can be in a story (the avatar of their own "You" lines), youngest first after
- * the default: `you`, the gender-neutral waving figure, then eight characters of different ages,
- * each with a prop. Drawn as cast discs (assets/illustrations/cast, README "You avatars"). The
- * learner's own photo is the other choice; it is not a picture here.
+ * the default: `you`, the gender-neutral waving figure, then fourteen characters of different
+ * ages (a teen, eight in their twenties and thirties, then forties to eighties), each with a prop.
+ * Drawn as cast discs (assets/illustrations/cast, README "You avatars"). The chooser shows them
+ * three to a row. The learner's own photo is the other choice; it is not a picture here.
  */
 export const YOU_AVATAR_IDS = [
   'you',
   'you-teen',
+  'you-painter',
+  'you-courier',
+  'you-surfer',
   'you-backpacker',
+  'you-dancer',
   'you-remote',
+  'you-dad',
+  'you-doglover',
   'you-chef',
   'you-photographer',
   'you-musician',
@@ -140,8 +147,14 @@ export const CAST: Record<CastId, ImageSourcePropType> = {
 export const YOU_AVATARS: Record<YouAvatarId, ImageSourcePropType> = {
   you: CAST.you,
   'you-teen': require('../../assets/illustrations/cast/you-teen.png'),
+  'you-painter': require('../../assets/illustrations/cast/you-painter.png'),
+  'you-courier': require('../../assets/illustrations/cast/you-courier.png'),
+  'you-surfer': require('../../assets/illustrations/cast/you-surfer.png'),
   'you-backpacker': require('../../assets/illustrations/cast/you-backpacker.png'),
+  'you-dancer': require('../../assets/illustrations/cast/you-dancer.png'),
   'you-remote': require('../../assets/illustrations/cast/you-remote.png'),
+  'you-dad': require('../../assets/illustrations/cast/you-dad.png'),
+  'you-doglover': require('../../assets/illustrations/cast/you-doglover.png'),
   'you-chef': require('../../assets/illustrations/cast/you-chef.png'),
   'you-photographer': require('../../assets/illustrations/cast/you-photographer.png'),
   'you-musician': require('../../assets/illustrations/cast/you-musician.png'),

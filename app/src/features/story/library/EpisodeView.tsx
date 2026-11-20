@@ -3,11 +3,15 @@
  *
  * - Header: close (back to the Story home), "Episode 1 · Good morning, Pancho", "Line 3 of 12"
  *   with a progress bar.
- * - The story so far scrolls above the line on screen: the episode's scene as a banner, then the
- *   earlier lines as a conversation (Transcript.tsx, vm.transcript). Whenever the line on screen
- *   changes the view scrolls to it: to the bottom, with the conversation above, or, when the line
- *   and its answers are taller than the view, to the top of the line. The scene scrolls away as
- *   the conversation grows.
+ * - While the episode opens (nothing said yet: line 1 and its feedback), the episode's scene sits
+ *   whole in a band under the header (SceneStrip, about a tenth of the window tall), outside the
+ *   scroll: on a short phone line 1 and its answers fill the view, and the scene would otherwise
+ *   be scrolled away (or cut to a sliver) at the one moment it sets the scene.
+ * - After that the story so far scrolls above the line on screen: the scene as a full-width banner,
+ *   then the earlier lines as a conversation (Transcript.tsx, vm.transcript). Whenever the line on
+ *   screen changes the view scrolls to it: to the bottom, with the conversation above, or, when
+ *   the line and its answers are taller than the view, to the top of the line. The scene scrolls
+ *   away as the conversation grows.
  * - A line: the speaker's avatar and name above dialogue, the line as large text (tap it to show or
  *   hide the English and the pictures of its words), then by cliff mode:
  *   recall: the whole line plays (shown), then the gap with three big options and the mic;
@@ -23,7 +27,7 @@
  * is a UiText, resolved with t(key, params); story text is data.
  */
 import { useEffect, useRef, useState, type ComponentRef, type ReactNode } from 'react';
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { CliffMode, LibraryMeta, LibraryProgress, SentenceView, StoryScreen, TranslationHint } from '@cliffword/engine';
 import { HeatSentence } from '../../../components/words/HeatSentence';
@@ -41,7 +45,7 @@ import { CoachMark, type GuideTip } from './CoachMark';
 import { Feedback } from './Feedback';
 import { LineText } from './LineText';
 import { MicButton } from './MicButton';
-import { SceneBanner, SpeakerLabel, WordPictures } from './Pictures';
+import { SceneBanner, SceneStrip, SpeakerLabel, WordPictures } from './Pictures';
 import { Transcript } from './Transcript';
 import type { LearnerPicture } from '../../../storage/repos/settings';
 
@@ -72,6 +76,14 @@ const FOCUS_MARGIN = spacing.sm;
 /** The speaker's avatar beside the name of the line or question on screen, in points. */
 const FOCUS_AVATAR = 36;
 
+/** The opening scene band: about a tenth of the window tall, within these bounds (points). */
+export const SCENE_STRIP = { share: 0.1, min: 60, max: 96 } as const;
+
+/** The height of the opening scene band for a window `windowHeight` points tall. */
+export function sceneStripHeight(windowHeight: number): number {
+  return Math.round(Math.min(SCENE_STRIP.max, Math.max(SCENE_STRIP.min, windowHeight * SCENE_STRIP.share)));
+}
+
 /**
  * What the learner is looking at: when it changes (a new line, the gap, the feedback, a reply), the
  * view scrolls to the bottom, where it is. Showing the English of an earlier line does not.
@@ -90,6 +102,7 @@ function focusKey(screen: StoryScreen | null, vm: StoryViewModel): string {
 export function EpisodeView({ vm, actions, guide = null, onGuideNext, onGuideSkip, onPickExperience, you }: EpisodeViewProps) {
   const { t } = useI18n();
   const pair = usePairPack();
+  const { height: windowHeight } = useWindowDimensions();
   const language = languageName(t, pair.target);
   const [typing, setTyping] = useState(false);
   const screen = vm.screen;
@@ -107,6 +120,8 @@ export function EpisodeView({ vm, actions, guide = null, onGuideNext, onGuideSki
   const lib = screen?.meta.library;
   const inEpisode = screen !== null && IN_EPISODE.has(screen.kind) && lib !== undefined;
   const transcript = inEpisode && vm.transcript && vm.transcript.storyId === lib?.storyId ? vm.transcript : null;
+  // Nothing said yet: the scene stays in view in the band under the header.
+  const opening = inEpisode && (transcript?.entries.length ?? 0) === 0;
   // The view follows the line on screen when it changes, and while it lays out: the bottom, unless
   // that would hide the top of the line (then the line's top, with a little room above).
   const scroll = useRef<ComponentRef<typeof ScrollView>>(null);
@@ -267,6 +282,7 @@ export function EpisodeView({ vm, actions, guide = null, onGuideNext, onGuideSki
   return (
     <SafeAreaView edges={['left', 'right', 'bottom']} style={styles.root} testID="episode-screen">
       <EpisodeHeader screen={screen} library={vm.library ?? null} onClose={actions.closeEpisode} busy={vm.busy} />
+      {opening && lib ? <SceneStrip trackId={lib.track} episode={lib.episode} height={sceneStripHeight(windowHeight)} /> : null}
       <ScrollView
         ref={scroll}
         contentContainerStyle={styles.content}
@@ -281,7 +297,7 @@ export function EpisodeView({ vm, actions, guide = null, onGuideNext, onGuideSki
         }}
         testID="episode-scroll"
       >
-        {inEpisode && lib ? (
+        {inEpisode && lib && !opening ? (
           <View style={styles.story} testID="episode-story-so-far">
             <SceneBanner trackId={lib.track} episode={lib.episode} />
             {transcript ? <Transcript transcript={transcript} you={you} /> : null}

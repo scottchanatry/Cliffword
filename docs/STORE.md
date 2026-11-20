@@ -445,7 +445,7 @@ Needs a 64-bit (arm64) phone and about 1.1 GB of storage for the language model,
 | Government app | No | |
 | Financial features | None | |
 | Health | None | |
-| Foreground service permissions | not asked | The merged manifest has `INTERNET`, `RECORD_AUDIO`, `CAMERA` (the selfie for the learner's picture) and `VIBRATE` only |
+| Foreground service permissions | not asked | No foreground-service permission. The merged manifest has `INTERNET`, `RECORD_AUDIO`, `CAMERA` (the selfie for the learner's picture), `VIBRATE`, `ACCESS_NETWORK_STATE` and `ACCESS_WIFI_STATE` (expo-network, the Wi-Fi check), and androidx.core's signature-only `app.cliffword.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION`; confirm with `aapt2 dump permissions` on the EAS build before filling this in |
 | Account deletion | not asked | No accounts |
 
 ### Content rating (IARC)
@@ -494,9 +494,14 @@ Privacy"). Android specifics:
   when the user has device backup on. That backup goes to the user's own Google account and is
   made by Android, not by the app.
 - Photos: the learner's optional selfie or photo is processed only on the device (Play's data
-  safety form covers data sent off the device), so "Photos" is not declared. The camera intent and
-  the system photo picker need only `CAMERA`; `READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO` and the
-  storage permissions stay in `blockedPermissions`.
+  safety form covers data sent off the device), so "Photos" is not declared. On Android 10 and
+  later the camera intent needs only `CAMERA` and the system photo picker needs nothing;
+  `READ_MEDIA_IMAGES`, `READ_MEDIA_VIDEO` and the storage permissions stay in
+  `blockedPermissions`. On Android 7 to 9 expo-image-picker's camera would also need
+  `WRITE_EXTERNAL_STORAGE`, so the app offers only "Choose a photo" there. The camera is
+  optional: `android.hardware.camera` and `android.hardware.camera.autofocus` are declared
+  `android:required="false"` (cliffword-native plugin), so Play does not hide the app from
+  devices without an autofocus rear camera; check the device catalog after the first upload.
 
 ### AI-generated content
 

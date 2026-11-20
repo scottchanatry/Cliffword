@@ -38,8 +38,8 @@ function stringsOf(x: unknown, out: string[] = []): string[] {
   return out;
 }
 
-/** Nothing the learner sees or hears may carry a variant token or a stray brace. */
-function expectClean(step: StoryStep | StoryScreen, where: string): void {
+/** Nothing the learner sees or hears (a step, a screen, the story so far) may carry a variant token or a stray brace. */
+function expectClean(step: StoryStep | StoryScreen | { transcript: unknown }, where: string): void {
   const all = stringsOf(step);
   const bad = all.filter((t) => /[{}]/.test(t) || /\b(you|partner)[:.][a-z]/i.test(t));
   expect(bad, where).toEqual([]);
